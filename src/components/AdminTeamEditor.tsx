@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  FEE_PER_ANGLER_CENTS,
+  amountDueCents,
   MAX_ANGLERS,
   MIN_ANGLERS,
+  PAID_SIDE_POTS,
+  SIDE_POT_BUY_IN_CENTS,
+  type SidePotId,
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 
@@ -28,6 +31,7 @@ type Props = {
     licenseConfirmed: boolean;
     paymentStatus: "UNPAID" | "PAID";
     anglers: AnglerDraft[];
+    sidePots: SidePotId[];
   };
 };
 
@@ -59,6 +63,9 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
       ? initial.anglers
       : [emptyAngler(), emptyAngler()],
   );
+  const [sidePots, setSidePots] = useState<SidePotId[]>(
+    initial?.sidePots ?? [],
+  );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -80,7 +87,14 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
       licenseConfirmed,
       paymentStatus,
       anglers,
+      sidePots,
     };
+  }
+
+  function toggleSidePot(id: SidePotId) {
+    setSidePots((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
+    );
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -273,8 +287,31 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
             </button>
           </div>
         ))}
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="font-display text-xl text-wave">Side pots</h3>
         <p className="text-sm text-ink/60">
-          Due: {formatUsd(FEE_PER_ANGLER_CENTS * anglers.length)}
+          {formatUsd(SIDE_POT_BUY_IN_CENTS)} per team, per pot.
+        </p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {PAID_SIDE_POTS.map((pot) => (
+            <label
+              key={pot.id}
+              className="flex items-center gap-2 rounded-md border border-[var(--line)] px-3 py-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={sidePots.includes(pot.id)}
+                onChange={() => toggleSidePot(pot.id)}
+                className="accent-sea"
+              />
+              {pot.name}
+            </label>
+          ))}
+        </div>
+        <p className="text-sm text-ink/60">
+          Due: {formatUsd(amountDueCents(anglers.length, sidePots.length))}
         </p>
       </div>
 

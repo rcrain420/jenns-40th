@@ -1,6 +1,12 @@
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
-import { EVENT, getVenmoPayUrl, VENMO_HANDLE } from "@/lib/config";
+import {
+  EVENT,
+  getVenmoPayUrl,
+  PAID_SIDE_POTS,
+  SIDE_POT_BUY_IN_CENTS,
+  VENMO_HANDLE,
+} from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { formatUsd } from "@/lib/money";
 
@@ -21,7 +27,13 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
 
   if (!team) notFound();
 
-  const venmoNote = `${team.teamName} — tournament`;
+  const chosenPots = PAID_SIDE_POTS.filter((pot) =>
+    team.sidePots.includes(pot.id),
+  );
+  const venmoNote = [
+    `${team.teamName} — tournament`,
+    ...chosenPots.map((pot) => pot.noteLabel),
+  ].join(" + ");
   const venmoPayUrl = getVenmoPayUrl({
     amountCents: team.amountDueCents,
     note: venmoNote,
@@ -38,7 +50,13 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           <span className="font-semibold text-coral">
             {formatUsd(team.amountDueCents)}
           </span>{" "}
-          ({team.anglers.length} anglers)
+          ({team.anglers.length} anglers
+          {team.sidePots.length > 0
+            ? ` + ${team.sidePots.length} side pot${
+                team.sidePots.length > 1 ? "s" : ""
+              }`
+            : ""}
+          )
         </>
       }
     >
@@ -55,11 +73,15 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             >
               {VENMO_HANDLE}
             </a>
-            . In the Venmo note, include your{" "}
-            <strong>team name</strong> and whether the payment is for the{" "}
-            <strong>tournament</strong> or which <strong>side pot(s)</strong>{" "}
-            (heaviest spotted seatrout, blackjack redfish, and/or most spots) so
-            we can match it correctly.
+            . Use the note below so we can match your payment — it names your{" "}
+            <strong>team</strong>
+            {chosenPots.length > 0 ? (
+              <>
+                {" "}
+                and the <strong>side pot(s)</strong> you entered
+              </>
+            ) : null}
+            .
           </p>
 
           <div className="mt-6 flex flex-col items-center gap-4 border border-wave/15 bg-mist/60 px-6 py-8 text-center">
@@ -69,34 +91,35 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             <div className="max-w-sm space-y-3 text-left text-sm text-ink/75">
               <div>
                 <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
-                  Tournament note
+                  Venmo note
                 </p>
                 <p className="mt-1.5 border border-wave/15 bg-paper px-3 py-2.5 font-mono text-ink">
                   {venmoNote}
                 </p>
               </div>
-              <div>
-                <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
-                  Side pot notes
+              {chosenPots.length > 0 ? (
+                <div>
+                  <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
+                    Side pots included
+                  </p>
+                  <ul className="mt-1.5 space-y-1.5 font-mono text-ink">
+                    {chosenPots.map((pot) => (
+                      <li
+                        key={pot.id}
+                        className="border border-wave/15 bg-paper px-3 py-2"
+                      >
+                        {pot.name} — {formatUsd(SIDE_POT_BUY_IN_CENTS)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-ink/60">
+                  No side pots selected — you can still join any of them via
+                  Venmo at Friday&apos;s captain&apos;s meeting (
+                  {formatUsd(SIDE_POT_BUY_IN_CENTS)} per team, per pot).
                 </p>
-                <ul className="mt-1.5 space-y-1.5 font-mono text-ink">
-                  <li className="border border-wave/15 bg-paper px-3 py-2">
-                    {team.teamName} — heaviest trout
-                  </li>
-                  <li className="border border-wave/15 bg-paper px-3 py-2">
-                    {team.teamName} — blackjack redfish
-                  </li>
-                  <li className="border border-wave/15 bg-paper px-3 py-2">
-                    {team.teamName} — most spots
-                  </li>
-                  <li className="border border-wave/15 bg-paper px-3 py-2">
-                    {team.teamName} — trout + blackjack
-                  </li>
-                </ul>
-                <p className="mt-2 text-ink/60">
-                  Name every side pot in the note when paying for more than one.
-                </p>
-              </div>
+              )}
             </div>
             <a
               href={venmoPayUrl}

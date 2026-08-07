@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BragBoard } from "@/components/BragBoard";
 import { Countdown } from "@/components/Countdown";
+import { PotBoard } from "@/components/PotBoard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { listBragBoardCatches } from "@/lib/catches";
 import {
@@ -10,6 +11,7 @@ import {
   MAX_ANGLERS,
   remainingUntil,
 } from "@/lib/config";
+import { getPotTotals } from "@/lib/pots";
 import { getRegistrationAvailability } from "@/lib/registration";
 
 export const dynamic = "force-dynamic";
@@ -28,9 +30,10 @@ const FRIDAY_BULLETS = [
 ] as const;
 
 export default async function HomePage() {
-  const [availability, bragRows] = await Promise.all([
+  const [availability, bragRows, potTotals] = await Promise.all([
     getRegistrationAvailability(),
     listBragBoardCatches(5),
+    getPotTotals(),
   ]);
 
   const countdownTarget = new Date(EVENT.countdownTargetIso);
@@ -45,12 +48,11 @@ export default async function HomePage() {
       {/* Hero — composed poster art carries the title treatment */}
       <section className="relative overflow-hidden bg-[#e8d7b4]">
         <h1 className="sr-only">
-          {EVENT.heroScriptTop} {EVENT.heroDisplay} {EVENT.heroScriptBottom} —{" "}
-          {EVENT.heroKicker}
+          Official-ish Fishing Tournament — {EVENT.heroKicker}
         </h1>
         <Image
-          src="/brand/bay-bash-hero.png"
-          alt="Jenn's 40th Birthday Bay Bash — official-ish fishing tournament at Boatmen's Cove Harbor, Rockport, Texas, October 9–10, 2026"
+          src="/brand/hero-tournament-v2.png"
+          alt="Official-ish Fishing Tournament — Jenn's 40th Birthday Bay Bash at Boatmen's Cove Harbor, Rockport, Texas, October 9–10, 2026"
           width={2048}
           height={1152}
           priority
@@ -105,9 +107,14 @@ export default async function HomePage() {
           <h2 className="font-display border-b-2 border-sun pb-3 text-[1.375rem] tracking-[0.04em] md:text-[1.875rem]">
             Friday, October 9
           </h2>
-          <p className="font-label mt-5 text-[1.25rem] tracking-[0.1em] text-sun md:text-[1.625rem]">
-            Captain&apos;s Meeting
-          </p>
+          <div className="mt-5">
+            <p className="font-label text-[0.95rem] tracking-[0.12em] text-sun md:text-[1.25rem]">
+              Captain&apos;s Meeting
+            </p>
+            <p className="font-display text-[1.75rem] tracking-[0.02em] md:text-[2.5rem]">
+              7:00 PM
+            </p>
+          </div>
           <ul className="mt-3.5 flex flex-col gap-3 text-[1.05rem] md:text-[1.125rem]">
             {FRIDAY_BULLETS.map((item) => (
               <li key={item} className="flex gap-3">
@@ -222,6 +229,19 @@ export default async function HomePage() {
             </Link>
           </p>
         </div>
+      </section>
+
+      {/* Pot calculator */}
+      <section className="mx-auto max-w-6xl px-5 pb-8 md:px-11 md:pb-11">
+        <PotBoard totals={potTotals} />
+        <p className="mt-4 text-right text-[0.95rem] md:text-base">
+          <Link
+            href="/pots"
+            className="text-sun underline-offset-2 hover:underline"
+          >
+            Full pot breakdown →
+          </Link>
+        </p>
       </section>
 
       <BragBoard rows={bragRows} />

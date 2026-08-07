@@ -257,8 +257,9 @@ export default function RulesPage() {
             of sleep.
           </p>
           <p>
-            All paid side-pot selections and payments must be completed through
-            Venmo at the captain&apos;s meeting.
+            Paid side pots can be selected during online registration or at the
+            captain&apos;s meeting. All side-pot payments must be completed
+            through Venmo no later than the captain&apos;s meeting.
           </p>
           <p>
             Once the captain&apos;s meeting closes, the paid side pots are closed.
@@ -403,8 +404,10 @@ export default function RulesPage() {
             or protect your Venmo balance.
           </p>
           <p>
-            All side-pot selections and payments must be completed through Venmo
-            at the captain&apos;s meeting on Friday, October 9, 2026.
+            Side pots can be selected during online registration or at the
+            captain&apos;s meeting on Friday, October 9, 2026. All side-pot
+            payments must be completed through Venmo by the end of the
+            captain&apos;s meeting.
           </p>
           <p>
             No side-pot entries or payments will be accepted after the

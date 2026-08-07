@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AdminTeamEditor } from "@/components/AdminTeamEditor";
 import { getAdminSession } from "@/lib/auth";
+import type { SidePotId } from "@/lib/config";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,7 @@ export default async function AdminTeamDetailPage({ params }: Props) {
                 fullName: a.fullName,
                 phone: a.phone ?? "",
               })),
+              sidePots: team.sidePots as SidePotId[],
             }}
           />
         </div>

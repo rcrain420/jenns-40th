@@ -1,11 +1,11 @@
 export const EVENT = {
-  name: "Unofficial Fishing Tournament for Jenn's 40th Birthday",
+  name: "Official-ish Fishing Tournament for Jenn's 40th Birthday",
   shortName: "Jenn's 40th",
-  brandNav: "JENN'S 40TH BAY BASH",
-  heroScriptTop: "Jenn's",
-  heroDisplay: "40th Birthday",
-  heroScriptBottom: "Bay Bash",
-  heroKicker: "Official-Ish Fishing Tournament",
+  brandNav: "OFFICIAL-ISH FISHING TOURNAMENT",
+  heroScriptTop: "Official-ish",
+  heroDisplay: "Fishing Tournament",
+  heroScriptBottom: "",
+  heroKicker: "Jenn's 40th Birthday Bay Bash",
   dateLabel: "October 9–10, 2026",
   dateBand: "OCTOBER 9–10, 2026",
   fridayLabel: "Friday, Oct 9",
@@ -33,6 +33,29 @@ export const MAX_TEAMS = 25;
 export const MIN_ANGLERS = 2;
 export const MAX_ANGLERS = 4;
 export const FEE_PER_ANGLER_CENTS = 7500;
+
+/** Optional paid side pots — $50 per team, per pot. */
+export const SIDE_POT_BUY_IN_CENTS = 5000;
+
+export const PAID_SIDE_POTS = [
+  { id: "trout", name: "Heaviest spotted seatrout", noteLabel: "heaviest trout" },
+  { id: "blackjack", name: "Blackjack redfish", noteLabel: "blackjack redfish" },
+  { id: "spots", name: "Most spots", noteLabel: "most spots" },
+] as const;
+
+export type SidePotId = (typeof PAID_SIDE_POTS)[number]["id"];
+
+export const SIDE_POT_IDS = PAID_SIDE_POTS.map((p) => p.id) as [
+  SidePotId,
+  ...SidePotId[],
+];
+
+/** Main tournament pot payout split. */
+export const MAIN_POT_SPLITS = [
+  { place: "1st", pct: 50 },
+  { place: "2nd", pct: 30 },
+  { place: "3rd", pct: 20 },
+] as const;
 
 /** Venmo handle for registration payments (without @). */
 export const VENMO_USERNAME = "Officialish-Tournament";
@@ -70,8 +93,13 @@ export function isRegistrationOpen(now = new Date()): boolean {
   return now.getTime() < REGISTRATION_CLOSES_AT.getTime();
 }
 
-export function amountDueCents(anglerCount: number): number {
-  return FEE_PER_ANGLER_CENTS * anglerCount;
+export function amountDueCents(
+  anglerCount: number,
+  sidePotCount = 0,
+): number {
+  return (
+    FEE_PER_ANGLER_CENTS * anglerCount + SIDE_POT_BUY_IN_CENTS * sidePotCount
+  );
 }
 
 export function remainingUntil(

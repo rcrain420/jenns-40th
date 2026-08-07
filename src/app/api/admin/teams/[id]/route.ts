@@ -88,7 +88,11 @@ export async function PATCH(request: Request, { params }: Params) {
         notes: input.notes ?? null,
         licenseConfirmed: input.licenseConfirmed,
         paymentStatus: input.paymentStatus,
-        amountDueCents: amountDueCents(input.anglers.length),
+        sidePots: input.sidePots,
+        amountDueCents: amountDueCents(
+          input.anglers.length,
+          input.sidePots.length,
+        ),
         anglers: {
           create: input.anglers.map((a, index) => ({
             fullName: a.fullName,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MAX_ANGLERS, MIN_ANGLERS } from "./config";
+import { MAX_ANGLERS, MIN_ANGLERS, SIDE_POT_IDS } from "./config";
 
 const anglerSchema = z.object({
   fullName: z.string().trim().min(1, "Angler name is required"),
@@ -28,6 +28,10 @@ const teamFieldsSchema = z.object({
     .array(anglerSchema)
     .min(MIN_ANGLERS, `At least ${MIN_ANGLERS} anglers required`)
     .max(MAX_ANGLERS, `At most ${MAX_ANGLERS} anglers allowed`),
+  sidePots: z
+    .array(z.enum(SIDE_POT_IDS))
+    .default([])
+    .transform((pots) => Array.from(new Set(pots))),
 });
 
 function refineBoatContact<T extends z.infer<typeof teamFieldsSchema>>(

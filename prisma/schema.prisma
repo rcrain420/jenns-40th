@@ -24,6 +24,8 @@ model Team {
   licenseConfirmed Boolean
   /// UNPAID | PAID
   paymentStatus    String   @default("UNPAID")
+  /// Paid side pot ids: trout | blackjack | spots
+  sidePots         String[] @default([])
   amountDueCents   Int
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

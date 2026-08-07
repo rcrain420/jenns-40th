@@ -7,6 +7,9 @@ import {
   FEE_PER_ANGLER_CENTS,
   MAX_ANGLERS,
   MIN_ANGLERS,
+  PAID_SIDE_POTS,
+  SIDE_POT_BUY_IN_CENTS,
+  type SidePotId,
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
@@ -49,6 +52,7 @@ export function RegisterForm({
     emptyAngler(),
     emptyAngler(),
   ]);
+  const [sidePots, setSidePots] = useState<SidePotId[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -57,10 +61,18 @@ export function RegisterForm({
   const [suggestingNames, setSuggestingNames] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
 
+  const entryCents = FEE_PER_ANGLER_CENTS * anglers.length;
+  const sidePotCents = SIDE_POT_BUY_IN_CENTS * sidePots.length;
   const total = useMemo(
-    () => formatUsd(FEE_PER_ANGLER_CENTS * anglers.length),
-    [anglers.length],
+    () => formatUsd(entryCents + sidePotCents),
+    [entryCents, sidePotCents],
   );
+
+  function toggleSidePot(id: SidePotId) {
+    setSidePots((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
+    );
+  }
 
   async function suggestTeamNames() {
     setSuggestError(null);
@@ -136,6 +148,7 @@ export function RegisterForm({
           notes,
           licenseConfirmed: licenseConfirmed ? true : false,
           anglers,
+          sidePots,
         }),
       });
 
@@ -473,6 +486,44 @@ export function RegisterForm({
       </div>
 
       <div>
+        <h3 className="font-display text-xl text-wave">
+          Optional side pots
+        </h3>
+        <p className="text-sm text-ink/65">
+          {formatUsd(SIDE_POT_BUY_IN_CENTS)} per team, per pot — enter one,
+          two, or all three. You can also join at Friday&apos;s captain&apos;s
+          meeting.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {PAID_SIDE_POTS.map((pot) => {
+            const checked = sidePots.includes(pot.id);
+            return (
+              <label
+                key={pot.id}
+                className={`cursor-pointer border px-4 py-3 transition ${
+                  checked
+                    ? "border-sun bg-mist"
+                    : "border-wave/20 bg-paper hover:border-sea/50"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleSidePot(pot.id)}
+                  className="sr-only"
+                />
+                <span className="block font-semibold">{pot.name}</span>
+                <span className="mt-1 block text-sm text-ink/65">
+                  {formatUsd(SIDE_POT_BUY_IN_CENTS)} per team
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        {err("sidePots")}
+      </div>
+
+      <div>
         <label className={labelClass} htmlFor="notes">
           Notes (optional)
         </label>
@@ -502,8 +553,13 @@ export function RegisterForm({
         <p className="text-lg">
           Total due: <span className="font-semibold">{total}</span>
           <span className="block text-sm text-ink/60">
-            {formatUsd(FEE_PER_ANGLER_CENTS)} × {anglers.length} anglers · pay
-            via Venmo after submit
+            {formatUsd(FEE_PER_ANGLER_CENTS)} × {anglers.length} anglers
+            {sidePots.length > 0
+              ? ` + ${sidePots.length} side pot${
+                  sidePots.length > 1 ? "s" : ""
+                } (${formatUsd(sidePotCents)})`
+              : ""}{" "}
+            · pay via Venmo after submit
           </span>
         </p>
         <button

@@ -10,6 +10,7 @@ const NAV = [
   { href: "/", label: "Home" },
   { href: "/register", label: "Register" },
   { href: "/rules", label: "Tournament Rules" },
+  { href: "/pots", label: "Pot Total" },
   { href: "/guides", label: "Guides" },
   { href: "/catches", label: "Livewell" },
 ] as const;
@@ -67,7 +68,7 @@ export function SiteHeader({
       >
         <Link
           href="/"
-          className="font-display text-[0.95rem] tracking-[0.08em] md:text-[1.2rem]"
+          className="min-w-0 font-display text-[0.72rem] leading-tight tracking-[0.06em] sm:text-[0.85rem] md:text-[1.05rem] md:tracking-[0.08em]"
         >
           {EVENT.brandNav}
         </Link>
