@@ -1,26 +1,221 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #16354f;
+  --wave: #16354f;
+  --wave-pressed: #0f2739;
+  --sea: #16354f;
+  --foam: #e2695f;
+  --mist: #e3d6b8;
+  --salt: #f0e4c8;
+  --paper: #f6ecd6;
+  --sun: #c1362c;
+  --sun-pressed: #a52b22;
+  --coral: #e2695f;
+  --alert: #a52b22;
+  --rope: #8b6a45;
+  --map: #e3d6b8;
+  --line: rgba(22, 53, 79, 0.2);
+  --background: var(--paper);
+  --foreground: var(--ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ink: var(--ink);
+  --color-wave: var(--wave);
+  --color-wave-pressed: var(--wave-pressed);
+  --color-sea: var(--sea);
+  --color-foam: var(--foam);
+  --color-mist: var(--mist);
+  --color-salt: var(--salt);
+  --color-paper: var(--paper);
+  --color-sun: var(--sun);
+  --color-sun-pressed: var(--sun-pressed);
+  --color-coral: var(--coral);
+  --color-alert: var(--alert);
+  --color-rope: var(--rope);
+  --color-map: var(--map);
+  --font-display: var(--font-display);
+  --font-script: var(--font-script);
+  --font-accent: var(--font-script);
+  --font-label: var(--font-label);
+  --font-sans: var(--font-body);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--paper);
+  background-image: linear-gradient(
+    180deg,
+    #f8efd9 0%,
+    #f6ecd6 45%,
+    #f0e4c8 100%
+  );
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), "Arial Narrow", sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.font-script,
+.font-accent {
+  font-family: var(--font-script), Georgia, cursive;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.font-label {
+  font-family: var(--font-label), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.double-frame {
+  border: 3px double var(--wave);
+}
+
+.rule-red {
+  border: none;
+  border-top: 2px solid var(--sun);
+}
+
+.btn-bay {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display), "Arial Narrow", sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.9rem 1.75rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-bay:focus-visible {
+  outline: 2px solid var(--sun);
+  outline-offset: 2px;
+}
+
+.btn-bay-red {
+  background: var(--sun);
+  color: var(--paper);
+}
+
+.btn-bay-red:hover {
+  background: var(--sun-pressed);
+}
+
+.btn-bay-navy {
+  background: var(--wave);
+  color: var(--paper);
+}
+
+.btn-bay-navy:hover {
+  background: var(--wave-pressed);
+}
+
+.btn-bay-outline {
+  border: 2px solid var(--wave);
+  color: var(--wave);
+  background: transparent;
+  padding: calc(0.9rem - 2px) calc(1.75rem - 2px);
+}
+
+.btn-bay-outline:hover {
+  background: rgba(22, 53, 79, 0.08);
+}
+
+.paper-panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+
+.rope-frame {
+  border: 3px double var(--wave);
+}
+
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+  opacity: 0.9;
+}
+
+.section-banner {
+  display: inline-block;
+  background: var(--wave);
+  color: var(--paper);
+  padding: 0.4rem 1.1rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.section-banner-coral {
+  background: var(--sun);
+  color: var(--paper);
+}
+
+.dash-rule {
+  border: none;
+  border-top: 1px dashed rgba(22, 53, 79, 0.28);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.8s ease-out both;
+}
+
+.animate-rise-delay {
+  animation: rise 0.9s ease-out 0.15s both;
+}
+
+.animate-rise-delay-2 {
+  animation: rise 0.9s ease-out 0.3s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rise-delay,
+  .animate-rise-delay-2 {
+    animation: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--sun);
+  outline-offset: 2px;
 }

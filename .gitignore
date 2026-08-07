@@ -31,7 +31,19 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env*.local
+.deploy-secrets.json
+
+# local sqlite
+/prisma/*.db
+/prisma/*.db-journal
+/dev.db
+/dev.db-journal
+
+# angler catch photos
+/public/uploads/catches/*
+!/public/uploads/catches/.gitkeep
 
 # vercel
 .vercel

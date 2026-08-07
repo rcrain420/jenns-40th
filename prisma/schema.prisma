@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Neon pooled URL for queries; unpooled for migrations (set on Vercel)
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model Team {
+  id               String   @id @default(cuid())
+  teamName         String
+  /// GUIDED | NON_GUIDED
+  boatType         String
+  captainName      String?
+  captainPhone     String?
+  contactName      String?
+  contactPhone     String?
+  contactEmail     String?
+  registrantEmail  String
+  notes            String?
+  licenseConfirmed Boolean
+  /// UNPAID | PAID
+  paymentStatus    String   @default("UNPAID")
+  amountDueCents   Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  anglers          Angler[]
+}
+
+model Angler {
+  id        String         @id @default(cuid())
+  teamId    String
+  team      Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  fullName  String
+  phone     String?
+  sortOrder Int
+  catches   FishCatch[]
+  comments  CatchComment[]
+
+  @@index([teamId])
+}
+
+model FishCatch {
+  id           String         @id @default(cuid())
+  anglerId     String
+  angler       Angler         @relation(fields: [anglerId], references: [id], onDelete: Cascade)
+  photoPath    String
+  breed        String
+  lengthInches Float
+  weightLbs    Float
+  confidence   Float?
+  aiNotes      String?
+  aiProvider   String
+  createdAt    DateTime       @default(now())
+  comments     CatchComment[]
+
+  @@index([anglerId])
+  @@index([createdAt])
+}
+
+model CatchComment {
+  id        String    @id @default(cuid())
+  catchId   String
+  catch     FishCatch @relation(fields: [catchId], references: [id], onDelete: Cascade)
+  anglerId  String
+  angler    Angler    @relation(fields: [anglerId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime  @default(now())
+
+  @@index([catchId])
+  @@index([anglerId])
+  @@index([createdAt])
+}
