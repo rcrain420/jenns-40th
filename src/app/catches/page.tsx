@@ -8,7 +8,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export default async function CatchesPage() {
+export default async function CatchesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ unlocked?: string | string[] }>;
+}) {
   const [anglers, groups] = await Promise.all([
     listAnglersForCatchLog(),
     listCatchesGroupedByAngler(),
@@ -42,6 +46,10 @@ export default async function CatchesPage() {
   }));
 
   const totalFish = gridAnglers.reduce((n, a) => n + a.catches.length, 0);
+  const params = await searchParams;
+  const justUnlocked =
+    (Array.isArray(params.unlocked) ? params.unlocked[0] : params.unlocked) ===
+    "1";
 
   return (
     <PageShell
@@ -50,6 +58,15 @@ export default async function CatchesPage() {
       description="Snap a photo, fire up the fleet, and keep the trash talk flowing. AI estimates are for fun — not official weigh-in."
     >
       <div className="space-y-12">
+        {justUnlocked ? (
+          <p
+            className="border border-sea/30 bg-mist/80 px-5 py-4 text-ink/80"
+            role="status"
+          >
+            You&apos;re unlocked — log catches, leave comments, and try AI team
+            names on this device. No PIN needed.
+          </p>
+        ) : null}
         <aside className="border border-sun/30 bg-mist/70 px-5 py-5 md:px-6">
           <p className="font-display text-xs uppercase tracking-[0.14em] text-sun">
             For fun · Not weigh-in

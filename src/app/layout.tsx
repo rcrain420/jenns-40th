@@ -5,7 +5,7 @@ import {
   Barlow_Condensed,
   Kaushan_Script,
 } from "next/font/google";
-import { EVENT } from "@/lib/config";
+import { EVENT, getAppUrl } from "@/lib/config";
 import "./globals.css";
 
 const display = Anton({
@@ -33,14 +33,7 @@ const body = Barlow({
 });
 
 function resolveMetadataBase(): URL {
-  const explicit = process.env.NEXT_PUBLIC_APP_URL;
-  if (explicit) {
-    return new URL(explicit);
-  }
-  if (process.env.VERCEL_URL) {
-    return new URL(`https://${process.env.VERCEL_URL}`);
-  }
-  return new URL("https://officialishfishingtournament.com");
+  return new URL(getAppUrl());
 }
 
 const siteDescription = `${EVENT.name} — ${EVENT.dateLabel} at ${EVENT.locationLabel}. Register your team.`;

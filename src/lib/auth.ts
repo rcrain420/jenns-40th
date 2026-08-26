@@ -1,6 +1,12 @@
 import { timingSafeEqual } from "crypto";
 import { getIronSession, SessionOptions } from "iron-session";
 import { cookies } from "next/headers";
+import {
+  checkEventPin,
+  isEventPinConfigured,
+} from "./event-unlock-token";
+
+export { checkEventPin, isEventPinConfigured };
 
 export type AdminSession = {
   isAdmin: boolean;
@@ -78,19 +84,27 @@ export async function requireAdmin() {
   return session;
 }
 
+export async function grantEventUnlock() {
+  const session = await getEventSession();
+  session.unlocked = true;
+  await session.save();
+  return session;
+}
+
 export async function requireEventUnlock() {
+  const session = await getEventSession();
+  if (session.unlocked) {
+    return session;
+  }
   if (!isEventPinConfigured()) {
-    // Local/dev convenience: no PIN configured → allow. Production must set EVENT_PIN.
+    // Local/dev convenience: no PIN configured → allow. Production stays locked
+    // until a magic-link or PIN unlock sets the event session.
     if (process.env.NODE_ENV === "production") {
       return null;
     }
     return { unlocked: true };
   }
-  const session = await getEventSession();
-  if (!session.unlocked) {
-    return null;
-  }
-  return session;
+  return null;
 }
 
 export function checkAdminPassword(password: string): boolean {
@@ -101,14 +115,3 @@ export function checkAdminPassword(password: string): boolean {
   return safeEqualSecret(password, expected);
 }
 
-export function checkEventPin(pin: string): boolean {
-  const expected = process.env.EVENT_PIN;
-  if (!expected) {
-    return false;
-  }
-  return safeEqualSecret(pin, expected);
-}
-
-export function isEventPinConfigured(): boolean {
-  return Boolean(process.env.EVENT_PIN);
-}

@@ -90,7 +90,7 @@ export function RegisterForm({
       if (!res.ok) {
         setSuggestError(
           res.status === 401
-            ? "Unlock with the event PIN below, then try again."
+            ? "Unlock with your email link or the event PIN below, then try again."
             : (data.error ?? "Could not suggest names"),
         );
         return;
@@ -210,7 +210,7 @@ export function RegisterForm({
         <div className="mt-4 space-y-3">
           <EventPinGate
             title="Unlock AI name suggestions"
-            description="Enter the shared event PIN to use AI team-name ideas."
+            description="Use the link from your registration email, or enter the event PIN to use AI team-name ideas."
           >
           <div>
             <label className={labelClass} htmlFor="nameHint">
@@ -399,7 +399,7 @@ export function RegisterForm({
 
       <div>
         <label className={labelClass} htmlFor="registrantEmail">
-          Your email (for confirmation)
+          Your email (confirmation + unlock link)
         </label>
         <input
           id="registrantEmail"

@@ -91,7 +91,7 @@ export function CatchComments({ catchId, anglers, initialComments }: Props) {
       {anglers.length > 0 && (
         <EventPinGate
           title="Unlock comments"
-          description="Enter the shared event PIN to post."
+          description="Use the link from your registration email, or enter the event PIN to post."
         >
           <form onSubmit={onSubmit} className="space-y-2">
             <select

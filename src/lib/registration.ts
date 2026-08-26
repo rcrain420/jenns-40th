@@ -4,6 +4,7 @@ import {
   amountDueCents,
   isRegistrationOpen,
 } from "./config";
+import { normalizeUnlockEmail } from "./event-unlock-token";
 import type { RegistrationInput } from "./validation";
 
 export async function getTeamCount(): Promise<number> {
@@ -67,4 +68,21 @@ export async function createTeamRegistration(input: RegistrationInput) {
   });
 
   return { ok: true as const, team };
+}
+
+export async function registrationMatchesUnlock(input: {
+  teamId: string;
+  email: string;
+}): Promise<boolean> {
+  try {
+    const team = await prisma.team.findUnique({
+      where: { id: input.teamId },
+      select: { registrantEmail: true },
+    });
+    if (!team) return false;
+    return normalizeUnlockEmail(team.registrantEmail) === input.email;
+  } catch (error) {
+    console.error("[unlock] registration lookup failed", error);
+    return false;
+  }
 }

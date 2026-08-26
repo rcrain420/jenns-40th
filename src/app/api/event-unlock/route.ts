@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
+import { grantEventUnlock, getEventSession, isEventPinConfigured } from "@/lib/auth";
 import {
-  checkEventPin,
-  getEventSession,
-  isEventPinConfigured,
-} from "@/lib/auth";
+  evaluateEventPin,
+  evaluateEventUnlockToken,
+  readEventUnlockInput,
+} from "@/lib/event-unlock-token";
+import { registrationMatchesUnlock } from "@/lib/registration";
 
 export async function POST(request: Request) {
-  if (!isEventPinConfigured()) {
-    return NextResponse.json(
-      { error: "Event PIN is not configured" },
-      { status: 503 },
-    );
-  }
-
   let body: unknown;
   try {
     body = await request.json();
@@ -20,27 +15,44 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const pin =
-    typeof body === "object" &&
-    body !== null &&
-    "pin" in body &&
-    typeof (body as { pin: unknown }).pin === "string"
-      ? (body as { pin: string }).pin.trim()
-      : "";
+  const { pin, token } = readEventUnlockInput(body);
 
-  if (!pin) {
-    return NextResponse.json({ error: "PIN is required" }, { status: 400 });
+  if (token.trim()) {
+    const evaluated = evaluateEventUnlockToken(token);
+    if (!evaluated.ok) {
+      return NextResponse.json(
+        { error: evaluated.error },
+        { status: evaluated.status },
+      );
+    }
+    if (
+      !evaluated.teamId ||
+      !evaluated.email ||
+      !(await registrationMatchesUnlock({
+        teamId: evaluated.teamId,
+        email: evaluated.email,
+      }))
+    ) {
+      return NextResponse.json(
+        { error: "This unlock link is not valid." },
+        { status: 401 },
+      );
+    }
+
+    await grantEventUnlock();
+    return NextResponse.json({ ok: true, via: "link" });
   }
 
-  if (!checkEventPin(pin)) {
-    return NextResponse.json({ error: "Incorrect PIN" }, { status: 401 });
+  const evaluated = evaluateEventPin(pin);
+  if (!evaluated.ok) {
+    return NextResponse.json(
+      { error: evaluated.error },
+      { status: evaluated.status },
+    );
   }
 
-  const session = await getEventSession();
-  session.unlocked = true;
-  await session.save();
-
-  return NextResponse.json({ ok: true });
+  await grantEventUnlock();
+  return NextResponse.json({ ok: true, via: "pin" });
 }
 
 export async function GET() {
