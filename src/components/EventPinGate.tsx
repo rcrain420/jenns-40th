@@ -16,8 +16,8 @@ type Props = {
 
 export function EventPinGate({
   children,
-  title = "Event PIN required",
-  description = "Enter the shared tournament PIN to continue.",
+  title = "Unlock required",
+  description = "Use the link from your registration email, or enter the event PIN.",
 }: Props) {
   const [state, setState] = useState<UnlockState>("loading");
   const [pin, setPin] = useState("");
@@ -82,7 +82,8 @@ export function EventPinGate({
   if (state === "unconfigured") {
     return (
       <p className="text-sm text-alert" role="alert">
-        Event PIN is not configured. Set EVENT_PIN on the server.
+        Catch logging isn&apos;t available yet. Check back shortly, or ask an
+        organizer.
       </p>
     );
   }

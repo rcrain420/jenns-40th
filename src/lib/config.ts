@@ -89,6 +89,18 @@ export function getVenmoPayUrl(opts?: {
   return `https://venmo.com/?${params.toString()}`;
 }
 
+/** Canonical public origin for emails, metadata, and magic links. */
+export function getAppUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (explicit) {
+    return new URL(explicit).origin;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return "https://officialishfishingtournament.com";
+}
+
 export function isRegistrationOpen(now = new Date()): boolean {
   return now.getTime() < REGISTRATION_CLOSES_AT.getTime();
 }

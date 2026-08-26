@@ -119,7 +119,7 @@ export function CatchLogger({ anglers }: Props) {
   return (
     <EventPinGate
       title="Unlock catch logging"
-      description="Enter the shared event PIN to log catches."
+      description="Use the link from your registration email, or enter the event PIN to log catches."
     >
     <form
       onSubmit={onSubmit}

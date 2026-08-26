@@ -12,7 +12,8 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 - Catch log: anglers photograph fish; AI estimates breed, length, and weight; board grouped by angler
 - Catch alerts: in-app notification bell + optional browser notifications on `/catches`
 - Comments on each catch photo
-- Shared event PIN gates catch uploads, comments, and AI name suggestions
+- Shared event PIN gates catch uploads, comments, and AI name suggestions (fallback)
+- Registration confirmation email includes a one-tap magic link that unlocks the same event session
 - Admin console: dashboard, search/filter, edit/delete, mark paid, CSV export
 
 ## Stack
@@ -37,7 +38,7 @@ Open [http://localhost:3000](http://localhost:3000).
 Default admin password (from `.env`): `changeme`  
 Admin: [http://localhost:3000/admin](http://localhost:3000/admin)
 
-Set `EVENT_PIN` in `.env` to exercise the catch/comment/AI unlock flow. Without it, those writes stay open in development only.
+Set `EVENT_PIN` in `.env` to exercise the catch/comment/AI unlock flow. Without it, those writes stay open in development only. Registration confirmation emails include a magic link that sets the same event session cookie; the PIN remains the fallback.
 
 ### Environment variables
 
@@ -52,7 +53,9 @@ Set `EVENT_PIN` in `.env` to exercise the catch/comment/AI unlock flow. Without 
 | `OPENAI_API_KEY` | Optional; enables AI fish estimates and team-name suggestions |
 | `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` |
 | `OPENAI_TEAM_NAME_MODEL` | Optional; defaults to vision model or `gpt-4o-mini` |
-| `NEXT_PUBLIC_APP_URL` | Optional canonical site URL for metadata |
+| `NEXT_PUBLIC_APP_URL` | Optional canonical site URL for metadata and magic links |
+| `RESEND_API_KEY` | Optional; sends registration confirmation + unlock emails |
+| `RESEND_FROM` | Optional Resend from address (verified domain) |
 
 ### Venmo
 
@@ -95,3 +98,4 @@ npm run db:up
 | `npm run build` | Generate Prisma client, migrate deploy, production build |
 | `npm run db:migrate` | Run Prisma migrations (dev) |
 | `npm run db:up` | Start local Postgres (Docker) |
+| `npm test` | Token, magic-link, and PIN unlock unit tests |
