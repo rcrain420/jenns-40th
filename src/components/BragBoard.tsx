@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { guestSafeAiNotes } from "@/lib/guest-copy";
 
 export type BragRow = {
   id: string;
@@ -53,8 +54,9 @@ export function BragBoard({ rows }: { rows: BragRow[] }) {
           <ul className="mt-2 flex flex-col">
             {rows.map((row, index) => {
               const rank = String(index + 1).padStart(2, "0");
+              const safeNote = guestSafeAiNotes(row.note);
               const detail = `${formatLength(row.lengthInches)}" ${row.breed}${
-                row.note ? ` · ${row.note}` : ""
+                safeNote ? ` · ${safeNote}` : ""
               }`;
               return (
                 <li

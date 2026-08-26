@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import type { PublicUser } from "@/lib/users";
+import { guestSafeAiNotes } from "@/lib/guest-copy";
 import { AuthForm } from "./AuthForm";
 import { ConfirmEmailPanel } from "./ConfirmEmailPanel";
 
@@ -180,59 +181,70 @@ export function CatchLogger({ viewer }: Props) {
       </button>
 
       {lastCatch && (
-        <div className="animate-rise border-t border-[var(--line)] pt-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-sea">
-            Fun estimate logged
-          </p>
-          <p className="mt-1 text-sm text-ink/60">
-            Not for weigh-in. Just enough data to start an argument.
-          </p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-[140px_1fr]">
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-mist">
-              <Image
-                src={lastCatch.photoPath}
-                alt={lastCatch.breed}
-                fill
-                className="object-cover"
-                sizes="140px"
-                unoptimized
-              />
-            </div>
-            <dl className="grid grid-cols-2 gap-3 text-sm sm:text-base">
-              <div>
-                <dt className="text-ink/55">Breed</dt>
-                <dd className="font-semibold text-wave">{lastCatch.breed}</dd>
-              </div>
-              <div>
-                <dt className="text-ink/55">Length</dt>
-                <dd className="font-semibold text-wave">
-                  {lastCatch.lengthInches}&quot;
-                </dd>
-              </div>
-              <div>
-                <dt className="text-ink/55">Weight</dt>
-                <dd className="font-semibold text-wave">
-                  {lastCatch.weightLbs} lb
-                </dd>
-              </div>
-              <div>
-                <dt className="text-ink/55">Confidence</dt>
-                <dd className="font-semibold text-wave">
-                  {lastCatch.confidence == null
-                    ? "—"
-                    : `${Math.round(lastCatch.confidence * 100)}%`}
-                </dd>
-              </div>
-            </dl>
-          </div>
-          {lastCatch.aiNotes && (
-            <p className="mt-3 text-sm text-ink/65">{lastCatch.aiNotes}</p>
-          )}
-          {notifyNote && (
-            <p className="mt-3 text-sm text-sea">{notifyNote}</p>
-          )}
-        </div>
+        <LoggedCatchSummary fish={lastCatch} notifyNote={notifyNote} />
       )}
     </form>
+  );
+}
+
+function LoggedCatchSummary({
+  fish,
+  notifyNote,
+}: {
+  fish: LoggedCatch;
+  notifyNote: string | null;
+}) {
+  const safeNotes = guestSafeAiNotes(fish.aiNotes);
+  return (
+    <div className="animate-rise border-t border-[var(--line)] pt-6">
+      <p className="text-sm uppercase tracking-[0.18em] text-sea">
+        Fun estimate logged
+      </p>
+      <p className="mt-1 text-sm text-ink/60">
+        Not for weigh-in. Just enough data to start an argument.
+      </p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-[140px_1fr]">
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-mist">
+          <Image
+            src={fish.photoPath}
+            alt={fish.breed}
+            fill
+            className="object-cover"
+            sizes="140px"
+            unoptimized
+          />
+        </div>
+        <dl className="grid grid-cols-2 gap-3 text-sm sm:text-base">
+          <div>
+            <dt className="text-ink/55">Breed</dt>
+            <dd className="font-semibold text-wave">{fish.breed}</dd>
+          </div>
+          <div>
+            <dt className="text-ink/55">Length</dt>
+            <dd className="font-semibold text-wave">
+              {fish.lengthInches}&quot;
+            </dd>
+          </div>
+          <div>
+            <dt className="text-ink/55">Weight</dt>
+            <dd className="font-semibold text-wave">
+              {fish.weightLbs} lb
+            </dd>
+          </div>
+          <div>
+            <dt className="text-ink/55">Confidence</dt>
+            <dd className="font-semibold text-wave">
+              {fish.confidence == null
+                ? "—"
+                : `${Math.round(fish.confidence * 100)}%`}
+            </dd>
+          </div>
+        </dl>
+      </div>
+      {safeNotes && (
+        <p className="mt-3 text-sm text-ink/65">{safeNotes}</p>
+      )}
+      {notifyNote && <p className="mt-3 text-sm text-sea">{notifyNote}</p>}
+    </div>
   );
 }
