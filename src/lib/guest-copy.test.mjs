@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import {
   GUEST_AI_UNAVAILABLE_NOTE,
   guestSafeAiNotes,
-} from "./guest-copy";
+} from "./guest-copy.ts";
 
 const LEAKED =
   "AI estimation unavailable (set OPENAI_API_KEY). Logged with placeholder estimates — edit after weigh-in if needed.";
@@ -27,7 +27,9 @@ describe("guestSafeAiNotes", () => {
       GUEST_AI_UNAVAILABLE_NOTE,
     );
     assert.equal(
-      guestSafeAiNotes("Error: boom\n    at estimateFishFromPhoto (fish-ai.ts:80:5)"),
+      guestSafeAiNotes(
+        "Error: boom\n    at estimateFishFromPhoto (fish-ai.ts:80:5)",
+      ),
       GUEST_AI_UNAVAILABLE_NOTE,
     );
   });
