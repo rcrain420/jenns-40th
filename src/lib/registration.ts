@@ -74,10 +74,15 @@ export async function registrationMatchesUnlock(input: {
   teamId: string;
   email: string;
 }): Promise<boolean> {
-  const team = await prisma.team.findUnique({
-    where: { id: input.teamId },
-    select: { registrantEmail: true },
-  });
-  if (!team) return false;
-  return normalizeUnlockEmail(team.registrantEmail) === input.email;
+  try {
+    const team = await prisma.team.findUnique({
+      where: { id: input.teamId },
+      select: { registrantEmail: true },
+    });
+    if (!team) return false;
+    return normalizeUnlockEmail(team.registrantEmail) === input.email;
+  } catch (error) {
+    console.error("[unlock] registration lookup failed", error);
+    return false;
+  }
 }
