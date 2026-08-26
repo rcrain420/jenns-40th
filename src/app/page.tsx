@@ -4,6 +4,7 @@ import { BragBoard } from "@/components/BragBoard";
 import { Countdown } from "@/components/Countdown";
 import { PotBoard } from "@/components/PotBoard";
 import { SiteHeader } from "@/components/SiteHeader";
+import { getCurrentUser } from "@/lib/auth";
 import { listBragBoardCatches } from "@/lib/catches";
 import {
   EVENT,
@@ -30,10 +31,11 @@ const FRIDAY_BULLETS = [
 ] as const;
 
 export default async function HomePage() {
-  const [availability, bragRows, potTotals] = await Promise.all([
+  const [availability, bragRows, potTotals, account] = await Promise.all([
     getRegistrationAvailability(),
     listBragBoardCatches(5),
     getPotTotals(),
+    getCurrentUser(),
   ]);
 
   const countdownTarget = new Date(EVENT.countdownTargetIso);
@@ -43,7 +45,7 @@ export default async function HomePage() {
 
   return (
     <main className="flex-1 bg-paper text-wave">
-      <SiteHeader />
+      <SiteHeader account={account} />
 
       {/* Hero — composed poster art carries the title treatment */}
       <section className="relative overflow-hidden bg-[#e8d7b4]">

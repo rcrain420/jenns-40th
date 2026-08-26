@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { EVENT } from "@/lib/config";
+import { firstName } from "@/lib/safe-path";
+import type { PublicUser } from "@/lib/users";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -18,13 +20,16 @@ const NAV = [
 export function SiteHeader({
   tone = "invert",
   variant = "bar",
+  account = null,
 }: {
   /** light = navy on parchment; invert = cream on navy */
   tone?: "light" | "invert";
   /** bar = solid navy strip (Bay Bash); overlay = absolute over hero (legacy pages) */
   variant?: "bar" | "overlay";
+  account?: PublicUser | null;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const menuId = useId();
   const [open, setOpen] = useState(false);
   const invert = tone === "invert" || variant === "bar";
@@ -87,12 +92,38 @@ export function SiteHeader({
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/admin"
-              className="font-label text-[0.95rem] tracking-[0.14em] text-paper/45 transition hover:text-paper"
-            >
-              Admin
-            </Link>
+            {account?.isAdmin ? (
+              <Link
+                href="/admin"
+                className="font-label text-[0.95rem] tracking-[0.14em] text-paper/45 transition hover:text-paper"
+              >
+                Admin
+              </Link>
+            ) : null}
+            {account ? (
+              <>
+                <span className="font-label text-[0.95rem] tracking-[0.14em] text-paper">
+                  {firstName(account.name)}
+                </span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                    router.refresh();
+                  }}
+                  className="font-label text-[0.95rem] tracking-[0.14em] text-paper/70 transition hover:text-paper"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link
+                href={`/login?next=${encodeURIComponent(pathname || "/")}`}
+                className={`text-[0.95rem] ${linkClass("/login")}`}
+              >
+                Log in
+              </Link>
+            )}
           </nav>
 
           <NotificationBell tone="invert" />
@@ -139,12 +170,39 @@ export function SiteHeader({
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/admin"
-              className="font-label text-[1rem] tracking-[0.14em] text-paper/45"
-            >
-              Admin
-            </Link>
+            {account?.isAdmin ? (
+              <Link
+                href="/admin"
+                className="font-label text-[1rem] tracking-[0.14em] text-paper/45"
+              >
+                Admin
+              </Link>
+            ) : null}
+            {account ? (
+              <>
+                <p className="font-label text-[1rem] tracking-[0.14em] text-paper">
+                  {firstName(account.name)}
+                </p>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                    setOpen(false);
+                    router.refresh();
+                  }}
+                  className="text-left font-label text-[1rem] tracking-[0.14em] text-paper/70"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link
+                href={`/login?next=${encodeURIComponent(pathname || "/")}`}
+                className={`text-[1rem] ${linkClass("/login")}`}
+              >
+                Log in
+              </Link>
+            )}
           </nav>
         </div>
       ) : null}

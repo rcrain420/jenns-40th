@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireEventUnlock } from "@/lib/auth";
+import { requireVerifiedUser } from "@/lib/auth";
 import { addCatchComment, listCommentsForCatch, serializeComment } from "@/lib/comments";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -13,10 +13,10 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function POST(request: Request, context: RouteContext) {
-  const unlocked = await requireEventUnlock();
-  if (!unlocked) {
+  const user = await requireVerifiedUser();
+  if (!user) {
     return NextResponse.json(
-      { error: "Event PIN required" },
+      { error: "Confirm your email to comment", needsConfirmation: true },
       { status: 401 },
     );
   }
@@ -30,17 +30,12 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const data = body as { anglerId?: unknown; body?: unknown };
-  const anglerId = typeof data.anglerId === "string" ? data.anglerId.trim() : "";
+  const data = body as { body?: unknown };
   const text = typeof data.body === "string" ? data.body : "";
-
-  if (!anglerId) {
-    return NextResponse.json({ error: "Select an angler" }, { status: 400 });
-  }
 
   const result = await addCatchComment({
     catchId: id,
-    anglerId,
+    user,
     body: text,
   });
 

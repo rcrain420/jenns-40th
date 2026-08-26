@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
-import { requireEventUnlock } from "@/lib/auth";
-import { createCatchFromUpload, listCatchesGroupedByAngler } from "@/lib/catches";
+import { requireVerifiedUser } from "@/lib/auth";
+import {
+  createCatchFromUpload,
+  listCatchesGroupedByAuthor,
+} from "@/lib/catches";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  const groups = await listCatchesGroupedByAngler();
+  const groups = await listCatchesGroupedByAuthor();
   return NextResponse.json({
     anglers: groups.map((a) => ({
       id: a.id,
       fullName: a.fullName,
-      teamName: a.team.teamName,
+      teamName: a.teamName,
       catches: a.catches.map((c) => ({
         id: c.id,
         photoPath: c.photoPath,
@@ -25,7 +28,7 @@ export async function GET() {
           id: comment.id,
           body: comment.body,
           createdAt: comment.createdAt.toISOString(),
-          angler: comment.angler,
+          authorName: comment.authorName,
         })),
       })),
     })),
@@ -33,10 +36,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const unlocked = await requireEventUnlock();
-  if (!unlocked) {
+  const user = await requireVerifiedUser();
+  if (!user) {
     return NextResponse.json(
-      { error: "Event PIN required" },
+      { error: "Confirm your email to post", needsConfirmation: true },
       { status: 401 },
     );
   }
@@ -48,7 +51,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid form data" }, { status: 400 });
   }
 
-  const result = await createCatchFromUpload(formData);
+  const result = await createCatchFromUpload(formData, user);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
@@ -64,7 +67,6 @@ export async function POST(request: Request) {
       aiNotes: result.catch.aiNotes,
       aiProvider: result.catch.aiProvider,
       createdAt: result.catch.createdAt.toISOString(),
-      angler: result.catch.angler,
     },
     notify: result.notify,
   });

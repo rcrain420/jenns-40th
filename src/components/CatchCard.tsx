@@ -6,7 +6,7 @@ import {
   CatchComments,
   type CatchCommentItem,
 } from "./CatchComments";
-import type { CatchAnglerOption } from "./CatchLogger";
+import type { PublicUser } from "@/lib/users";
 
 export type CatchCardFish = {
   id: string;
@@ -31,10 +31,10 @@ function formatCaughtAt(iso: string) {
 type Props = {
   fish: CatchCardFish;
   anglerName: string;
-  anglers: CatchAnglerOption[];
+  viewer: PublicUser | null;
 };
 
-export function CatchCard({ fish, anglerName, anglers }: Props) {
+export function CatchCard({ fish, anglerName, viewer }: Props) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export function CatchCard({ fish, anglerName, anglers }: Props) {
       {open && (
         <CatchComments
           catchId={fish.id}
-          anglers={anglers}
+          viewer={viewer}
           initialComments={fish.comments}
         />
       )}

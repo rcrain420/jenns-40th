@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth";
+import {
+  claimTeamIfRegistrant,
+  createTeamRegistration,
+} from "@/lib/registration";
 import { sendRegistrationConfirmation } from "@/lib/registration-email";
-import { createTeamRegistration } from "@/lib/registration";
 import { registrationSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -25,6 +29,15 @@ export async function POST(request: Request) {
   const result = await createTeamRegistration(parsed.data);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+
+  const user = await getCurrentUser();
+  if (user) {
+    await claimTeamIfRegistrant({
+      teamId: result.team.id,
+      userId: user.id,
+      email: user.email,
+    });
   }
 
   try {

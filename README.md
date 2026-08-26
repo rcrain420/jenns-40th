@@ -12,9 +12,9 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 - Catch log: anglers photograph fish; AI estimates breed, length, and weight; board grouped by angler
 - Catch alerts: in-app notification bell + optional browser notifications on `/catches`
 - Comments on each catch photo
-- Shared event PIN gates catch uploads, comments, and AI name suggestions (fallback)
-- Registration confirmation email includes a one-tap magic link that unlocks the same event session
-- Admin console: dashboard, search/filter, edit/delete, mark paid, CSV export
+- Email + password accounts with confirmation; any confirmed user posts catches and comments as themselves
+- Registration confirmation email includes a one-tap magic link that unlocks the event session (PIN is the fallback)
+- Admin console: dashboard, search/filter, edit/delete, mark paid, CSV export (admin role on a user account)
 
 ## Stack
 
@@ -35,27 +35,28 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Default admin password (from `.env`): `changeme`  
-Admin: [http://localhost:3000/admin](http://localhost:3000/admin)
+Create an account at [http://localhost:3000/login](http://localhost:3000/login). Confirmation emails need `RESEND_API_KEY`; in local dev the server also prints a confirm link.
 
-Set `EVENT_PIN` in `.env` to exercise the catch/comment/AI unlock flow. Without it, those writes stay open in development only. Registration confirmation emails include a magic link that sets the same event session cookie; the PIN remains the fallback.
+Sign up with `ADMIN_EMAIL` to get the admin console: [http://localhost:3000/admin](http://localhost:3000/admin)
+
+Set `EVENT_PIN` in `.env` to exercise the event-unlock fallback. Registration confirmation emails include a magic link that sets the same event session cookie.
 
 ### Environment variables
 
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | Local Docker Postgres or Neon connection string |
-| `ADMIN_PASSWORD` | Shared organizer password |
+| `ADMIN_EMAIL` | Account email that is promoted to admin on signup/login |
 | `SESSION_SECRET` | Cookie signing secret (32+ characters) |
-| `EVENT_PIN` | Shared PIN for catch uploads, comments, and AI suggestions (required in production) |
+| `EVENT_PIN` | Optional fallback PIN for the event-unlock cookie |
+| `RESEND_API_KEY` | Sends account confirm/reset and registration unlock emails |
+| `EMAIL_FROM` / `RESEND_FROM` | Optional From: header for Resend |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob token; omit locally to store uploads under `public/uploads/catches` |
 | `VENMO_URL` | Optional Venmo payment link override |
 | `OPENAI_API_KEY` | Optional; enables AI fish estimates and team-name suggestions |
 | `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` |
 | `OPENAI_TEAM_NAME_MODEL` | Optional; defaults to vision model or `gpt-4o-mini` |
 | `NEXT_PUBLIC_APP_URL` | Optional canonical site URL for metadata and magic links |
-| `RESEND_API_KEY` | Optional; sends registration confirmation + unlock emails |
-| `RESEND_FROM` | Optional Resend from address (verified domain) |
 
 ### Venmo
 

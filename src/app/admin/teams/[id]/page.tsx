@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AdminTeamEditor } from "@/components/AdminTeamEditor";
-import { getAdminSession } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import type { SidePotId } from "@/lib/config";
 import { prisma } from "@/lib/db";
 
@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
 
 export default async function AdminTeamDetailPage({ params }: Props) {
-  const session = await getAdminSession();
-  if (!session.isAdmin) redirect("/admin/login");
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) redirect("/login?next=/admin");
 
   const { id } = await params;
   const team = await prisma.team.findUnique({

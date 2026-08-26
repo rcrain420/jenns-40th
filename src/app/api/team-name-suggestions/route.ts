@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireEventUnlock } from "@/lib/auth";
+import { requireVerifiedUser } from "@/lib/auth";
 import { suggestTeamNames } from "@/lib/team-name-ai";
 
 const bodySchema = z.object({
@@ -9,10 +9,10 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const unlocked = await requireEventUnlock();
-  if (!unlocked) {
+  const user = await requireVerifiedUser();
+  if (!user) {
     return NextResponse.json(
-      { error: "Event PIN required" },
+      { error: "Confirm your email to use AI name ideas" },
       { status: 401 },
     );
   }

@@ -7,6 +7,7 @@ import {
   SIDE_POT_BUY_IN_CENTS,
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
+import { getCurrentUser } from "@/lib/auth";
 import { getPotTotals } from "@/lib/pots";
 import { getRegistrationAvailability } from "@/lib/registration";
 
@@ -17,9 +18,10 @@ export const metadata = {
 };
 
 export default async function PotsPage() {
-  const [totals, availability] = await Promise.all([
+  const [totals, availability, account] = await Promise.all([
     getPotTotals(),
     getRegistrationAvailability(),
+    getCurrentUser(),
   ]);
 
   const splitLabel = MAIN_POT_SPLITS.map(
@@ -28,7 +30,7 @@ export default async function PotsPage() {
 
   return (
     <main className="flex-1 bg-paper text-wave">
-      <SiteHeader />
+      <SiteHeader account={account} />
 
       <div className="bg-wave pb-12 pt-10 text-paper">
         <div className="mx-auto max-w-6xl px-5 md:px-11">

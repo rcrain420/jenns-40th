@@ -1,4 +1,6 @@
+import { commentAuthorName } from "./authors";
 import { prisma } from "./db";
+import { findAnglerForUser, type PublicUser } from "./users";
 
 const MAX_BODY = 500;
 
@@ -6,33 +8,37 @@ export type CommentDto = {
   id: string;
   body: string;
   createdAt: string;
-  angler: { id: string; fullName: string };
+  authorName: string;
 };
 
 export function serializeComment(c: {
   id: string;
   body: string;
   createdAt: Date;
-  angler: { id: string; fullName: string };
+  user?: { name: string } | null;
+  angler?: { id: string; fullName: string } | null;
 }): CommentDto {
   return {
     id: c.id,
     body: c.body,
     createdAt: c.createdAt.toISOString(),
-    angler: c.angler,
+    authorName: commentAuthorName(c),
   };
 }
+
+const commentSelect = {
+  id: true,
+  body: true,
+  createdAt: true,
+  user: { select: { name: true } },
+  angler: { select: { id: true, fullName: true } },
+} as const;
 
 export async function listCommentsForCatch(catchId: string) {
   return prisma.catchComment.findMany({
     where: { catchId },
     orderBy: { createdAt: "asc" },
-    select: {
-      id: true,
-      body: true,
-      createdAt: true,
-      angler: { select: { id: true, fullName: true } },
-    },
+    select: commentSelect,
   });
 }
 
@@ -42,7 +48,7 @@ export type AddCommentResult =
 
 export async function addCatchComment(input: {
   catchId: string;
-  anglerId: string;
+  user: PublicUser;
   body: string;
 }): Promise<AddCommentResult> {
   const body = input.body.trim();
@@ -57,30 +63,23 @@ export async function addCatchComment(input: {
     };
   }
 
-  const [fish, angler] = await Promise.all([
-    prisma.fishCatch.findUnique({ where: { id: input.catchId } }),
-    prisma.angler.findUnique({ where: { id: input.anglerId } }),
-  ]);
-
+  const fish = await prisma.fishCatch.findUnique({
+    where: { id: input.catchId },
+  });
   if (!fish) {
     return { ok: false, error: "Catch not found", status: 404 };
   }
-  if (!angler) {
-    return { ok: false, error: "Angler not found", status: 404 };
-  }
+
+  const angler = await findAnglerForUser(input.user.id, input.user.name);
 
   const created = await prisma.catchComment.create({
     data: {
       catchId: input.catchId,
-      anglerId: input.anglerId,
+      userId: input.user.id,
+      anglerId: angler?.id ?? null,
       body,
     },
-    select: {
-      id: true,
-      body: true,
-      createdAt: true,
-      angler: { select: { id: true, fullName: true } },
-    },
+    select: commentSelect,
   });
 
   return { ok: true, comment: serializeComment(created) };

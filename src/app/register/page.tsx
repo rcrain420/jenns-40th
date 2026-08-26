@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { RegisterForm } from "@/components/RegisterForm";
 import { EVENT } from "@/lib/config";
+import { getCurrentUser } from "@/lib/auth";
 import { getRegistrationAvailability } from "@/lib/registration";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,10 @@ export default async function RegisterPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const availability = await getRegistrationAvailability();
+  const [availability, viewer] = await Promise.all([
+    getRegistrationAvailability(),
+    getCurrentUser(),
+  ]);
   const params = await searchParams;
   const initialBoatType = parseBoatType(params.boat);
   const initialCaptainName = parseCaptain(params.captain);
@@ -51,6 +55,7 @@ export default async function RegisterPage({
         registrationOpen={availability.isOpen}
         initialBoatType={initialBoatType}
         initialCaptainName={initialCaptainName}
+        viewer={viewer}
       />
     </PageShell>
   );

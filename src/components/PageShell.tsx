@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { getCurrentUser } from "@/lib/auth";
 
-export function PageShell({
+export async function PageShell({
   eyebrow,
   title,
   description,
@@ -22,10 +23,11 @@ export function PageShell({
   backLabel?: string;
 }) {
   const width = narrow ? "max-w-2xl" : wide ? "max-w-5xl" : "max-w-4xl";
+  const account = await getCurrentUser();
 
   return (
     <main className="flex-1">
-      <SiteHeader />
+      <SiteHeader account={account} />
       <div className="relative bg-wave pb-16 pt-10 text-paper">
         <div className={`mx-auto ${width} px-5 md:px-8`}>
           {eyebrow ? (

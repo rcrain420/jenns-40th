@@ -56,7 +56,7 @@ export function AdminDashboard({ teams, stats }: Props) {
 
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
+    router.push("/login?next=/admin");
     router.refresh();
   }
 

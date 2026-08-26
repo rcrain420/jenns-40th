@@ -13,7 +13,7 @@ import {
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
-import { EventPinGate } from "./EventPinGate";
+import type { PublicUser } from "@/lib/users";
 
 type BoatType = "GUIDED" | "NON_GUIDED";
 
@@ -30,12 +30,14 @@ type RegisterFormProps = {
   registrationOpen: boolean;
   initialBoatType?: BoatType;
   initialCaptainName?: string;
+  viewer?: PublicUser | null;
 };
 
 export function RegisterForm({
   registrationOpen,
   initialBoatType = "GUIDED",
   initialCaptainName = "",
+  viewer = null,
 }: RegisterFormProps) {
   const router = useRouter();
   const [teamName, setTeamName] = useState("");
@@ -45,7 +47,7 @@ export function RegisterForm({
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
-  const [registrantEmail, setRegistrantEmail] = useState("");
+  const [registrantEmail, setRegistrantEmail] = useState(viewer?.email ?? "");
   const [notes, setNotes] = useState("");
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
   const [anglers, setAnglers] = useState<AnglerDraft[]>([
@@ -90,7 +92,7 @@ export function RegisterForm({
       if (!res.ok) {
         setSuggestError(
           res.status === 401
-            ? "Unlock with your email link or the event PIN below, then try again."
+            ? "Sign in and confirm your email to use AI name ideas."
             : (data.error ?? "Could not suggest names"),
         );
         return;
@@ -208,10 +210,8 @@ export function RegisterForm({
         {err("teamName")}
 
         <div className="mt-4 space-y-3">
-          <EventPinGate
-            title="Unlock AI name suggestions"
-            description="Use the link from your registration email, or enter the event PIN to use AI team-name ideas."
-          >
+          {viewer?.emailVerified ? (
+            <>
           <div>
             <label className={labelClass} htmlFor="nameHint">
               Name vibe (optional)
@@ -261,7 +261,15 @@ export function RegisterForm({
               ))}
             </ul>
           )}
-          </EventPinGate>
+            </>
+          ) : (
+            <p className="text-sm text-ink/60">
+              <Link href="/login?next=/register" className="font-semibold text-sea hover:underline">
+                Sign in and confirm your email
+              </Link>{" "}
+              to get AI team-name ideas.
+            </p>
+          )}
         </div>
       </div>
 

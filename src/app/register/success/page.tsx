@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
+import { SetPasswordForm } from "@/components/SetPasswordForm";
+import { getCurrentUser } from "@/lib/auth";
 import {
   EVENT,
   getVenmoPayUrl,
@@ -26,6 +28,15 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
   });
 
   if (!team) notFound();
+
+  const viewer = await getCurrentUser();
+  const accountName =
+    team.anglers[0]?.fullName ||
+    team.contactName ||
+    team.captainName ||
+    team.teamName;
+  const showSetPassword =
+    !viewer || viewer.email !== team.registrantEmail.trim().toLowerCase();
 
   const chosenPots = PAID_SIDE_POTS.filter((pot) =>
     team.sidePots.includes(pot.id),
@@ -165,6 +176,20 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             </a>
           </div>
         </section>
+
+        {showSetPassword ? (
+          <section className="border-t border-dashed border-wave/25 pt-8">
+            <h2 className="font-display text-2xl uppercase text-wave">
+              Post catches later
+            </h2>
+            <div className="mt-4">
+              <SetPasswordForm
+                email={team.registrantEmail}
+                name={accountName}
+              />
+            </div>
+          </section>
+        ) : null}
 
         <section className="border-t border-dashed border-wave/25 pt-8">
           <h2 className="font-display text-2xl uppercase text-wave">

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authorName, authorTeamName } from "@/lib/authors";
 import { prisma } from "@/lib/db";
 
 /** Recent catches for live in-app alerts while Livewell is open. */
@@ -21,6 +22,12 @@ export async function GET(request: Request) {
       lengthInches: true,
       weightLbs: true,
       createdAt: true,
+      user: {
+        select: {
+          name: true,
+          claimedTeam: { select: { teamName: true } },
+        },
+      },
       angler: {
         select: {
           fullName: true,
@@ -37,8 +44,8 @@ export async function GET(request: Request) {
       lengthInches: c.lengthInches,
       weightLbs: c.weightLbs,
       createdAt: c.createdAt.toISOString(),
-      anglerName: c.angler.fullName,
-      teamName: c.angler.team.teamName,
+      anglerName: authorName(c),
+      teamName: authorTeamName(c) || authorName(c),
     })),
   });
 }

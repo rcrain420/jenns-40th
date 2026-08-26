@@ -1,5 +1,5 @@
+import type { PublicUser } from "@/lib/users";
 import { CatchCard, type CatchCardFish } from "./CatchCard";
-import type { CatchAnglerOption } from "./CatchLogger";
 
 export type CatchGridAngler = {
   id: string;
@@ -10,10 +10,10 @@ export type CatchGridAngler = {
 
 export function CatchGrid({
   anglers,
-  commentAnglers,
+  viewer,
 }: {
   anglers: CatchGridAngler[];
-  commentAnglers: CatchAnglerOption[];
+  viewer: PublicUser | null;
 }) {
   if (anglers.length === 0) {
     return (
@@ -35,7 +35,9 @@ export function CatchGrid({
               <h3 className="font-display text-2xl text-wave">
                 {angler.fullName}
               </h3>
-              <p className="text-sm text-ink/55">{angler.teamName}</p>
+              {angler.teamName ? (
+                <p className="text-sm text-ink/55">{angler.teamName}</p>
+              ) : null}
             </div>
             <p className="text-sm font-medium text-sea">
               {angler.catches.length}{" "}
@@ -49,7 +51,7 @@ export function CatchGrid({
                 key={fish.id}
                 fish={fish}
                 anglerName={angler.fullName}
-                anglers={commentAnglers}
+                viewer={viewer}
               />
             ))}
           </ul>

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminTeamEditor } from "@/components/AdminTeamEditor";
-import { getAdminSession } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 
 export default async function AdminNewTeamPage() {
-  const session = await getAdminSession();
-  if (!session.isAdmin) redirect("/admin/login");
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) redirect("/login?next=/admin");
 
   return (
     <main className="flex-1 bg-salt px-5 py-10 md:px-8">

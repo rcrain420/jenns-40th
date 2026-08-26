@@ -9,6 +9,36 @@ datasource db {
   directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  passwordHash    String
+  emailVerifiedAt DateTime?
+  /// GUEST | ADMIN
+  role            String    @default("GUEST")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  tokens          EmailToken[]
+  claimedTeam     Team?
+  catches         FishCatch[]
+  comments        CatchComment[]
+}
+
+model EmailToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// CONFIRM_EMAIL | RESET_PASSWORD
+  type      String
+  tokenHash String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId, type])
+  @@index([tokenHash])
+}
+
 model Team {
   id               String   @id @default(cuid())
   teamName         String
@@ -27,6 +57,8 @@ model Team {
   /// Paid side pot ids: trout | blackjack | spots
   sidePots         String[] @default([])
   amountDueCents   Int
+  claimedByUserId  String?  @unique
+  claimedByUser    User?    @relation(fields: [claimedByUserId], references: [id], onDelete: SetNull)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   anglers          Angler[]
@@ -47,8 +79,10 @@ model Angler {
 
 model FishCatch {
   id           String         @id @default(cuid())
-  anglerId     String
-  angler       Angler         @relation(fields: [anglerId], references: [id], onDelete: Cascade)
+  anglerId     String?
+  angler       Angler?        @relation(fields: [anglerId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   photoPath    String
   breed        String
   lengthInches Float
@@ -60,6 +94,7 @@ model FishCatch {
   comments     CatchComment[]
 
   @@index([anglerId])
+  @@index([userId])
   @@index([createdAt])
 }
 
@@ -67,12 +102,15 @@ model CatchComment {
   id        String    @id @default(cuid())
   catchId   String
   catch     FishCatch @relation(fields: [catchId], references: [id], onDelete: Cascade)
-  anglerId  String
-  angler    Angler    @relation(fields: [anglerId], references: [id], onDelete: Cascade)
+  anglerId  String?
+  angler    Angler?   @relation(fields: [anglerId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   body      String
   createdAt DateTime  @default(now())
 
   @@index([catchId])
   @@index([anglerId])
+  @@index([userId])
   @@index([createdAt])
 }

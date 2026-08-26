@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
 import { AdminDashboard, type AdminTeamRow } from "@/components/AdminDashboard";
-import { getAdminSession } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const session = await getAdminSession();
-  if (!session.isAdmin) {
-    redirect("/admin/login");
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) {
+    redirect("/login?next=/admin");
   }
 
   const teams = await prisma.team.findMany({

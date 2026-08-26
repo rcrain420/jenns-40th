@@ -5,6 +5,7 @@ import {
   checkEventPin,
   isEventPinConfigured,
 } from "./event-unlock-token";
+import { getUserById, toPublicUser, type PublicUser } from "./users";
 
 export { checkEventPin, isEventPinConfigured };
 
@@ -14,6 +15,10 @@ export type AdminSession = {
 
 export type EventSession = {
   unlocked: boolean;
+};
+
+export type UserSession = {
+  userId?: string;
 };
 
 function getSessionPassword(): string {
@@ -52,13 +57,24 @@ export function getEventSessionOptions(): SessionOptions {
   };
 }
 
+export function getUserSessionOptions(): SessionOptions {
+  return {
+    cookieName: "jenns40_user",
+    password: getSessionPassword(),
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 14,
+    },
+  };
+}
+
 /** Constant-time string compare for secrets (pads to equal length). */
 export function safeEqualSecret(provided: string, expected: string): boolean {
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);
   if (a.length !== b.length) {
-    // Still compare against something of equal length to avoid leaking length via timing
-    // of the early return alone when lengths differ — compare provided to itself.
     timingSafeEqual(a, a);
     return false;
   }
@@ -76,12 +92,38 @@ export async function getEventSession() {
   );
 }
 
+export async function getUserSession() {
+  return getIronSession<UserSession>(await cookies(), getUserSessionOptions());
+}
+
+export async function setLoggedInUser(userId: string) {
+  const session = await getUserSession();
+  session.userId = userId;
+  await session.save();
+}
+
+export async function clearLoggedInUser() {
+  const session = await getUserSession();
+  session.destroy();
+}
+
+export async function getCurrentUser(): Promise<PublicUser | null> {
+  const session = await getUserSession();
+  if (!session.userId) return null;
+  const user = await getUserById(session.userId);
+  return user ? toPublicUser(user) : null;
+}
+
+export async function requireVerifiedUser(): Promise<PublicUser | null> {
+  const user = await getCurrentUser();
+  if (!user?.emailVerified) return null;
+  return user;
+}
+
 export async function requireAdmin() {
-  const session = await getAdminSession();
-  if (!session.isAdmin) {
-    return null;
-  }
-  return session;
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) return null;
+  return user;
 }
 
 export async function grantEventUnlock() {
@@ -114,4 +156,3 @@ export function checkAdminPassword(password: string): boolean {
   }
   return safeEqualSecret(password, expected);
 }
-

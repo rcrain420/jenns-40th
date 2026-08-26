@@ -1,7 +1,9 @@
+import { authorName, authorTeamName, commentAuthorName } from "./authors";
 import { prisma } from "./db";
 import { estimateFishFromPhoto } from "./fish-ai";
 import { notifyAnglersOfNewCatch } from "./notify";
 import { uploadCatchPhoto } from "./storage";
+import { findAnglerForUser, type PublicUser } from "./users";
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -28,51 +30,107 @@ function extensionFor(mime: string): string {
   }
 }
 
-export async function listAnglersForCatchLog() {
-  return prisma.angler.findMany({
-    orderBy: [{ team: { teamName: "asc" } }, { sortOrder: "asc" }],
+const catchListSelect = {
+  id: true,
+  photoPath: true,
+  breed: true,
+  lengthInches: true,
+  weightLbs: true,
+  confidence: true,
+  aiNotes: true,
+  aiProvider: true,
+  createdAt: true,
+  userId: true,
+  anglerId: true,
+  user: {
     select: {
       id: true,
-      fullName: true,
-      team: { select: { id: true, teamName: true } },
+      name: true,
+      claimedTeam: { select: { teamName: true } },
     },
-  });
-}
-
-export async function listCatchesGroupedByAngler() {
-  const anglers = await prisma.angler.findMany({
-    orderBy: [{ team: { teamName: "asc" } }, { sortOrder: "asc" }],
+  },
+  angler: {
     select: {
       id: true,
       fullName: true,
       team: { select: { teamName: true } },
-      catches: {
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          photoPath: true,
-          breed: true,
-          lengthInches: true,
-          weightLbs: true,
-          confidence: true,
-          aiNotes: true,
-          aiProvider: true,
-          createdAt: true,
-          comments: {
-            orderBy: { createdAt: "asc" },
-            select: {
-              id: true,
-              body: true,
-              createdAt: true,
-              angler: { select: { id: true, fullName: true } },
-            },
-          },
-        },
-      },
     },
+  },
+  comments: {
+    orderBy: { createdAt: "asc" as const },
+    select: {
+      id: true,
+      body: true,
+      createdAt: true,
+      user: { select: { name: true } },
+      angler: { select: { id: true, fullName: true } },
+    },
+  },
+};
+
+export type CatchAuthorGroup = {
+  id: string;
+  fullName: string;
+  teamName: string;
+  catches: {
+    id: string;
+    photoPath: string;
+    breed: string;
+    lengthInches: number;
+    weightLbs: number;
+    confidence: number | null;
+    aiNotes: string | null;
+    aiProvider: string;
+    createdAt: Date;
+    comments: {
+      id: string;
+      body: string;
+      createdAt: Date;
+      authorName: string;
+    }[];
+  }[];
+};
+
+export async function listCatchesGroupedByAuthor(): Promise<CatchAuthorGroup[]> {
+  const catches = await prisma.fishCatch.findMany({
+    orderBy: { createdAt: "desc" },
+    select: catchListSelect,
   });
 
-  return anglers.filter((a) => a.catches.length > 0);
+  const groups = new Map<string, CatchAuthorGroup>();
+  for (const c of catches) {
+    const key = c.userId ? `user:${c.userId}` : `angler:${c.anglerId ?? c.id}`;
+    const mapped = {
+      id: c.id,
+      photoPath: c.photoPath,
+      breed: c.breed,
+      lengthInches: c.lengthInches,
+      weightLbs: c.weightLbs,
+      confidence: c.confidence,
+      aiNotes: c.aiNotes,
+      aiProvider: c.aiProvider,
+      createdAt: c.createdAt,
+      comments: c.comments.map((comment) => ({
+        id: comment.id,
+        body: comment.body,
+        createdAt: comment.createdAt,
+        authorName: commentAuthorName(comment),
+      })),
+    };
+    const existing = groups.get(key);
+    if (existing) {
+      existing.catches.push(mapped);
+      continue;
+    }
+    groups.set(key, {
+      id: key,
+      fullName: authorName(c),
+      teamName: authorTeamName(c),
+      catches: [mapped],
+    });
+  }
+
+  return Array.from(groups.values());
 }
 
 /** Heaviest catches for the homepage Brag Board (not official standings). */
@@ -86,8 +144,15 @@ export async function listBragBoardCatches(limit = 5) {
       lengthInches: true,
       weightLbs: true,
       aiNotes: true,
+      user: {
+        select: {
+          name: true,
+          claimedTeam: { select: { teamName: true } },
+        },
+      },
       angler: {
         select: {
+          fullName: true,
           team: { select: { teamName: true } },
         },
       },
@@ -96,7 +161,7 @@ export async function listBragBoardCatches(limit = 5) {
 
   return catches.map((c) => ({
     id: c.id,
-    teamName: c.angler.team.teamName,
+    teamName: authorTeamName(c) || authorName(c),
     breed: c.breed,
     lengthInches: c.lengthInches,
     weightLbs: c.weightLbs,
@@ -113,7 +178,8 @@ export type CreateCatchResult =
   | { ok: false; error: string; status: number };
 
 async function saveCatchPhotoAndEstimate(input: {
-  anglerId: string;
+  userId: string;
+  anglerId: string | null;
   file: File;
 }) {
   const bytes = Buffer.from(await input.file.arrayBuffer());
@@ -126,6 +192,7 @@ async function saveCatchPhotoAndEstimate(input: {
 
   return prisma.fishCatch.create({
     data: {
+      userId: input.userId,
       anglerId: input.anglerId,
       photoPath,
       breed: estimate.breed,
@@ -136,6 +203,13 @@ async function saveCatchPhotoAndEstimate(input: {
       aiProvider: estimate.provider,
     },
     include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          claimedTeam: { select: { teamName: true } },
+        },
+      },
       angler: {
         select: {
           id: true,
@@ -149,13 +223,10 @@ async function saveCatchPhotoAndEstimate(input: {
 
 export async function createCatchFromUpload(
   formData: FormData,
+  user: PublicUser,
 ): Promise<CreateCatchResult> {
-  const anglerId = String(formData.get("anglerId") ?? "").trim();
   const file = formData.get("photo");
 
-  if (!anglerId) {
-    return { ok: false, error: "Select an angler", status: 400 };
-  }
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, error: "Photo is required", status: 400 };
   }
@@ -170,20 +241,21 @@ export async function createCatchFromUpload(
     };
   }
 
-  const angler = await prisma.angler.findUnique({ where: { id: anglerId } });
-  if (!angler) {
-    return { ok: false, error: "Angler not found", status: 404 };
-  }
+  const angler = await findAnglerForUser(user.id, user.name);
 
   try {
-    const saved = await saveCatchPhotoAndEstimate({ anglerId, file });
+    const saved = await saveCatchPhotoAndEstimate({
+      userId: user.id,
+      anglerId: angler?.id ?? null,
+      file,
+    });
     const notify = await notifyAnglersOfNewCatch({
       catchId: saved.id,
       breed: saved.breed,
       lengthInches: saved.lengthInches,
       weightLbs: saved.weightLbs,
-      anglerName: saved.angler.fullName,
-      teamName: saved.angler.team.teamName,
+      anglerName: authorName(saved),
+      teamName: authorTeamName(saved) || authorName(saved),
     });
     return { ok: true, catch: saved, notify };
   } catch (err) {

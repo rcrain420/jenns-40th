@@ -3,16 +3,12 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
-import { EventPinGate } from "./EventPinGate";
-
-export type CatchAnglerOption = {
-  id: string;
-  fullName: string;
-  teamName: string;
-};
+import type { PublicUser } from "@/lib/users";
+import { AuthForm } from "./AuthForm";
+import { ConfirmEmailPanel } from "./ConfirmEmailPanel";
 
 type Props = {
-  anglers: CatchAnglerOption[];
+  viewer: PublicUser | null;
 };
 
 type LoggedCatch = {
@@ -26,11 +22,10 @@ type LoggedCatch = {
   aiProvider: string;
 };
 
-export function CatchLogger({ anglers }: Props) {
+export function CatchLogger({ viewer }: Props) {
   const router = useRouter();
   const inputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [anglerId, setAnglerId] = useState(anglers[0]?.id ?? "");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -64,10 +59,6 @@ export function CatchLogger({ anglers }: Props) {
     setLastCatch(null);
     setNotifyNote(null);
 
-    if (!anglerId) {
-      setError("Select an angler");
-      return;
-    }
     if (!file) {
       setError("Take or choose a photo of the fish");
       return;
@@ -76,7 +67,6 @@ export function CatchLogger({ anglers }: Props) {
     setSubmitting(true);
     try {
       const body = new FormData();
-      body.set("anglerId", anglerId);
       body.set("photo", file);
 
       const res = await fetch("/api/catches", { method: "POST", body });
@@ -107,41 +97,37 @@ export function CatchLogger({ anglers }: Props) {
     }
   }
 
-  if (anglers.length === 0) {
+  if (!viewer) {
     return (
-      <p className="rounded-xl bg-white px-5 py-8 text-ink/70 shadow-[0_20px_60px_rgba(6,28,40,0.08)] md:px-8">
-        No registered anglers yet. Register a team first, then come back to log
-        catches.
-      </p>
+      <div className="space-y-4 rounded-xl bg-white px-5 py-8 shadow-[0_20px_60px_rgba(6,28,40,0.08)] md:px-8">
+        <p className="font-display text-xs uppercase tracking-[0.18em] text-sea">
+          Log in to post
+        </p>
+        <h2 className="font-display text-2xl text-wave">Post your catch</h2>
+        <p className="text-ink/70">
+          Create an account (or sign in) right here — then confirm your email
+          and the camera unlocks.
+        </p>
+        <AuthForm next="/catches" compact onSuccess={() => router.refresh()} />
+      </div>
     );
   }
 
+  if (!viewer.emailVerified) {
+    return <ConfirmEmailPanel email={viewer.email} next="/catches" />;
+  }
+
   return (
-    <EventPinGate
-      title="Unlock catch logging"
-      description="Use the link from your registration email, or enter the event PIN to log catches."
-    >
     <form
       onSubmit={onSubmit}
       className="space-y-6 rounded-xl bg-white px-5 py-8 shadow-[0_20px_60px_rgba(6,28,40,0.08)] md:px-8"
     >
-      <div>
-        <label htmlFor="angler" className="block text-sm font-semibold text-wave">
-          Angler
-        </label>
-        <select
-          id="angler"
-          value={anglerId}
-          onChange={(e) => setAnglerId(e.target.value)}
-          className="mt-2 w-full rounded-md border border-[var(--line)] bg-salt px-3 py-2.5 text-base outline-none focus:border-sea"
-        >
-          {anglers.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.fullName} · {a.teamName}
-            </option>
-          ))}
-        </select>
-      </div>
+      <p className="text-sm font-semibold text-wave">
+        Posting as {viewer.name}
+        {viewer.teamName ? (
+          <span className="font-normal text-ink/55"> · {viewer.teamName}</span>
+        ) : null}
+      </p>
 
       <div>
         <p className="text-sm font-semibold text-wave">Fish photo</p>
@@ -248,6 +234,5 @@ export function CatchLogger({ anglers }: Props) {
         </div>
       )}
     </form>
-    </EventPinGate>
   );
 }

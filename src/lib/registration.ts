@@ -86,3 +86,17 @@ export async function registrationMatchesUnlock(input: {
     return false;
   }
 }
+
+export async function claimTeamIfRegistrant(opts: {
+  teamId: string;
+  userId: string;
+  email: string;
+}) {
+  const team = await prisma.team.findUnique({ where: { id: opts.teamId } });
+  if (!team || team.claimedByUserId) return;
+  if (team.registrantEmail.trim().toLowerCase() !== opts.email) return;
+  await prisma.team.update({
+    where: { id: opts.teamId },
+    data: { claimedByUserId: opts.userId },
+  });
+}
