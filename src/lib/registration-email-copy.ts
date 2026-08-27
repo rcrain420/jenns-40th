@@ -20,6 +20,7 @@ export function registrationConfirmationCopy(
     `Hey — ${input.teamName} is on the list.`,
     "",
     `You're registered for ${input.shortName} — ${input.dateLabel} at ${input.venue}.`,
+    "You created this team. Add the captain if you have one, and invite teammates — captains might never log in.",
     `Amount due: ${input.amountLabel}. Venmo ${input.venmoHandle} and put your team name in the note so we can match it.`,
     "",
     "One tap below unlocks the Livewell on this device so you can log catches, leave comments, and try AI team names. No PIN required.",
@@ -44,6 +45,9 @@ export function registrationConfirmationCopy(
             <strong>${escapeHtml(input.amountLabel)}</strong>. Venmo
             <a href="${escapeHtml(input.venmoUrl)}" style="color:#c1362c;">${escapeHtml(input.venmoHandle)}</a>
             and put your team name in the note so we can match it.
+          </p>
+          <p style="margin:0 0 16px;line-height:1.5;">
+            You created this team. Add the captain if you have one, and invite teammates — captains might never log in.
           </p>
           <p style="margin:0 0 20px;line-height:1.5;">
             One tap unlocks the Livewell on this device — log catches, leave comments, and try AI team names. No PIN required.

@@ -161,6 +161,8 @@ describe("registration confirmation email", () => {
     assert.equal(verifyEventUnlockToken(token).ok, true);
     assert.equal(/Hey captain/i.test(message.text), false);
     assert.ok(message.text.includes("Pretty Pier Pressure is on the list"));
+    assert.ok(message.text.includes("You created this team"));
+    assert.ok(message.html.includes("captains might never log in"));
 
     const leaked = [
       "EVENT_PIN",

@@ -39,11 +39,6 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
   if (!team) notFound();
 
   const viewer = await getCurrentUser();
-  const accountName =
-    team.anglers[0]?.fullName ||
-    team.contactName ||
-    team.captainName ||
-    team.teamName;
   const showSetPassword =
     !viewer || viewer.email !== team.registrantEmail.trim().toLowerCase();
 
@@ -245,10 +240,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               captain does not need an account — you add them and send invites.
             </p>
             <div className="mt-4">
-              <SetPasswordForm
-                email={team.registrantEmail}
-                name={accountName}
-              />
+              <SetPasswordForm email={team.registrantEmail} />
             </div>
           </section>
         ) : null}

@@ -544,8 +544,10 @@ export function RegisterForm({
               Anglers <span className="text-alert">*</span>
             </h3>
             <p className="text-sm text-ink/65">
-              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers (captain not included).
-              Need two names to lock the boat — add the rest later from My team.
+              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers. The captain is not
+              an angler slot and does not need an account — you add them above
+              on a guided boat. Need two names to lock the boat; add the rest
+              later from My team.
             </p>
           </div>
           <button

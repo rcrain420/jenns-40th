@@ -90,10 +90,11 @@ export default async function MyTeamPage({
         <section>
           <span className="section-banner">Invite the boat</span>
           <p className="mt-3 text-ink/75">
-            Text this link. Teammates create an account and land on the team —
-            they do not need to confirm email first. Joining the site does not
-            add them to the paid roster — add fishing names below if
-            they&apos;re in the boat.
+            You registered this boat, so you invite teammates. Add the captain
+            yourself if you have one — they might never log in. Teammates
+            create an account and land on the team without confirming email
+            first. Joining does not add them to the paid roster — add fishing
+            names below if they&apos;re in the boat.
           </p>
           <div className="mt-4">
             <InviteLinkCopy url={inviteUrl} />
