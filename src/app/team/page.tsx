@@ -58,7 +58,9 @@ export default async function MyTeamPage({
         description="You’re not on a boat yet."
       >
         <p className="text-ink/70">
-          Register a team, or ask a teammate to text you their invite link.
+          Register a team — you add the captain and invite teammates — or ask
+          the person who registered for their invite link. Captains might never
+          log in.
         </p>
         <p className="mt-4">
           <Link href="/register" className="font-semibold text-sea hover:underline">
@@ -90,11 +92,9 @@ export default async function MyTeamPage({
         <section>
           <span className="section-banner">Invite the boat</span>
           <p className="mt-3 text-ink/75">
-            You registered this boat, so you invite teammates. Add the captain
-            yourself if you have one — they might never log in. Teammates
-            create an account and land on the team without confirming email
-            first. Joining does not add them to the paid roster — add fishing
-            names below if they&apos;re in the boat.
+            {isRegistrant
+              ? "You registered this boat, so you invite teammates. Add the captain yourself if you have one — they might never log in. Teammates create an account and land on the team without confirming email first. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
+              : "You’re on this boat. The person who registered adds the captain and sends invites — captains might never log in. Joining does not add you to the paid roster."}
           </p>
           <div className="mt-4">
             <InviteLinkCopy url={inviteUrl} />
