@@ -24,9 +24,7 @@ export type UserSession = {
 function getSessionPassword(): string {
   const password = process.env.SESSION_SECRET;
   if (!password || password.length < 32) {
-    throw new Error(
-      "SESSION_SECRET must be set and at least 32 characters long",
-    );
+    throw new Error("Server session is not configured");
   }
   return password;
 }

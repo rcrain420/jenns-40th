@@ -1,3 +1,5 @@
+import { GUEST_AI_UNAVAILABLE_NOTE, guestSafeAiNotes } from "./guest-copy";
+
 export type FishEstimate = {
   breed: string;
   lengthInches: number;
@@ -39,7 +41,7 @@ function normalizeEstimate(raw: AiJson, provider: FishEstimate["provider"]): Fis
       : "Unidentified fish";
   const notes =
     typeof raw.notes === "string" && raw.notes.trim()
-      ? raw.notes.trim()
+      ? guestSafeAiNotes(raw.notes)
       : null;
 
   return {
@@ -58,8 +60,7 @@ function fallbackEstimate(): FishEstimate {
     lengthInches: 18,
     weightLbs: 3.5,
     confidence: null,
-    notes:
-      "AI estimation unavailable (set OPENAI_API_KEY). Logged with placeholder estimates — edit after weigh-in if needed.",
+    notes: GUEST_AI_UNAVAILABLE_NOTE,
     provider: "fallback",
   };
 }
@@ -116,10 +117,7 @@ export async function estimateFishFromPhoto(
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
       console.error("OpenAI fish estimate failed", res.status, detail);
-      return {
-        ...fallbackEstimate(),
-        notes: "AI request failed; logged with placeholder estimates.",
-      };
+      return fallbackEstimate();
     }
 
     const data = (await res.json()) as {
@@ -134,9 +132,6 @@ export async function estimateFishFromPhoto(
     return normalizeEstimate(parsed, "openai");
   } catch (err) {
     console.error("Fish AI estimate error", err);
-    return {
-      ...fallbackEstimate(),
-      notes: "AI estimation error; logged with placeholder estimates.",
-    };
+    return fallbackEstimate();
   }
 }

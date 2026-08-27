@@ -4,6 +4,7 @@ import {
   createCatchFromUpload,
   listCatchesGroupedByAuthor,
 } from "@/lib/catches";
+import { guestSafeAiNotes } from "@/lib/guest-copy";
 
 export const runtime = "nodejs";
 
@@ -21,7 +22,7 @@ export async function GET() {
         lengthInches: c.lengthInches,
         weightLbs: c.weightLbs,
         confidence: c.confidence,
-        aiNotes: c.aiNotes,
+        aiNotes: guestSafeAiNotes(c.aiNotes),
         aiProvider: c.aiProvider,
         createdAt: c.createdAt.toISOString(),
         comments: c.comments.map((comment) => ({
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
       lengthInches: result.catch.lengthInches,
       weightLbs: result.catch.weightLbs,
       confidence: result.catch.confidence,
-      aiNotes: result.catch.aiNotes,
+      aiNotes: guestSafeAiNotes(result.catch.aiNotes),
       aiProvider: result.catch.aiProvider,
       createdAt: result.catch.createdAt.toISOString(),
     },

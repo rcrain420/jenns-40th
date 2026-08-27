@@ -5,6 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { GUEST_EVENT_PIN_UNAVAILABLE } from "@/lib/guest-copy";
 
 type UnlockState = "loading" | "locked" | "unlocked" | "unconfigured";
 
@@ -82,8 +83,7 @@ export function EventPinGate({
   if (state === "unconfigured") {
     return (
       <p className="text-sm text-alert" role="alert">
-        Catch logging isn&apos;t available yet. Check back shortly, or ask an
-        organizer.
+        {GUEST_EVENT_PIN_UNAVAILABLE}
       </p>
     );
   }

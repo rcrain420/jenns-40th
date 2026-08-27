@@ -6,6 +6,7 @@ import {
 } from "./authors";
 import { prisma } from "./db";
 import { estimateFishFromPhoto } from "./fish-ai";
+import { guestSafeAiNotes } from "./guest-copy";
 import { notifyAnglersOfNewCatch } from "./notify";
 import { uploadCatchPhoto } from "./storage";
 import { findAnglerForUser, type PublicUser } from "./users";
@@ -170,7 +171,7 @@ export async function listBragBoardCatches(limit = 5) {
     breed: c.breed,
     lengthInches: c.lengthInches,
     weightLbs: c.weightLbs,
-    note: c.aiNotes,
+    note: guestSafeAiNotes(c.aiNotes),
   }));
 }
 
@@ -204,7 +205,7 @@ async function saveCatchPhotoAndEstimate(input: {
       lengthInches: estimate.lengthInches,
       weightLbs: estimate.weightLbs,
       confidence: estimate.confidence,
-      aiNotes: estimate.notes,
+      aiNotes: guestSafeAiNotes(estimate.notes),
       aiProvider: estimate.provider,
     },
     include: {
