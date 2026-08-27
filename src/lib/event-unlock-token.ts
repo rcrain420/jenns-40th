@@ -53,6 +53,10 @@ export function normalizeUnlockEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
+export function eventUnlockPath(token: string): string {
+  return `/unlock?token=${encodeURIComponent(token)}`;
+}
+
 export function issueEventUnlockToken(input: {
   teamId: string;
   email: string;

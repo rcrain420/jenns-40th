@@ -7,6 +7,7 @@ export {
   TEAM_INVITE_PURPOSE,
   TEAM_INVITE_TTL_SECONDS,
   issueTeamInviteToken,
+  teamInvitePath,
   verifyTeamInviteToken,
 } from "./team-invite-token";
 

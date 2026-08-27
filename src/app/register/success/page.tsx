@@ -17,9 +17,11 @@ import {
   GUEST_REGISTRATION_EMAIL_UNKNOWN,
 } from "@/lib/guest-copy";
 import { formatUsd } from "@/lib/money";
-import { buildEventUnlockUrl } from "@/lib/registration-email";
-import { issueEventUnlockToken } from "@/lib/event-unlock-token";
-import { teamInviteUrl } from "@/lib/team-invite";
+import {
+  eventUnlockPath,
+  issueEventUnlockToken,
+} from "@/lib/event-unlock-token";
+import { issueTeamInviteToken, teamInvitePath } from "@/lib/team-invite";
 
 export const dynamic = "force-dynamic";
 
@@ -53,12 +55,13 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     amountCents: team.amountDueCents,
     note: venmoNote,
   });
-  const inviteUrl = teamInviteUrl(team.id);
+  const { token: inviteToken } = issueTeamInviteToken({ teamId: team.id });
+  const inviteUrl = teamInvitePath(inviteToken);
   const { token: unlockToken } = issueEventUnlockToken({
     teamId: team.id,
     email: team.registrantEmail,
   });
-  const unlockUrl = buildEventUnlockUrl(unlockToken);
+  const unlockUrl = eventUnlockPath(unlockToken);
   const mailNote =
     mail === "sent"
       ? GUEST_REGISTRATION_EMAIL_SENT

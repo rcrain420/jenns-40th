@@ -10,6 +10,7 @@ const {
   checkEventPin,
   evaluateEventPin,
   evaluateEventUnlockToken,
+  eventUnlockPath,
   issueEventUnlockToken,
   verifyEventUnlockToken,
 } = await import("./event-unlock-token.ts");
@@ -181,5 +182,17 @@ describe("registration confirmation email", () => {
         `subject leaked ${name}`,
       );
     }
+  });
+
+  it("success-page unlock path stays on this origin", () => {
+    const { token } = issueEventUnlockToken({
+      teamId: TEAM_ID,
+      email: EMAIL,
+    });
+    const path = eventUnlockPath(token);
+    assert.equal(path.startsWith("/unlock?token="), true);
+    assert.equal(path.includes("officialishfishingtournament.com"), false);
+    assert.equal(path.includes("http"), false);
+    assert.equal(verifyEventUnlockToken(token).ok, true);
   });
 });

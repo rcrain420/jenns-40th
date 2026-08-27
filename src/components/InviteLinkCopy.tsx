@@ -26,7 +26,9 @@ export function InviteLinkCopy({
   return (
     <div className="space-y-3">
       <p className="break-all border border-wave/15 bg-paper px-3 py-2.5 font-mono text-sm text-ink">
-        {url}
+        <a href={url} className="text-sea underline-offset-2 hover:underline">
+          {url}
+        </a>
       </p>
       <button
         type="button"

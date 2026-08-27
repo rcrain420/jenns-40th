@@ -36,6 +36,10 @@ function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(left, right);
 }
 
+export function teamInvitePath(token: string): string {
+  return `/join?token=${encodeURIComponent(token)}`;
+}
+
 export function issueTeamInviteToken(input: {
   teamId: string;
   now?: Date;
