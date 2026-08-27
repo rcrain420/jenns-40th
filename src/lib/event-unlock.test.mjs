@@ -10,6 +10,7 @@ const {
   checkEventPin,
   evaluateEventPin,
   evaluateEventUnlockToken,
+  eventUnlockPath,
   issueEventUnlockToken,
   verifyEventUnlockToken,
 } = await import("./event-unlock-token.ts");
@@ -159,11 +160,17 @@ describe("registration confirmation email", () => {
     assert.ok(message.html.includes(unlockUrl));
     assert.ok(message.html.includes("Unlock catch logging"));
     assert.equal(verifyEventUnlockToken(token).ok, true);
+    assert.equal(/Hey captain/i.test(message.text), false);
+    assert.ok(message.text.includes("Pretty Pier Pressure is on the list"));
+    assert.ok(message.text.includes("You created this team"));
+    assert.ok(message.html.includes("captains might never log in"));
 
     const leaked = [
       "EVENT_PIN",
       "SESSION_SECRET",
       "RESEND_API_KEY",
+      "RESEND_FROM",
+      "OPENAI_API_KEY",
       "ADMIN_PASSWORD",
     ];
     for (const name of leaked) {
@@ -175,5 +182,17 @@ describe("registration confirmation email", () => {
         `subject leaked ${name}`,
       );
     }
+  });
+
+  it("success-page unlock path stays on this origin", () => {
+    const { token } = issueEventUnlockToken({
+      teamId: TEAM_ID,
+      email: EMAIL,
+    });
+    const path = eventUnlockPath(token);
+    assert.equal(path.startsWith("/unlock?token="), true);
+    assert.equal(path.includes("officialishfishingtournament.com"), false);
+    assert.equal(path.includes("http"), false);
+    assert.equal(verifyEventUnlockToken(token).ok, true);
   });
 });

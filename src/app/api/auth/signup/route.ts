@@ -29,6 +29,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     user: result.user,
+    confirmationEmailSent: result.confirmationEmailSent ?? false,
     ...(result.devConfirmUrl ? { devConfirmUrl: result.devConfirmUrl } : {}),
   });
 }

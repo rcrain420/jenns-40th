@@ -27,6 +27,18 @@ type FieldErrors = Record<string, string[] | undefined>;
 
 const emptyAngler = (): AnglerDraft => ({ fullName: "", phone: "" });
 
+const FIELD_ORDER = [
+  "teamName",
+  "boatType",
+  "captainName",
+  "captainPhone",
+  "contactName",
+  "contactPhone",
+  "registrantEmail",
+  "anglers",
+  "licenseConfirmed",
+] as const;
+
 type RegisterFormProps = {
   registrationOpen: boolean;
   initialBoatType?: BoatType;
@@ -36,18 +48,17 @@ type RegisterFormProps = {
 
 export function RegisterForm({
   registrationOpen,
-  initialBoatType = "GUIDED",
+  initialBoatType,
   initialCaptainName = "",
   viewer = null,
 }: RegisterFormProps) {
   const router = useRouter();
   const [teamName, setTeamName] = useState("");
-  const [boatType, setBoatType] = useState<BoatType>(initialBoatType);
+  const [boatType, setBoatType] = useState<BoatType | "">(initialBoatType ?? "");
   const [captainName, setCaptainName] = useState(initialCaptainName);
   const [captainPhone, setCaptainPhone] = useState("");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
   const [registrantEmail, setRegistrantEmail] = useState(viewer?.email ?? "");
   const [notes, setNotes] = useState("");
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
@@ -93,7 +104,7 @@ export function RegisterForm({
       if (!res.ok) {
         setSuggestError(
           res.status === 401
-            ? "Sign in and confirm your email to use AI name ideas."
+            ? "Confirm your email to use AI name ideas."
             : (data.error ?? "Could not suggest names"),
         );
         return;
@@ -129,9 +140,69 @@ export function RegisterForm({
     setAnglers((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function validate(): FieldErrors {
+    const next: FieldErrors = {};
+    if (!teamName.trim()) next.teamName = ["Team name is required"];
+    if (boatType !== "GUIDED" && boatType !== "NON_GUIDED") {
+      next.boatType = ["Choose guided or non-guided"];
+    }
+    if (boatType === "GUIDED") {
+      if (!captainName.trim()) {
+        next.captainName = ["Captain name is required for guided boats"];
+      }
+      if (!captainPhone.trim()) {
+        next.captainPhone = ["Captain phone is required for guided boats"];
+      }
+    }
+    if (boatType === "NON_GUIDED") {
+      if (!contactName.trim()) {
+        next.contactName = ["Primary contact name is required"];
+      }
+      if (!contactPhone.trim()) {
+        next.contactPhone = ["Primary contact phone is required"];
+      }
+    }
+    if (!registrantEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registrantEmail.trim())) {
+      next.registrantEmail = ["Valid email required"];
+    }
+    const named = anglers.filter((a) => a.fullName.trim());
+    if (named.length < MIN_ANGLERS) {
+      next.anglers = [`At least ${MIN_ANGLERS} anglers required`];
+    }
+    if (!licenseConfirmed) {
+      next.licenseConfirmed = [
+        "You must confirm each angler has a valid fishing license",
+      ];
+    }
+    return next;
+  }
+
+  function focusFirstError(errors: FieldErrors) {
+    const key = FIELD_ORDER.find((field) => errors[field]?.length);
+    if (!key) return;
+    const el =
+      document.getElementById(key) ??
+      document.querySelector<HTMLElement>(`[data-field="${key}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+      el.focus({ preventScroll: true });
+    } else {
+      el?.querySelector<HTMLInputElement>("input, textarea, button")?.focus({
+        preventScroll: true,
+      });
+    }
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+    const clientErrors = validate();
+    if (Object.keys(clientErrors).length) {
+      setFieldErrors(clientErrors);
+      window.setTimeout(() => focusFirstError(clientErrors), 0);
+      return;
+    }
+
     setFieldErrors({});
     setSubmitting(true);
 
@@ -146,7 +217,7 @@ export function RegisterForm({
           captainPhone,
           contactName,
           contactPhone,
-          contactEmail,
+          contactEmail: boatType === "NON_GUIDED" ? registrantEmail : "",
           registrantEmail,
           notes,
           licenseConfirmed: licenseConfirmed ? true : false,
@@ -158,11 +229,15 @@ export function RegisterForm({
       const data = await res.json();
       if (!res.ok) {
         setFormError(data.error ?? "Registration failed");
-        if (data.fieldErrors) setFieldErrors(data.fieldErrors);
+        if (data.fieldErrors) {
+          setFieldErrors(data.fieldErrors);
+          window.setTimeout(() => focusFirstError(data.fieldErrors), 0);
+        }
         return;
       }
 
-      router.push(`/register/success?team=${data.team.id}`);
+      const mail = data.confirmationEmailSent ? "sent" : "failed";
+      router.push(`/register/success?team=${data.team.id}&mail=${mail}`);
     } catch {
       setFormError("Something went wrong. Please try again.");
     } finally {
@@ -192,14 +267,24 @@ export function RegisterForm({
   function err(key: string) {
     const messages = fieldErrors[key];
     if (!messages?.length) return null;
-    return <p className="mt-1 text-sm text-alert">{messages[0]}</p>;
+    return (
+      <p id={`${key}-error`} className="mt-1 text-sm text-alert" role="alert">
+        {messages[0]}
+      </p>
+    );
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-8">
+    <form onSubmit={onSubmit} noValidate className="space-y-8">
+      {formError && (
+        <p className="rounded-md bg-alert/10 px-4 py-3 text-sm text-alert" role="alert">
+          {formError}
+        </p>
+      )}
+
       <div>
         <label className={labelClass} htmlFor="teamName">
-          Team name
+          Team name <span className="text-alert">*</span>
         </label>
         <input
           id="teamName"
@@ -207,97 +292,99 @@ export function RegisterForm({
           value={teamName}
           onChange={(e) => setTeamName(e.target.value)}
           required
+          aria-invalid={Boolean(fieldErrors.teamName?.length)}
+          aria-describedby={fieldErrors.teamName?.length ? "teamName-error" : undefined}
         />
         {err("teamName")}
 
-        <div className="mt-4 space-y-3">
-          {viewer?.emailVerified ? (
-            <>
-          <div>
-            <label className={labelClass} htmlFor="nameHint">
-              Name vibe (optional)
-            </label>
-            <input
-              id="nameHint"
-              className={inputClass}
-              value={nameHint}
-              onChange={(e) => setNameHint(e.target.value)}
-              placeholder="e.g. punny, family last name, redfish theme"
-              maxLength={200}
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={suggestTeamNames}
-              disabled={suggestingNames}
-              className="text-sm font-semibold text-sea disabled:opacity-50"
-            >
-              {suggestingNames
-                ? "Thinking of names…"
-                : nameSuggestions.length
-                  ? "Suggest more names"
-                  : "Suggest names with AI"}
-            </button>
-            {suggestError && (
-              <p className="text-sm text-alert">{suggestError}</p>
-            )}
-          </div>
-          {nameSuggestions.length > 0 && (
-            <ul className="flex flex-wrap gap-2" aria-label="Suggested team names">
-              {nameSuggestions.map((name) => (
-                <li key={name}>
+        {viewer ? (
+          <div className="mt-4 space-y-3">
+            {viewer.emailVerified ? (
+              <>
+                <div>
+                  <label className={labelClass} htmlFor="nameHint">
+                    Name vibe (optional)
+                  </label>
+                  <input
+                    id="nameHint"
+                    className={inputClass}
+                    value={nameHint}
+                    onChange={(e) => setNameHint(e.target.value)}
+                    placeholder="e.g. punny, family last name, redfish theme"
+                    maxLength={200}
+                  />
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => setTeamName(name)}
-                    className={`border px-3 py-1.5 text-left text-sm transition ${
-                      teamName === name
-                        ? "border-sun bg-mist text-wave"
-                        : "border-wave/20 bg-paper text-ink hover:border-sea/50"
-                    }`}
+                    onClick={suggestTeamNames}
+                    disabled={suggestingNames}
+                    className="text-sm font-semibold text-sea disabled:opacity-50"
                   >
-                    {name}
+                    {suggestingNames
+                      ? "Thinking of names…"
+                      : nameSuggestions.length
+                        ? "Suggest more names"
+                        : "Suggest names with AI"}
                   </button>
-                </li>
-              ))}
-            </ul>
-          )}
-            </>
-          ) : viewer ? (
-            <div className="space-y-3 rounded-md border border-wave/15 bg-mist/60 px-4 py-4">
-              <p className="text-sm text-ink/70">
-                Confirm <strong>{viewer.email}</strong> to unlock AI team-name
-                ideas.
-              </p>
-              <ResendConfirmButton next="/register" />
-            </div>
-          ) : (
-            <p className="text-sm text-ink/60">
-              <Link href="/login?next=/register" className="font-semibold text-sea hover:underline">
-                Sign in
-              </Link>{" "}
-              and confirm your email to get AI team-name ideas.
-            </p>
-          )}
-        </div>
+                  {suggestError && (
+                    <p className="text-sm text-alert">{suggestError}</p>
+                  )}
+                </div>
+                {nameSuggestions.length > 0 && (
+                  <ul className="flex flex-wrap gap-2" aria-label="Suggested team names">
+                    {nameSuggestions.map((name) => (
+                      <li key={name}>
+                        <button
+                          type="button"
+                          onClick={() => setTeamName(name)}
+                          className={`border px-3 py-1.5 text-left text-sm transition ${
+                            teamName === name
+                              ? "border-sun bg-mist text-wave"
+                              : "border-wave/20 bg-paper text-ink hover:border-sea/50"
+                          }`}
+                        >
+                          {name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            ) : (
+              <div className="space-y-3 rounded-md border border-wave/15 bg-mist/60 px-4 py-4">
+                <p className="text-sm text-ink/70">
+                  Confirm <strong>{viewer.email}</strong> to unlock AI team-name
+                  ideas. You can still register without that.
+                </p>
+                <ResendConfirmButton next="/register" />
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
 
-      <fieldset>
-        <legend className={labelClass}>Boat type</legend>
+      <fieldset data-field="boatType" id="boatType">
+        <legend className={labelClass}>
+          Boat type <span className="text-alert">*</span>
+        </legend>
+        <p className="mt-1 text-sm text-ink/65">
+          Pick one. Guided is not assumed — a captain may never log in.
+        </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {(
             [
-              ["GUIDED", "Guided", "Include your captain’s name and phone"],
+              ["GUIDED", "Guided", "You’ll add the captain’s name and phone"],
               [
                 "NON_GUIDED",
                 "Non-guided",
-                "Include a primary contact for the team",
+                "You’ll add a primary contact name and phone",
               ],
             ] as const
           ).map(([value, title, hint]) => (
             <label
               key={value}
-              className={`cursor-pointer border px-4 py-3 transition ${
+              className={`flex cursor-pointer items-start gap-3 border px-4 py-3 transition ${
                 boatType === value
                   ? "border-sun bg-mist"
                   : "border-wave/20 bg-paper hover:border-sea/50"
@@ -309,19 +396,22 @@ export function RegisterForm({
                 value={value}
                 checked={boatType === value}
                 onChange={() => setBoatType(value)}
-                className="sr-only"
+                className="mt-1 h-4 w-4 shrink-0 accent-sea"
               />
-              <span className="block font-semibold">{title}</span>
-              <span className="mt-1 block text-sm text-ink/65">{hint}</span>
+              <span>
+                <span className="block font-semibold">{title}</span>
+                <span className="mt-1 block text-sm text-ink/65">{hint}</span>
+              </span>
             </label>
           ))}
         </div>
+        {err("boatType")}
       </fieldset>
 
       {boatType === "GUIDED" ? (
         <div className="space-y-3">
           <p className="text-sm text-ink/65">
-            Still looking?{" "}
+            You add the captain — they do not need an account. Still looking?{" "}
             <Link href="/guides" className="font-semibold text-sea hover:underline">
               Search Rockport fishing guides
             </Link>
@@ -329,7 +419,7 @@ export function RegisterForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className={labelClass} htmlFor="captainName">
-                Captain name
+                Captain name <span className="text-alert">*</span>
               </label>
               <input
                 id="captainName"
@@ -337,12 +427,16 @@ export function RegisterForm({
                 value={captainName}
                 onChange={(e) => setCaptainName(e.target.value)}
                 required
+                aria-invalid={Boolean(fieldErrors.captainName?.length)}
+                aria-describedby={
+                  fieldErrors.captainName?.length ? "captainName-error" : undefined
+                }
               />
               {err("captainName")}
             </div>
             <div>
               <label className={labelClass} htmlFor="captainPhone">
-                Captain phone
+                Captain phone <span className="text-alert">*</span>
               </label>
               <input
                 id="captainPhone"
@@ -357,16 +451,22 @@ export function RegisterForm({
                   setCaptainPhone(formatPhoneInput(e.target.value))
                 }
                 required
+                aria-invalid={Boolean(fieldErrors.captainPhone?.length)}
+                aria-describedby={
+                  fieldErrors.captainPhone?.length ? "captainPhone-error" : undefined
+                }
               />
               {err("captainPhone")}
             </div>
           </div>
         </div>
-      ) : (
+      ) : null}
+
+      {boatType === "NON_GUIDED" ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+          <div>
             <label className={labelClass} htmlFor="contactName">
-              Primary contact name
+              Primary contact name <span className="text-alert">*</span>
             </label>
             <input
               id="contactName"
@@ -374,12 +474,16 @@ export function RegisterForm({
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
               required
+              aria-invalid={Boolean(fieldErrors.contactName?.length)}
+              aria-describedby={
+                fieldErrors.contactName?.length ? "contactName-error" : undefined
+              }
             />
             {err("contactName")}
           </div>
           <div>
             <label className={labelClass} htmlFor="contactPhone">
-              Primary contact phone
+              Primary contact phone <span className="text-alert">*</span>
             </label>
             <input
               id="contactPhone"
@@ -394,30 +498,28 @@ export function RegisterForm({
                 setContactPhone(formatPhoneInput(e.target.value))
               }
               required
+              aria-invalid={Boolean(fieldErrors.contactPhone?.length)}
+              aria-describedby={
+                fieldErrors.contactPhone?.length ? "contactPhone-error" : undefined
+              }
             />
             {err("contactPhone")}
           </div>
-          <div>
-            <label className={labelClass} htmlFor="contactEmail">
-              Primary contact email
-            </label>
-            <input
-              id="contactEmail"
-              type="email"
-              className={inputClass}
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-              required
-            />
-            {err("contactEmail")}
-          </div>
         </div>
-      )}
+      ) : null}
 
       <div>
         <label className={labelClass} htmlFor="registrantEmail">
-          Your email (confirmation + unlock link)
+          Your email <span className="text-alert">*</span>
         </label>
+        <p className="mt-1 text-sm text-ink/65">
+          For your account and the unlock link
+          {boatType === "NON_GUIDED"
+            ? ", and as the primary contact email"
+            : ""}
+          . A confirmation email may also go here — the next page still has the
+          links if mail does not send.
+        </p>
         <input
           id="registrantEmail"
           type="email"
@@ -425,17 +527,27 @@ export function RegisterForm({
           value={registrantEmail}
           onChange={(e) => setRegistrantEmail(e.target.value)}
           required
+          aria-invalid={Boolean(fieldErrors.registrantEmail?.length)}
+          aria-describedby={
+            fieldErrors.registrantEmail?.length
+              ? "registrantEmail-error"
+              : undefined
+          }
         />
         {err("registrantEmail")}
       </div>
 
-      <div>
+      <div data-field="anglers">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h3 className="font-display text-xl text-wave">Anglers</h3>
+            <h3 className="font-display text-xl text-wave">
+              Anglers <span className="text-alert">*</span>
+            </h3>
             <p className="text-sm text-ink/65">
-              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers (captain not included).
-              Need two names to lock the boat — add the rest later from My team.
+              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers. The captain is not
+              an angler slot and does not need an account — you add them above
+              on a guided boat. Need two names to lock the boat; add the rest
+              later from My team.
             </p>
           </div>
           <button
@@ -455,7 +567,7 @@ export function RegisterForm({
             >
               <div>
                 <label className={labelClass} htmlFor={`angler-name-${index}`}>
-                  Angler {index + 1} name
+                  Angler {index + 1} name <span className="text-alert">*</span>
                 </label>
                 <input
                   id={`angler-name-${index}`}
@@ -518,7 +630,7 @@ export function RegisterForm({
             return (
               <label
                 key={pot.id}
-                className={`cursor-pointer border px-4 py-3 transition ${
+                className={`flex cursor-pointer items-start gap-3 border px-4 py-3 transition ${
                   checked
                     ? "border-sun bg-mist"
                     : "border-wave/20 bg-paper hover:border-sea/50"
@@ -528,11 +640,13 @@ export function RegisterForm({
                   type="checkbox"
                   checked={checked}
                   onChange={() => toggleSidePot(pot.id)}
-                  className="sr-only"
+                  className="mt-1 h-4 w-4 shrink-0 accent-sea"
                 />
-                <span className="block font-semibold">{pot.name}</span>
-                <span className="mt-1 block text-sm text-ink/65">
-                  {formatUsd(SIDE_POT_BUY_IN_CENTS)} per team
+                <span>
+                  <span className="block font-semibold">{pot.name}</span>
+                  <span className="mt-1 block text-sm text-ink/65">
+                    {formatUsd(SIDE_POT_BUY_IN_CENTS)} per team
+                  </span>
                 </span>
               </label>
             );
@@ -553,16 +667,27 @@ export function RegisterForm({
         />
       </div>
 
-      <label className="flex items-start gap-3 border border-wave/15 bg-mist/70 px-4 py-3">
+      <label
+        data-field="licenseConfirmed"
+        className="flex items-start gap-3 border border-wave/15 bg-mist/70 px-4 py-3"
+      >
         <input
+          id="licenseConfirmed"
           type="checkbox"
           checked={licenseConfirmed}
           onChange={(e) => setLicenseConfirmed(e.target.checked)}
           className="mt-1 h-4 w-4 accent-sea"
           required
+          aria-invalid={Boolean(fieldErrors.licenseConfirmed?.length)}
+          aria-describedby={
+            fieldErrors.licenseConfirmed?.length
+              ? "licenseConfirmed-error"
+              : undefined
+          }
         />
         <span className="text-sm leading-relaxed">
-          I confirm each angler on this team has a valid fishing license.
+          I confirm each angler on this team has a valid fishing license.{" "}
+          <span className="text-alert">*</span>
         </span>
       </label>
       {err("licenseConfirmed")}
@@ -588,12 +713,6 @@ export function RegisterForm({
           {submitting ? "Submitting…" : "Submit registration"}
         </button>
       </div>
-
-      {formError && (
-        <p className="rounded-md bg-alert/10 px-4 py-3 text-sm text-alert">
-          {formError}
-        </p>
-      )}
     </form>
   );
 }

@@ -3,8 +3,12 @@ import { describe, it, before } from "node:test";
 
 process.env.SESSION_SECRET ??= "test-session-secret-at-least-32-chars!!";
 
-const { issueTeamInviteToken, verifyTeamInviteToken, TEAM_INVITE_PURPOSE } =
-  await import("./team-invite-token.ts");
+const {
+  issueTeamInviteToken,
+  teamInvitePath,
+  verifyTeamInviteToken,
+  TEAM_INVITE_PURPOSE,
+} = await import("./team-invite-token.ts");
 
 const TEAM_ID = "team_pretty_pier";
 
@@ -21,6 +25,9 @@ describe("team invite tokens", () => {
     const verified = verifyTeamInviteToken(token);
     assert.equal(verified.ok, true);
     if (verified.ok) assert.equal(verified.teamId, TEAM_ID);
+    const path = teamInvitePath(token);
+    assert.equal(path.startsWith("/join?token="), true);
+    assert.equal(path.includes("http"), false);
   });
 
   it("rejects a tampered token", () => {

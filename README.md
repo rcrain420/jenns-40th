@@ -4,7 +4,7 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 
 ## Features
 
-- Public landing page and team registration (optional AI team-name suggestions)
+- Public landing page and team registration (AI team-name suggestions after sign-in)
 - Teams of 2–4 anglers; guided (captain) or non-guided (primary contact)
 - $75 per fishing angler; Venmo payment link + QR (`public/venmo-qr.png`)
 - Fishing license confirmation checkbox
@@ -13,7 +13,7 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 - Catch alerts: in-app notification bell + optional browser notifications on `/catches`
 - Comments on each catch photo
 - Email + password accounts with confirmation; any confirmed user posts catches and comments as themselves
-- Registration confirmation email includes a one-tap magic link that unlocks the event session (PIN is the fallback)
+- Registration confirmation email includes a one-tap magic link that unlocks the event session (PIN is the fallback). The same unlock + invite links are on `/register/success` so a dead mailer does not block the flow.
 - Admin console: dashboard, search/filter, edit/delete, mark paid, CSV export (admin role on a user account)
 
 ## Stack
@@ -39,7 +39,9 @@ Create an account at [http://localhost:3000/login](http://localhost:3000/login).
 
 Sign up with `ADMIN_EMAIL` to get the admin console: [http://localhost:3000/admin](http://localhost:3000/admin)
 
-Set `EVENT_PIN` in `.env` to exercise the event-unlock fallback. Registration confirmation emails include a magic link that sets the same event session cookie.
+Set `EVENT_PIN` in `.env` to exercise the event-unlock fallback. Registration confirmation emails include a magic link that sets the same event session cookie. `/register/success` also shows that unlock link next to the teammate invite, so unlock does not depend on mail.
+
+**Resend domain (ops):** account and registration emails need a verified sending domain. `officialishfishingtournament.com` must be added and verified in Resend; the app will not invent a From domain or fall back to Resend’s onboarding address (that address only delivers to the account owner). Until the domain is verified, expect provider 403s — the success page reports that mail did not send and still shows the links.
 
 ### Environment variables
 

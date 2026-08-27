@@ -40,13 +40,21 @@ export async function POST(request: Request) {
     });
   }
 
+  let confirmationEmailSent = false;
   try {
-    await sendRegistrationConfirmation({
+    const delivery = await sendRegistrationConfirmation({
       teamId: result.team.id,
       teamName: result.team.teamName,
       amountDueCents: result.team.amountDueCents,
       registrantEmail: result.team.registrantEmail,
     });
+    confirmationEmailSent = delivery.delivered;
+    if (!delivery.delivered) {
+      console.error(
+        "[register] confirmation email not delivered",
+        delivery.error,
+      );
+    }
   } catch (error) {
     console.error("[register] confirmation email failed", error);
   }
@@ -59,5 +67,6 @@ export async function POST(request: Request) {
       anglerCount: result.team.anglers.length,
       paymentStatus: result.team.paymentStatus,
     },
+    confirmationEmailSent,
   });
 }

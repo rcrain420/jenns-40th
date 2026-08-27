@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   GUEST_AI_UNAVAILABLE_NOTE,
+  GUEST_REGISTRATION_EMAIL_FAILED,
+  GUEST_REGISTRATION_EMAIL_SENT,
+  GUEST_REGISTRATION_EMAIL_UNKNOWN,
+  guestCopyHasInternalLeak,
   guestSafeAiNotes,
 } from "./guest-copy.ts";
 
@@ -41,5 +45,33 @@ describe("guestSafeAiNotes", () => {
     );
     assert.equal(guestSafeAiNotes(null), null);
     assert.equal(guestSafeAiNotes("   "), null);
+  });
+
+  it("flags RESEND_* and other env names", () => {
+    assert.equal(guestCopyHasInternalLeak("Missing RESEND_API_KEY"), true);
+    assert.equal(guestCopyHasInternalLeak("Use RESEND_FROM instead"), true);
+    assert.equal(guestCopyHasInternalLeak("EVENT_PIN is unset"), true);
+  });
+});
+
+describe("registration mail status copy", () => {
+  it("does not leak env names on the success page", () => {
+    for (const text of [
+      GUEST_REGISTRATION_EMAIL_FAILED,
+      GUEST_REGISTRATION_EMAIL_SENT,
+      GUEST_REGISTRATION_EMAIL_UNKNOWN,
+    ]) {
+      assert.equal(guestCopyHasInternalLeak(text), false, text);
+      for (const name of [
+        "OPENAI_API_KEY",
+        "EVENT_PIN",
+        "SESSION_SECRET",
+        "RESEND_API_KEY",
+        "RESEND_FROM",
+        "RESEND_API",
+      ]) {
+        assert.equal(text.includes(name), false, `${name} in ${text}`);
+      }
+    }
   });
 });

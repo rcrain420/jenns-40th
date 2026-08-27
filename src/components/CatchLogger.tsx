@@ -106,8 +106,8 @@ export function CatchLogger({ viewer }: Props) {
         </p>
         <h2 className="font-display text-2xl text-wave">Post your catch</h2>
         <p className="text-ink/70">
-          Create an account (or sign in) right here — then confirm your email
-          and the camera unlocks.
+          Create an account (or sign in) right here. Confirm your email to
+          unlock the camera — joining a team does not wait on that.
         </p>
         <AuthForm next="/catches" compact onSuccess={() => router.refresh()} />
       </div>

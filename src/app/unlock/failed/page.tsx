@@ -19,8 +19,8 @@ export default async function UnlockFailedPage({
       title={missing ? "Unlock link needed" : "That link didn't take"}
       description={
         missing
-          ? "Open the confirmation email from registration and tap the unlock button."
-          : "This unlock link is expired or not valid anymore."
+          ? "Use the unlock link on your registration success page — it works even if the confirmation email never arrived."
+          : "This unlock link is expired or not valid anymore. Copy a fresh one from the registration success page."
       }
       backHref="/catches"
       backLabel="← Back to the Livewell"
