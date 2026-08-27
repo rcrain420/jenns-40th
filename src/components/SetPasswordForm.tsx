@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { notifyAuthChanged } from "@/lib/auth-client";
 import { PasswordField } from "./PasswordField";
 
 type Props = {
@@ -42,6 +43,7 @@ export function SetPasswordForm({ email, name }: Props) {
       }
       setDevConfirmUrl(data.devConfirmUrl ?? null);
       setDone(true);
+      notifyAuthChanged();
       router.refresh();
     } catch {
       setError("Network error — try again");

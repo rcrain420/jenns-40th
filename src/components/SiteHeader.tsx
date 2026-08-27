@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { NotificationBell } from "@/components/NotificationBell";
+import { AUTH_CHANGED_EVENT } from "@/lib/auth-client";
 import { EVENT } from "@/lib/config";
 import { firstName } from "@/lib/safe-path";
 import type { PublicUser } from "@/lib/users";
@@ -32,10 +33,32 @@ export function SiteHeader({
   const router = useRouter();
   const menuId = useId();
   const [open, setOpen] = useState(false);
+  const [session, setSession] = useState(account);
+  const [returnPath, setReturnPath] = useState(pathname || "/");
   const invert = tone === "invert" || variant === "bar";
 
   useEffect(() => {
     setOpen(false);
+    setReturnPath(`${window.location.pathname}${window.location.search}`);
+  }, [pathname]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function syncSession() {
+      try {
+        const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+        const data = (await res.json()) as { user?: PublicUser | null };
+        if (!cancelled) setSession(data.user ?? null);
+      } catch {
+        // keep the last known session
+      }
+    }
+    void syncSession();
+    window.addEventListener(AUTH_CHANGED_EVENT, syncSession);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(AUTH_CHANGED_EVENT, syncSession);
+    };
   }, [pathname]);
 
   useEffect(() => {
@@ -92,7 +115,15 @@ export function SiteHeader({
                 {item.label}
               </Link>
             ))}
-            {account?.isAdmin ? (
+            {session?.teamName ? (
+              <Link
+                href="/team"
+                className={`text-[0.95rem] ${linkClass("/team")}`}
+              >
+                My team
+              </Link>
+            ) : null}
+            {session?.isAdmin ? (
               <Link
                 href="/admin"
                 className="font-label text-[0.95rem] tracking-[0.14em] text-paper/45 transition hover:text-paper"
@@ -100,15 +131,17 @@ export function SiteHeader({
                 Admin
               </Link>
             ) : null}
-            {account ? (
+            {session ? (
               <>
                 <span className="font-label text-[0.95rem] tracking-[0.14em] text-paper">
-                  {firstName(account.name)}
+                  {firstName(session.name)}
                 </span>
                 <button
                   type="button"
                   onClick={async () => {
                     await fetch("/api/auth/logout", { method: "POST" });
+                    setSession(null);
+                    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
                     router.refresh();
                   }}
                   className="font-label text-[0.95rem] tracking-[0.14em] text-paper/70 transition hover:text-paper"
@@ -118,7 +151,7 @@ export function SiteHeader({
               </>
             ) : (
               <Link
-                href={`/login?next=${encodeURIComponent(pathname || "/")}`}
+                href={`/login?next=${encodeURIComponent(returnPath)}`}
                 className={`text-[0.95rem] ${linkClass("/login")}`}
               >
                 Log in
@@ -170,7 +203,15 @@ export function SiteHeader({
                 {item.label}
               </Link>
             ))}
-            {account?.isAdmin ? (
+            {session?.teamName ? (
+              <Link
+                href="/team"
+                className={`text-[1rem] ${linkClass("/team")}`}
+              >
+                My team
+              </Link>
+            ) : null}
+            {session?.isAdmin ? (
               <Link
                 href="/admin"
                 className="font-label text-[1rem] tracking-[0.14em] text-paper/45"
@@ -178,16 +219,18 @@ export function SiteHeader({
                 Admin
               </Link>
             ) : null}
-            {account ? (
+            {session ? (
               <>
                 <p className="font-label text-[1rem] tracking-[0.14em] text-paper">
-                  {firstName(account.name)}
+                  {firstName(session.name)}
                 </p>
                 <button
                   type="button"
                   onClick={async () => {
                     await fetch("/api/auth/logout", { method: "POST" });
+                    setSession(null);
                     setOpen(false);
+                    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
                     router.refresh();
                   }}
                   className="text-left font-label text-[1rem] tracking-[0.14em] text-paper/70"
@@ -197,7 +240,7 @@ export function SiteHeader({
               </>
             ) : (
               <Link
-                href={`/login?next=${encodeURIComponent(pathname || "/")}`}
+                href={`/login?next=${encodeURIComponent(returnPath)}`}
                 className={`text-[1rem] ${linkClass("/login")}`}
               >
                 Log in

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { notifyAuthChanged } from "@/lib/auth-client";
 import { ResendConfirmButton } from "./ResendConfirmButton";
 
 type Props = {
@@ -13,6 +14,7 @@ export function ConfirmEmailPanel({ email, next = "/catches" }: Props) {
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
+    notifyAuthChanged();
     router.refresh();
   }
 
@@ -23,8 +25,8 @@ export function ConfirmEmailPanel({ email, next = "/catches" }: Props) {
       </p>
       <h2 className="font-display text-2xl text-wave">Check your email</h2>
       <p className="text-ink/75">
-        We sent a link to <strong>{email}</strong>. Tap it, then this box
-        becomes the camera.
+        We sent a link to <strong>{email}</strong>. Tap it, then you can post
+        and use AI team-name ideas.
       </p>
       <ResendConfirmButton next={next} />
       <button

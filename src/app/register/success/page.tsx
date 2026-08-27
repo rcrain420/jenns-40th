@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import { InviteLinkCopy } from "@/components/InviteLinkCopy";
 import { PageShell } from "@/components/PageShell";
 import { SetPasswordForm } from "@/components/SetPasswordForm";
 import { getCurrentUser } from "@/lib/auth";
+import { teamInviteUrl } from "@/lib/team-invite";
 import {
   EVENT,
   getVenmoPayUrl,
@@ -49,6 +51,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     amountCents: team.amountDueCents,
     note: venmoNote,
   });
+  const inviteUrl = teamInviteUrl(team.id);
 
   return (
     <PageShell
@@ -73,19 +76,15 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     >
       <div className="space-y-8">
         <section className="border border-wave/15 bg-mist/60 px-5 py-5">
-          <span className="section-banner">Check your email</span>
+          <span className="section-banner">Invite the boat</span>
           <p className="mt-3 text-ink/75">
-            Look for a confirmation at{" "}
-            <span className="font-semibold text-wave">
-              {team.registrantEmail}
-            </span>
-            . One tap on the unlock link opens the Livewell on that device — log
-            catches, leave comments, and try AI team names without typing a PIN.
+            Not sure who else is fishing? Text this link when you know. They
+            create an account and join {team.teamName}. Add official names later
+            from My team — that updates the amount due.
           </p>
-          <p className="mt-3 text-sm text-ink/60">
-            Lost the email or signing up at Friday&apos;s captain&apos;s
-            meeting? The event PIN still works as a fallback.
-          </p>
+          <div className="mt-4">
+            <InviteLinkCopy url={inviteUrl} />
+          </div>
         </section>
 
         <section>

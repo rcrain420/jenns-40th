@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authorName, authorTeamName } from "@/lib/authors";
+import { authorName, authorTeamName, userTeamNameSelect } from "@/lib/authors";
 import { prisma } from "@/lib/db";
 import { catchAlertHeadline } from "@/lib/notify";
 
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       user: {
         select: {
           name: true,
-          claimedTeam: { select: { teamName: true } },
+          ...userTeamNameSelect,
         },
       },
       angler: {

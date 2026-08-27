@@ -21,6 +21,7 @@ model User {
   updatedAt       DateTime  @updatedAt
   tokens          EmailToken[]
   claimedTeam     Team?
+  membership      TeamMember?
   catches         FishCatch[]
   comments        CatchComment[]
 }
@@ -62,6 +63,18 @@ model Team {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   anglers          Angler[]
+  members          TeamMember[]
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
 }
 
 model Angler {

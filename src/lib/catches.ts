@@ -1,4 +1,9 @@
-import { authorName, authorTeamName, commentAuthorName } from "./authors";
+import {
+  authorName,
+  authorTeamName,
+  commentAuthorName,
+  userTeamNameSelect,
+} from "./authors";
 import { prisma } from "./db";
 import { estimateFishFromPhoto } from "./fish-ai";
 import { notifyAnglersOfNewCatch } from "./notify";
@@ -46,7 +51,7 @@ const catchListSelect = {
     select: {
       id: true,
       name: true,
-      claimedTeam: { select: { teamName: true } },
+      ...userTeamNameSelect,
     },
   },
   angler: {
@@ -147,7 +152,7 @@ export async function listBragBoardCatches(limit = 5) {
       user: {
         select: {
           name: true,
-          claimedTeam: { select: { teamName: true } },
+          ...userTeamNameSelect,
         },
       },
       angler: {
@@ -207,7 +212,7 @@ async function saveCatchPhotoAndEstimate(input: {
         select: {
           id: true,
           name: true,
-          claimedTeam: { select: { teamName: true } },
+          ...userTeamNameSelect,
         },
       },
       angler: {

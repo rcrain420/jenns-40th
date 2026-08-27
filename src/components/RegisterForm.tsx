@@ -14,6 +14,7 @@ import {
 import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
 import type { PublicUser } from "@/lib/users";
+import { ResendConfirmButton } from "./ResendConfirmButton";
 
 type BoatType = "GUIDED" | "NON_GUIDED";
 
@@ -262,12 +263,20 @@ export function RegisterForm({
             </ul>
           )}
             </>
+          ) : viewer ? (
+            <div className="space-y-3 rounded-md border border-wave/15 bg-mist/60 px-4 py-4">
+              <p className="text-sm text-ink/70">
+                Confirm <strong>{viewer.email}</strong> to unlock AI team-name
+                ideas.
+              </p>
+              <ResendConfirmButton next="/register" />
+            </div>
           ) : (
             <p className="text-sm text-ink/60">
               <Link href="/login?next=/register" className="font-semibold text-sea hover:underline">
-                Sign in and confirm your email
+                Sign in
               </Link>{" "}
-              to get AI team-name ideas.
+              and confirm your email to get AI team-name ideas.
             </p>
           )}
         </div>
@@ -425,7 +434,8 @@ export function RegisterForm({
           <div>
             <h3 className="font-display text-xl text-wave">Anglers</h3>
             <p className="text-sm text-ink/65">
-              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers (captain not included)
+              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers (captain not included).
+              Need two names to lock the boat — add the rest later from My team.
             </p>
           </div>
           <button

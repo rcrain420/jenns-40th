@@ -17,8 +17,15 @@ export default async function LoginPage({
   if (user) {
     if (next.startsWith("/admin") && !user.isAdmin) {
       // stay on login — they are signed in but not admin
+    } else if (!user.emailVerified && !next.startsWith("/join")) {
+      redirect(`/confirm-email?next=${encodeURIComponent(next)}`);
+    } else if (next === "/login") {
+      redirect("/catches");
+    } else if (next === "/register/success") {
+      // Success needs ?team=; without it this route 404s and feels like a dead click.
+      redirect("/catches");
     } else {
-      redirect(next === "/login" ? "/catches" : next);
+      redirect(next);
     }
   }
 

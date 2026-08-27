@@ -5,6 +5,7 @@ import {
   isRegistrationOpen,
 } from "./config";
 import { normalizeUnlockEmail } from "./event-unlock-token";
+import { ensureTeamMember } from "./team-invite";
 import type { RegistrationInput } from "./validation";
 
 export async function getTeamCount(): Promise<number> {
@@ -93,10 +94,15 @@ export async function claimTeamIfRegistrant(opts: {
   email: string;
 }) {
   const team = await prisma.team.findUnique({ where: { id: opts.teamId } });
-  if (!team || team.claimedByUserId) return;
+  if (!team) return;
   if (team.registrantEmail.trim().toLowerCase() !== opts.email) return;
-  await prisma.team.update({
-    where: { id: opts.teamId },
-    data: { claimedByUserId: opts.userId },
-  });
+  if (!team.claimedByUserId) {
+    await prisma.team.update({
+      where: { id: opts.teamId },
+      data: { claimedByUserId: opts.userId },
+    });
+  } else if (team.claimedByUserId !== opts.userId) {
+    return;
+  }
+  await ensureTeamMember(opts.userId, opts.teamId);
 }

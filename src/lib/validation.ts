@@ -99,5 +99,13 @@ export const adminTeamUpdateSchema = teamFieldsSchema
   })
   .superRefine(refineBoatContact);
 
+export const teamRosterSchema = z.object({
+  anglers: z
+    .array(anglerSchema)
+    .min(MIN_ANGLERS, `At least ${MIN_ANGLERS} anglers required`)
+    .max(MAX_ANGLERS, `At most ${MAX_ANGLERS} anglers allowed`),
+});
+
 export type RegistrationInput = z.infer<typeof registrationSchema>;
 export type AdminTeamUpdateInput = z.infer<typeof adminTeamUpdateSchema>;
+export type TeamRosterInput = z.infer<typeof teamRosterSchema>;

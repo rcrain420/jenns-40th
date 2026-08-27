@@ -3,6 +3,7 @@ import { prisma } from "./db";
 import { sendConfirmEmail, sendResetEmail } from "./email";
 import { hashPassword, MIN_PASSWORD_LENGTH, verifyPassword } from "./password";
 import { normalizeEmail } from "./safe-path";
+import { ensureTeamMember } from "./team-invite";
 
 const CONFIRM_MS = 48 * 60 * 60 * 1000;
 const RESET_MS = 60 * 60 * 1000;
@@ -15,6 +16,7 @@ export type PublicUser = {
   emailVerified: boolean;
   isAdmin: boolean;
   teamName: string | null;
+  isRegistrant: boolean;
 };
 
 export function toPublicUser(user: {
@@ -24,6 +26,7 @@ export function toPublicUser(user: {
   emailVerifiedAt: Date | null;
   role: string;
   claimedTeam?: { teamName: string } | null;
+  membership?: { team?: { teamName: string } | null } | null;
 }): PublicUser {
   return {
     id: user.id,
@@ -31,7 +34,9 @@ export function toPublicUser(user: {
     name: user.name,
     emailVerified: Boolean(user.emailVerifiedAt),
     isAdmin: user.role === "ADMIN",
-    teamName: user.claimedTeam?.teamName ?? null,
+    teamName:
+      user.membership?.team?.teamName ?? user.claimedTeam?.teamName ?? null,
+    isRegistrant: Boolean(user.claimedTeam),
   };
 }
 
@@ -42,6 +47,7 @@ const userSelect = {
   emailVerifiedAt: true,
   role: true,
   claimedTeam: { select: { id: true, teamName: true } },
+  membership: { select: { team: { select: { teamName: true } } } },
 } as const;
 
 function createTokenSecret(): string {
@@ -69,7 +75,10 @@ export async function claimTeamForUser(userId: string, email: string) {
   const existing = await prisma.team.findFirst({
     where: { claimedByUserId: userId },
   });
-  if (existing) return existing;
+  if (existing) {
+    await ensureTeamMember(userId, existing.id);
+    return existing;
+  }
 
   const match = await prisma.team.findFirst({
     where: {
@@ -80,17 +89,25 @@ export async function claimTeamForUser(userId: string, email: string) {
   });
   if (!match) return null;
 
-  return prisma.team.update({
+  const claimed = await prisma.team.update({
     where: { id: match.id },
     data: { claimedByUserId: userId },
   });
+  await ensureTeamMember(userId, claimed.id);
+  return claimed;
 }
 
 export async function findAnglerForUser(userId: string, name: string) {
-  const team = await prisma.team.findUnique({
-    where: { claimedByUserId: userId },
-    include: { anglers: { orderBy: { sortOrder: "asc" } } },
+  const member = await prisma.teamMember.findUnique({
+    where: { userId },
+    include: { team: { include: { anglers: { orderBy: { sortOrder: "asc" } } } } },
   });
+  const team =
+    member?.team ??
+    (await prisma.team.findUnique({
+      where: { claimedByUserId: userId },
+      include: { anglers: { orderBy: { sortOrder: "asc" } } },
+    }));
   if (!team?.anglers.length) return null;
   const needle = name.trim().toLowerCase();
   return (

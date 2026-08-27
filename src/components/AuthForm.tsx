@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { notifyAuthChanged } from "@/lib/auth-client";
 import { PasswordField } from "./PasswordField";
 
 export type AuthMode = "signin" | "signup";
@@ -62,6 +63,7 @@ export function AuthForm({
         return;
       }
       if (data.devConfirmUrl) setDevConfirmUrl(data.devConfirmUrl);
+      notifyAuthChanged();
       if (onSuccess) {
         onSuccess();
       } else {
