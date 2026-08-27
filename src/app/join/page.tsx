@@ -55,7 +55,7 @@ export default async function JoinPage({
     <PageShell
       narrow
       title={`Join ${team.teamName}`}
-      description="This puts your account on the boat so Livewell posts show the team name."
+      description="This puts your account on the boat so Livewell posts show the team name. You can join before you confirm email."
     >
       <JoinTeamPanel
         token={token}

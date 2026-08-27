@@ -35,7 +35,7 @@ export default async function ConfirmEmailPage({
       title={expired ? "This link expired" : "Confirm your email"}
       description={
         user
-          ? `We sent a link to ${user.email}. Tap it to finish.`
+          ? `If a confirmation email arrives at ${user.email}, tap it to finish posting. Joining a team does not wait on that.`
           : expired
             ? "Sign in and we can send a new link."
             : "Sign in and we can send a confirmation link."

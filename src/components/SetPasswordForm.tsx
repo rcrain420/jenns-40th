@@ -15,6 +15,7 @@ export function SetPasswordForm({ email, name }: Props) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [devConfirmUrl, setDevConfirmUrl] = useState<string | null>(null);
+  const [mailSent, setMailSent] = useState(false);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -36,12 +37,14 @@ export function SetPasswordForm({ email, name }: Props) {
       const data = (await res.json()) as {
         error?: string;
         devConfirmUrl?: string;
+        confirmationEmailSent?: boolean;
       };
       if (!res.ok) {
         setError(data.error ?? "Could not create account");
         return;
       }
       setDevConfirmUrl(data.devConfirmUrl ?? null);
+      setMailSent(data.confirmationEmailSent ?? false);
       setDone(true);
       notifyAuthChanged();
       router.refresh();
@@ -55,8 +58,11 @@ export function SetPasswordForm({ email, name }: Props) {
   if (done) {
     return (
       <p className="text-ink/75">
-        Account saved for <strong>{email}</strong>. Confirm that email, then
-        you can post catches as yourself.
+        Account saved for <strong>{email}</strong>. You&apos;re on the boat
+        list now. Confirming email is only needed to post catches
+        {mailSent
+          ? " — check your inbox when you want to do that."
+          : " — we could not send that email just now. You can still invite teammates."}
         {devConfirmUrl ? (
           <>
             {" "}
@@ -72,8 +78,8 @@ export function SetPasswordForm({ email, name }: Props) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <p className="text-ink/75">
-        Want to post catches later? Set a password for{" "}
-        <strong>{email}</strong>.
+        Set a password for <strong>{email}</strong> so you appear on the boat
+        list. Confirming email is only needed later to post catches.
       </p>
       <PasswordField
         value={password}

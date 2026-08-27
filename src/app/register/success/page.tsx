@@ -3,7 +3,6 @@ import { InviteLinkCopy } from "@/components/InviteLinkCopy";
 import { PageShell } from "@/components/PageShell";
 import { SetPasswordForm } from "@/components/SetPasswordForm";
 import { getCurrentUser } from "@/lib/auth";
-import { teamInviteUrl } from "@/lib/team-invite";
 import {
   EVENT,
   getVenmoPayUrl,
@@ -12,16 +11,24 @@ import {
   VENMO_HANDLE,
 } from "@/lib/config";
 import { prisma } from "@/lib/db";
+import {
+  GUEST_REGISTRATION_EMAIL_FAILED,
+  GUEST_REGISTRATION_EMAIL_SENT,
+  GUEST_REGISTRATION_EMAIL_UNKNOWN,
+} from "@/lib/guest-copy";
 import { formatUsd } from "@/lib/money";
+import { buildEventUnlockUrl } from "@/lib/registration-email";
+import { issueEventUnlockToken } from "@/lib/event-unlock-token";
+import { teamInviteUrl } from "@/lib/team-invite";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ team?: string }>;
+  searchParams: Promise<{ team?: string; mail?: string }>;
 };
 
 export default async function RegisterSuccessPage({ searchParams }: Props) {
-  const { team: teamId } = await searchParams;
+  const { team: teamId, mail } = await searchParams;
   if (!teamId) notFound();
 
   const team = await prisma.team.findUnique({
@@ -52,6 +59,17 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     note: venmoNote,
   });
   const inviteUrl = teamInviteUrl(team.id);
+  const { token: unlockToken } = issueEventUnlockToken({
+    teamId: team.id,
+    email: team.registrantEmail,
+  });
+  const unlockUrl = buildEventUnlockUrl(unlockToken);
+  const mailNote =
+    mail === "sent"
+      ? GUEST_REGISTRATION_EMAIL_SENT
+      : mail === "failed"
+        ? GUEST_REGISTRATION_EMAIL_FAILED
+        : GUEST_REGISTRATION_EMAIL_UNKNOWN;
 
   return (
     <PageShell
@@ -76,14 +94,55 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     >
       <div className="space-y-8">
         <section className="border border-wave/15 bg-mist/60 px-5 py-5">
-          <span className="section-banner">Invite the boat</span>
-          <p className="mt-3 text-ink/75">
-            Not sure who else is fishing? Text this link when you know. They
-            create an account and join {team.teamName}. Add official names later
-            from My team — that updates the amount due.
+          <span className="section-banner">Links for this boat</span>
+          <p
+            className={`mt-3 text-sm ${
+              mail === "failed" ? "text-alert" : "text-ink/75"
+            }`}
+            role={mail === "failed" ? "status" : undefined}
+          >
+            {mailNote}
           </p>
-          <div className="mt-4">
-            <InviteLinkCopy url={inviteUrl} />
+          <p className="mt-3 text-ink/75">
+            You registered this team. That does not make you the captain — add
+            the captain yourself if you have one, and invite teammates. Captains
+            might never log in.
+          </p>
+          <p className="mt-3 text-ink/75">
+            You will not show under team members until you create an account
+            with the password form below. Teammates join as soon as they create
+            an account — they do not need to confirm email first. Confirming
+            email is only needed later to post catches.
+          </p>
+          <div className="mt-5 grid gap-6 sm:grid-cols-2">
+            <div>
+              <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
+                Invite teammates
+              </h3>
+              <p className="mt-2 text-sm text-ink/65">
+                Text this when you know who else is fishing. Joining does not
+                add them to the paid roster — add official names from My team.
+              </p>
+              <div className="mt-3">
+                <InviteLinkCopy url={inviteUrl} />
+              </div>
+            </div>
+            <div>
+              <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
+                Unlock catch logging
+              </h3>
+              <p className="mt-2 text-sm text-ink/65">
+                Open this on the phone you&apos;ll use at the marina. It unlocks
+                the Livewell on that device. You do not need the confirmation
+                email.
+              </p>
+              <div className="mt-3">
+                <InviteLinkCopy
+                  url={unlockUrl}
+                  buttonLabel="Copy unlock link"
+                />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -179,8 +238,12 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
         {showSetPassword ? (
           <section className="border-t border-dashed border-wave/25 pt-8">
             <h2 className="font-display text-2xl uppercase text-wave">
-              Post catches later
+              Create your account
             </h2>
+            <p className="mt-3 text-ink/75">
+              Until you set a password, you are missing from the boat list. The
+              captain does not need an account — you add them and send invites.
+            </p>
             <div className="mt-4">
               <SetPasswordForm
                 email={team.registrantEmail}

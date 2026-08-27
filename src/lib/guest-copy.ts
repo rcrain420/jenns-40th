@@ -6,6 +6,18 @@ export const GUEST_AI_UNAVAILABLE_NOTE =
 export const GUEST_EVENT_PIN_UNAVAILABLE =
   "Catch logging isn't available right now. Try again later, or find a host.";
 
+/** Registration succeeded but the confirmation email did not go out. */
+export const GUEST_REGISTRATION_EMAIL_FAILED =
+  "We could not send the confirmation email. Use the unlock and invite links on this page — they work without mail.";
+
+/** Registration succeeded and the confirmation email was accepted by the mailer. */
+export const GUEST_REGISTRATION_EMAIL_SENT =
+  "A confirmation email is on its way. The unlock and invite links below work even if the inbox is slow.";
+
+/** Success page opened without a mail status (refresh, bookmark, or shared URL). */
+export const GUEST_REGISTRATION_EMAIL_UNKNOWN =
+  "If a confirmation email does not arrive, use the unlock and invite links on this page. They do not depend on mail.";
+
 /**
  * Env-style names, "set VAR" setup hints, stack-ish debug text, and the
  * old fallback copy that leaked config instructions onto the Brag Board.
@@ -15,7 +27,7 @@ export const GUEST_EVENT_PIN_UNAVAILABLE =
  */
 const INTERNAL_LEAKS: RegExp[] = [
   /\b[A-Z][A-Z0-9]*_(?:API_KEY|SECRET|TOKEN|PASSWORD|PIN|URL|KEY|DATABASE|BLOB)[A-Z0-9_]*\b/,
-  /\b(?:OPENAI|VERCEL|DATABASE|BLOB|SESSION|ADMIN)_[A-Z0-9_]+\b/,
+  /\b(?:OPENAI|VERCEL|DATABASE|BLOB|SESSION|ADMIN|RESEND|EVENT)_[A-Z0-9_]+\b/,
   /\b[Ss]et\s+[A-Z][A-Z0-9_]+\b/,
   /\bprocess\.env\b/i,
   /\bstack trace\b/i,
@@ -23,6 +35,11 @@ const INTERNAL_LEAKS: RegExp[] = [
   /AI estimation unavailable/i,
   /placeholder estimates/i,
 ];
+
+/** True when guest-facing text contains env names or debug leftovers. */
+export function guestCopyHasInternalLeak(text: string): boolean {
+  return INTERNAL_LEAKS.some((pattern) => pattern.test(text));
+}
 
 /**
  * Rewrite stored or generated AI notes so public pages never show config
@@ -34,7 +51,7 @@ export function guestSafeAiNotes(
   if (notes == null) return null;
   const trimmed = notes.trim();
   if (!trimmed) return null;
-  if (INTERNAL_LEAKS.some((pattern) => pattern.test(trimmed))) {
+  if (guestCopyHasInternalLeak(trimmed)) {
     return GUEST_AI_UNAVAILABLE_NOTE;
   }
   return trimmed;

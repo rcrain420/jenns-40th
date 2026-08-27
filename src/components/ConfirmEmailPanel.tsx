@@ -25,8 +25,9 @@ export function ConfirmEmailPanel({ email, next = "/catches" }: Props) {
       </p>
       <h2 className="font-display text-2xl text-wave">Check your email</h2>
       <p className="text-ink/75">
-        We sent a link to <strong>{email}</strong>. Tap it, then you can post
-        and use AI team-name ideas.
+        If a confirmation email arrives at <strong>{email}</strong>, tap it to
+        post catches and use AI team-name ideas. Joining a team does not wait
+        on that. If nothing arrives, try sending a new link.
       </p>
       <ResendConfirmButton next={next} />
       <button

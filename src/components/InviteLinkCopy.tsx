@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 
-export function InviteLinkCopy({ url }: { url: string }) {
+type Props = {
+  url: string;
+  buttonLabel?: string;
+};
+
+export function InviteLinkCopy({
+  url,
+  buttonLabel = "Copy invite link",
+}: Props) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -25,7 +33,7 @@ export function InviteLinkCopy({ url }: { url: string }) {
         onClick={() => void copy()}
         className="rounded-md bg-wave px-5 py-2.5 text-sm font-semibold text-salt hover:bg-ink"
       >
-        {copied ? "Copied" : "Copy invite link"}
+        {copied ? "Copied" : buttonLabel}
       </button>
     </div>
   );

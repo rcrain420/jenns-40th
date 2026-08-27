@@ -17,7 +17,7 @@ export function registrationConfirmationCopy(
   const subject = `You're on the list — ${input.teamName} at Jenn's 40th`;
 
   const text = [
-    `Hey captain of ${input.teamName},`,
+    `Hey — ${input.teamName} is on the list.`,
     "",
     `You're registered for ${input.shortName} — ${input.dateLabel} at ${input.venue}.`,
     `Amount due: ${input.amountLabel}. Venmo ${input.venmoHandle} and put your team name in the note so we can match it.`,
@@ -38,7 +38,7 @@ export function registrationConfirmationCopy(
       <tr>
         <td>
           <p style="margin:0 0 8px;letter-spacing:0.12em;text-transform:uppercase;font-size:12px;">${escapeHtml(input.shortName)}</p>
-          <h1 style="margin:0 0 16px;font-size:28px;line-height:1.2;">You're on the list, ${escapeHtml(input.teamName)}.</h1>
+          <h1 style="margin:0 0 16px;font-size:28px;line-height:1.2;">${escapeHtml(input.teamName)} is on the list.</h1>
           <p style="margin:0 0 16px;line-height:1.5;">
             ${escapeHtml(input.dateLabel)} at ${escapeHtml(input.venue)}. Amount due:
             <strong>${escapeHtml(input.amountLabel)}</strong>. Venmo

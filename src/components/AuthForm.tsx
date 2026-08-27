@@ -31,12 +31,14 @@ export function AuthForm({
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [devConfirmUrl, setDevConfirmUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setNotice(null);
     setDevConfirmUrl(null);
     setLoading(true);
     try {
@@ -55,6 +57,7 @@ export function AuthForm({
         error?: string;
         code?: string;
         devConfirmUrl?: string;
+        confirmationEmailSent?: boolean;
       };
       if (!res.ok) {
         if (data.code === "exists") setMode("signin");
@@ -63,6 +66,11 @@ export function AuthForm({
         return;
       }
       if (data.devConfirmUrl) setDevConfirmUrl(data.devConfirmUrl);
+      if (mode === "signup" && data.confirmationEmailSent === false) {
+        setNotice(
+          "Account created. We could not send the confirmation email — you can still join a team. Confirm later to post catches.",
+        );
+      }
       notifyAuthChanged();
       if (onSuccess) {
         onSuccess();
@@ -125,6 +133,12 @@ export function AuthForm({
         </p>
       ) : null}
 
+      {notice ? (
+        <p className="rounded-md bg-mist px-3 py-2 text-sm text-wave" role="status">
+          {notice}
+        </p>
+      ) : null}
+
       {devConfirmUrl && process.env.NODE_ENV !== "production" ? (
         <p className="text-sm text-sea">
           Local dev:{" "}
@@ -152,6 +166,7 @@ export function AuthForm({
           className="font-semibold text-sea hover:underline"
           onClick={() => {
             setError(null);
+            setNotice(null);
             setMode(mode === "signin" ? "signup" : "signin");
           }}
         >

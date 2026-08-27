@@ -55,7 +55,9 @@ export function JoinTeamPanel({ token, teamName, signedIn }: Props) {
       <div className="space-y-4">
         <p className="text-ink/75">
           Create an account (or sign in) to hop on{" "}
-          <strong>{teamName}</strong>.
+          <strong>{teamName}</strong>. Joining works right away — you do not
+          need to confirm email first. Confirming email is only needed later to
+          post catches.
         </p>
         <AuthForm next={next} compact />
       </div>

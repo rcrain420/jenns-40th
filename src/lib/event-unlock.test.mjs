@@ -159,11 +159,15 @@ describe("registration confirmation email", () => {
     assert.ok(message.html.includes(unlockUrl));
     assert.ok(message.html.includes("Unlock catch logging"));
     assert.equal(verifyEventUnlockToken(token).ok, true);
+    assert.equal(/Hey captain/i.test(message.text), false);
+    assert.ok(message.text.includes("Pretty Pier Pressure is on the list"));
 
     const leaked = [
       "EVENT_PIN",
       "SESSION_SECRET",
       "RESEND_API_KEY",
+      "RESEND_FROM",
+      "OPENAI_API_KEY",
       "ADMIN_PASSWORD",
     ];
     for (const name of leaked) {

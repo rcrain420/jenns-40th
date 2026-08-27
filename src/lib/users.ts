@@ -142,7 +142,12 @@ export async function getUserById(id: string) {
   });
 }
 
-type AuthOk = { ok: true; user: PublicUser; devConfirmUrl?: string };
+type AuthOk = {
+  ok: true;
+  user: PublicUser;
+  devConfirmUrl?: string;
+  confirmationEmailSent?: boolean;
+};
 type AuthFail = { ok: false; error: string; status: number; code?: string };
 
 export async function signupUser(input: {
@@ -191,13 +196,18 @@ export async function signupUser(input: {
   const refreshed = (await getUserById(user.id)) ?? user;
 
   const secret = await issueEmailToken(user.id, "CONFIRM_EMAIL", CONFIRM_MS);
+  let confirmationEmailSent = false;
   try {
-    await sendConfirmEmail({
+    const delivery = await sendConfirmEmail({
       to: email,
       name,
       token: secret,
       next: input.next,
     });
+    confirmationEmailSent = delivery.delivered;
+    if (!delivery.delivered) {
+      console.error("Confirmation email not delivered", delivery.error);
+    }
   } catch (err) {
     console.error("Failed to send confirm email", err);
   }
@@ -205,6 +215,7 @@ export async function signupUser(input: {
   return {
     ok: true,
     user: toPublicUser(refreshed),
+    confirmationEmailSent,
     ...devConfirmPayload(secret, input.next),
   };
 }
@@ -306,12 +317,20 @@ export async function resendConfirmation(opts: {
   }
   const secret = await issueEmailToken(user.id, "CONFIRM_EMAIL", CONFIRM_MS);
   try {
-    await sendConfirmEmail({
+    const delivery = await sendConfirmEmail({
       to: user.email,
       name: user.name,
       token: secret,
       next: opts.next,
     });
+    if (!delivery.delivered) {
+      console.error("Confirmation email not delivered", delivery.error);
+      return {
+        ok: false,
+        error: "Could not send email — try again in a minute",
+        status: 500,
+      };
+    }
   } catch (err) {
     console.error("Failed to resend confirm email", err);
     return { ok: false, error: "Could not send email — try again in a minute", status: 500 };

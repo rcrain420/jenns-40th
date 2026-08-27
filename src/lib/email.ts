@@ -12,8 +12,15 @@ export type EmailDelivery = {
   delivered: boolean;
   provider?: "resend";
   error?: "not_configured" | "provider_error";
+  status?: number;
 };
 
+/**
+ * From: header. Prefer the configured address, then the tournament domain.
+ * Do not fall back to the mail provider's onboarding address — that domain
+ * only delivers to the account owner, so registrant mail would still fail.
+ * Verify the From domain with the provider (ops); unlock/invite do not wait on mail.
+ */
 function fromAddress(): string {
   return (
     process.env.EMAIL_FROM?.trim() ||
@@ -57,7 +64,17 @@ export async function sendEmail(message: OutboundEmail): Promise<EmailDelivery> 
   if (!response.ok) {
     const detail = await response.text();
     console.error("[email] provider rejected send", response.status, detail);
-    return { delivered: false, provider: "resend", error: "provider_error" };
+    if (response.status === 403) {
+      console.error(
+        "[email] send blocked — the From domain is probably not verified with the mail provider. Unlock and invite links do not depend on mail.",
+      );
+    }
+    return {
+      delivered: false,
+      provider: "resend",
+      error: "provider_error",
+      status: response.status,
+    };
   }
 
   return { delivered: true, provider: "resend" };
@@ -65,7 +82,7 @@ export async function sendEmail(message: OutboundEmail): Promise<EmailDelivery> 
 
 async function sendMail(opts: OutboundEmail): Promise<void> {
   const result = await sendEmail(opts);
-  if (result.error === "provider_error") {
+  if (!result.delivered) {
     throw new Error("Could not send email");
   }
 }
@@ -93,10 +110,10 @@ export async function sendConfirmEmail(opts: {
   name: string;
   token: string;
   next?: string;
-}): Promise<void> {
+}): Promise<EmailDelivery> {
   const href = confirmEmailUrl(opts.token, opts.next);
   const first = opts.name.trim().split(/\s+/)[0] || "there";
-  await sendMail({
+  return sendEmail({
     to: opts.to,
     subject: `Confirm your ${EVENT.brandNav} account`,
     text: `Hi ${first},\n\nTap this link to start posting on the Livewell:\n${href}\n\nThis link expires in 48 hours.`,
