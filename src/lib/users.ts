@@ -3,6 +3,7 @@ import { prisma } from "./db";
 import { sendConfirmEmail, sendResetEmail } from "./email";
 import { hashPassword, MIN_PASSWORD_LENGTH, verifyPassword } from "./password";
 import { normalizeEmail } from "./safe-path";
+import { shouldSendSignupConfirmEmail } from "./signup-confirm";
 import { ensureTeamMember } from "./team-invite";
 
 const CONFIRM_MS = 48 * 60 * 60 * 1000;
@@ -202,6 +203,16 @@ export async function signupUser(input: {
 
   await claimTeamForUser(user.id, email);
   const refreshed = (await getUserById(user.id)) ?? user;
+  const publicUser = toPublicUser(refreshed);
+
+  if (
+    !shouldSendSignupConfirmEmail({
+      emailVerified: publicUser.emailVerified,
+      next: input.next,
+    })
+  ) {
+    return { ok: true, user: publicUser, confirmationEmailSent: false };
+  }
 
   const secret = await issueEmailToken(user.id, "CONFIRM_EMAIL", CONFIRM_MS);
   let confirmationEmailSent = false;
@@ -222,7 +233,7 @@ export async function signupUser(input: {
 
   return {
     ok: true,
-    user: toPublicUser(refreshed),
+    user: publicUser,
     confirmationEmailSent,
     ...devConfirmPayload(secret, input.next),
   };

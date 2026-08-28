@@ -21,6 +21,12 @@ import {
   eventUnlockPath,
   issueEventUnlockToken,
 } from "@/lib/event-unlock-token";
+import {
+  SUCCESS_CREATOR_ACCESS_NOTE,
+  SUCCESS_UNLOCK_NOTE,
+  SUCCESS_VENMO_BANNER,
+  SUCCESS_VENMO_NOTE,
+} from "@/lib/register-success-copy";
 import { issueTeamInviteToken, teamInvitePath } from "@/lib/team-invite";
 
 export const dynamic = "force-dynamic";
@@ -106,12 +112,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             the captain yourself if you have one, and invite teammates. Captains
             might never log in.
           </p>
-          <p className="mt-3 text-ink/75">
-            You will not show under team members until you create an account
-            with the password form below. Adding an angler email sends them
-            Join the boat. After they join they can see the team and post on
-            the Livewell — no PIN, no second unlock, no extra email confirm.
-          </p>
+          <p className="mt-3 text-ink/75">{SUCCESS_CREATOR_ACCESS_NOTE}</p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
             <div>
               <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
@@ -130,12 +131,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
                 Open my team
               </h3>
-              <p className="mt-2 text-sm text-ink/65">
-                Open this on the phone you&apos;ll use at the marina. It signs
-                you into this boat (if you already have an account) and unlocks
-                the Livewell on that device — no PIN. You do not need the
-                confirmation email.
-              </p>
+              <p className="mt-2 text-sm text-ink/65">{SUCCESS_UNLOCK_NOTE}</p>
               <div className="mt-3">
                 <InviteLinkCopy
                   url={unlockUrl}
@@ -147,9 +143,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
         </section>
 
         <section>
-          <span className="section-banner">Next step: Venmo</span>
+          <span className="section-banner">{SUCCESS_VENMO_BANNER}</span>
           <p className="mt-3 text-ink/75">
-            Send payment to{" "}
+            {SUCCESS_VENMO_NOTE}{" "}
             <a
               href={venmoPayUrl}
               target="_blank"
