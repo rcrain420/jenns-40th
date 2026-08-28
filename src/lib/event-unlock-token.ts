@@ -57,6 +57,15 @@ export function eventUnlockPath(token: string): string {
   return `/unlock?token=${encodeURIComponent(token)}`;
 }
 
+export function unlockLandingPath(input: {
+  hasUser: boolean;
+  teamId: string;
+}): string {
+  return input.hasUser
+    ? "/team?unlocked=1"
+    : `/register/success?team=${encodeURIComponent(input.teamId)}`;
+}
+
 export function issueEventUnlockToken(input: {
   teamId: string;
   email: string;

@@ -44,9 +44,8 @@ export function TeamRosterEditor({
   canInvite,
 }: Props) {
   const router = useRouter();
-  const [anglers, setAnglers] = useState<RosterAnglerDraft[]>(
-    initialAnglers.length ? initialAnglers : [emptyAngler(), emptyAngler()],
-  );
+  const [anglers, setAnglers] = useState<RosterAnglerDraft[]>(initialAnglers);
+  const [addingCount, setAddingCount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [invitingIndex, setInvitingIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,12 +64,33 @@ export function TeamRosterEditor({
     );
   }
 
+  function addAngler() {
+    if (anglers.length >= MAX_ANGLERS) return;
+    setAnglers((prev) => [...prev, emptyAngler()]);
+    setAddingCount((count) => count + 1);
+    setSaved(false);
+    setInviteNote(null);
+  }
+
+  function removeAngler(index: number) {
+    const row = anglers[index];
+    if (row?.id && anglers.filter((a) => a.id).length <= MIN_ANGLERS) {
+      setError(`Keep at least ${MIN_ANGLERS} fishing anglers on the roster.`);
+      return;
+    }
+    setAnglers((prev) => prev.filter((_, i) => i !== index));
+    if (!row?.id) {
+      setAddingCount((count) => Math.max(0, count - 1));
+    }
+  }
+
   async function saveRoster(): Promise<RosterAnglerDraft[] | null> {
+    const named = anglers.filter((a) => a.fullName.trim());
     const res = await fetch("/api/team", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        anglers: anglers.map((a) => ({
+        anglers: named.map((a) => ({
           fullName: a.fullName,
           phone: a.phone,
           email: a.email,
@@ -92,6 +112,7 @@ export function TeamRosterEditor({
       email: a.email ?? "",
     }));
     setAnglers(next);
+    setAddingCount(0);
     return next;
   }
 
@@ -172,16 +193,13 @@ export function TeamRosterEditor({
           invite. Name-only seats stay on the PIN / walk-up path, and the
           shared team link still works as backup.
           {canEditRoster
-            ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers. Adding someone updates the amount due.`
+            ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers. Use + Add angler to add a seat — the add form stays hidden until you click it.`
             : " Registration is closed, so names stay as they are — you can still add an email and resend Invite."}
         </p>
         {canEditRoster ? (
           <button
             type="button"
-            onClick={() => {
-              if (anglers.length >= MAX_ANGLERS) return;
-              setAnglers((prev) => [...prev, emptyAngler()]);
-            }}
+            onClick={addAngler}
             disabled={anglers.length >= MAX_ANGLERS}
             className="shrink-0 text-sm font-semibold text-sea disabled:opacity-40"
           >
@@ -190,16 +208,70 @@ export function TeamRosterEditor({
         ) : null}
       </div>
 
+      {anglers.length === 0 ? (
+        <p className="text-sm text-ink/60">
+          No extra seats yet. Click + Add angler to add someone to the paid
+          roster.
+        </p>
+      ) : null}
+
       {anglers.map((angler, index) => {
         const emailOk = EMAIL_RE.test(angler.email.trim());
+        const isDraft = !angler.id;
+        if (!isDraft) {
+          return (
+            <div
+              key={angler.id ?? `saved-${index}`}
+              className="flex flex-col gap-3 border border-wave/15 bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <p className="font-semibold text-wave">{angler.fullName}</p>
+              <div className="flex flex-1 flex-col gap-2 sm:max-w-md sm:flex-row sm:items-center">
+                {canInvite ? (
+                  <input
+                    id={`roster-email-${index}`}
+                    type="email"
+                    autoComplete="email"
+                    className="w-full border border-wave/20 bg-paper px-3 py-2 text-ink outline-none ring-sun/30 focus:ring-2"
+                    value={angler.email}
+                    onChange={(e) => patchAngler(index, { email: e.target.value })}
+                    placeholder="Email to invite (optional)"
+                    aria-label={`Email for ${angler.fullName}`}
+                  />
+                ) : null}
+                <div className="flex items-center gap-3">
+                  {canInvite ? (
+                    <button
+                      type="button"
+                      onClick={() => void onInvite(index)}
+                      disabled={!emailOk || invitingIndex === index}
+                      className="rounded-md bg-wave px-4 py-2 text-sm font-semibold text-salt hover:bg-ink disabled:opacity-40"
+                    >
+                      {invitingIndex === index ? "Sending…" : "Invite"}
+                    </button>
+                  ) : null}
+                  {canEditRoster ? (
+                    <button
+                      type="button"
+                      onClick={() => removeAngler(index)}
+                      className="text-sm text-alert"
+                    >
+                      Remove
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div
-            key={angler.id ?? `new-${index}`}
+            key={`new-${index}`}
             className="grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-[1fr_1fr_auto]"
           >
             <div>
               <label className={labelClass} htmlFor={`roster-name-${index}`}>
-                Angler {index + 1}
+                New angler
               </label>
               <input
                 id={`roster-name-${index}`}
@@ -207,7 +279,6 @@ export function TeamRosterEditor({
                 value={angler.fullName}
                 onChange={(e) => patchAngler(index, { fullName: e.target.value })}
                 required
-                disabled={!canEditRoster}
               />
             </div>
             <div>
@@ -224,7 +295,6 @@ export function TeamRosterEditor({
                 onChange={(e) =>
                   patchAngler(index, { phone: formatPhoneInput(e.target.value) })
                 }
-                disabled={!canEditRoster}
               />
             </div>
             <div className="sm:col-span-2">
@@ -239,7 +309,6 @@ export function TeamRosterEditor({
                 value={angler.email}
                 onChange={(e) => patchAngler(index, { email: e.target.value })}
                 placeholder="Leave blank for walk-ups and kids"
-                disabled={!canInvite && !canEditRoster}
               />
             </div>
             <div className="flex items-end gap-3">
@@ -253,18 +322,13 @@ export function TeamRosterEditor({
                   {invitingIndex === index ? "Sending…" : "Invite"}
                 </button>
               ) : null}
-              {canEditRoster ? (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setAnglers((prev) => prev.filter((_, i) => i !== index))
-                  }
-                  disabled={anglers.length <= MIN_ANGLERS}
-                  className="pb-2.5 text-sm text-alert disabled:opacity-30"
-                >
-                  Remove
-                </button>
-              ) : null}
+              <button
+                type="button"
+                onClick={() => removeAngler(index)}
+                className="pb-2.5 text-sm text-alert"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         );

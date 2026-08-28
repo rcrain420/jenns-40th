@@ -129,12 +129,13 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             </div>
             <div>
               <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
-                Unlock catch logging
+                Open my team
               </h3>
               <p className="mt-2 text-sm text-ink/65">
-                Open this on the phone you&apos;ll use at the marina. It unlocks
-                the Livewell on that device. You do not need the confirmation
-                email.
+                Open this on the phone you&apos;ll use at the marina. It signs
+                you into this boat (if you already have an account) and unlocks
+                the Livewell on that device — no PIN. You do not need the
+                confirmation email.
               </p>
               <div className="mt-3">
                 <InviteLinkCopy

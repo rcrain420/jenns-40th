@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
-import { grantEventUnlock } from "@/lib/auth";
-import { evaluateEventUnlockToken } from "@/lib/event-unlock-token";
-import { registrationMatchesUnlock } from "@/lib/registration";
+import { grantEventUnlock, setLoggedInUser } from "@/lib/auth";
+import {
+  evaluateEventUnlockToken,
+  unlockLandingPath,
+} from "@/lib/event-unlock-token";
+import {
+  registrationMatchesUnlock,
+  signInRegistrantFromUnlock,
+} from "@/lib/registration";
 
 export const dynamic = "force-dynamic";
 
@@ -30,5 +36,18 @@ export async function GET(request: Request) {
   }
 
   await grantEventUnlock();
-  return redirectTo(request, "/catches?unlocked=1");
+  const signedIn = await signInRegistrantFromUnlock({
+    teamId: evaluated.teamId,
+    email: evaluated.email,
+  });
+  if (signedIn.userId) {
+    await setLoggedInUser(signedIn.userId);
+  }
+  return redirectTo(
+    request,
+    unlockLandingPath({
+      hasUser: Boolean(signedIn.userId),
+      teamId: evaluated.teamId,
+    }),
+  );
 }
