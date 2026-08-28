@@ -4,7 +4,7 @@ import {
   getRegistrantClaim,
   setLoggedInUser,
 } from "@/lib/auth";
-import { registrantClaimMatches } from "@/lib/registrant-unlock";
+import { registrantClaimMatches } from "@/lib/open-my-team-access";
 import { safeNextPath } from "@/lib/safe-path";
 import { signupUser } from "@/lib/users";
 

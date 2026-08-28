@@ -5,14 +5,13 @@ process.env.SESSION_SECRET ??= "test-session-secret-at-least-32-chars!!";
 
 const { unlockLandingPath } = await import("./event-unlock-token.ts");
 const { JOIN_SITE_ACCESS } = await import("./join-site-access.ts");
-const { OPEN_MY_TEAM_ACCESS, OPEN_MY_TEAM_NEXT } = await import(
-  "./open-my-team-access.ts"
-);
 const {
+  OPEN_MY_TEAM_ACCESS,
+  OPEN_MY_TEAM_NEXT,
   openMyTeamLandingPath,
   planOpenMyTeamUnlock,
   registrantClaimMatches,
-} = await import("./registrant-unlock.ts");
+} = await import("./open-my-team-access.ts");
 
 const TEAM_ID = "cmtd6l49d0003if04drr4vtvf";
 const EMAIL = "Aaron@Example.com";

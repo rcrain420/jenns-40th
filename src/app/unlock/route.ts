@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { rememberRegistrantClaim } from "@/lib/auth";
 import { evaluateEventUnlockToken } from "@/lib/event-unlock-token";
 import { registrationMatchesUnlock } from "@/lib/registration";
-import { planOpenMyTeamUnlock } from "@/lib/registrant-unlock";
+import { planOpenMyTeamUnlock } from "@/lib/open-my-team-access";
 
 export const dynamic = "force-dynamic";
 

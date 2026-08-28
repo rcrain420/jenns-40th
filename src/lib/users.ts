@@ -3,8 +3,10 @@ import { prisma } from "./db";
 import { sendConfirmEmail, sendResetEmail } from "./email";
 import { hashPassword, MIN_PASSWORD_LENGTH, verifyPassword } from "./password";
 import { claimTeamIfRegistrant } from "./registration";
-import type { RegistrantClaim } from "./registrant-unlock";
-import { registrantClaimMatches } from "./registrant-unlock";
+import {
+  registrantClaimMatches,
+  type RegistrantClaim,
+} from "./open-my-team-access";
 import { normalizeEmail } from "./safe-path";
 import { ensureTeamMember } from "./team-invite";
 

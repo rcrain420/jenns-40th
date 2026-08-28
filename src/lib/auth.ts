@@ -6,7 +6,7 @@ import {
   isEventPinConfigured,
   normalizeUnlockEmail,
 } from "./event-unlock-token";
-import type { RegistrantClaim } from "./registrant-unlock";
+import type { RegistrantClaim } from "./open-my-team-access";
 import { getUserById, toPublicUser, type PublicUser } from "./users";
 
 export { checkEventPin, isEventPinConfigured };
