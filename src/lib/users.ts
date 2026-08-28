@@ -8,6 +8,7 @@ import {
   type RegistrantClaim,
 } from "./open-my-team-access";
 import { normalizeEmail } from "./safe-path";
+import { shouldSendSignupConfirmEmail } from "./signup-confirm";
 import { ensureTeamMember } from "./team-invite";
 
 const CONFIRM_MS = 48 * 60 * 60 * 1000;
@@ -222,15 +223,16 @@ export async function signupUser(input: {
   });
 
   await claimTeamForUser(user.id, email);
-  const claimedViaOpenMyTeam = await applyOpenMyTeamClaim(
-    user.id,
-    email,
-    input.registrantClaim,
-  );
+  await applyOpenMyTeamClaim(user.id, email, input.registrantClaim);
   const refreshed = (await getUserById(user.id)) ?? user;
   const publicUser = toPublicUser(refreshed);
 
-  if (claimedViaOpenMyTeam || publicUser.emailVerified) {
+  if (
+    !shouldSendSignupConfirmEmail({
+      emailVerified: publicUser.emailVerified,
+      next: input.next,
+    })
+  ) {
     return { ok: true, user: publicUser, confirmationEmailSent: false };
   }
 

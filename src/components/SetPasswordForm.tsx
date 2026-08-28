@@ -15,8 +15,6 @@ export function SetPasswordForm({ email, initialName = "" }: Props) {
   const [name, setName] = useState(initialName);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [devConfirmUrl, setDevConfirmUrl] = useState<string | null>(null);
-  const [mailSent, setMailSent] = useState(false);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -41,15 +39,11 @@ export function SetPasswordForm({ email, initialName = "" }: Props) {
       });
       const data = (await res.json()) as {
         error?: string;
-        devConfirmUrl?: string;
-        confirmationEmailSent?: boolean;
       };
       if (!res.ok) {
         setError(data.error ?? "Could not create account");
         return;
       }
-      setDevConfirmUrl(data.devConfirmUrl ?? null);
-      setMailSent(data.confirmationEmailSent ?? false);
       setDone(true);
       notifyAuthChanged();
       router.refresh();
@@ -64,18 +58,8 @@ export function SetPasswordForm({ email, initialName = "" }: Props) {
     return (
       <p className="text-ink/75">
         Account saved for <strong>{email}</strong>. You&apos;re on the boat
-        list now. Confirming email is only needed to post catches
-        {mailSent
-          ? " — check your inbox when you want to do that."
-          : " — we could not send that email just now. You can still invite teammates."}
-        {devConfirmUrl ? (
-          <>
-            {" "}
-            <a href={devConfirmUrl} className="font-semibold text-sea underline">
-              Confirm now (local)
-            </a>
-          </>
-        ) : null}
+        list now. Join the boat or the unlock link on this page opens the
+        Livewell — no extra email confirm.
       </p>
     );
   }
@@ -85,7 +69,8 @@ export function SetPasswordForm({ email, initialName = "" }: Props) {
       <p className="text-ink/75">
         Set a password for <strong>{email}</strong> so you — the person who
         registered — appear on the boat list. This is not the captain&apos;s
-        login. Confirming email is only needed later to post catches.
+        login. Join the boat or the unlock link on this page opens the
+        Livewell.
       </p>
       <div>
         <label htmlFor="creator-name" className="block text-sm font-semibold text-wave">
