@@ -187,15 +187,10 @@ describe("registration confirmation email", () => {
     }
   });
 
-  it("lands a signed-in registrant on My team, not a login wall", () => {
-    assert.equal(
-      unlockLandingPath({ hasUser: true, teamId: TEAM_ID }),
-      "/team?unlocked=1",
-    );
-    assert.equal(
-      unlockLandingPath({ hasUser: false, teamId: TEAM_ID }),
-      `/register/success?team=${TEAM_ID}`,
-    );
+  it("always lands a valid unlock on the Livewell, never success or My team", () => {
+    assert.equal(unlockLandingPath(), "/catches?unlocked=1");
+    assert.equal(unlockLandingPath().startsWith("/register/success"), false);
+    assert.equal(unlockLandingPath().startsWith("/team"), false);
   });
 
   it("success-page unlock path stays on this origin", () => {

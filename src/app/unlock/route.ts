@@ -43,11 +43,5 @@ export async function GET(request: Request) {
   if (signedIn.userId) {
     await setLoggedInUser(signedIn.userId);
   }
-  return redirectTo(
-    request,
-    unlockLandingPath({
-      hasUser: Boolean(signedIn.userId),
-      teamId: evaluated.teamId,
-    }),
-  );
+  return redirectTo(request, unlockLandingPath());
 }
