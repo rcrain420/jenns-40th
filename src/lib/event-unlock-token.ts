@@ -57,12 +57,11 @@ export function eventUnlockPath(token: string): string {
   return `/unlock?token=${encodeURIComponent(token)}`;
 }
 
-/** After the event cookie is set: Livewell for guests, My team if already signed in. */
-export function unlockLandingPath(input: {
-  hasUser: boolean;
-  teamId: string;
-}): string {
-  return input.hasUser ? "/team?unlocked=1" : "/catches?unlocked=1";
+/** Fixed public landing after a valid unlock. Never the success-page referer. */
+export const UNLOCK_SUCCESS_PATH = "/catches?unlocked=1";
+
+export function unlockLandingPath(): string {
+  return UNLOCK_SUCCESS_PATH;
 }
 
 export function issueEventUnlockToken(input: {
