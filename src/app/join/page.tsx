@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function JoinPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ token?: string; email?: string; name?: string }>;
 }) {
-  const { token = "" } = await searchParams;
+  const { token = "", email = "", name = "" } = await searchParams;
   const verified = verifyTeamInviteToken(token);
   const viewer = await getCurrentUser();
 
@@ -61,6 +61,8 @@ export default async function JoinPage({
         token={token}
         teamName={team.teamName}
         signedIn={Boolean(viewer)}
+        initialEmail={email}
+        initialName={name}
       />
     </PageShell>
   );

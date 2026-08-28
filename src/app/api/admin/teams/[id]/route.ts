@@ -97,6 +97,7 @@ export async function PATCH(request: Request, { params }: Params) {
           create: input.anglers.map((a, index) => ({
             fullName: a.fullName,
             phone: a.phone ?? null,
+            email: a.email ?? null,
             sortOrder: index,
           })),
         },

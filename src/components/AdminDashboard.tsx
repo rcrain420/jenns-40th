@@ -14,7 +14,7 @@ export type AdminTeamRow = {
   registrantEmail: string;
   captainName: string | null;
   contactName: string | null;
-  anglers: { fullName: string }[];
+  anglers: { fullName: string; email?: string | null }[];
   createdAt: string;
 };
 
@@ -46,6 +46,7 @@ export function AdminDashboard({ teams, stats }: Props) {
         t.contactName,
         t.registrantEmail,
         ...t.anglers.map((a) => a.fullName),
+        ...t.anglers.map((a) => a.email),
       ]
         .filter(Boolean)
         .join(" ")

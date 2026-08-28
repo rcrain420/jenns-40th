@@ -40,6 +40,19 @@ export function teamInvitePath(token: string): string {
   return `/join?token=${encodeURIComponent(token)}`;
 }
 
+export function anglerInvitePath(
+  token: string,
+  email: string,
+  name?: string,
+): string {
+  const params = new URLSearchParams({
+    token,
+    email: email.trim().toLowerCase(),
+  });
+  if (name?.trim()) params.set("name", name.trim());
+  return `/join?${params.toString()}`;
+}
+
 export function issueTeamInviteToken(input: {
   teamId: string;
   now?: Date;

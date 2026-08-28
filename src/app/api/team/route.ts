@@ -46,6 +46,7 @@ export async function GET() {
         id: a.id,
         fullName: a.fullName,
         phone: a.phone ?? "",
+        email: a.email ?? "",
       })),
       members: team.members.map((m) => ({
         id: m.user.id,
@@ -116,6 +117,7 @@ export async function PATCH(request: Request) {
           create: nextAnglers.map((a, index) => ({
             fullName: a.fullName,
             phone: a.phone ?? null,
+            email: a.email ?? null,
             sortOrder: index,
           })),
         },
@@ -135,6 +137,7 @@ export async function PATCH(request: Request) {
         id: a.id,
         fullName: a.fullName,
         phone: a.phone ?? "",
+        email: a.email ?? "",
       })),
     },
   });

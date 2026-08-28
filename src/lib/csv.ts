@@ -43,7 +43,9 @@ export function teamsToCsv(teams: TeamWithAnglers[]): string {
       t.contactEmail,
       t.registrantEmail,
       t.anglers.length,
-      t.anglers.map((a) => a.fullName).join("; "),
+      t.anglers
+        .map((a) => (a.email ? `${a.fullName} <${a.email}>` : a.fullName))
+        .join("; "),
       t.amountDueCents,
       (t.amountDueCents / 100).toFixed(2),
       t.paymentStatus,

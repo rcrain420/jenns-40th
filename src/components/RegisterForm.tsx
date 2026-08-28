@@ -21,11 +21,12 @@ type BoatType = "GUIDED" | "NON_GUIDED";
 type AnglerDraft = {
   fullName: string;
   phone: string;
+  email: string;
 };
 
 type FieldErrors = Record<string, string[] | undefined>;
 
-const emptyAngler = (): AnglerDraft => ({ fullName: "", phone: "" });
+const emptyAngler = (): AnglerDraft => ({ fullName: "", phone: "", email: "" });
 
 const FIELD_ORDER = [
   "teamName",
@@ -169,6 +170,11 @@ export function RegisterForm({
     if (named.length < MIN_ANGLERS) {
       next.anglers = [`At least ${MIN_ANGLERS} anglers required`];
     }
+    anglers.forEach((a, index) => {
+      if (a.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email.trim())) {
+        next[`angler-email-${index}`] = ["Valid email required"];
+      }
+    });
     if (!licenseConfirmed) {
       next.licenseConfirmed = [
         "You must confirm each angler has a valid fishing license",
@@ -544,10 +550,13 @@ export function RegisterForm({
               Anglers <span className="text-alert">*</span>
             </h3>
             <p className="text-sm text-ink/65">
-              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers. The captain is not
-              an angler slot and does not need an account — you add them above
-              on a guided boat. Need two names to lock the boat; add the rest
-              later from My team.
+              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers. Email is optional —
+              walk-ups and kids can stay name-only and still join with the
+              shared invite link or the event PIN. If you add an email, send
+              their own magic-link invite from My team after you register. The
+              captain is not an angler slot and does not need an account — you
+              add them above on a guided boat. Need two names to lock the boat;
+              add the rest later from My team.
             </p>
           </div>
           <button
@@ -563,7 +572,7 @@ export function RegisterForm({
           {anglers.map((angler, index) => (
             <div
               key={index}
-              className="grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-[1fr_1fr_auto]"
+              className="grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-[1fr_1fr_1fr_auto]"
             >
               <div>
                 <label className={labelClass} htmlFor={`angler-name-${index}`}>
@@ -578,6 +587,28 @@ export function RegisterForm({
                   }
                   required
                 />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor={`angler-email-${index}`}>
+                  Email (optional)
+                </label>
+                <input
+                  id={`angler-email-${index}`}
+                  type="email"
+                  autoComplete="email"
+                  className={inputClass}
+                  value={angler.email}
+                  onChange={(e) =>
+                    updateAngler(index, { email: e.target.value })
+                  }
+                  aria-invalid={Boolean(fieldErrors[`angler-email-${index}`]?.length)}
+                  aria-describedby={
+                    fieldErrors[`angler-email-${index}`]?.length
+                      ? `angler-email-${index}-error`
+                      : undefined
+                  }
+                />
+                {err(`angler-email-${index}`)}
               </div>
               <div>
                 <label className={labelClass} htmlFor={`angler-phone-${index}`}>

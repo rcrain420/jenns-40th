@@ -49,6 +49,7 @@ export default async function AdminTeamDetailPage({ params }: Props) {
               anglers: team.anglers.map((a) => ({
                 fullName: a.fullName,
                 phone: a.phone ?? "",
+                email: a.email ?? "",
               })),
               sidePots: team.sidePots as SidePotId[],
             }}
