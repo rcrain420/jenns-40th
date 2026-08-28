@@ -29,6 +29,7 @@ export function teamCreateData(input: RegistrationInput) {
   const anglers = input.anglers.map((a, index) => ({
     fullName: a.fullName,
     phone: a.phone ?? null,
+    email: a.email ?? null,
     sortOrder: index,
   }));
 

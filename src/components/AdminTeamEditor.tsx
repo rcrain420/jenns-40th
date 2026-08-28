@@ -12,7 +12,7 @@ import {
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 
-type AnglerDraft = { fullName: string; phone: string };
+type AnglerDraft = { fullName: string; phone: string; email: string };
 type BoatType = "GUIDED" | "NON_GUIDED";
 
 type Props = {
@@ -35,7 +35,7 @@ type Props = {
   };
 };
 
-const emptyAngler = (): AnglerDraft => ({ fullName: "", phone: "" });
+const emptyAngler = (): AnglerDraft => ({ fullName: "", phone: "", email: "" });
 
 export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   const router = useRouter();
@@ -249,7 +249,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
           </button>
         </div>
         {anglers.map((angler, index) => (
-          <div key={index} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+          <div key={index} className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
             <input
               className={inputClass}
               placeholder={`Angler ${index + 1} name`}
@@ -262,6 +262,19 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
                 )
               }
               required
+            />
+            <input
+              type="email"
+              className={inputClass}
+              placeholder="Email (optional)"
+              value={angler.email}
+              onChange={(e) =>
+                setAnglers((prev) =>
+                  prev.map((a, i) =>
+                    i === index ? { ...a, email: e.target.value } : a,
+                  ),
+                )
+              }
             />
             <input
               className={inputClass}

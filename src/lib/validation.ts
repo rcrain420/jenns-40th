@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { optionalAnglerEmailSchema } from "./angler-email";
 import { MAX_ANGLERS, MIN_ANGLERS, SIDE_POT_IDS } from "./config";
 
 const anglerSchema = z.object({
@@ -8,6 +9,7 @@ const anglerSchema = z.object({
     .trim()
     .optional()
     .transform((v) => (v ? v : undefined)),
+  email: optionalAnglerEmailSchema,
 });
 
 const teamFieldsSchema = z.object({

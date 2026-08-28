@@ -118,8 +118,10 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
                 Invite teammates
               </h3>
               <p className="mt-2 text-sm text-ink/65">
-                Text this when you know who else is fishing. Joining does not
-                add them to the paid roster — add official names from My team.
+                Shared backup link — text this when you know who else is
+                fishing. For anglers with an email, send their own magic-link
+                Invite from My team. Name-only seats stay on this link or the
+                event PIN. Joining does not add them to the paid roster.
               </p>
               <div className="mt-3">
                 <InviteLinkCopy url={inviteUrl} />

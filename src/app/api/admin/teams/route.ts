@@ -34,6 +34,7 @@ export async function GET(request: Request) {
       t.contactName,
       t.registrantEmail,
       ...t.anglers.map((a) => a.fullName),
+      ...t.anglers.map((a) => a.email),
     ]
       .filter(Boolean)
       .join(" ")

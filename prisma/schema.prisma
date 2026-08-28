@@ -83,6 +83,8 @@ model Angler {
   team      Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
   fullName  String
   phone     String?
+  /// Optional. Name-only seats stay on the PIN / shared-link path.
+  email     String?
   sortOrder Int
   catches   FishCatch[]
   comments  CatchComment[]

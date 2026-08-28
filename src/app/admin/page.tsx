@@ -33,7 +33,7 @@ export default async function AdminPage() {
     registrantEmail: t.registrantEmail,
     captainName: t.captainName,
     contactName: t.contactName,
-    anglers: t.anglers.map((a) => ({ fullName: a.fullName })),
+    anglers: t.anglers.map((a) => ({ fullName: a.fullName, email: a.email })),
     createdAt: t.createdAt.toISOString(),
   }));
 

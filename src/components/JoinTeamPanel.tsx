@@ -9,9 +9,17 @@ type Props = {
   token: string;
   teamName: string;
   signedIn: boolean;
+  initialEmail?: string;
+  initialName?: string;
 };
 
-export function JoinTeamPanel({ token, teamName, signedIn }: Props) {
+export function JoinTeamPanel({
+  token,
+  teamName,
+  signedIn,
+  initialEmail = "",
+  initialName = "",
+}: Props) {
   const router = useRouter();
   const next = `/join?token=${encodeURIComponent(token)}`;
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +67,12 @@ export function JoinTeamPanel({ token, teamName, signedIn }: Props) {
           need to confirm email first. Confirming email is only needed later to
           post catches.
         </p>
-        <AuthForm next={next} compact />
+        <AuthForm
+          next={next}
+          compact
+          initialEmail={initialEmail}
+          initialName={initialName}
+        />
       </div>
     );
   }

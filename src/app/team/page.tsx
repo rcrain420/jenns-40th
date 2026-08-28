@@ -93,7 +93,7 @@ export default async function MyTeamPage({
           <span className="section-banner">Invite the boat</span>
           <p className="mt-3 text-ink/75">
             {isRegistrant
-              ? "You registered this boat, so you invite teammates. Add the captain yourself if you have one — they might never log in. Teammates create an account and land on the team without confirming email first. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
+              ? "You registered this boat, so you invite teammates. Add the captain yourself if you have one — they might never log in. If a roster row has an email, use Invite to send that person their own magic-link invite. Name-only seats stay on the PIN / walk-up path. The shared link below is the backup. Teammates create an account and land on the team without confirming email first. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
               : "You’re on this boat. The person who registered adds the captain and sends invites — captains might never log in. Joining does not add you to the paid roster."}
           </p>
           <div className="mt-4">
@@ -115,18 +115,22 @@ export default async function MyTeamPage({
 
         <section>
           <span className="section-banner">Official roster</span>
-          {canEdit ? (
+          {isRegistrant ? (
             <div className="mt-4">
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({
+                  id: a.id,
                   fullName: a.fullName,
                   phone: a.phone ?? "",
+                  email: a.email ?? "",
                 }))}
                 sidePotCount={team.sidePots.length}
                 paymentStatus={
                   team.paymentStatus === "PAID" ? "PAID" : "UNPAID"
                 }
                 currentDueCents={team.amountDueCents}
+                canEditRoster={canEdit}
+                canInvite
               />
             </div>
           ) : (
@@ -134,15 +138,10 @@ export default async function MyTeamPage({
               {team.anglers.map((a) => (
                 <li key={a.id}>{a.fullName}</li>
               ))}
-              {!isRegistrant ? (
-                <p className="mt-3 text-sm text-ink/60">
-                  Only the person who registered can change paid names.
-                </p>
-              ) : (
-                <p className="mt-3 text-sm text-ink/60">
-                  Registration is closed. Ask an organizer to change the roster.
-                </p>
-              )}
+              <p className="mt-3 text-sm text-ink/60">
+                Only the person who registered can change paid names or send
+                invites.
+              </p>
             </ul>
           )}
         </section>
