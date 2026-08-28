@@ -98,6 +98,7 @@ export async function PATCH(request: Request, { params }: Params) {
             fullName: a.fullName,
             phone: a.phone ?? null,
             email: a.email ?? null,
+            isYouth: a.isYouth === true,
             sortOrder: index,
           })),
         },

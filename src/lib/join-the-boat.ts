@@ -6,8 +6,9 @@
  * set a password they are on that boat — name on the roster, Joined,
  * full Livewell, not captain. Later visits use that password.
  *
- * The boat lists every invited angler as Joined or Pending. Name-only
- * seats stay name-only / not emailed.
+ * The boat lists every invited adult as Joined or Pending. Name-only
+ * seats stay name-only / not emailed. Youth seats are parent-login
+ * and never pending create-account.
  *
  * Leaf module so Node tests can import it without extension rewriting.
  */
@@ -19,7 +20,7 @@ export const JOIN_THE_BOAT = {
   addsPaidRoster: false,
 } as const;
 
-export type BoatRosterStatus = "joined" | "pending" | "name-only";
+export type BoatRosterStatus = "joined" | "pending" | "name-only" | "youth";
 
 export type BoatRosterRow = {
   name: string;
@@ -38,7 +39,11 @@ function normalizeEmail(email: string | null | undefined): string | null {
 
 /** Derive the boat list from paid seats + accounts that finished join. */
 export function buildBoatRoster(input: {
-  anglers: Array<{ fullName: string; email?: string | null }>;
+  anglers: Array<{
+    fullName: string;
+    email?: string | null;
+    isYouth?: boolean | null;
+  }>;
   members: Array<{ name: string; email: string }>;
 }): BoatRosterRow[] {
   const memberByEmail = new Map<string, { name: string; email: string }>();
@@ -52,6 +57,14 @@ export function buildBoatRoster(input: {
 
   for (const angler of input.anglers) {
     const email = normalizeEmail(angler.email);
+    if (angler.isYouth) {
+      rows.push({
+        name: angler.fullName,
+        email,
+        status: "youth",
+      });
+      continue;
+    }
     if (!email) {
       rows.push({
         name: angler.fullName,
@@ -84,5 +97,6 @@ export function buildBoatRoster(input: {
 export function boatRosterStatusLabel(status: BoatRosterStatus): string {
   if (status === "joined") return "Joined";
   if (status === "pending") return "Pending";
+  if (status === "youth") return "Youth · parent login";
   return "Name-only · not emailed";
 }

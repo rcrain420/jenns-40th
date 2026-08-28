@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { optionalAnglerEmailSchema } from "./angler-email";
 import { MAX_ANGLERS, MIN_ANGLERS, SIDE_POT_IDS } from "./config";
+import {
+  LICENSE_CONFIRM_ERROR,
+  YOUTH_ATTESTATION_ERROR,
+  youthGuardianAttestationMissing,
+} from "./youth";
 
 const anglerSchema = z.object({
   fullName: z.string().trim().min(1, "Angler name is required"),
@@ -10,6 +15,7 @@ const anglerSchema = z.object({
     .optional()
     .transform((v) => (v ? v : undefined)),
   email: optionalAnglerEmailSchema,
+  isYouth: z.boolean().optional().default(false),
 });
 
 const teamFieldsSchema = z.object({
@@ -86,27 +92,49 @@ function refineBoatContact<T extends z.infer<typeof teamFieldsSchema>>(
   }
 }
 
+function refineYouthAttestation(
+  data: {
+    anglers: Array<{ isYouth?: boolean }>;
+    youthGuardianAttested?: boolean;
+  },
+  ctx: z.RefinementCtx,
+) {
+  if (youthGuardianAttestationMissing(data.anglers, data.youthGuardianAttested)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["youthGuardianAttested"],
+      message: YOUTH_ATTESTATION_ERROR,
+    });
+  }
+}
+
 export const registrationSchema = teamFieldsSchema
   .extend({
     licenseConfirmed: z.literal(true, {
-      error: "You must confirm each angler has a valid fishing license",
+      error: LICENSE_CONFIRM_ERROR,
     }),
+    youthGuardianAttested: z.boolean().optional(),
   })
-  .superRefine(refineBoatContact);
+  .superRefine(refineBoatContact)
+  .superRefine(refineYouthAttestation);
 
 export const adminTeamUpdateSchema = teamFieldsSchema
   .extend({
     licenseConfirmed: z.boolean(),
     paymentStatus: z.enum(["UNPAID", "PAID"]),
+    youthGuardianAttested: z.boolean().optional(),
   })
   .superRefine(refineBoatContact);
 
-export const teamRosterSchema = z.object({
-  anglers: z
-    .array(anglerSchema)
-    .min(MIN_ANGLERS, `At least ${MIN_ANGLERS} anglers required`)
-    .max(MAX_ANGLERS, `At most ${MAX_ANGLERS} anglers allowed`),
-});
+export const teamRosterSchema = z
+  .object({
+    anglers: z
+      .array(anglerSchema)
+      .min(MIN_ANGLERS, `At least ${MIN_ANGLERS} anglers required`)
+      .max(MAX_ANGLERS, `At most ${MAX_ANGLERS} anglers allowed`),
+    youthGuardianAttested: z.boolean().optional(),
+  })
+  .superRefine(refineYouthAttestation);
 
 export type RegistrationInput = z.infer<typeof registrationSchema>;
 export type AdminTeamUpdateInput = z.infer<typeof adminTeamUpdateSchema>;

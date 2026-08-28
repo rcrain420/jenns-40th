@@ -1,0 +1,149 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { PageShell } from "@/components/PageShell";
+import { TeamRosterEditor } from "@/components/TeamRosterEditor";
+import { getCurrentUser } from "@/lib/auth";
+import { EVENT, FEE_PER_ANGLER_CENTS, isRegistrationOpen } from "@/lib/config";
+import { prisma } from "@/lib/db";
+import { formatUsd } from "@/lib/money";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: `Rowan & Rider · ${EVENT.shortName}`,
+  description:
+    "Kids pot for Rowan and Rider — full roster seats, parent login, host-funded biggest fish.",
+};
+
+export default async function KidsPage() {
+  const user = await getCurrentUser();
+  const member = user
+    ? await prisma.teamMember.findUnique({
+        where: { userId: user.id },
+        include: {
+          team: {
+            include: { anglers: { orderBy: { sortOrder: "asc" } } },
+          },
+        },
+      })
+    : null;
+  const team = member?.team ?? null;
+  const isRegistrant = Boolean(team && team.claimedByUserId === user?.id);
+  const canEdit = isRegistrant && isRegistrationOpen();
+
+  return (
+    <PageShell
+      title="Rowan & Rider"
+      description="This weekend is theirs too. Register a youth angler as a full seat — the kids pot is host-funded, biggest qualifying fish."
+    >
+      <article className="space-y-10">
+        <section>
+          <span className="section-banner">Celebration</span>
+          <h2 className="mt-4 font-display text-2xl uppercase text-wave">
+            Rowan and Rider
+          </h2>
+          <p className="mt-3 text-ink/80">
+            Jenn&apos;s birthday bash is a family tournament. Rowan and Rider
+            are part of this weekend too — not a side note, not a name-only
+            walk-up, and not a separate kids account. They fish on a real
+            boat, on a real roster.
+          </p>
+          <p className="mt-3 text-ink/80">
+            The kids pot is their own lane on the scale: heaviest qualifying
+            fish by a registered youth angler, prize from Jenn and Aaron.
+          </p>
+        </section>
+
+        <section>
+          <span className="section-banner">How kids fish</span>
+          <ul className="mt-4 list-disc space-y-3 pl-5 text-ink/80">
+            <li>
+              A youth angler is a full paid roster seat — same{" "}
+              {formatUsd(FEE_PER_ANGLER_CENTS)}, same 2–4 cap, same “only
+              registered anglers&apos; fish count.”
+            </li>
+            <li>
+              A parent or legal guardian registers them. Kids can use a
+              parent&apos;s email. They do not need their own account. Parent
+              login is the login.
+            </li>
+            <li>
+              The kids pot is biggest qualifying fish, host-funded, $0 to
+              enter. Official winner is the Weighmaster at weigh-in — not the
+              AI Livewell guess.
+            </li>
+            <li>
+              Youth fish still count on the team stringer and on paid team
+              side pots. Their $75 still grows the main pot.
+            </li>
+          </ul>
+          <p className="mt-4">
+            <Link
+              href="/rules#kids-pot"
+              className="font-semibold text-sea underline-offset-4 hover:underline"
+            >
+              Kids pot rules →
+            </Link>
+          </p>
+        </section>
+
+        <section>
+          <span className="section-banner">Entry</span>
+          {!user ? (
+            <div className="mt-4 space-y-4">
+              <p className="text-ink/80">
+                Register the team and mark each youth angler as 17 or under.
+                Same form — the youth fields will be emphasized.
+              </p>
+              <Link href="/register?youth=1" className="btn-bay btn-bay-red">
+                Register a youth angler
+              </Link>
+            </div>
+          ) : team && isRegistrant ? (
+            <div className="mt-4 space-y-4">
+              <p className="text-ink/80">
+                Add youth anglers to {team.teamName} here. Same roster save as
+                My team. Kids count toward the four-angler cap and the $75
+                seat.
+              </p>
+              <TeamRosterEditor
+                initialAnglers={team.anglers.map((a) => ({
+                  id: a.id,
+                  fullName: a.fullName,
+                  phone: a.phone ?? "",
+                  email: a.email ?? "",
+                  isYouth: a.isYouth,
+                }))}
+                sidePotCount={team.sidePots.length}
+                paymentStatus={
+                  team.paymentStatus === "PAID" ? "PAID" : "UNPAID"
+                }
+                currentDueCents={team.amountDueCents}
+                canEditRoster={canEdit}
+                canInvite
+                defaultNewIsYouth
+              />
+            </div>
+          ) : team ? (
+            <p className="mt-4 text-ink/80">
+              You&apos;re on {team.teamName}. Ask the person who registered
+              the boat to add youth anglers from{" "}
+              <Link href="/team" className="font-semibold text-sea hover:underline">
+                My team
+              </Link>
+              .
+            </p>
+          ) : (
+            <p className="mt-4 text-ink/80">
+              You&apos;re signed in. Open{" "}
+              <Link href="/team" className="font-semibold text-sea hover:underline">
+                My team
+              </Link>{" "}
+              to add youth anglers once you&apos;re on a boat.
+            </p>
+          )}
+        </section>
+      </article>
+    </PageShell>
+  );
+}

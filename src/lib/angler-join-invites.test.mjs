@@ -21,12 +21,13 @@ describe("register / Invite join emails", () => {
     process.env.SESSION_SECRET = "test-session-secret-at-least-32-chars!!";
   });
 
-  it("fires Join the boat only for emailed seats, never name-only", () => {
+  it("fires Join the boat only for emailed adult seats, never name-only or youth", () => {
     const recipients = emailedAnglersForJoinInvite([
       { fullName: "Pat Email", email: "pat@example.com" },
-      { fullName: "Kid Walkup", email: null },
+      { fullName: "Walkup Adult", email: null },
       { fullName: "Blank", email: "  " },
       { fullName: "Pat Again", email: "pat@example.com" },
+      { fullName: "Rowan", email: "parent@example.com", isYouth: true },
     ]);
     assert.deepEqual(
       recipients.map((r) => ({ name: r.fullName, email: r.email })),

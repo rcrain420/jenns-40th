@@ -12,7 +12,12 @@ import {
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 
-type AnglerDraft = { fullName: string; phone: string; email: string };
+type AnglerDraft = {
+  fullName: string;
+  phone: string;
+  email: string;
+  isYouth: boolean;
+};
 type BoatType = "GUIDED" | "NON_GUIDED";
 
 type Props = {
@@ -31,11 +36,17 @@ type Props = {
     licenseConfirmed: boolean;
     paymentStatus: "UNPAID" | "PAID";
     anglers: AnglerDraft[];
+    youthGuardianAttested?: boolean;
     sidePots: SidePotId[];
   };
 };
 
-const emptyAngler = (): AnglerDraft => ({ fullName: "", phone: "", email: "" });
+const emptyAngler = (): AnglerDraft => ({
+  fullName: "",
+  phone: "",
+  email: "",
+  isYouth: false,
+});
 
 export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   const router = useRouter();
@@ -88,6 +99,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
       paymentStatus,
       anglers,
       sidePots,
+      youthGuardianAttested: anglers.some((a) => a.isYouth),
     };
   }
 
@@ -250,6 +262,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
         </div>
         {anglers.map((angler, index) => (
           <div key={index} className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
+            <div>
             <input
               className={inputClass}
               placeholder={`Angler ${index + 1} name`}
@@ -263,6 +276,12 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
               }
               required
             />
+            {angler.isYouth ? (
+              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.08em] text-wave">
+                Youth
+              </p>
+            ) : null}
+            </div>
             <input
               type="email"
               className={inputClass}
@@ -298,6 +317,21 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
             >
               Remove
             </button>
+            <label className="flex items-center gap-2 text-sm sm:col-span-3">
+              <input
+                type="checkbox"
+                checked={angler.isYouth}
+                onChange={(e) =>
+                  setAnglers((prev) =>
+                    prev.map((a, i) =>
+                      i === index ? { ...a, isYouth: e.target.checked } : a,
+                    ),
+                  )
+                }
+                className="accent-sea"
+              />
+              17 or under
+            </label>
           </div>
         ))}
       </div>

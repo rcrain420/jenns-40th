@@ -111,6 +111,22 @@ export async function claimTeamForUser(userId: string, email: string) {
   return claimed;
 }
 
+export async function findTeamAnglersForUser(userId: string) {
+  const member = await prisma.teamMember.findUnique({
+    where: { userId },
+    include: {
+      team: { include: { anglers: { orderBy: { sortOrder: "asc" } } } },
+    },
+  });
+  const team =
+    member?.team ??
+    (await prisma.team.findUnique({
+      where: { claimedByUserId: userId },
+      include: { anglers: { orderBy: { sortOrder: "asc" } } },
+    }));
+  return team?.anglers ?? [];
+}
+
 export async function findAnglerForUser(userId: string, name: string) {
   const member = await prisma.teamMember.findUnique({
     where: { userId },

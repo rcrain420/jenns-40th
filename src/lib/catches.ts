@@ -9,7 +9,8 @@ import { estimateFishFromPhoto } from "./fish-ai";
 import { guestSafeAiNotes } from "./guest-copy";
 import { notifyAnglersOfNewCatch } from "./notify";
 import { uploadCatchPhoto } from "./storage";
-import { findAnglerForUser, type PublicUser } from "./users";
+import { resolveCatchAnglerCredit } from "./catch-credit";
+import { findTeamAnglersForUser, type PublicUser } from "./users";
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -105,7 +106,11 @@ export async function listCatchesGroupedByAuthor(): Promise<CatchAuthorGroup[]> 
 
   const groups = new Map<string, CatchAuthorGroup>();
   for (const c of catches) {
-    const key = c.userId ? `user:${c.userId}` : `angler:${c.anglerId ?? c.id}`;
+    const key = c.anglerId
+      ? `angler:${c.anglerId}`
+      : c.userId
+        ? `user:${c.userId}`
+        : `catch:${c.id}`;
     const mapped = {
       id: c.id,
       photoPath: c.photoPath,
@@ -247,12 +252,22 @@ export async function createCatchFromUpload(
     };
   }
 
-  const angler = await findAnglerForUser(user.id, user.name);
+  const requested = formData.get("anglerId");
+  const requestedAnglerId =
+    typeof requested === "string" ? requested : null;
+  const teamAnglers = await findTeamAnglersForUser(user.id);
+  const credit = resolveCatchAnglerCredit({
+    teamAnglers,
+    requestedAnglerId,
+  });
+  if (!credit.ok) {
+    return { ok: false, error: credit.error, status: 400 };
+  }
 
   try {
     const saved = await saveCatchPhotoAndEstimate({
       userId: user.id,
-      anglerId: angler?.id ?? null,
+      anglerId: credit.anglerId,
       file,
     });
     const notify = await notifyAnglersOfNewCatch({

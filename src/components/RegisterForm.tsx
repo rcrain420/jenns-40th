@@ -14,6 +14,16 @@ import {
 import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
 import type { PublicUser } from "@/lib/users";
+import {
+  CAPTAIN_CONTACT_ADULT_NOTE,
+  LICENSE_CONFIRM_ERROR,
+  LICENSE_CONFIRM_LABEL,
+  YOUTH_ATTESTATION_ERROR,
+  YOUTH_ATTESTATION_LABEL,
+  YOUTH_CHECKBOX_LABEL,
+  YOUTH_EMAIL_HELPER,
+  hasYouthAngler,
+} from "@/lib/youth";
 import { ResendConfirmButton } from "./ResendConfirmButton";
 
 type BoatType = "GUIDED" | "NON_GUIDED";
@@ -22,11 +32,17 @@ type AnglerDraft = {
   fullName: string;
   phone: string;
   email: string;
+  isYouth: boolean;
 };
 
 type FieldErrors = Record<string, string[] | undefined>;
 
-const emptyAngler = (): AnglerDraft => ({ fullName: "", phone: "", email: "" });
+const emptyAngler = (isYouth = false): AnglerDraft => ({
+  fullName: "",
+  phone: "",
+  email: "",
+  isYouth,
+});
 
 const FIELD_ORDER = [
   "teamName",
@@ -37,6 +53,7 @@ const FIELD_ORDER = [
   "contactPhone",
   "registrantEmail",
   "anglers",
+  "youthGuardianAttested",
   "licenseConfirmed",
 ] as const;
 
@@ -45,6 +62,7 @@ type RegisterFormProps = {
   initialBoatType?: BoatType;
   initialCaptainName?: string;
   viewer?: PublicUser | null;
+  emphasizeYouth?: boolean;
 };
 
 export function RegisterForm({
@@ -52,6 +70,7 @@ export function RegisterForm({
   initialBoatType,
   initialCaptainName = "",
   viewer = null,
+  emphasizeYouth = false,
 }: RegisterFormProps) {
   const router = useRouter();
   const [teamName, setTeamName] = useState("");
@@ -63,9 +82,10 @@ export function RegisterForm({
   const [registrantEmail, setRegistrantEmail] = useState(viewer?.email ?? "");
   const [notes, setNotes] = useState("");
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
+  const [youthGuardianAttested, setYouthGuardianAttested] = useState(false);
   const [anglers, setAnglers] = useState<AnglerDraft[]>([
     emptyAngler(),
-    emptyAngler(),
+    emptyAngler(emphasizeYouth),
   ]);
   const [sidePots, setSidePots] = useState<SidePotId[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -175,10 +195,11 @@ export function RegisterForm({
         next[`angler-email-${index}`] = ["Valid email required"];
       }
     });
+    if (hasYouthAngler(anglers) && !youthGuardianAttested) {
+      next.youthGuardianAttested = [YOUTH_ATTESTATION_ERROR];
+    }
     if (!licenseConfirmed) {
-      next.licenseConfirmed = [
-        "You must confirm each angler has a valid fishing license",
-      ];
+      next.licenseConfirmed = [LICENSE_CONFIRM_ERROR];
     }
     return next;
   }
@@ -227,6 +248,7 @@ export function RegisterForm({
           registrantEmail,
           notes,
           licenseConfirmed: licenseConfirmed ? true : false,
+          youthGuardianAttested,
           anglers,
           sidePots,
         }),
@@ -417,7 +439,8 @@ export function RegisterForm({
       {boatType === "GUIDED" ? (
         <div className="space-y-3">
           <p className="text-sm text-ink/65">
-            You add the captain — they do not need an account. Still looking?{" "}
+            You add the captain — they do not need an account. {CAPTAIN_CONTACT_ADULT_NOTE}{" "}
+            Still looking?{" "}
             <Link href="/guides" className="font-semibold text-sea hover:underline">
               Search Rockport fishing guides
             </Link>
@@ -469,6 +492,8 @@ export function RegisterForm({
       ) : null}
 
       {boatType === "NON_GUIDED" ? (
+        <div className="space-y-3">
+        <p className="text-sm text-ink/65">{CAPTAIN_CONTACT_ADULT_NOTE}</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className={labelClass} htmlFor="contactName">
@@ -512,6 +537,7 @@ export function RegisterForm({
             {err("contactPhone")}
           </div>
         </div>
+        </div>
       ) : null}
 
       <div>
@@ -550,12 +576,15 @@ export function RegisterForm({
               Anglers <span className="text-alert">*</span>
             </h3>
             <p className="text-sm text-ink/65">
-              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers. Email is optional —
-              walk-ups and kids can stay name-only and still join with the
-              shared invite link or the event PIN. If you add an email, they
-              get a Join the boat email. The captain is not an angler slot and
-              does not need an account — you add them above on a guided boat.
-              Need two names to lock the boat; add the rest later from My team.
+              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers, including kids.
+              Name and whether they are 17 or under are required. Email is
+              optional — {YOUTH_EMAIL_HELPER} Walk-up adults can stay
+              name-only and still join with the shared invite link or the
+              event PIN. That is not the kids path. If you add an email on an
+              adult seat, they get a Join the boat email. Youth seats do not
+              get a create-account invite. The captain is not an angler slot
+              and must be 18+ — you add them above on a guided boat. Need two
+              names to lock the boat; add the rest later from My team.
             </p>
           </div>
           <button
@@ -567,6 +596,13 @@ export function RegisterForm({
             + Add angler
           </button>
         </div>
+        {emphasizeYouth ? (
+          <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
+            Registering a youth angler? Check <strong>17 or under</strong> on
+            their seat. They are a full ${FEE_PER_ANGLER_CENTS / 100} roster
+            spot. {YOUTH_EMAIL_HELPER}
+          </p>
+        ) : null}
         <div className="mt-4 space-y-4">
           {anglers.map((angler, index) => (
             <div
@@ -639,6 +675,23 @@ export function RegisterForm({
                   Remove
                 </button>
               </div>
+              <label className="flex items-center gap-2 sm:col-span-3">
+                <input
+                  id={`angler-youth-${index}`}
+                  type="checkbox"
+                  checked={angler.isYouth}
+                  onChange={(e) =>
+                    updateAngler(index, { isYouth: e.target.checked })
+                  }
+                  className="h-4 w-4 accent-sea"
+                />
+                <span className="text-sm">{YOUTH_CHECKBOX_LABEL}</span>
+              </label>
+              {angler.isYouth ? (
+                <p className="text-sm text-ink/60 sm:col-span-4">
+                  {YOUTH_EMAIL_HELPER}
+                </p>
+              ) : null}
             </div>
           ))}
         </div>
@@ -716,11 +769,37 @@ export function RegisterForm({
           }
         />
         <span className="text-sm leading-relaxed">
-          I confirm each angler on this team has a valid fishing license.{" "}
-          <span className="text-alert">*</span>
+          {LICENSE_CONFIRM_LABEL} <span className="text-alert">*</span>
         </span>
       </label>
       {err("licenseConfirmed")}
+
+      {hasYouthAngler(anglers) ? (
+        <>
+          <label
+            data-field="youthGuardianAttested"
+            className="flex items-start gap-3 border border-wave/15 bg-mist/70 px-4 py-3"
+          >
+            <input
+              id="youthGuardianAttested"
+              type="checkbox"
+              checked={youthGuardianAttested}
+              onChange={(e) => setYouthGuardianAttested(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-sea"
+              aria-invalid={Boolean(fieldErrors.youthGuardianAttested?.length)}
+              aria-describedby={
+                fieldErrors.youthGuardianAttested?.length
+                  ? "youthGuardianAttested-error"
+                  : undefined
+              }
+            />
+            <span className="text-sm leading-relaxed">
+              {YOUTH_ATTESTATION_LABEL} <span className="text-alert">*</span>
+            </span>
+          </label>
+          {err("youthGuardianAttested")}
+        </>
+      ) : null}
 
       <div className="flex flex-col gap-4 border-t border-[var(--line)] pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-lg">

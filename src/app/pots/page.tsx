@@ -3,6 +3,7 @@ import { PotBoard } from "@/components/PotBoard";
 import { SiteHeader } from "@/components/SiteHeader";
 import {
   FEE_PER_ANGLER_CENTS,
+  HOST_FUNDED_POTS,
   MAIN_POT_SPLITS,
   SIDE_POT_BUY_IN_CENTS,
 } from "@/lib/config";
@@ -76,15 +77,32 @@ export default async function PotsPage() {
                 register or at Friday&apos;s captain&apos;s meeting.
               </span>
             </li>
-            <li className="flex gap-3">
-              <span className="text-sun" aria-hidden>
-                ★
-              </span>
-              <span>
-                Heaviest saltwater catfish is free — every team is already in,
-                and the prize comes from Jenn and Aaron.
-              </span>
-            </li>
+            {HOST_FUNDED_POTS.map((pot) => (
+              <li key={pot.id} className="flex gap-3">
+                <span className="text-sun" aria-hidden>
+                  ★
+                </span>
+                <span>
+                  {pot.name} is {pot.buyInLabel.toLowerCase()}
+                  {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by Jenn
+                  and Aaron
+                  {pot.id === "kids"
+                    ? ", for the heaviest qualifying fish by a registered youth angler. Youth still pay the $75 seat and grow the main pot."
+                    : ", and every team is already in."}
+                  {pot.href ? (
+                    <>
+                      {" "}
+                      <Link
+                        href={pot.href}
+                        className="text-sun underline-offset-2 hover:underline"
+                      >
+                        Kids page →
+                      </Link>
+                    </>
+                  ) : null}
+                </span>
+              </li>
+            ))}
           </ul>
           <div className="mt-6 flex flex-wrap items-center gap-4">
             {availability.isOpen ? (

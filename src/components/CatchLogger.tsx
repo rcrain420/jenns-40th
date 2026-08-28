@@ -8,8 +8,15 @@ import { guestSafeAiNotes } from "@/lib/guest-copy";
 import { AuthForm } from "./AuthForm";
 import { ConfirmEmailPanel } from "./ConfirmEmailPanel";
 
+export type CatchLoggerAngler = {
+  id: string;
+  fullName: string;
+  isYouth: boolean;
+};
+
 type Props = {
   viewer: PublicUser | null;
+  teamAnglers?: CatchLoggerAngler[];
 };
 
 type LoggedCatch = {
@@ -23,7 +30,7 @@ type LoggedCatch = {
   aiProvider: string;
 };
 
-export function CatchLogger({ viewer }: Props) {
+export function CatchLogger({ viewer, teamAnglers = [] }: Props) {
   const router = useRouter();
   const inputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -33,6 +40,7 @@ export function CatchLogger({ viewer }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [lastCatch, setLastCatch] = useState<LoggedCatch | null>(null);
   const [notifyNote, setNotifyNote] = useState<string | null>(null);
+  const [caughtById, setCaughtById] = useState("");
 
   useEffect(() => {
     return () => {
@@ -64,11 +72,16 @@ export function CatchLogger({ viewer }: Props) {
       setError("Take or choose a photo of the fish");
       return;
     }
+    if (teamAnglers.length > 1 && !caughtById) {
+      setError("Who caught this? Pick the angler on your team.");
+      return;
+    }
 
     setSubmitting(true);
     try {
       const body = new FormData();
       body.set("photo", file);
+      if (caughtById) body.set("anglerId", caughtById);
 
       const res = await fetch("/api/catches", { method: "POST", body });
       const data = (await res.json()) as {
@@ -131,6 +144,43 @@ export function CatchLogger({ viewer }: Props) {
           <span className="font-normal text-ink/55"> · {viewer.teamName}</span>
         ) : null}
       </p>
+      {teamAnglers.length > 1 ? (
+        <fieldset>
+          <legend className="text-sm font-semibold text-wave">
+            Who caught this? <span className="text-alert">*</span>
+          </legend>
+          <p className="mt-1 text-sm text-ink/60">
+            Credit the roster angler — including a youth angler. The board
+            shows their name, not the parent account.
+          </p>
+          <div className="mt-3 space-y-2">
+            {teamAnglers.map((angler) => (
+              <label
+                key={angler.id}
+                className="flex cursor-pointer items-center gap-3 border border-wave/15 bg-paper px-3 py-2"
+              >
+                <input
+                  type="radio"
+                  name="caughtBy"
+                  value={angler.id}
+                  checked={caughtById === angler.id}
+                  onChange={() => setCaughtById(angler.id)}
+                  className="h-4 w-4 accent-sea"
+                  required
+                />
+                <span>
+                  {angler.fullName}
+                  {angler.isYouth ? (
+                    <span className="ml-2 inline-block rounded-full bg-sun/20 px-2 py-0.5 text-[0.7rem] uppercase tracking-[0.1em] text-wave">
+                      Youth
+                    </span>
+                  ) : null}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
 
       <div>
         <p className="text-sm font-semibold text-wave">Fish photo</p>

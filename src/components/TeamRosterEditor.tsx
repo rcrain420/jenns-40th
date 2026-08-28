@@ -10,12 +10,20 @@ import {
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
+import {
+  YOUTH_ATTESTATION_ERROR,
+  YOUTH_ATTESTATION_LABEL,
+  YOUTH_CHECKBOX_LABEL,
+  YOUTH_EMAIL_HELPER,
+  hasYouthAngler,
+} from "@/lib/youth";
 
 export type RosterAnglerDraft = {
   id?: string;
   fullName: string;
   phone: string;
   email: string;
+  isYouth: boolean;
 };
 
 type Props = {
@@ -25,12 +33,14 @@ type Props = {
   currentDueCents: number;
   canEditRoster: boolean;
   canInvite: boolean;
+  defaultNewIsYouth?: boolean;
 };
 
-const emptyAngler = (): RosterAnglerDraft => ({
+const emptyAngler = (isYouth = false): RosterAnglerDraft => ({
   fullName: "",
   phone: "",
   email: "",
+  isYouth,
 });
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,9 +52,13 @@ export function TeamRosterEditor({
   currentDueCents,
   canEditRoster,
   canInvite,
+  defaultNewIsYouth = false,
 }: Props) {
   const router = useRouter();
   const [anglers, setAnglers] = useState<RosterAnglerDraft[]>(initialAnglers);
+  const [youthGuardianAttested, setYouthGuardianAttested] = useState(
+    hasYouthAngler(initialAnglers),
+  );
   const [addingCount, setAddingCount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [invitingIndex, setInvitingIndex] = useState<number | null>(null);
@@ -66,7 +80,7 @@ export function TeamRosterEditor({
 
   function addAngler() {
     if (anglers.length >= MAX_ANGLERS) return;
-    setAnglers((prev) => [...prev, emptyAngler()]);
+    setAnglers((prev) => [...prev, emptyAngler(defaultNewIsYouth)]);
     setAddingCount((count) => count + 1);
     setSaved(false);
     setInviteNote(null);
@@ -94,7 +108,9 @@ export function TeamRosterEditor({
           fullName: a.fullName,
           phone: a.phone,
           email: a.email,
+          isYouth: a.isYouth,
         })),
+        youthGuardianAttested,
       }),
     });
     const data = (await res.json()) as {
@@ -110,6 +126,7 @@ export function TeamRosterEditor({
       fullName: a.fullName,
       phone: a.phone ?? "",
       email: a.email ?? "",
+      isYouth: a.isYouth === true,
     }));
     setAnglers(next);
     setAddingCount(0);
@@ -119,6 +136,10 @@ export function TeamRosterEditor({
   async function onSave(e: React.FormEvent) {
     e.preventDefault();
     if (!canEditRoster) return;
+    if (hasYouthAngler(anglers) && !youthGuardianAttested) {
+      setError(YOUTH_ATTESTATION_ERROR);
+      return;
+    }
     setSaving(true);
     setError(null);
     setSaved(false);
@@ -138,6 +159,12 @@ export function TeamRosterEditor({
 
   async function onInvite(index: number) {
     const row = anglers[index];
+    if (row.isYouth) {
+      setError(
+        "Youth anglers do not get a Join the boat / create-account invite. Parent login is the login.",
+      );
+      return;
+    }
     const email = row.email.trim();
     if (!EMAIL_RE.test(email)) {
       setError("Add a valid email to send an invite.");
@@ -189,13 +216,13 @@ export function TeamRosterEditor({
     <form onSubmit={onSave} className="space-y-4">
       <div className="flex items-end justify-between gap-4">
         <p className="text-sm text-ink/65">
-          Email is optional. Invite sends Join the boat. After they join they
-          can post on the Livewell without a PIN or second unlock. Name-only
-          seats stay on the PIN / walk-up path, and the shared team link still
-          works as backup.
+          Email is optional. {YOUTH_EMAIL_HELPER} Invite on an adult seat
+          sends Join the boat. Youth seats do not get a create-account invite
+          — parent login is the login. Walk-up adults can stay name-only on
+          the PIN / shared-link path. That is not the kids path.
           {canEditRoster
-            ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers. Use + Add angler to add a seat — the add form stays hidden until you click it.`
-            : " Registration is closed, so names stay as they are — you can still add an email and resend Invite."}
+            ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. Use + Add angler to add a seat — the add form stays hidden until you click it.`
+            : " Registration is closed, so names stay as they are — you can still add an email and resend Invite on adult seats."}
         </p>
         {canEditRoster ? (
           <button
@@ -225,9 +252,31 @@ export function TeamRosterEditor({
               key={angler.id ?? `saved-${index}`}
               className="flex flex-col gap-3 border border-wave/15 bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
             >
-              <p className="font-semibold text-wave">{angler.fullName}</p>
+              <div>
+                <p className="font-semibold text-wave">
+                  {angler.fullName}
+                  {angler.isYouth ? (
+                    <span className="ml-2 inline-block rounded-full bg-sun/20 px-2 py-0.5 font-label text-[0.7rem] uppercase tracking-[0.1em] text-wave">
+                      Youth
+                    </span>
+                  ) : null}
+                </p>
+                {canEditRoster ? (
+                  <label className="mt-2 flex items-center gap-2 text-sm text-ink/70">
+                    <input
+                      type="checkbox"
+                      checked={angler.isYouth}
+                      onChange={(e) =>
+                        patchAngler(index, { isYouth: e.target.checked })
+                      }
+                      className="h-4 w-4 accent-sea"
+                    />
+                    {YOUTH_CHECKBOX_LABEL}
+                  </label>
+                ) : null}
+              </div>
               <div className="flex flex-1 flex-col gap-2 sm:max-w-md sm:flex-row sm:items-center">
-                {canInvite ? (
+                {canInvite && !angler.isYouth ? (
                   <input
                     id={`roster-email-${index}`}
                     type="email"
@@ -240,7 +289,7 @@ export function TeamRosterEditor({
                   />
                 ) : null}
                 <div className="flex items-center gap-3">
-                  {canInvite ? (
+                  {canInvite && !angler.isYouth ? (
                     <button
                       type="button"
                       onClick={() => void onInvite(index)}
@@ -309,11 +358,23 @@ export function TeamRosterEditor({
                 className={inputClass}
                 value={angler.email}
                 onChange={(e) => patchAngler(index, { email: e.target.value })}
-                placeholder="Leave blank for walk-ups and kids"
+                placeholder="Parent email is fine — kids do not need an account"
               />
+              <p className="mt-1 text-sm text-ink/60">{YOUTH_EMAIL_HELPER}</p>
             </div>
+            <label className="flex items-center gap-2 sm:col-span-2">
+              <input
+                type="checkbox"
+                checked={angler.isYouth}
+                onChange={(e) =>
+                  patchAngler(index, { isYouth: e.target.checked })
+                }
+                className="h-4 w-4 accent-sea"
+              />
+              <span className="text-sm">{YOUTH_CHECKBOX_LABEL}</span>
+            </label>
             <div className="flex items-end gap-3">
-              {canInvite ? (
+              {canInvite && !angler.isYouth ? (
                 <button
                   type="button"
                   onClick={() => void onInvite(index)}
@@ -359,6 +420,20 @@ export function TeamRosterEditor({
         <p className="text-sm text-sea" role="status">
           {inviteNote}
         </p>
+      ) : null}
+
+      {canEditRoster && hasYouthAngler(anglers) ? (
+        <label className="flex items-start gap-3 border border-wave/15 bg-mist/70 px-4 py-3">
+          <input
+            type="checkbox"
+            checked={youthGuardianAttested}
+            onChange={(e) => setYouthGuardianAttested(e.target.checked)}
+            className="mt-1 h-4 w-4 accent-sea"
+          />
+          <span className="text-sm leading-relaxed">
+            {YOUTH_ATTESTATION_LABEL} <span className="text-alert">*</span>
+          </span>
+        </label>
       ) : null}
 
       {canEditRoster ? (

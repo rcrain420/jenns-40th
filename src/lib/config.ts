@@ -50,6 +50,56 @@ export const SIDE_POT_IDS = PAID_SIDE_POTS.map((p) => p.id) as [
   ...SidePotId[],
 ];
 
+/** Host-funded prizes. Listed at $0. Never stored on Team.sidePots. */
+export const HOST_FUNDED_POTS = [
+  {
+    id: "kids",
+    name: "Kids pot (Rowan & Rider)",
+    buyInCents: 0,
+    buyInLabel: "Free",
+    href: "/kids",
+  },
+  {
+    id: "catfish",
+    name: "Heaviest saltwater catfish",
+    buyInCents: 0,
+    buyInLabel: "Free",
+    href: undefined,
+  },
+] as const;
+
+export type HostFundedPotId = (typeof HOST_FUNDED_POTS)[number]["id"];
+
+export type ListedPot = {
+  id: string;
+  name: string;
+  buyInCents: number;
+  buyInLabel: string;
+  hostFunded: boolean;
+  href?: string;
+};
+
+/** Paid side pots plus host prizes (kids pot and catfish at $0). */
+export function listedPots(): ListedPot[] {
+  return [
+    ...PAID_SIDE_POTS.map((pot) => ({
+      id: pot.id,
+      name: pot.name,
+      buyInCents: SIDE_POT_BUY_IN_CENTS,
+      buyInLabel: `$${(SIDE_POT_BUY_IN_CENTS / 100).toFixed(0)}`,
+      hostFunded: false,
+    })),
+    ...HOST_FUNDED_POTS.map((pot) => ({
+      id: pot.id,
+      name: pot.name,
+      buyInCents: pot.buyInCents,
+      buyInLabel: pot.buyInLabel,
+      hostFunded: true,
+      href: pot.href,
+    })),
+  ];
+}
+
 /** Main tournament pot payout split. */
 export const MAIN_POT_SPLITS = [
   { place: "1st", pct: 50 },

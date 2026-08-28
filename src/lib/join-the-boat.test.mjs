@@ -101,13 +101,13 @@ describe("boat roster after Join the boat", () => {
   it("keeps name-only seats as not-emailed and still attaches a joiner with no paid seat", () => {
     const rows = buildBoatRoster({
       anglers: [
-        { fullName: "Kid Walkup", email: null },
+        { fullName: "Walkup Adult", email: null },
         { fullName: "Blank", email: "  " },
       ],
       members: [{ name: "Shared Link Joiner", email: "walkup@example.com" }],
     });
     assert.deepEqual(rows, [
-      { name: "Kid Walkup", email: null, status: "name-only" },
+      { name: "Walkup Adult", email: null, status: "name-only" },
       { name: "Blank", email: null, status: "name-only" },
       {
         name: "Shared Link Joiner",
@@ -119,5 +119,23 @@ describe("boat roster after Join the boat", () => {
       boatRosterStatusLabel("name-only"),
       "Name-only · not emailed",
     );
+  });
+
+  it("marks youth seats as parent-login, never pending create-account", () => {
+    const rows = buildBoatRoster({
+      anglers: [
+        { fullName: "Aaron", email: "aaron@example.com" },
+        { fullName: "Rowan", email: "aaron@example.com", isYouth: true },
+      ],
+      members: [{ name: "Aaron", email: "aaron@example.com" }],
+    });
+    assert.deepEqual(
+      rows.map((row) => ({ name: row.name, status: row.status })),
+      [
+        { name: "Aaron", status: "joined" },
+        { name: "Rowan", status: "youth" },
+      ],
+    );
+    assert.equal(boatRosterStatusLabel("youth"), "Youth · parent login");
   });
 });

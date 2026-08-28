@@ -3,13 +3,15 @@ import { CatchLogger } from "@/components/CatchLogger";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
 import { listCatchesGroupedByAuthor } from "@/lib/catches";
+import { findTeamAnglersForUser } from "@/lib/users";
 
 export const dynamic = "force-dynamic";
 
 export default async function CatchesPage() {
-  const [viewer, groups] = await Promise.all([
-    getCurrentUser(),
+  const viewer = await getCurrentUser();
+  const [groups, teamAnglers] = await Promise.all([
     listCatchesGroupedByAuthor(),
+    viewer ? findTeamAnglersForUser(viewer.id) : Promise.resolve([]),
   ]);
 
   const gridAnglers = groups.map((a) => ({
@@ -60,7 +62,14 @@ export default async function CatchesPage() {
         </aside>
 
         <section>
-          <CatchLogger viewer={viewer} />
+          <CatchLogger
+            viewer={viewer}
+            teamAnglers={teamAnglers.map((a) => ({
+              id: a.id,
+              fullName: a.fullName,
+              isYouth: a.isYouth,
+            }))}
+          />
         </section>
 
         <section>

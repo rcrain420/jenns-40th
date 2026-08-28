@@ -50,6 +50,7 @@ export default async function AdminTeamDetailPage({ params }: Props) {
                 fullName: a.fullName,
                 phone: a.phone ?? "",
                 email: a.email ?? "",
+                isYouth: a.isYouth,
               })),
               sidePots: team.sidePots as SidePotId[],
             }}

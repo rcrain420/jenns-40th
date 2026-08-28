@@ -9,6 +9,7 @@ import { listBragBoardCatches } from "@/lib/catches";
 import {
   EVENT,
   FEE_PER_ANGLER_CENTS,
+  listedPots,
   MAX_ANGLERS,
   remainingUntil,
 } from "@/lib/config";
@@ -17,12 +18,7 @@ import { getRegistrationAvailability } from "@/lib/registration";
 
 export const dynamic = "force-dynamic";
 
-const SIDE_POTS = [
-  { name: "Heaviest spotted seatrout", buyIn: "$50" },
-  { name: "Blackjack redfish", buyIn: "$50" },
-  { name: "Most spots", buyIn: "$50" },
-  { name: "Heaviest saltwater catfish", buyIn: "Free" },
-] as const;
+const SIDE_POTS = listedPots();
 
 const FRIDAY_BULLETS = [
   "Team check-in",
@@ -212,22 +208,28 @@ export default async function HomePage() {
           </h2>
           <ul className="mt-4 grid grid-cols-1 gap-2.5 text-[1rem] sm:grid-cols-2 sm:gap-x-5 md:text-[1.05rem]">
             {SIDE_POTS.map((pot) => (
-              <li key={pot.name} className="flex gap-2.5">
+              <li key={pot.id} className="flex gap-2.5">
                 <span className="text-sun" aria-hidden>
                   ★
                 </span>
                 <span>
                   {pot.name}{" "}
-                  <span className="text-wave/60">({pot.buyIn})</span>
+                  <span className="text-wave/60">({pot.buyInLabel})</span>
                 </span>
               </li>
             ))}
           </ul>
           <p className="mt-4 text-[0.95rem] text-wave/70 md:text-base">
             Paid pots via Venmo at Friday&apos;s captain&apos;s meeting. Catfish
-            is free — every team is already in.{" "}
-            <Link href="/rules#side-pots" className="text-sun underline-offset-2 hover:underline">
-              Full rules →
+            is free — every team is already in. The{" "}
+            <Link href="/kids" className="text-sun underline-offset-2 hover:underline">
+              Rowan &amp; Rider kids pot
+            </Link>{" "}
+            is also free and host-funded — heaviest qualifying fish by a
+            registered youth angler. Youth still pay the $75 seat and grow
+            the main pot.{" "}
+            <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
+              Kids pot rules →
             </Link>
           </p>
         </div>
