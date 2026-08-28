@@ -3,6 +3,10 @@ import { PageShell } from "@/components/PageShell";
 import { RegisterForm } from "@/components/RegisterForm";
 import { EVENT } from "@/lib/config";
 import { getCurrentUser } from "@/lib/auth";
+import {
+  REGISTER_ALREADY_IN,
+  registerPageView,
+} from "@/lib/register-logged-in";
 import { getRegistrationAvailability } from "@/lib/registration";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +37,25 @@ export default async function RegisterPage({
   const params = await searchParams;
   const initialBoatType = parseBoatType(params.boat);
   const initialCaptainName = parseCaptain(params.captain);
+
+  if (registerPageView(Boolean(viewer)) === "already-registered") {
+    return (
+      <PageShell
+        narrow
+        title={REGISTER_ALREADY_IN.title}
+        description={REGISTER_ALREADY_IN.body}
+      >
+        <p>
+          <Link
+            href={REGISTER_ALREADY_IN.ctaHref}
+            className="font-semibold text-sea hover:underline"
+          >
+            {REGISTER_ALREADY_IN.ctaLabel}
+          </Link>
+        </p>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell

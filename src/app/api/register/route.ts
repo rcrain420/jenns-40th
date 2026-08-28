@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import { sendJoinEmailsForRegisteredAnglers } from "@/lib/angler-join-invites";
 import { getCurrentUser } from "@/lib/auth";
-import {
-  claimTeamIfRegistrant,
-  createTeamRegistration,
-} from "@/lib/registration";
+import { registerApiAllowsCreate } from "@/lib/register-logged-in";
+import { createTeamRegistration } from "@/lib/registration";
 import { sendRegistrationConfirmation } from "@/lib/registration-email";
 import { registrationSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
+  const user = await getCurrentUser();
+  if (!registerApiAllowsCreate(Boolean(user))) {
+    return NextResponse.json(
+      { error: "You're already registered. Open your boat instead." },
+      { status: 409 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -30,15 +36,6 @@ export async function POST(request: Request) {
   const result = await createTeamRegistration(parsed.data);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
-  }
-
-  const user = await getCurrentUser();
-  if (user) {
-    await claimTeamIfRegistrant({
-      teamId: result.team.id,
-      userId: user.id,
-      email: user.email,
-    });
   }
 
   let confirmationEmailSent = false;
