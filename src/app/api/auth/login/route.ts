@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { setLoggedInUser } from "@/lib/auth";
+import {
+  clearRegistrantClaim,
+  getRegistrantClaim,
+  setLoggedInUser,
+} from "@/lib/auth";
+import { registrantClaimMatches } from "@/lib/registrant-unlock";
 import { loginUser } from "@/lib/users";
 
 export async function POST(request: Request) {
@@ -10,9 +15,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  const registrantClaim = await getRegistrantClaim();
   const result = await loginUser({
     email: typeof body.email === "string" ? body.email : "",
     password: typeof body.password === "string" ? body.password : "",
+    registrantClaim,
   });
 
   if (!result.ok) {
@@ -22,6 +29,9 @@ export async function POST(request: Request) {
     );
   }
 
+  if (registrantClaimMatches(registrantClaim, result.user.email)) {
+    await clearRegistrantClaim();
+  }
   await setLoggedInUser(result.user.id);
   return NextResponse.json({ ok: true, user: result.user });
 }

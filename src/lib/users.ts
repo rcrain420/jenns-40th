@@ -2,6 +2,9 @@ import { createHash, randomBytes } from "crypto";
 import { prisma } from "./db";
 import { sendConfirmEmail, sendResetEmail } from "./email";
 import { hashPassword, MIN_PASSWORD_LENGTH, verifyPassword } from "./password";
+import { claimTeamIfRegistrant } from "./registration";
+import type { RegistrantClaim } from "./registrant-unlock";
+import { registrantClaimMatches } from "./registrant-unlock";
 import { normalizeEmail } from "./safe-path";
 import { ensureTeamMember } from "./team-invite";
 
@@ -158,11 +161,27 @@ type AuthOk = {
 };
 type AuthFail = { ok: false; error: string; status: number; code?: string };
 
+async function applyOpenMyTeamClaim(
+  userId: string,
+  email: string,
+  claim?: RegistrantClaim | null,
+) {
+  if (!registrantClaimMatches(claim, email)) return false;
+  await claimTeamIfRegistrant({
+    teamId: claim.teamId,
+    userId,
+    email,
+  });
+  await markEmailVerified(userId);
+  return true;
+}
+
 export async function signupUser(input: {
   name: string;
   email: string;
   password: string;
   next?: string;
+  registrantClaim?: RegistrantClaim | null;
 }): Promise<AuthOk | AuthFail> {
   const name = input.name.trim();
   const email = normalizeEmail(input.email);
@@ -201,7 +220,17 @@ export async function signupUser(input: {
   });
 
   await claimTeamForUser(user.id, email);
+  const claimedViaOpenMyTeam = await applyOpenMyTeamClaim(
+    user.id,
+    email,
+    input.registrantClaim,
+  );
   const refreshed = (await getUserById(user.id)) ?? user;
+  const publicUser = toPublicUser(refreshed);
+
+  if (claimedViaOpenMyTeam || publicUser.emailVerified) {
+    return { ok: true, user: publicUser, confirmationEmailSent: false };
+  }
 
   const secret = await issueEmailToken(user.id, "CONFIRM_EMAIL", CONFIRM_MS);
   let confirmationEmailSent = false;
@@ -222,7 +251,7 @@ export async function signupUser(input: {
 
   return {
     ok: true,
-    user: toPublicUser(refreshed),
+    user: publicUser,
     confirmationEmailSent,
     ...devConfirmPayload(secret, input.next),
   };
@@ -231,6 +260,7 @@ export async function signupUser(input: {
 export async function loginUser(input: {
   email: string;
   password: string;
+  registrantClaim?: RegistrantClaim | null;
 }): Promise<AuthOk | AuthFail> {
   const email = normalizeEmail(input.email);
   const user = await prisma.user.findUnique({
@@ -252,6 +282,7 @@ export async function loginUser(input: {
 
   await promoteAdminIfNeeded(user.id, user.email);
   await claimTeamForUser(user.id, user.email);
+  await applyOpenMyTeamClaim(user.id, user.email, input.registrantClaim);
   const refreshed = (await getUserById(user.id)) ?? user;
   return { ok: true, user: toPublicUser(refreshed) };
 }

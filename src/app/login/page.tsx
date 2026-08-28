@@ -9,15 +9,21 @@ export const dynamic = "force-dynamic";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; next?: string }>;
+  searchParams: Promise<{ mode?: string; next?: string; email?: string }>;
 }) {
   const params = await searchParams;
   const next = safeNextPath(params.next);
+  const initialEmail =
+    typeof params.email === "string" ? params.email.trim() : "";
   const user = await getCurrentUser();
   if (user) {
     if (next.startsWith("/admin") && !user.isAdmin) {
       // stay on login — they are signed in but not admin
-    } else if (!user.emailVerified && !next.startsWith("/join")) {
+    } else if (
+      !user.emailVerified &&
+      !next.startsWith("/join") &&
+      !next.startsWith("/team")
+    ) {
       redirect(`/confirm-email?next=${encodeURIComponent(next)}`);
     } else if (next === "/login") {
       redirect("/catches");
@@ -31,6 +37,7 @@ export default async function LoginPage({
 
   const mode = params.mode === "signup" ? "signup" : "signin";
   const adminHint = next.startsWith("/admin");
+  const openMyTeam = mode === "signup" && next.startsWith("/team");
 
   return (
     <PageShell
@@ -39,7 +46,9 @@ export default async function LoginPage({
       description={
         adminHint
           ? "Organizer sign-in — use the admin email and your password."
-          : "Same account for the Livewell, comments, and (if you’re an organizer) the admin console."
+          : openMyTeam
+            ? "Set a password for this email. That puts you on the boat you registered — roster and Livewell, no PIN."
+            : "Same account for the Livewell, comments, and (if you’re an organizer) the admin console."
       }
     >
       {user && adminHint && !user.isAdmin ? (
@@ -47,7 +56,11 @@ export default async function LoginPage({
           You’re signed in as {user.email}, but this account isn’t an admin.
         </p>
       ) : null}
-      <AuthForm mode={mode} next={next} />
+      <AuthForm
+        mode={mode}
+        next={next}
+        initialEmail={initialEmail}
+      />
     </PageShell>
   );
 }

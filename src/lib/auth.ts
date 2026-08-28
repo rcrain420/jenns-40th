@@ -4,7 +4,9 @@ import { cookies } from "next/headers";
 import {
   checkEventPin,
   isEventPinConfigured,
+  normalizeUnlockEmail,
 } from "./event-unlock-token";
+import type { RegistrantClaim } from "./registrant-unlock";
 import { getUserById, toPublicUser, type PublicUser } from "./users";
 
 export { checkEventPin, isEventPinConfigured };
@@ -15,6 +17,7 @@ export type AdminSession = {
 
 export type EventSession = {
   unlocked: boolean;
+  registrantClaim?: RegistrantClaim;
 };
 
 export type UserSession = {
@@ -129,6 +132,34 @@ export async function grantEventUnlock() {
   session.unlocked = true;
   await session.save();
   return session;
+}
+
+export async function rememberRegistrantClaim(claim: RegistrantClaim) {
+  const session = await getEventSession();
+  session.unlocked = true;
+  session.registrantClaim = {
+    teamId: claim.teamId,
+    email: normalizeUnlockEmail(claim.email),
+  };
+  await session.save();
+  return session;
+}
+
+export async function getRegistrantClaim(): Promise<RegistrantClaim | null> {
+  const session = await getEventSession();
+  const claim = session.registrantClaim;
+  if (!claim?.teamId || !claim.email) return null;
+  return {
+    teamId: claim.teamId,
+    email: normalizeUnlockEmail(claim.email),
+  };
+}
+
+export async function clearRegistrantClaim() {
+  const session = await getEventSession();
+  if (!session.registrantClaim) return;
+  delete session.registrantClaim;
+  await session.save();
 }
 
 export async function requireEventUnlock() {
