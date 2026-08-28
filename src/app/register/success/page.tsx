@@ -108,9 +108,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           </p>
           <p className="mt-3 text-ink/75">
             You will not show under team members until you create an account
-            with the password form below. Teammates join as soon as they create
-            an account — they do not need to confirm email first. Confirming
-            email is only needed later to post catches.
+            with the password form below. Adding an angler email sends them
+            Join the boat. After they join they can see the team and post on
+            the Livewell — no PIN, no second unlock, no extra email confirm.
           </p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
             <div>
@@ -118,10 +118,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
                 Invite teammates
               </h3>
               <p className="mt-2 text-sm text-ink/65">
-                Shared backup link — text this when you know who else is
-                fishing. For anglers with an email, send their own magic-link
-                Invite from My team. Name-only seats stay on this link or the
-                event PIN. Joining does not add them to the paid roster.
+                Shared backup for name-only seats and walk-ups. Anglers with
+                an email already get Join the boat. You can also send Invite
+                from My team. Joining does not add them to the paid roster.
               </p>
               <div className="mt-3">
                 <InviteLinkCopy url={inviteUrl} />

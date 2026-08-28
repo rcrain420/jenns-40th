@@ -71,6 +71,14 @@ export async function promoteAdminIfNeeded(userId: string, email: string) {
   });
 }
 
+/** Join and registrant unlock both drop the confirm-email post gate. */
+export async function markEmailVerified(userId: string) {
+  await prisma.user.updateMany({
+    where: { id: userId, emailVerifiedAt: null },
+    data: { emailVerifiedAt: new Date() },
+  });
+}
+
 export async function claimTeamForUser(userId: string, email: string) {
   const existing = await prisma.team.findFirst({
     where: { claimedByUserId: userId },

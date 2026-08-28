@@ -189,9 +189,10 @@ export function TeamRosterEditor({
     <form onSubmit={onSave} className="space-y-4">
       <div className="flex items-end justify-between gap-4">
         <p className="text-sm text-ink/65">
-          Email is optional. Invite sends that person their own magic-link
-          invite. Name-only seats stay on the PIN / walk-up path, and the
-          shared team link still works as backup.
+          Email is optional. Invite sends Join the boat. After they join they
+          can post on the Livewell without a PIN or second unlock. Name-only
+          seats stay on the PIN / walk-up path, and the shared team link still
+          works as backup.
           {canEditRoster
             ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers. Use + Add angler to add a seat — the add form stays hidden until you click it.`
             : " Registration is closed, so names stay as they are — you can still add an email and resend Invite."}

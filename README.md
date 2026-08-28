@@ -14,7 +14,7 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 - Comments on each catch photo
 - Email + password accounts with confirmation; any confirmed user posts catches and comments as themselves
 - Registration confirmation email includes a one-tap magic link that unlocks the event session (PIN is the fallback). The same unlock + invite links are on `/register/success` so a dead mailer does not block the flow.
-- Optional per-angler email + Invite on My team sends that person their own team-join magic link (same Resend path). Name-only seats still use the shared invite link or event PIN.
+- Adding an angler email on register or Invite sends a Join the boat email. After they join they have full site access (team + Livewell post) without a second unlock, PIN, or extra email confirm. Join is not captain and not the paid roster. Name-only seats still use the shared invite link or event PIN.
 - Admin console: dashboard, search/filter, edit/delete, mark paid, CSV export (admin role on a user account)
 
 ## Stack

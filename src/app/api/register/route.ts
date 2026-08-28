@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { sendJoinEmailsForRegisteredAnglers } from "@/lib/angler-join-invites";
 import { getCurrentUser } from "@/lib/auth";
 import {
   claimTeamIfRegistrant,
@@ -59,6 +60,12 @@ export async function POST(request: Request) {
     console.error("[register] confirmation email failed", error);
   }
 
+  const joinInvites = await sendJoinEmailsForRegisteredAnglers({
+    teamId: result.team.id,
+    teamName: result.team.teamName,
+    anglers: result.team.anglers,
+  });
+
   return NextResponse.json({
     team: {
       id: result.team.id,
@@ -68,5 +75,7 @@ export async function POST(request: Request) {
       paymentStatus: result.team.paymentStatus,
     },
     confirmationEmailSent,
+    joinEmailsAttempted: joinInvites.attempted,
+    joinEmailsSent: joinInvites.sent,
   });
 }
