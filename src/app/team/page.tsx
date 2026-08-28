@@ -13,9 +13,9 @@ export const dynamic = "force-dynamic";
 export default async function MyTeamPage({
   searchParams,
 }: {
-  searchParams: Promise<{ joined?: string }>;
+  searchParams: Promise<{ joined?: string; unlocked?: string }>;
 }) {
-  const { joined } = await searchParams;
+  const { joined, unlocked } = await searchParams;
   const user = await getCurrentUser();
 
   if (!user) {
@@ -86,6 +86,12 @@ export default async function MyTeamPage({
         {joined === "1" ? (
           <p className="rounded-md bg-mist px-4 py-3 text-sm text-wave">
             You’re on {team.teamName}. Livewell posts will show this team name.
+          </p>
+        ) : null}
+        {unlocked === "1" ? (
+          <p className="rounded-md bg-mist px-4 py-3 text-sm text-wave">
+            You’re signed in on this device. The Livewell is unlocked here — no
+            PIN needed. Invite teammates below.
           </p>
         ) : null}
 

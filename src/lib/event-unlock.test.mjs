@@ -12,6 +12,7 @@ const {
   evaluateEventUnlockToken,
   eventUnlockPath,
   issueEventUnlockToken,
+  unlockLandingPath,
   verifyEventUnlockToken,
 } = await import("./event-unlock-token.ts");
 const { registrationConfirmationCopy } = await import(
@@ -158,7 +159,9 @@ describe("registration confirmation email", () => {
 
     assert.ok(message.text.includes(unlockUrl));
     assert.ok(message.html.includes(unlockUrl));
-    assert.ok(message.html.includes("Unlock catch logging"));
+    assert.ok(message.html.includes("Open my team"));
+    assert.ok(message.text.includes("signs you into this team"));
+    assert.ok(message.html.includes("No PIN or password on this tap"));
     assert.equal(verifyEventUnlockToken(token).ok, true);
     assert.equal(/Hey captain/i.test(message.text), false);
     assert.ok(message.text.includes("Pretty Pier Pressure is on the list"));
@@ -182,6 +185,17 @@ describe("registration confirmation email", () => {
         `subject leaked ${name}`,
       );
     }
+  });
+
+  it("lands a signed-in registrant on My team, not a login wall", () => {
+    assert.equal(
+      unlockLandingPath({ hasUser: true, teamId: TEAM_ID }),
+      "/team?unlocked=1",
+    );
+    assert.equal(
+      unlockLandingPath({ hasUser: false, teamId: TEAM_ID }),
+      `/register/success?team=${TEAM_ID}`,
+    );
   });
 
   it("success-page unlock path stays on this origin", () => {

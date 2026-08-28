@@ -23,7 +23,7 @@ export function registrationConfirmationCopy(
     "You created this team. Add the captain if you have one, and invite teammates — captains might never log in.",
     `Amount due: ${input.amountLabel}. Venmo ${input.venmoHandle} and put your team name in the note so we can match it.`,
     "",
-    "One tap below unlocks the Livewell on this device so you can log catches, leave comments, and try AI team names. No PIN required.",
+    "One tap below signs you into this team on this device — see the roster, invite teammates, and unlock the Livewell. No PIN or password on this tap.",
     input.unlockUrl,
     "",
     "The link stays good for two weeks. Lost the email or signing up at Friday's captain's meeting? Ask an organizer for the event PIN — that still works.",
@@ -50,11 +50,11 @@ export function registrationConfirmationCopy(
             You created this team. Add the captain if you have one, and invite teammates — captains might never log in.
           </p>
           <p style="margin:0 0 20px;line-height:1.5;">
-            One tap unlocks the Livewell on this device — log catches, leave comments, and try AI team names. No PIN required.
+            One tap signs you into this team on this device — see the roster, invite teammates, and unlock the Livewell. No PIN or password on this tap.
           </p>
           <p style="margin:0 0 24px;">
             <a href="${escapeHtml(input.unlockUrl)}" style="display:inline-block;background:#16354f;color:#f6ecd6;padding:12px 20px;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;">
-              Unlock catch logging
+              Open my team
             </a>
           </p>
           <p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#16354f;">

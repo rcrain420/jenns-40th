@@ -107,3 +107,29 @@ export async function claimTeamIfRegistrant(opts: {
   }
   await ensureTeamMember(opts.userId, opts.teamId);
 }
+
+/** After a valid unlock token: log in the registrant if they have an account. */
+export async function signInRegistrantFromUnlock(opts: {
+  teamId: string;
+  email: string;
+}): Promise<{ userId: string | null; teamId: string }> {
+  const email = normalizeUnlockEmail(opts.email);
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: "insensitive" } },
+    select: { id: true, email: true, emailVerifiedAt: true },
+  });
+  if (!user) return { userId: null, teamId: opts.teamId };
+
+  if (!user.emailVerifiedAt) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerifiedAt: new Date() },
+    });
+  }
+  await claimTeamIfRegistrant({
+    teamId: opts.teamId,
+    userId: user.id,
+    email: user.email,
+  });
+  return { userId: user.id, teamId: opts.teamId };
+}
