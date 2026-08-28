@@ -5,6 +5,10 @@ import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
 import { isRegistrationOpen } from "@/lib/config";
 import { prisma } from "@/lib/db";
+import {
+  boatRosterStatusLabel,
+  buildBoatRoster,
+} from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
 import { teamInviteUrl } from "@/lib/team-invite";
 
@@ -42,7 +46,7 @@ export default async function MyTeamPage({
         include: {
           anglers: { orderBy: { sortOrder: "asc" } },
           members: {
-            include: { user: { select: { id: true, name: true } } },
+            include: { user: { select: { id: true, name: true, email: true } } },
             orderBy: { createdAt: "asc" },
           },
         },
@@ -75,6 +79,19 @@ export default async function MyTeamPage({
   const isRegistrant = team.claimedByUserId === user.id;
   const canEdit = isRegistrant && isRegistrationOpen();
   const inviteUrl = teamInviteUrl(team.id);
+  const boatRoster = buildBoatRoster({
+    anglers: team.anglers.map((a) => ({
+      fullName: a.fullName,
+      email: a.email,
+    })),
+    members: team.members.map((m) => ({
+      name: m.user.name,
+      email: m.user.email,
+    })),
+  });
+  const registrantEmail =
+    team.members.find((m) => m.user.id === team.claimedByUserId)?.user.email ??
+    null;
 
   return (
     <PageShell
@@ -109,12 +126,18 @@ export default async function MyTeamPage({
         </section>
 
         <section>
-          <span className="section-banner">On this account</span>
+          <span className="section-banner">On this boat</span>
           <ul className="mt-3 space-y-1 text-ink/80">
-            {team.members.map((m) => (
-              <li key={m.id}>
-                {m.user.name}
-                {m.user.id === team.claimedByUserId ? " · registered the team" : ""}
+            {boatRoster.map((row, index) => (
+              <li key={`${index}:${row.email ?? row.name}`}>
+                {row.name}
+                {row.email &&
+                registrantEmail &&
+                row.email === registrantEmail.trim().toLowerCase()
+                  ? " · registered the team"
+                  : ""}
+                {" · "}
+                {boatRosterStatusLabel(row.status)}
               </li>
             ))}
           </ul>
