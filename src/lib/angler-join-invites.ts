@@ -1,39 +1,10 @@
-import { sendTeamInviteEmail, buildTeamInviteEmail } from "./team-invite-email";
+import { emailedAnglersForJoinInvite, type JoinInviteAngler } from "./angler-join-recipients";
+import { sendTeamInviteEmail } from "./team-invite-email";
 
-export type JoinInviteAngler = {
-  fullName: string;
-  email?: string | null;
-};
-
-/** Seats with an email get Join the boat. Name-only seats stay on PIN / shared link. */
-export function emailedAnglersForJoinInvite<T extends JoinInviteAngler>(
-  anglers: T[],
-): Array<T & { email: string }> {
-  const seen = new Set<string>();
-  const recipients: Array<T & { email: string }> = [];
-  for (const angler of anglers) {
-    const email = angler.email?.trim().toLowerCase();
-    if (!email || seen.has(email)) continue;
-    seen.add(email);
-    recipients.push({ ...angler, email });
-  }
-  return recipients;
-}
-
-export function joinInviteMessagesForTeam(input: {
-  teamId: string;
-  teamName: string;
-  anglers: JoinInviteAngler[];
-}) {
-  return emailedAnglersForJoinInvite(input.anglers).map((angler) =>
-    buildTeamInviteEmail({
-      teamId: input.teamId,
-      teamName: input.teamName,
-      anglerName: angler.fullName,
-      to: angler.email,
-    }),
-  );
-}
+export {
+  emailedAnglersForJoinInvite,
+  type JoinInviteAngler,
+} from "./angler-join-recipients";
 
 /** Register-time send. Invite from My team still goes through inviteAnglerOnTeam. */
 export async function sendJoinEmailsForRegisteredAnglers(input: {

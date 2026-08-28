@@ -3,12 +3,16 @@ import { describe, it, before } from "node:test";
 
 process.env.SESSION_SECRET ??= "test-session-secret-at-least-32-chars!!";
 
-const {
-  emailedAnglersForJoinInvite,
-  joinInviteMessagesForTeam,
-} = await import("./angler-join-invites.ts");
+const { emailedAnglersForJoinInvite } = await import(
+  "./angler-join-recipients.ts"
+);
 const { JOIN_SITE_ACCESS } = await import("./join-site-access.ts");
-const { verifyTeamInviteToken } = await import("./team-invite-token.ts");
+const { teamInviteEmailCopy } = await import("./team-invite-email-copy.ts");
+const {
+  anglerInvitePath,
+  issueTeamInviteToken,
+  verifyTeamInviteToken,
+} = await import("./team-invite-token.ts");
 
 const TEAM_ID = "team_test_qa";
 
@@ -31,22 +35,36 @@ describe("register / Invite join emails", () => {
   });
 
   it("builds a working Join the boat link for each emailed angler", () => {
-    const messages = joinInviteMessagesForTeam({
-      teamId: TEAM_ID,
-      teamName: "TEST QA",
-      anglers: [
-        { fullName: "Emailed Angler", email: "angler@example.com" },
-        { fullName: "Name Only", email: null },
-      ],
-    });
-    assert.equal(messages.length, 1);
-    assert.equal(messages[0].to, "angler@example.com");
-    assert.ok(messages[0].html.includes("Join the boat"));
-    assert.ok(messages[0].inviteUrl.includes("/join?"));
-    assert.equal(/venmo/i.test(messages[0].text), false);
+    const recipients = emailedAnglersForJoinInvite([
+      { fullName: "Emailed Angler", email: "angler@example.com" },
+      { fullName: "Name Only", email: null },
+    ]);
+    assert.equal(recipients.length, 1);
 
-    const url = new URL(messages[0].inviteUrl);
-    const verified = verifyTeamInviteToken(url.searchParams.get("token") ?? "");
+    const { token } = issueTeamInviteToken({ teamId: TEAM_ID });
+    const path = anglerInvitePath(
+      token,
+      recipients[0].email,
+      recipients[0].fullName,
+    );
+    const message = teamInviteEmailCopy({
+      anglerName: recipients[0].fullName,
+      teamName: "TEST QA",
+      inviteUrl: `https://officialishfishingtournament.com${path}`,
+      eventName: "Official-ish Fishing Tournament for Jenn's 40th Birthday",
+      shortName: "Jenn's 40th",
+      dateLabel: "October 9–10, 2026",
+      venue: "Boatmen’s Club Bar & Marina",
+      footerScript: "See you in Rockport!",
+    });
+
+    assert.ok(message.html.includes("Join the boat"));
+    assert.ok(message.text.includes("Livewell"));
+    assert.ok(message.text.includes("no PIN or second unlock"));
+    assert.equal(/venmo/i.test(message.text), false);
+
+    const params = new URLSearchParams(path.slice(path.indexOf("?") + 1));
+    const verified = verifyTeamInviteToken(params.get("token") ?? "");
     assert.equal(verified.ok, true);
     if (verified.ok) assert.equal(verified.teamId, TEAM_ID);
   });
