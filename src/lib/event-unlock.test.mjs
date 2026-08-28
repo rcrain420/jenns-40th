@@ -192,9 +192,18 @@ describe("registration confirmation email", () => {
       unlockLandingPath({ hasUser: true, teamId: TEAM_ID }),
       "/team?unlocked=1",
     );
+  });
+
+  it("lands an unpaid guest unlock on the Livewell, not back on success", () => {
     assert.equal(
       unlockLandingPath({ hasUser: false, teamId: TEAM_ID }),
-      `/register/success?team=${TEAM_ID}`,
+      "/catches?unlocked=1",
+    );
+    assert.equal(
+      unlockLandingPath({ hasUser: false, teamId: TEAM_ID }).startsWith(
+        "/register/success",
+      ),
+      false,
     );
   });
 

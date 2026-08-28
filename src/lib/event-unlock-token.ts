@@ -57,13 +57,12 @@ export function eventUnlockPath(token: string): string {
   return `/unlock?token=${encodeURIComponent(token)}`;
 }
 
+/** After the event cookie is set: Livewell for guests, My team if already signed in. */
 export function unlockLandingPath(input: {
   hasUser: boolean;
   teamId: string;
 }): string {
-  return input.hasUser
-    ? "/team?unlocked=1"
-    : `/register/success?team=${encodeURIComponent(input.teamId)}`;
+  return input.hasUser ? "/team?unlocked=1" : "/catches?unlocked=1";
 }
 
 export function issueEventUnlockToken(input: {
