@@ -68,7 +68,9 @@ export function AuthForm({
       if (data.devConfirmUrl) setDevConfirmUrl(data.devConfirmUrl);
       if (mode === "signup" && data.confirmationEmailSent === false) {
         setNotice(
-          "Account created. We could not send the confirmation email — you can still join a team. Confirm later to post catches.",
+          next.startsWith("/join")
+            ? "Account created. Finish joining — that unlocks the Livewell on this device."
+            : "Account created. We could not send the confirmation email — you can still join a team. Confirm later to post catches.",
         );
       }
       notifyAuthChanged();

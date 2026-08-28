@@ -37,6 +37,8 @@ describe("team invite email", () => {
     assert.ok(message.text.includes("Pretty Pier Pressure added you as an angler"));
     assert.ok(message.text.includes("event PIN"));
     assert.ok(message.text.includes("Walk-ups and kids"));
+    assert.ok(message.text.includes("Livewell"));
+    assert.ok(message.text.includes("no PIN or second unlock"));
     assert.equal(/venmo/i.test(message.text), false);
     assert.equal(/venmo/i.test(message.html), false);
     assert.equal(/\$/.test(message.text), false);

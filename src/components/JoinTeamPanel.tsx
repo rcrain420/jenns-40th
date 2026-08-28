@@ -63,9 +63,10 @@ export function JoinTeamPanel({
       <div className="space-y-4">
         <p className="text-ink/75">
           Create an account (or sign in) to hop on{" "}
-          <strong>{teamName}</strong>. Joining works right away — you do not
-          need to confirm email first. Confirming email is only needed later to
-          post catches.
+          <strong>{teamName}</strong>. After you join, you can see the team
+          and use the Livewell — no PIN, no second unlock, no extra email
+          confirm. Joining does not make you the captain or add you to the
+          paid roster.
         </p>
         <AuthForm
           next={next}

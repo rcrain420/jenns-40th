@@ -106,10 +106,10 @@ export function CatchLogger({ viewer }: Props) {
         </p>
         <h2 className="font-display text-2xl text-wave">Post your catch</h2>
         <p className="text-ink/70">
-          This page does not sign you in by itself. Use the magic link from
-          your registration email to open your team, or create an account here.
-          Confirm your email to unlock the camera — joining a team does not
-          wait on that.
+          This page does not sign you in by itself. Use Join the boat from an
+          invite email, or create an account here. After you join a boat you
+          can post — no PIN, no second unlock, no extra email confirm.
+          Name-only walk-ups still use the shared invite link or the event PIN.
         </p>
         <AuthForm next="/catches" compact onSuccess={() => router.refresh()} />
       </div>

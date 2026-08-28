@@ -85,7 +85,8 @@ export default async function MyTeamPage({
       <div className="space-y-10">
         {joined === "1" ? (
           <p className="rounded-md bg-mist px-4 py-3 text-sm text-wave">
-            You’re on {team.teamName}. Livewell posts will show this team name.
+            You’re on {team.teamName}. The Livewell is unlocked here — you can
+            post without a PIN or a second unlock.
           </p>
         ) : null}
         {unlocked === "1" ? (
@@ -99,8 +100,8 @@ export default async function MyTeamPage({
           <span className="section-banner">Invite the boat</span>
           <p className="mt-3 text-ink/75">
             {isRegistrant
-              ? "You registered this boat, so you invite teammates. Add the captain yourself if you have one — they might never log in. If a roster row has an email, use Invite to send that person their own magic-link invite. Name-only seats stay on the PIN / walk-up path. The shared link below is the backup. Teammates create an account and land on the team without confirming email first. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
-              : "You’re on this boat. The person who registered adds the captain and sends invites — captains might never log in. Joining does not add you to the paid roster."}
+              ? "You registered this boat, so you invite teammates. Add the captain yourself if you have one — they might never log in. Adding an email on a seat (here via Invite, or at register) sends Join the boat. After they join they can see the team and post on the Livewell — no PIN or second unlock. Name-only seats stay on the PIN / shared-link path. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
+              : "You’re on this boat. After you joined, the Livewell is unlocked here — no PIN or extra email confirm. Joining did not make you the captain or add you to the paid roster."}
           </p>
           <div className="mt-4">
             <InviteLinkCopy url={inviteUrl} />

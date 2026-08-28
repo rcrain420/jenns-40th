@@ -552,11 +552,10 @@ export function RegisterForm({
             <p className="text-sm text-ink/65">
               {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers. Email is optional —
               walk-ups and kids can stay name-only and still join with the
-              shared invite link or the event PIN. If you add an email, send
-              their own magic-link invite from My team after you register. The
-              captain is not an angler slot and does not need an account — you
-              add them above on a guided boat. Need two names to lock the boat;
-              add the rest later from My team.
+              shared invite link or the event PIN. If you add an email, they
+              get a Join the boat email. The captain is not an angler slot and
+              does not need an account — you add them above on a guided boat.
+              Need two names to lock the boat; add the rest later from My team.
             </p>
           </div>
           <button

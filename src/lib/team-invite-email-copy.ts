@@ -19,7 +19,7 @@ export function teamInviteEmailCopy(
     `Hi ${first} — ${input.teamName} added you as an angler.`,
     "",
     `You're invited to ${input.shortName} — ${input.dateLabel} at ${input.venue}.`,
-    "Tap the link to create an account (or sign in) and hop on the boat. Joining does not make you the captain.",
+    "Tap the link to create an account (or sign in) and hop on the boat. After you join you can use the Livewell — no PIN or second unlock. Joining does not make you the captain.",
     input.inviteUrl,
     "",
     "No email, or joining at Friday's captain's meeting? Use the shared invite link from your teammate, or ask an organizer for the event PIN. Walk-ups and kids can stay name-only.",
@@ -40,7 +40,7 @@ export function teamInviteEmailCopy(
             Hi ${escapeHtml(first)} — you're on the roster for ${escapeHtml(input.dateLabel)} at ${escapeHtml(input.venue)}.
           </p>
           <p style="margin:0 0 20px;line-height:1.5;">
-            One tap creates your account (or signs you in) and puts you on the boat. Joining does not make you the captain.
+            One tap creates your account (or signs you in), puts you on the boat, and unlocks the Livewell. Joining does not make you the captain.
           </p>
           <p style="margin:0 0 24px;">
             <a href="${escapeHtml(input.inviteUrl)}" style="display:inline-block;background:#16354f;color:#f6ecd6;padding:12px 20px;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;">

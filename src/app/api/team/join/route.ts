@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { grantSiteAccessAfterJoin } from "@/lib/join-access";
 import { joinTeam, verifyTeamInviteToken } from "@/lib/team-invite";
 
 export async function POST(request: Request) {
@@ -34,9 +35,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
+  await grantSiteAccessAfterJoin(user.id);
+
   return NextResponse.json({
     ok: true,
     already: result.already,
     teamName: result.teamName,
+    unlocked: true,
   });
 }
