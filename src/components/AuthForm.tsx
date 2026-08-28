@@ -70,7 +70,9 @@ export function AuthForm({
         setNotice(
           next.startsWith("/join")
             ? "Account created. Finish joining — that unlocks the Livewell on this device."
-            : "Account created. We could not send the confirmation email — you can still join a team. Confirm later to post catches.",
+            : next.startsWith("/team")
+              ? "Account created. You’re on this boat — roster and Livewell, no PIN."
+              : "Account created. We could not send the confirmation email — you can still join a team. Confirm later to post catches.",
         );
       }
       notifyAuthChanged();

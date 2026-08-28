@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
-import { grantEventUnlock, setLoggedInUser } from "@/lib/auth";
-import {
-  evaluateEventUnlockToken,
-  unlockLandingPath,
-} from "@/lib/event-unlock-token";
-import {
-  registrationMatchesUnlock,
-  signInRegistrantFromUnlock,
-} from "@/lib/registration";
+import { rememberRegistrantClaim } from "@/lib/auth";
+import { evaluateEventUnlockToken } from "@/lib/event-unlock-token";
+import { registrationMatchesUnlock } from "@/lib/registration";
+import { planOpenMyTeamUnlock } from "@/lib/open-my-team-access";
 
 export const dynamic = "force-dynamic";
 
@@ -35,13 +30,13 @@ export async function GET(request: Request) {
     return redirectTo(request, "/unlock/failed?reason=invalid");
   }
 
-  await grantEventUnlock();
-  const signedIn = await signInRegistrantFromUnlock({
+  const plan = planOpenMyTeamUnlock({
     teamId: evaluated.teamId,
     email: evaluated.email,
   });
-  if (signedIn.userId) {
-    await setLoggedInUser(signedIn.userId);
-  }
-  return redirectTo(request, unlockLandingPath());
+  await rememberRegistrantClaim({
+    teamId: evaluated.teamId,
+    email: evaluated.email,
+  });
+  return redirectTo(request, plan.location);
 }
