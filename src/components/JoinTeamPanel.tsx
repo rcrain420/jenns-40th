@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthForm } from "./AuthForm";
 import { notifyAuthChanged } from "@/lib/auth-client";
+import { joinTheBoatAuthMode } from "@/lib/join-the-boat";
 
 type Props = {
   token: string;
@@ -62,13 +63,14 @@ export function JoinTeamPanel({
     return (
       <div className="space-y-4">
         <p className="text-ink/75">
-          Create an account (or sign in) to hop on{" "}
-          <strong>{teamName}</strong>. After you join, you can see the team
-          and use the Livewell — no PIN, no second unlock, no extra email
-          confirm. Joining does not make you the captain or add you to the
-          paid roster.
+          Create an account — set a password for this email — to hop on{" "}
+          <strong>{teamName}</strong>. After that you are on the boat and
+          the Livewell is unlocked here. No PIN, no second unlock. Joining
+          does not make you the captain or add you to the paid roster.
+          Later visits can sign in with that password.
         </p>
         <AuthForm
+          mode={joinTheBoatAuthMode()}
           next={next}
           compact
           initialEmail={initialEmail}

@@ -55,7 +55,11 @@ export default async function JoinPage({
     <PageShell
       narrow
       title={`Join ${team.teamName}`}
-      description="This puts your account on the boat and unlocks the site on this device. Joining does not make you the captain or add you to the paid roster — the person who registered adds the captain and sends invites."
+      description={
+        viewer
+          ? "This puts your account on the boat and unlocks the site on this device. Joining does not make you the captain or add you to the paid roster — the person who registered adds the captain and sends invites."
+          : "Create an account — set a password — to hop on this boat. That unlocks the Livewell here. Joining does not make you the captain or add you to the paid roster."
+      }
     >
       <JoinTeamPanel
         token={token}
