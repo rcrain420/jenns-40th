@@ -83,6 +83,7 @@ export default async function MyTeamPage({
     anglers: team.anglers.map((a) => ({
       fullName: a.fullName,
       email: a.email,
+      isYouth: a.isYouth,
     })),
     members: team.members.map((m) => ({
       name: m.user.name,
@@ -117,7 +118,7 @@ export default async function MyTeamPage({
           <span className="section-banner">Invite the boat</span>
           <p className="mt-3 text-ink/75">
             {isRegistrant
-              ? "You registered this boat, so you invite teammates. Add the captain yourself if you have one — they might never log in. Adding an email on a seat (here via Invite, or at register) sends Join the boat. After they join they can see the team and post on the Livewell — no PIN or second unlock. Name-only seats stay on the PIN / shared-link path. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
+              ? "You registered this boat, so you invite teammates. Add the captain yourself if you have one — they must be 18+ and might never log in. Adding an email on an adult seat (here via Invite, or at register) sends Join the boat. Youth seats do not get a create-account invite — parent login is the login. After adults join they can see the team and post on the Livewell — no PIN or second unlock. Walk-up adults can stay name-only on the PIN / shared-link path. That is not the kids path. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
               : "You’re on this boat. After you joined, the Livewell is unlocked here — no PIN or extra email confirm. Joining did not make you the captain or add you to the paid roster."}
           </p>
           <div className="mt-4">
@@ -153,6 +154,7 @@ export default async function MyTeamPage({
                   fullName: a.fullName,
                   phone: a.phone ?? "",
                   email: a.email ?? "",
+                  isYouth: a.isYouth,
                 }))}
                 sidePotCount={team.sidePots.length}
                 paymentStatus={
@@ -166,7 +168,10 @@ export default async function MyTeamPage({
           ) : (
             <ul className="mt-3 space-y-1 text-ink/80">
               {team.anglers.map((a) => (
-                <li key={a.id}>{a.fullName}</li>
+                <li key={a.id}>
+                  {a.fullName}
+                  {a.isYouth ? " · youth" : ""}
+                </li>
               ))}
               <p className="mt-3 text-sm text-ink/60">
                 Only the person who registered can change paid names or send

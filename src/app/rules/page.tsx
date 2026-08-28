@@ -205,9 +205,9 @@ export default function RulesPage() {
           <RuleList
             items={[
               "All anglers must be officially registered before fishing begins. No surprise substitutes, mysterious cousins or last-minute ringers.",
-              "Each participant must sign the tournament participation waiver before fishing. A parent or legal guardian must sign for every participant under 18.",
-              "Each team must name one person as its captain. Choose wisely. This is the person we will contact when somebody forgets what time weigh-in closes.",
-              "Teams may have up to four registered anglers.",
+              "Anglers 17 or younger must be registered by a parent or legal guardian. The guardian may use their own email for the child.",
+              "Each team must name one person as its captain. Choose wisely. This is the person we will contact when somebody forgets what time weigh-in closes. The captain and the DIY primary contact must be 18 or older.",
+              "Teams may have up to four registered anglers. Youth anglers count toward that cap as full paid seats.",
               "Only registered anglers may catch fish entered in the main tournament, paid side pots or bonus categories.",
               "Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.",
             ]}
@@ -279,8 +279,14 @@ export default function RulesPage() {
             laws.
           </p>
           <p>
-            Every angler who is required to have a Texas fishing license and
-            saltwater endorsement must have them while participating.
+            A Texas fishing license and saltwater endorsement are generally
+            required for anglers 17 and older. Younger children generally do
+            not need a Texas fishing license. Check current Texas Parks and
+            Wildlife Department rules for your situation.
+          </p>
+          <p>
+            Every angler who is required to have a license and saltwater
+            endorsement must have them while participating.
           </p>
           <p>
             All fish entered must meet the legal size, bag and possession limits
@@ -347,6 +353,9 @@ export default function RulesPage() {
               poor visibility.
             </li>
           </ul>
+          <p>
+            When a youth angler is fishing, an adult should be on the boat.
+          </p>
           <p>
             No fish, prize, side pot, fishing spot or bragging right is worth
             someone getting hurt.
@@ -483,33 +492,50 @@ export default function RulesPage() {
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Subhead>Free Youth Division</Subhead>
-            <p>There is no entry fee for the Youth Division.</p>
+          <div id="kids-pot" className="scroll-mt-28 space-y-3">
+            <Subhead>Kids pot (Rowan &amp; Rider)</Subhead>
             <p>
-              The Youth Division is open to registered anglers who are 17 years
-              old or younger.
+              There is no entry fee for the kids pot. It is host-funded, like
+              the Birthday Trash Fish prize, and does not come from paid
+              side-pot money.
+            </p>
+            <p>
+              The kids pot is open to registered youth anglers — anglers 17 or
+              younger whom a parent or legal guardian has registered on a team.
             </p>
             <p>
               The heaviest qualifying fish caught by a registered youth angler
               wins.
             </p>
             <p>
-              For this category, a qualifying fish must be legal, caught during
-              tournament hours, presented whole and accepted by the Weighmaster.
+              A qualifying fish must be legal, caught during tournament hours,
+              presented whole and accepted by the Weighmaster. Official
+              kids-pot results come from weigh-in, not from AI Livewell
+              estimates.
             </p>
             <p>
-              The youth angler must personally hook the fish and actively
-              participate in landing it. Adults may help keep everyone safe, but
-              the child needs to do the fishing.
+              The youth angler must personally hook the fish and land it.
+              Adults may help with safety. The child needs to do the fishing.
             </p>
             <p>
-              The Youth Division prize will be provided by Jenn and Aaron and will
-              not come from paid side-pot money.
+              Youth anglers are full paid roster seats. Their $75 entry still
+              goes into the main tournament pot. Their fish still count on the
+              team stringer, and they still count toward paid team side pots
+              when the team has entered those pots.
             </p>
             <p>
-              Youth anglers may also compete in the paid side pots as members of
-              their registered team.
+              A parent or guardian may use their own email for the child. The
+              child does not get a tournament account. Parent login is the
+              login. Walk-up adults may stay name-only; that is not the kids
+              path.
+            </p>
+            <p>
+              <Link
+                href="/kids"
+                className="font-semibold text-sea underline-offset-4 hover:underline"
+              >
+                Rowan &amp; Rider kids page →
+              </Link>
             </p>
           </div>
 
@@ -693,6 +719,12 @@ export default function RulesPage() {
         </Section>
 
         <div className="flex flex-wrap gap-x-6 gap-y-3 border-t border-dashed border-wave/25 pt-8">
+          <Link
+            href="/kids"
+            className="font-display text-sm uppercase tracking-[0.14em] text-sea underline-offset-4 hover:underline"
+          >
+            Rowan &amp; Rider kids pot →
+          </Link>
           <Link
             href="/register"
             className="font-display text-sm uppercase tracking-[0.14em] text-sea underline-offset-4 hover:underline"

@@ -14,7 +14,7 @@ export type AdminTeamRow = {
   registrantEmail: string;
   captainName: string | null;
   contactName: string | null;
-  anglers: { fullName: string; email?: string | null }[];
+  anglers: { fullName: string; email?: string | null; isYouth?: boolean }[];
   createdAt: string;
 };
 
@@ -171,7 +171,14 @@ export function AdminDashboard({ teams, stats }: Props) {
                 <td className="px-4 py-3">
                   {team.boatType === "GUIDED" ? "Guided" : "Non-guided"}
                 </td>
-                <td className="px-4 py-3">{team.anglers.length}</td>
+                <td className="px-4 py-3">
+                  {team.anglers.length}
+                  {team.anglers.some((a) => a.isYouth) ? (
+                    <span className="ml-2 inline-block rounded-full bg-sun/20 px-2 py-0.5 text-[0.7rem] uppercase tracking-[0.08em] text-wave">
+                      {team.anglers.filter((a) => a.isYouth).length} youth
+                    </span>
+                  ) : null}
+                </td>
                 <td className="px-4 py-3">
                   {formatUsd(team.amountDueCents)}
                 </td>

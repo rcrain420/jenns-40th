@@ -2,7 +2,7 @@ export function authorName(row: {
   user?: { name: string } | null;
   angler?: { fullName: string } | null;
 }): string {
-  return row.user?.name ?? row.angler?.fullName ?? "Guest";
+  return row.angler?.fullName ?? row.user?.name ?? "Guest";
 }
 
 export const userTeamNameSelect = {

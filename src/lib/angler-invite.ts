@@ -35,6 +35,15 @@ export async function inviteAnglerOnTeam(opts: {
     return { ok: false as const, error: "That angler is not on this team.", status: 404 };
   }
 
+  if (angler.isYouth) {
+    return {
+      ok: false as const,
+      error:
+        "Youth anglers do not get a Join the boat / create-account invite. Parent login is the login.",
+      status: 400,
+    };
+  }
+
   const nextEmail = normalizeEmail(opts.email ?? angler.email ?? "");
   if (!nextEmail || !nextEmail.includes("@")) {
     return {

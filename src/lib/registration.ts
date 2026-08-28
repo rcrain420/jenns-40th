@@ -30,6 +30,7 @@ export function teamCreateData(input: RegistrationInput) {
     fullName: a.fullName,
     phone: a.phone ?? null,
     email: a.email ?? null,
+    isYouth: a.isYouth === true,
     sortOrder: index,
   }));
 

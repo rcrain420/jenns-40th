@@ -12,6 +12,7 @@ import type { PublicUser } from "@/lib/users";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/register", label: "Register" },
+  { href: "/kids", label: "Kids" },
   { href: "/rules", label: "Tournament Rules" },
   { href: "/pots", label: "Pot Total" },
   { href: "/guides", label: "Guides" },

@@ -119,9 +119,11 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
                 Invite teammates
               </h3>
               <p className="mt-2 text-sm text-ink/65">
-                Shared backup for name-only seats and walk-ups. Anglers with
-                an email already get Join the boat. You can also send Invite
-                from My team. Joining does not add them to the paid roster.
+                Shared backup for name-only walk-up adults. Anglers with an
+                email already get Join the boat — except youth seats, who do
+                not get a create-account invite. You can also send Invite
+                from My team. Kids must be registered by a parent. Joining
+                does not add them to the paid roster.
               </p>
               <div className="mt-3">
                 <InviteLinkCopy url={inviteUrl} />
@@ -279,7 +281,11 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             <div className="flex justify-between gap-4">
               <dt className="text-ink/60">Anglers</dt>
               <dd className="text-right">
-                {team.anglers.map((a) => a.fullName).join(", ")}
+                {team.anglers
+                  .map((a) =>
+                    a.isYouth ? `${a.fullName} (youth)` : a.fullName,
+                  )
+                  .join(", ")}
               </dd>
             </div>
             <div className="flex justify-between gap-4">
