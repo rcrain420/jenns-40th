@@ -56,7 +56,10 @@ export function teamCreateData(input: RegistrationInput) {
   };
 }
 
-export async function createTeamRegistration(input: RegistrationInput) {
+export async function createTeamRegistration(
+  input: RegistrationInput,
+  actor?: { userId: string; email: string } | null,
+) {
   const availability = await getRegistrationAvailability();
   if (!availability.isOpen) {
     const reason = !availability.openByDate
@@ -65,10 +68,25 @@ export async function createTeamRegistration(input: RegistrationInput) {
     return { ok: false as const, error: reason, status: 403 };
   }
 
+  const actorEmail = actor?.email.trim().toLowerCase() ?? "";
+  const claimForActor =
+    Boolean(actor) &&
+    actorEmail.length > 0 &&
+    actorEmail === input.registrantEmail.trim().toLowerCase();
+
   const team = await prisma.team.create({
-    data: teamCreateData(input),
+    data: {
+      ...teamCreateData(input),
+      ...(claimForActor && actor
+        ? { claimedByUserId: actor.userId }
+        : {}),
+    },
     include: { anglers: { orderBy: { sortOrder: "asc" } } },
   });
+
+  if (claimForActor && actor) {
+    await ensureTeamMember(actor.userId, team.id);
+  }
 
   return { ok: true as const, team };
 }

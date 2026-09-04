@@ -13,6 +13,8 @@ model User {
   id              String    @id @default(cuid())
   email           String    @unique
   name            String
+  /// Google (or other OAuth) profile photo URL. Null for email-only accounts.
+  imageUrl        String?
   /// Null/empty for Google or Facebook-only accounts until they set a password.
   passwordHash    String?
   emailVerifiedAt DateTime?

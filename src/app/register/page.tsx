@@ -3,9 +3,12 @@ import { PageShell } from "@/components/PageShell";
 import { RegisterForm } from "@/components/RegisterForm";
 import { EVENT } from "@/lib/config";
 import { getCurrentUser } from "@/lib/auth";
+import { firstName } from "@/lib/safe-path";
 import {
   REGISTER_ALREADY_IN,
+  REGISTER_WELCOME,
   registerPageView,
+  userHasRegisteredTeam,
 } from "@/lib/register-logged-in";
 import { getRegistrationAvailability } from "@/lib/registration";
 
@@ -44,7 +47,8 @@ export default async function RegisterPage({
   const initialCaptainName = parseCaptain(params.captain);
   const emphasizeYouth = parseFlag(params.youth);
 
-  if (registerPageView(Boolean(viewer)) === "already-registered") {
+  const hasTeam = userHasRegisteredTeam(viewer);
+  if (registerPageView(hasTeam) === "already-registered") {
     return (
       <PageShell
         narrow
@@ -63,22 +67,36 @@ export default async function RegisterPage({
     );
   }
 
+  const welcomeName = viewer && !hasTeam ? firstName(viewer.name) : null;
+
   return (
     <PageShell
       narrow
-      title="Register your team"
+      title={welcomeName ? REGISTER_WELCOME.title : "Register your team"}
       description={
-        <>
-          {EVENT.dateLabel} · {EVENT.venue}, {EVENT.address}. You register the
-          team — that does not make you the captain. Add the captain if you
-          have one, then invite teammates. Captains might never log in.{" "}
-          <Link
-            href="/guides"
-            className="text-coral underline-offset-4 hover:underline"
-          >
-            Need a Rockport captain?
-          </Link>
-        </>
+        welcomeName ? (
+          <>
+            Hi {welcomeName} — {REGISTER_WELCOME.body}{" "}
+            <Link
+              href="/guides"
+              className="text-coral underline-offset-4 hover:underline"
+            >
+              Need a Rockport captain?
+            </Link>
+          </>
+        ) : (
+          <>
+            {EVENT.dateLabel} · {EVENT.venue}, {EVENT.address}. You register the
+            team — that does not make you the captain. Add the captain if you
+            have one, then invite teammates. Captains might never log in.{" "}
+            <Link
+              href="/guides"
+              className="text-coral underline-offset-4 hover:underline"
+            >
+              Need a Rockport captain?
+            </Link>
+          </>
+        )
       }
     >
       <RegisterForm

@@ -4,6 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
 import { isRegistrationOpen } from "@/lib/config";
+import { firstName } from "@/lib/safe-path";
 import { prisma } from "@/lib/db";
 import {
   boatRosterStatusLabel,
@@ -59,12 +60,12 @@ export default async function MyTeamPage({
       <PageShell
         narrow
         title="My team"
-        description="You’re not on a boat yet."
+        description={`Hi ${firstName(user.name)} — you’re not on a boat yet.`}
       >
         <p className="text-ink/70">
-          Register a team — you add the captain and invite teammates — or ask
-          the person who registered for their invite link. Captains might never
-          log in.
+          Register a team to get in the tournament — you add the captain and
+          invite teammates — or ask the person who registered for their invite
+          link. Captains might never log in.
         </p>
         <p className="mt-4">
           <Link href="/register" className="font-semibold text-sea hover:underline">

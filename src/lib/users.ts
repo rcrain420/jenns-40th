@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "crypto";
+import { sanitizeAvatarUrl } from "./avatar";
 import { prisma } from "./db";
 import { sendConfirmEmail, sendResetEmail } from "./email";
 import { hasPasswordHash, SOCIAL_ONLY_LOGIN_ERROR } from "./oauth-errors";
@@ -25,6 +26,7 @@ export type PublicUser = {
   id: string;
   email: string;
   name: string;
+  imageUrl: string | null;
   emailVerified: boolean;
   isAdmin: boolean;
   teamName: string | null;
@@ -35,6 +37,7 @@ export function toPublicUser(user: {
   id: string;
   email: string;
   name: string;
+  imageUrl?: string | null;
   emailVerifiedAt: Date | null;
   role: string;
   claimedTeam?: { teamName: string } | null;
@@ -44,6 +47,7 @@ export function toPublicUser(user: {
     id: user.id,
     email: user.email,
     name: user.name,
+    imageUrl: sanitizeAvatarUrl(user.imageUrl),
     emailVerified: Boolean(user.emailVerifiedAt),
     isAdmin: user.role === "ADMIN",
     teamName:
@@ -56,6 +60,7 @@ const userSelect = {
   id: true,
   email: true,
   name: true,
+  imageUrl: true,
   emailVerifiedAt: true,
   role: true,
   claimedTeam: { select: { id: true, teamName: true } },
@@ -326,11 +331,13 @@ export async function loginWithOAuth(input: {
   providerUserId: string;
   email: string;
   name: string;
+  imageUrl?: string | null;
   registrantClaim?: RegistrantClaim | null;
 }): Promise<AuthOk | AuthFail> {
   const email = normalizeEmail(input.email);
   const providerUserId = input.providerUserId.trim();
   const name = input.name.trim() || email.split("@")[0] || "Angler";
+  const imageUrl = sanitizeAvatarUrl(input.imageUrl);
 
   if (!email || !email.includes("@")) {
     return {
@@ -382,6 +389,7 @@ export async function loginWithOAuth(input: {
       data: {
         email,
         name,
+        imageUrl,
         passwordHash: null,
         emailVerifiedAt: OAUTH_MARKS_EMAIL_VERIFIED ? new Date() : null,
         role: isAdminEmail(email) ? "ADMIN" : "GUEST",
@@ -392,6 +400,13 @@ export async function loginWithOAuth(input: {
       select: { id: true },
     });
     userId = created.id;
+  }
+
+  if (imageUrl && plan !== "create") {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { imageUrl },
+    });
   }
 
   if (OAUTH_MARKS_EMAIL_VERIFIED) {
