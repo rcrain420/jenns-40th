@@ -24,6 +24,13 @@ export type UserSession = {
   userId?: string;
 };
 
+export type OAuthFlowSession = {
+  state?: string;
+  provider?: string;
+  next?: string;
+  codeVerifier?: string;
+};
+
 function getSessionPassword(): string {
   const password = process.env.SESSION_SECRET;
   if (!password || password.length < 32) {
@@ -71,6 +78,19 @@ export function getUserSessionOptions(): SessionOptions {
   };
 }
 
+export function getOAuthSessionOptions(): SessionOptions {
+  return {
+    cookieName: "jenns40_oauth",
+    password: getSessionPassword(),
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 10,
+    },
+  };
+}
+
 /** Constant-time string compare for secrets (pads to equal length). */
 export function safeEqualSecret(provided: string, expected: string): boolean {
   const a = Buffer.from(provided);
@@ -95,6 +115,13 @@ export async function getEventSession() {
 
 export async function getUserSession() {
   return getIronSession<UserSession>(await cookies(), getUserSessionOptions());
+}
+
+export async function getOAuthSession() {
+  return getIronSession<OAuthFlowSession>(
+    await cookies(),
+    getOAuthSessionOptions(),
+  );
 }
 
 export async function setLoggedInUser(userId: string) {

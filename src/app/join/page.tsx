@@ -58,7 +58,7 @@ export default async function JoinPage({
       description={
         viewer
           ? "This puts your account on the boat and unlocks the site on this device. Joining does not make you the captain or add you to the paid roster — the person who registered adds the captain and sends invites."
-          : "Create an account — set a password — to hop on this boat. That unlocks the Livewell here. Joining does not make you the captain or add you to the paid roster."
+          : "Create an account with Google, Facebook, or email to hop on this boat. You do not need a password first if you use Google or Facebook. That unlocks the Livewell here. Joining does not make you the captain or add you to the paid roster."
       }
     >
       <JoinTeamPanel

@@ -12,7 +12,7 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 - Catch log: anglers photograph fish; AI estimates breed, length, and weight; board grouped by angler
 - Catch alerts: in-app notification bell + optional browser notifications on `/catches`
 - Comments on each catch photo
-- Email + password accounts with confirmation; any confirmed user posts catches and comments as themselves
+- Email + password accounts with confirmation; Google and Facebook sign-in when those env vars are set. Social accounts are verified immediately. Any confirmed user posts catches and comments as themselves
 - Registration confirmation email includes a one-tap magic link that unlocks the event session (PIN is the fallback). The same unlock + invite links are on `/register/success` so a dead mailer does not block the flow.
 - Adding an angler email on register or Invite sends a Join the boat email. After they join they have full site access (team + Livewell post) without a second unlock, PIN, or extra email confirm. Join is not captain and not the paid roster. Name-only seats still use the shared invite link or event PIN.
 - Admin console: dashboard, search/filter, edit/delete, mark paid, CSV export (admin role on a user account)
@@ -60,6 +60,15 @@ Set `EVENT_PIN` in `.env` to exercise the event-unlock fallback. Registration co
 | `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` |
 | `OPENAI_TEAM_NAME_MODEL` | Optional; defaults to vision model or `gpt-4o-mini` |
 | `NEXT_PUBLIC_APP_URL` | Optional canonical site URL for metadata and magic links |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional. Shows “Continue with Google” on the shared login form |
+| `FACEBOOK_APP_ID` / `FACEBOOK_APP_SECRET` | Optional. Shows “Continue with Facebook” on the shared login form |
+
+Google / Facebook redirect URIs the app serves:
+
+- `http://localhost:3000/api/auth/oauth/{google|facebook}/callback`
+- `https://officialishfishingtournament.com/api/auth/oauth/{google|facebook}/callback`
+
+Leave those env vars empty to keep email/password only. Production applies the `OAuthAccount` / nullable `passwordHash` migration on the next Vercel build (`prisma migrate deploy` is already in `npm run build`).
 
 ### Venmo
 

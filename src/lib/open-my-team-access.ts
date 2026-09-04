@@ -3,9 +3,10 @@
  * and is not Join the boat.
  *
  * First tap on the confirmation / unlock link shows Create account
- * (registrant email prefilled). No user session is set until they
- * choose a password. After create they are on that boat with Livewell
- * access — no PIN, no second unlock. Later visits use that password.
+ * (registrant email prefilled) on the shared Google / Facebook / email
+ * form. No user session is set until they finish that form. After
+ * create they are on that boat with Livewell access — no PIN, no second
+ * unlock. Later visits use the same sign-in.
  *
  * Leaf module so Node tests can import it without extension rewriting.
  */

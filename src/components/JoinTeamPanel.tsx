@@ -63,11 +63,12 @@ export function JoinTeamPanel({
     return (
       <div className="space-y-4">
         <p className="text-ink/75">
-          Create an account — set a password for this email — to hop on{" "}
-          <strong>{teamName}</strong>. After that you are on the boat and
-          the Livewell is unlocked here. No PIN, no second unlock. Joining
-          does not make you the captain or add you to the paid roster.
-          Later visits can sign in with that password.
+          Create an account to hop on <strong>{teamName}</strong>. Use
+          Google or Facebook, or set a password for this email. After that
+          you are on the boat and the Livewell is unlocked here. No PIN, no
+          second unlock. Joining does not make you the captain or add you to
+          the paid roster. Later visits can use the same Google, Facebook,
+          or password sign-in.
         </p>
         <AuthForm
           mode={joinTheBoatAuthMode()}

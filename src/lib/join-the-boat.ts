@@ -2,9 +2,11 @@
  * Product contract 2026-08-28 (Aaron): Join the boat is not magic
  * sign-in and is not a paid Angler seat.
  *
- * First tap shows Create account (invitee email prefilled). After they
- * set a password they are on that boat — name on the roster, Joined,
- * full Livewell, not captain. Later visits use that password.
+ * First tap shows Create account (invitee email prefilled) on the same
+ * Google / Facebook / email form used everywhere else. After they set a
+ * password — or continue with Google / Facebook — they are on that boat
+ * — name on the roster, Joined, full Livewell, not captain. Later visits
+ * use that same sign-in. Youth seats stay name-only / parent login.
  *
  * The boat lists every invited adult as Joined or Pending. Name-only
  * seats stay name-only / not emailed. Youth seats are parent-login
