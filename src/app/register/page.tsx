@@ -1,12 +1,15 @@
 import Link from "next/link";
+import { AuthForm } from "@/components/AuthForm";
 import { PageShell } from "@/components/PageShell";
 import { RegisterForm } from "@/components/RegisterForm";
-import { EVENT } from "@/lib/config";
 import { getCurrentUser } from "@/lib/auth";
 import { firstName } from "@/lib/safe-path";
 import {
   REGISTER_ALREADY_IN,
+  REGISTER_AUTH,
   REGISTER_WELCOME,
+  registerAuthMode,
+  registerContinuePath,
   registerPageView,
   userHasRegisteredTeam,
 } from "@/lib/register-logged-in";
@@ -38,17 +41,34 @@ export default async function RegisterPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const [availability, viewer] = await Promise.all([
-    getRegistrationAvailability(),
-    getCurrentUser(),
-  ]);
+  const viewer = await getCurrentUser();
   const params = await searchParams;
   const initialBoatType = parseBoatType(params.boat);
   const initialCaptainName = parseCaptain(params.captain);
   const emphasizeYouth = parseFlag(params.youth);
 
   const hasTeam = userHasRegisteredTeam(viewer);
-  if (registerPageView(hasTeam) === "already-registered") {
+  const view = registerPageView({
+    signedIn: Boolean(viewer),
+    hasTeam,
+  });
+
+  if (view === "auth") {
+    return (
+      <PageShell
+        narrow
+        title={REGISTER_AUTH.title}
+        description={REGISTER_AUTH.body}
+      >
+        <AuthForm
+          mode={registerAuthMode()}
+          next={registerContinuePath(params)}
+        />
+      </PageShell>
+    );
+  }
+
+  if (view === "already-registered") {
     return (
       <PageShell
         narrow
@@ -67,37 +87,23 @@ export default async function RegisterPage({
     );
   }
 
-  const welcomeName = viewer && !hasTeam ? firstName(viewer.name) : null;
+  const welcomeName = firstName(viewer?.name ?? "");
+  const availability = await getRegistrationAvailability();
 
   return (
     <PageShell
       narrow
-      title={welcomeName ? REGISTER_WELCOME.title : "Register your team"}
+      title={REGISTER_WELCOME.title}
       description={
-        welcomeName ? (
-          <>
-            Hi {welcomeName} — {REGISTER_WELCOME.body}{" "}
-            <Link
-              href="/guides"
-              className="text-coral underline-offset-4 hover:underline"
-            >
-              Need a Rockport captain?
-            </Link>
-          </>
-        ) : (
-          <>
-            {EVENT.dateLabel} · {EVENT.venue}, {EVENT.address}. You register the
-            team — that does not make you the captain. A captain is optional;
-            add one now or anytime later on My team, then invite teammates.
-            Captains might never log in.{" "}
-            <Link
-              href="/guides"
-              className="text-coral underline-offset-4 hover:underline"
-            >
-              Need a Rockport captain?
-            </Link>
-          </>
-        )
+        <>
+          Hi {welcomeName} — {REGISTER_WELCOME.body}{" "}
+          <Link
+            href="/guides"
+            className="text-coral underline-offset-4 hover:underline"
+          >
+            Need a Rockport captain?
+          </Link>
+        </>
       }
     >
       <RegisterForm

@@ -11,7 +11,19 @@ import { registrationSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
-  if (!registerApiAllowsCreate(userHasRegisteredTeam(user))) {
+  const signedIn = Boolean(user);
+  if (
+    !registerApiAllowsCreate({
+      signedIn,
+      hasTeam: userHasRegisteredTeam(user),
+    })
+  ) {
+    if (!signedIn) {
+      return NextResponse.json(
+        { error: "Sign in to register a team." },
+        { status: 401 },
+      );
+    }
     return NextResponse.json(
       { error: "You're already registered. Open your boat instead." },
       { status: 409 },

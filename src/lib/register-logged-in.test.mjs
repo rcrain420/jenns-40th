@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   REGISTER_ALREADY_IN,
+  REGISTER_AUTH,
   REGISTER_WELCOME,
   afterAuthPath,
   registerApiAllowsCreate,
+  registerAuthMode,
+  registerContinuePath,
   registerPageView,
   userHasRegisteredTeam,
 } from "./register-logged-in.ts";
@@ -22,15 +25,50 @@ const banned = [
 ];
 
 describe("logged-in /register gate", () => {
-  it("shows the form until the account is actually on a boat", () => {
+  it("shows auth first when logged out — never the team form", () => {
+    assert.equal(
+      registerPageView({ signedIn: false, hasTeam: false }),
+      "auth",
+    );
+    assert.equal(
+      registerPageView({ signedIn: false, hasTeam: true }),
+      "auth",
+    );
+    assert.equal(
+      registerApiAllowsCreate({ signedIn: false, hasTeam: false }),
+      false,
+    );
+  });
+
+  it("shows the form until the signed-in account is actually on a boat", () => {
     assert.equal(userHasRegisteredTeam(null), false);
     assert.equal(userHasRegisteredTeam({ teamName: null }), false);
     assert.equal(userHasRegisteredTeam({ teamName: "Redfish Rodeo" }), true);
 
-    assert.equal(registerPageView(false), "form");
-    assert.equal(registerPageView(true), "already-registered");
-    assert.equal(registerApiAllowsCreate(false), true);
-    assert.equal(registerApiAllowsCreate(true), false);
+    assert.equal(
+      registerPageView({ signedIn: true, hasTeam: false }),
+      "form",
+    );
+    assert.equal(
+      registerPageView({ signedIn: true, hasTeam: true }),
+      "already-registered",
+    );
+    assert.equal(
+      registerApiAllowsCreate({ signedIn: true, hasTeam: false }),
+      true,
+    );
+    assert.equal(
+      registerApiAllowsCreate({ signedIn: true, hasTeam: true }),
+      false,
+    );
+  });
+
+  it("opens Create account first, same as Join the boat", () => {
+    assert.equal(registerAuthMode(), "signup");
+    assert.match(REGISTER_AUTH.title, /create an account/i);
+    assert.match(REGISTER_AUTH.body, /google/i);
+    assert.match(REGISTER_AUTH.body, /log in/i);
+    assert.equal(/facebook/i.test(REGISTER_AUTH.body), false);
   });
 
   it("welcomes signed-in users who still need to register a team", () => {
@@ -51,6 +89,19 @@ describe("logged-in /register gate", () => {
     }
   });
 
+  it("keeps youth and guide prefill on the auth next path", () => {
+    assert.equal(registerContinuePath(), "/register");
+    assert.equal(registerContinuePath({}), "/register");
+    assert.equal(
+      registerContinuePath({ youth: "1" }),
+      "/register?youth=1",
+    );
+    assert.equal(
+      registerContinuePath({ boat: "GUIDED", captain: "Tina" }),
+      "/register?boat=GUIDED&captain=Tina",
+    );
+  });
+
   it("sends no-team auth landings away from the success dead-end", () => {
     assert.equal(
       afterAuthPath({ next: "/register/success", hasTeam: false }),
@@ -62,5 +113,9 @@ describe("logged-in /register gate", () => {
     );
     assert.equal(afterAuthPath({ next: "/catches", hasTeam: false }), "/catches");
     assert.equal(afterAuthPath({ next: "/register", hasTeam: false }), "/register");
+    assert.equal(
+      afterAuthPath({ next: "/register?youth=1", hasTeam: false }),
+      "/register?youth=1",
+    );
   });
 });
