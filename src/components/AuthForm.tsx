@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { notifyAuthChanged } from "@/lib/auth-client";
+import { oauthErrorMessage } from "@/lib/oauth-errors";
 import { PasswordField } from "./PasswordField";
 
 export type AuthMode = "signin" | "signup";
+
+type OAuthButtons = {
+  google: boolean;
+  facebook: boolean;
+};
 
 type Props = {
   mode?: AuthMode;
@@ -14,8 +20,14 @@ type Props = {
   compact?: boolean;
   initialEmail?: string;
   initialName?: string;
+  initialError?: string | null;
   onSuccess?: () => void;
 };
+
+function oauthStartHref(provider: "google" | "facebook", next: string) {
+  const params = new URLSearchParams({ next });
+  return `/api/auth/oauth/${provider}/start?${params.toString()}`;
+}
 
 export function AuthForm({
   mode: initialMode = "signin",
@@ -23,6 +35,7 @@ export function AuthForm({
   compact = false,
   initialEmail = "",
   initialName = "",
+  initialError = null,
   onSuccess,
 }: Props) {
   const router = useRouter();
@@ -30,10 +43,40 @@ export function AuthForm({
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError);
   const [notice, setNotice] = useState<string | null>(null);
   const [devConfirmUrl, setDevConfirmUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [oauth, setOauth] = useState<OAuthButtons>({
+    google: false,
+    facebook: false,
+  });
+
+  useEffect(() => {
+    const fromUrl = oauthErrorMessage(
+      new URLSearchParams(window.location.search).get("oauthError"),
+    );
+    if (fromUrl) setError(fromUrl);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/oauth/providers")
+      .then((res) => res.json())
+      .then((data: Partial<OAuthButtons>) => {
+        if (cancelled) return;
+        setOauth({
+          google: Boolean(data.google),
+          facebook: Boolean(data.facebook),
+        });
+      })
+      .catch(() => {
+        // Buttons stay hidden — email/password still works.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -89,8 +132,45 @@ export function AuthForm({
     }
   }
 
+  const showOauth = oauth.google || oauth.facebook;
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <div className="space-y-4">
+      {error ? (
+        <p className="rounded-md bg-alert/10 px-3 py-2 text-sm text-alert" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {showOauth ? (
+        <div className="space-y-2">
+          {oauth.google ? (
+            <a
+              href={oauthStartHref("google", next)}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-[var(--line)] bg-white px-5 py-3 text-base font-semibold text-ink transition hover:bg-mist"
+            >
+              <GoogleMark />
+              Continue with Google
+            </a>
+          ) : null}
+          {oauth.facebook ? (
+            <a
+              href={oauthStartHref("facebook", next)}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-[var(--line)] bg-white px-5 py-3 text-base font-semibold text-ink transition hover:bg-mist"
+            >
+              <FacebookMark />
+              Continue with Facebook
+            </a>
+          ) : null}
+          <p className="flex items-center gap-3 pt-1 text-center text-sm text-ink/45">
+            <span className="h-px flex-1 bg-[var(--line)]" />
+            or email
+            <span className="h-px flex-1 bg-[var(--line)]" />
+          </p>
+        </div>
+      ) : null}
+
+      <form onSubmit={onSubmit} className="space-y-4">
       {mode === "signup" ? (
         <div>
           <label htmlFor="auth-name" className="block text-sm font-semibold text-wave">
@@ -130,12 +210,6 @@ export function AuthForm({
         onChange={setPassword}
         autoComplete={mode === "signup" ? "new-password" : "current-password"}
       />
-
-      {error ? (
-        <p className="rounded-md bg-alert/10 px-3 py-2 text-sm text-alert" role="alert">
-          {error}
-        </p>
-      ) : null}
 
       {notice ? (
         <p className="rounded-md bg-mist px-3 py-2 text-sm text-wave" role="status">
@@ -186,5 +260,40 @@ export function AuthForm({
         ) : null}
       </div>
     </form>
+    </div>
+  );
+}
+
+function GoogleMark() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
+      <path
+        fill="#4285F4"
+        d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.4c-.3 1.5-1.2 2.8-2.5 3.6v3h4c2.4-2.2 3.6-5.4 3.6-8.7z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.2 0 6-1.1 8-2.9l-4-3c-1.1.8-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.3v3.1C3.3 21.3 7.4 24 12 24z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.4 14.4c-.2-.7-.4-1.5-.4-2.4s.1-1.7.4-2.4V6.5H1.3C.5 8.2 0 10.1 0 12s.5 3.8 1.3 5.5l4.1-3.1z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.8c1.8 0 3.4.6 4.6 1.8l3.5-3.5C17.9 1.1 15.2 0 12 0 7.4 0 3.3 2.7 1.3 6.5l4.1 3.1C6.3 6.8 8.9 4.8 12 4.8z"
+      />
+    </svg>
+  );
+}
+
+function FacebookMark() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
+      <path
+        fill="#1877F2"
+        d="M24 12.1C24 5.4 18.6 0 12 0S0 5.4 0 12.1C0 18.1 4.4 23.1 10.1 24v-8.4H7.1v-3.5h3V9.4c0-3 1.8-4.6 4.5-4.6 1.3 0 2.6.2 2.6.2v2.9h-1.5c-1.5 0-1.9.9-1.9 1.9v2.2h3.3l-.5 3.5h-2.8V24C19.6 23.1 24 18.1 24 12.1z"
+      />
+    </svg>
   );
 }

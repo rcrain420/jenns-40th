@@ -1,6 +1,12 @@
 import { createHash, randomBytes } from "crypto";
 import { prisma } from "./db";
 import { sendConfirmEmail, sendResetEmail } from "./email";
+import { hasPasswordHash, SOCIAL_ONLY_LOGIN_ERROR } from "./oauth-errors";
+import {
+  OAUTH_MARKS_EMAIL_VERIFIED,
+  planOAuthUserLink,
+  type OAuthProvider,
+} from "./oauth";
 import { hashPassword, MIN_PASSWORD_LENGTH, verifyPassword } from "./password";
 import { claimTeamIfRegistrant } from "./registration";
 import {
@@ -295,6 +301,14 @@ export async function loginUser(input: {
       code: "missing",
     };
   }
+  if (!hasPasswordHash(user.passwordHash)) {
+    return {
+      ok: false,
+      error: SOCIAL_ONLY_LOGIN_ERROR,
+      status: 401,
+      code: "oauth_only",
+    };
+  }
   const matches = await verifyPassword(input.password, user.passwordHash);
   if (!matches) {
     return { ok: false, error: "That password doesn’t match.", status: 401 };
@@ -304,6 +318,92 @@ export async function loginUser(input: {
   await claimTeamForUser(user.id, user.email);
   await applyOpenMyTeamClaim(user.id, user.email, input.registrantClaim);
   const refreshed = (await getUserById(user.id)) ?? user;
+  return { ok: true, user: toPublicUser(refreshed) };
+}
+
+export async function loginWithOAuth(input: {
+  provider: OAuthProvider;
+  providerUserId: string;
+  email: string;
+  name: string;
+  registrantClaim?: RegistrantClaim | null;
+}): Promise<AuthOk | AuthFail> {
+  const email = normalizeEmail(input.email);
+  const providerUserId = input.providerUserId.trim();
+  const name = input.name.trim() || email.split("@")[0] || "Angler";
+
+  if (!email || !email.includes("@")) {
+    return {
+      ok: false,
+      error: "That account did not share an email. Use another account, or sign in with email.",
+      status: 400,
+      code: "missing_email",
+    };
+  }
+  if (!providerUserId) {
+    return { ok: false, error: "Could not finish sign-in.", status: 400 };
+  }
+
+  const existingLink = await prisma.oAuthAccount.findUnique({
+    where: {
+      provider_providerUserId: {
+        provider: input.provider,
+        providerUserId,
+      },
+    },
+    select: { userId: true },
+  });
+  const existingEmail = existingLink
+    ? null
+    : await prisma.user.findUnique({
+        where: { email },
+        select: { id: true },
+      });
+
+  const plan = planOAuthUserLink({
+    existingOAuthUserId: existingLink?.userId ?? null,
+    existingEmailUserId: existingEmail?.id ?? null,
+  });
+
+  let userId: string;
+  if (plan === "login_linked" && existingLink) {
+    userId = existingLink.userId;
+  } else if (plan === "link_email" && existingEmail) {
+    await prisma.oAuthAccount.create({
+      data: {
+        userId: existingEmail.id,
+        provider: input.provider,
+        providerUserId,
+      },
+    });
+    userId = existingEmail.id;
+  } else {
+    const created = await prisma.user.create({
+      data: {
+        email,
+        name,
+        passwordHash: null,
+        emailVerifiedAt: OAUTH_MARKS_EMAIL_VERIFIED ? new Date() : null,
+        role: isAdminEmail(email) ? "ADMIN" : "GUEST",
+        oauthAccounts: {
+          create: { provider: input.provider, providerUserId },
+        },
+      },
+      select: { id: true },
+    });
+    userId = created.id;
+  }
+
+  if (OAUTH_MARKS_EMAIL_VERIFIED) {
+    await markEmailVerified(userId);
+  }
+  await promoteAdminIfNeeded(userId, email);
+  await claimTeamForUser(userId, email);
+  await applyOpenMyTeamClaim(userId, email, input.registrantClaim);
+  const refreshed = await getUserById(userId);
+  if (!refreshed) {
+    return { ok: false, error: "Account not found", status: 404 };
+  }
   return { ok: true, user: toPublicUser(refreshed) };
 }
 

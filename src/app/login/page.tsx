@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/AuthForm";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
+import { oauthErrorMessage } from "@/lib/oauth-errors";
 import { safeNextPath } from "@/lib/safe-path";
 
 export const dynamic = "force-dynamic";
@@ -9,12 +10,18 @@ export const dynamic = "force-dynamic";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; next?: string; email?: string }>;
+  searchParams: Promise<{
+    mode?: string;
+    next?: string;
+    email?: string;
+    oauthError?: string;
+  }>;
 }) {
   const params = await searchParams;
   const next = safeNextPath(params.next);
   const initialEmail =
     typeof params.email === "string" ? params.email.trim() : "";
+  const initialError = oauthErrorMessage(params.oauthError);
   const user = await getCurrentUser();
   if (user) {
     if (next.startsWith("/admin") && !user.isAdmin) {
@@ -47,7 +54,7 @@ export default async function LoginPage({
         adminHint
           ? "Organizer sign-in — use the admin email and your password."
           : openMyTeam
-            ? "Set a password for this email. That puts you on the boat you registered — roster and Livewell, no PIN."
+            ? "Use this email — Google, Facebook, or a password — to get on the boat you registered. Roster and Livewell, no PIN."
             : "Same account for the Livewell, comments, and (if you’re an organizer) the admin console."
       }
     >
@@ -60,6 +67,7 @@ export default async function LoginPage({
         mode={mode}
         next={next}
         initialEmail={initialEmail}
+        initialError={initialError}
       />
     </PageShell>
   );
