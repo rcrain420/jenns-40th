@@ -122,7 +122,7 @@ export function CatchLogger({ viewer, teamAnglers = [] }: Props) {
           This page does not sign you in by itself. Use Join the boat from an
           invite email, or create an account here. After you join a boat you
           can post — no PIN, no second unlock, no extra email confirm.
-          Name-only walk-ups still use the shared invite link or the event PIN.
+          Name-only seats still use the shared invite link or the event PIN.
         </p>
         <AuthForm next="/catches" compact onSuccess={() => router.refresh()} />
       </div>

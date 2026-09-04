@@ -9,6 +9,7 @@ const {
   verifyTeamInviteToken,
   TEAM_INVITE_PURPOSE,
 } = await import("./team-invite-token.ts");
+const { publicAbsoluteUrl } = await import("./safe-path.ts");
 
 const TEAM_ID = "team_pretty_pier";
 
@@ -28,6 +29,19 @@ describe("team invite tokens", () => {
     const path = teamInvitePath(token);
     assert.equal(path.startsWith("/join?token="), true);
     assert.equal(path.includes("http"), false);
+  });
+
+  it("turns a join path into an absolute URL for copy and share", () => {
+    const prev = process.env.NEXT_PUBLIC_APP_URL;
+    process.env.NEXT_PUBLIC_APP_URL = "https://officialishfishingtournament.com";
+    const { token } = issueTeamInviteToken({ teamId: TEAM_ID });
+    const url = publicAbsoluteUrl(teamInvitePath(token));
+    assert.equal(
+      url.startsWith("https://officialishfishingtournament.com/join?token="),
+      true,
+    );
+    if (prev === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = prev;
   });
 
   it("rejects a tampered token", () => {

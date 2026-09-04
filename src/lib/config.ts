@@ -107,9 +107,9 @@ export const MAIN_POT_SPLITS = [
   { place: "3rd", pct: 20 },
 ] as const;
 
-/** Venmo handle for registration payments (without @). */
-export const VENMO_USERNAME = "Officialish-Tournament";
-export const VENMO_HANDLE = `@${VENMO_USERNAME}`;
+/** Venmo username for registration payments. Display and /u/ path. */
+export const VENMO_USERNAME = "Jennski";
+export const VENMO_HANDLE = VENMO_USERNAME;
 
 export function getVenmoUrl(): string {
   const override = process.env.VENMO_URL?.trim();
@@ -146,9 +146,19 @@ export function getAppUrl(): string {
     return new URL(explicit).origin;
   }
   if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+    return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
+  }
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000";
   }
   return "https://officialishfishingtournament.com";
+}
+
+/** Paid adult seats only. Youth (`isYouth`) are roster seats, not $75 entries. */
+export function paidEntrySeatCount(
+  anglers: Array<{ isYouth?: boolean | null }>,
+): number {
+  return anglers.filter((angler) => angler.isYouth !== true).length;
 }
 
 export function isRegistrationOpen(now = new Date()): boolean {
@@ -156,11 +166,15 @@ export function isRegistrationOpen(now = new Date()): boolean {
 }
 
 export function amountDueCents(
-  anglerCount: number,
+  anglersOrPaidCount: Array<{ isYouth?: boolean | null }> | number,
   sidePotCount = 0,
 ): number {
+  const paidCount =
+    typeof anglersOrPaidCount === "number"
+      ? anglersOrPaidCount
+      : paidEntrySeatCount(anglersOrPaidCount);
   return (
-    FEE_PER_ANGLER_CENTS * anglerCount + SIDE_POT_BUY_IN_CENTS * sidePotCount
+    FEE_PER_ANGLER_CENTS * paidCount + SIDE_POT_BUY_IN_CENTS * sidePotCount
   );
 }
 

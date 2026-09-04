@@ -18,7 +18,7 @@ export const LICENSE_CONFIRM_ERROR =
   "Confirm licenses for adults and 17-year-olds. Younger children generally do not need one.";
 
 export const CAPTAIN_CONTACT_ADULT_NOTE =
-  "The guided captain and DIY primary contact must be 18 or older. Youth anglers belong on the fishing roster, not in these fields.";
+  "If you add a guided captain or DIY primary contact, they must be 18 or older. Youth anglers belong on the fishing roster, not in these fields. You can add a captain later on My team.";
 
 export const YOUTH_INVITE_SKIP_ERROR =
   "Youth anglers do not get a Join the boat / create-account invite. Parent login is the login.";

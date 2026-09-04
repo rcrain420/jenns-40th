@@ -186,52 +186,47 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
       {boatType === "GUIDED" ? (
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className={labelClass}>Captain name</label>
+            <label className={labelClass}>Captain name (optional)</label>
             <input
               className={inputClass}
               value={captainName}
               onChange={(e) => setCaptainName(e.target.value)}
-              required
             />
           </div>
           <div>
-            <label className={labelClass}>Captain phone</label>
+            <label className={labelClass}>Captain phone (optional)</label>
             <input
               className={inputClass}
               value={captainPhone}
               onChange={(e) => setCaptainPhone(e.target.value)}
-              required
             />
           </div>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className={labelClass}>Primary contact name</label>
+            <label className={labelClass}>Primary contact name (optional)</label>
             <input
               className={inputClass}
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
-              required
             />
           </div>
           <div>
-            <label className={labelClass}>Primary contact phone</label>
+            <label className={labelClass}>Primary contact phone (optional)</label>
             <input
               className={inputClass}
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}
-              required
             />
           </div>
           <div>
-            <label className={labelClass}>Primary contact email</label>
+            <label className={labelClass}>Primary contact email (optional)</label>
             <input
               type="email"
               className={inputClass}
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
-              required
             />
           </div>
         </div>
@@ -358,7 +353,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
           ))}
         </div>
         <p className="text-sm text-ink/60">
-          Due: {formatUsd(amountDueCents(anglers.length, sidePots.length))}
+          Due: {formatUsd(amountDueCents(anglers, sidePots.length))}
         </p>
       </div>
 

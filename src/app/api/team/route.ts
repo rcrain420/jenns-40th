@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { amountDueCents, isRegistrationOpen } from "@/lib/config";
 import { prisma } from "@/lib/db";
+import { emptyToNull } from "@/lib/registration";
 import { teamInviteUrl } from "@/lib/team-invite";
-import { teamRosterSchema } from "@/lib/validation";
+import { teamContactSchema, teamRosterSchema } from "@/lib/validation";
 
 async function loadMemberTeam(userId: string) {
   const member = await prisma.teamMember.findUnique({
@@ -42,6 +43,12 @@ export async function GET() {
       paymentStatus: team.paymentStatus,
       amountDueCents: team.amountDueCents,
       sidePots: team.sidePots,
+      boatType: team.boatType,
+      captainName: team.captainName ?? "",
+      captainPhone: team.captainPhone ?? "",
+      contactName: team.contactName ?? "",
+      contactPhone: team.contactPhone ?? "",
+      contactEmail: team.contactEmail ?? "",
       anglers: team.anglers.map((a) => ({
         id: a.id,
         fullName: a.fullName,
@@ -76,18 +83,60 @@ export async function PATCH(request: Request) {
     );
   }
 
-  if (!isRegistrationOpen()) {
-    return NextResponse.json(
-      { error: "Registration is closed. Ask an organizer to change the roster." },
-      { status: 403 },
-    );
-  }
-
   let body: unknown;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  if (body && typeof body === "object" && !("anglers" in body)) {
+    const contactParsed = teamContactSchema.safeParse(body);
+    if (!contactParsed.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          fieldErrors: contactParsed.error.flatten().fieldErrors,
+        },
+        { status: 400 },
+      );
+    }
+
+    const input = contactParsed.data;
+    const boatType = input.boatType ?? team.boatType;
+    const guided = boatType === "GUIDED";
+    const updatedContact = await prisma.team.update({
+      where: { id: team.id },
+      data: {
+        boatType,
+        captainName: guided ? emptyToNull(input.captainName) : null,
+        captainPhone: guided ? emptyToNull(input.captainPhone) : null,
+        contactName: guided ? null : emptyToNull(input.contactName),
+        contactPhone: guided ? null : emptyToNull(input.contactPhone),
+        contactEmail: guided ? null : emptyToNull(input.contactEmail),
+      },
+      include: { anglers: { orderBy: { sortOrder: "asc" } } },
+    });
+
+    return NextResponse.json({
+      team: {
+        id: updatedContact.id,
+        teamName: updatedContact.teamName,
+        boatType: updatedContact.boatType,
+        captainName: updatedContact.captainName ?? "",
+        captainPhone: updatedContact.captainPhone ?? "",
+        contactName: updatedContact.contactName ?? "",
+        contactPhone: updatedContact.contactPhone ?? "",
+        contactEmail: updatedContact.contactEmail ?? "",
+      },
+    });
+  }
+
+  if (!isRegistrationOpen()) {
+    return NextResponse.json(
+      { error: "Registration is closed. Ask an organizer to change the roster." },
+      { status: 403 },
+    );
   }
 
   const parsed = teamRosterSchema.safeParse(body);
@@ -102,10 +151,10 @@ export async function PATCH(request: Request) {
   }
 
   const nextAnglers = parsed.data.anglers;
-  const nextDue = amountDueCents(nextAnglers.length, team.sidePots.length);
-  const addedAnglers = nextAnglers.length > team.anglers.length;
+  const nextDue = amountDueCents(nextAnglers, team.sidePots.length);
+  const addedPaidSeats = nextDue > team.amountDueCents;
   const paymentStatus =
-    team.paymentStatus === "PAID" && addedAnglers ? "UNPAID" : team.paymentStatus;
+    team.paymentStatus === "PAID" && addedPaidSeats ? "UNPAID" : team.paymentStatus;
 
   const updated = await prisma.$transaction(async (tx) => {
     await tx.angler.deleteMany({ where: { teamId: team.id } });

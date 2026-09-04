@@ -9,6 +9,7 @@ import {
   MIN_ANGLERS,
   PAID_SIDE_POTS,
   SIDE_POT_BUY_IN_CENTS,
+  paidEntrySeatCount,
   type SidePotId,
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
@@ -96,7 +97,9 @@ export function RegisterForm({
   const [suggestingNames, setSuggestingNames] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
 
-  const entryCents = FEE_PER_ANGLER_CENTS * anglers.length;
+  const paidSeats = paidEntrySeatCount(anglers);
+  const youthSeats = anglers.length - paidSeats;
+  const entryCents = FEE_PER_ANGLER_CENTS * paidSeats;
   const sidePotCents = SIDE_POT_BUY_IN_CENTS * sidePots.length;
   const total = useMemo(
     () => formatUsd(entryCents + sidePotCents),
@@ -166,22 +169,6 @@ export function RegisterForm({
     if (!teamName.trim()) next.teamName = ["Team name is required"];
     if (boatType !== "GUIDED" && boatType !== "NON_GUIDED") {
       next.boatType = ["Choose guided or non-guided"];
-    }
-    if (boatType === "GUIDED") {
-      if (!captainName.trim()) {
-        next.captainName = ["Captain name is required for guided boats"];
-      }
-      if (!captainPhone.trim()) {
-        next.captainPhone = ["Captain phone is required for guided boats"];
-      }
-    }
-    if (boatType === "NON_GUIDED") {
-      if (!contactName.trim()) {
-        next.contactName = ["Primary contact name is required"];
-      }
-      if (!contactPhone.trim()) {
-        next.contactPhone = ["Primary contact phone is required"];
-      }
     }
     if (!registrantEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registrantEmail.trim())) {
       next.registrantEmail = ["Valid email required"];
@@ -402,11 +389,11 @@ export function RegisterForm({
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {(
             [
-              ["GUIDED", "Guided", "You’ll add the captain’s name and phone"],
+              ["GUIDED", "Guided", "Captain name and phone are optional — add now or later"],
               [
                 "NON_GUIDED",
                 "Non-guided",
-                "You’ll add a primary contact name and phone",
+                "Primary contact is optional — add now or later",
               ],
             ] as const
           ).map(([value, title, hint]) => (
@@ -439,7 +426,7 @@ export function RegisterForm({
       {boatType === "GUIDED" ? (
         <div className="space-y-3">
           <p className="text-sm text-ink/65">
-            You add the captain — they do not need an account. {CAPTAIN_CONTACT_ADULT_NOTE}{" "}
+            Captain is optional. They do not need an account. {CAPTAIN_CONTACT_ADULT_NOTE}{" "}
             Still looking?{" "}
             <Link href="/guides" className="font-semibold text-sea hover:underline">
               Search Rockport fishing guides
@@ -448,14 +435,13 @@ export function RegisterForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className={labelClass} htmlFor="captainName">
-                Captain name <span className="text-alert">*</span>
+                Captain name (optional)
               </label>
               <input
                 id="captainName"
                 className={inputClass}
                 value={captainName}
                 onChange={(e) => setCaptainName(e.target.value)}
-                required
                 aria-invalid={Boolean(fieldErrors.captainName?.length)}
                 aria-describedby={
                   fieldErrors.captainName?.length ? "captainName-error" : undefined
@@ -465,7 +451,7 @@ export function RegisterForm({
             </div>
             <div>
               <label className={labelClass} htmlFor="captainPhone">
-                Captain phone <span className="text-alert">*</span>
+                Captain phone (optional)
               </label>
               <input
                 id="captainPhone"
@@ -479,7 +465,6 @@ export function RegisterForm({
                 onChange={(e) =>
                   setCaptainPhone(formatPhoneInput(e.target.value))
                 }
-                required
                 aria-invalid={Boolean(fieldErrors.captainPhone?.length)}
                 aria-describedby={
                   fieldErrors.captainPhone?.length ? "captainPhone-error" : undefined
@@ -497,14 +482,13 @@ export function RegisterForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className={labelClass} htmlFor="contactName">
-              Primary contact name <span className="text-alert">*</span>
+              Primary contact name (optional)
             </label>
             <input
               id="contactName"
               className={inputClass}
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
-              required
               aria-invalid={Boolean(fieldErrors.contactName?.length)}
               aria-describedby={
                 fieldErrors.contactName?.length ? "contactName-error" : undefined
@@ -514,7 +498,7 @@ export function RegisterForm({
           </div>
           <div>
             <label className={labelClass} htmlFor="contactPhone">
-              Primary contact phone <span className="text-alert">*</span>
+              Primary contact phone (optional)
             </label>
             <input
               id="contactPhone"
@@ -528,7 +512,6 @@ export function RegisterForm({
               onChange={(e) =>
                 setContactPhone(formatPhoneInput(e.target.value))
               }
-              required
               aria-invalid={Boolean(fieldErrors.contactPhone?.length)}
               aria-describedby={
                 fieldErrors.contactPhone?.length ? "contactPhone-error" : undefined
@@ -578,13 +561,15 @@ export function RegisterForm({
             <p className="text-sm text-ink/65">
               {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers, including kids.
               Name and whether they are 17 or under are required. Email is
-              optional — {YOUTH_EMAIL_HELPER} Walk-up adults can stay
+              optional — {YOUTH_EMAIL_HELPER} Adults without email can stay
               name-only and still join with the shared invite link or the
               event PIN. That is not the kids path. If you add an email on an
               adult seat, they get a Join the boat email. Youth seats do not
-              get a create-account invite. The captain is not an angler slot
-              and must be 18+ — you add them above on a guided boat. Need two
-              names to lock the boat; add the rest later from My team.
+              get a create-account invite and do not add $
+              {FEE_PER_ANGLER_CENTS / 100} to the bill. The captain is not an
+              angler slot and must be 18+ if you add one — now or later from
+              My team. Need two names to lock the boat; add the rest later
+              from My team.
             </p>
           </div>
           <button
@@ -599,8 +584,9 @@ export function RegisterForm({
         {emphasizeYouth ? (
           <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
             Registering a youth angler? Check <strong>17 or under</strong> on
-            their seat. They are a full ${FEE_PER_ANGLER_CENTS / 100} roster
-            spot. {YOUTH_EMAIL_HELPER}
+            their seat. They take a roster spot for the kids pot and stringer
+            rules, and do not add ${FEE_PER_ANGLER_CENTS / 100} to the team
+            bill. {YOUTH_EMAIL_HELPER}
           </p>
         ) : null}
         <div className="mt-4 space-y-4">
@@ -805,7 +791,11 @@ export function RegisterForm({
         <p className="text-lg">
           Total due: <span className="font-semibold">{total}</span>
           <span className="block text-sm text-ink/60">
-            {formatUsd(FEE_PER_ANGLER_CENTS)} × {anglers.length} anglers
+            {formatUsd(FEE_PER_ANGLER_CENTS)} × {paidSeats} adult
+            {paidSeats === 1 ? "" : "s"}
+            {youthSeats > 0
+              ? ` · ${youthSeats} youth (no entry fee)`
+              : ""}
             {sidePots.length > 0
               ? ` + ${sidePots.length} side pot${
                   sidePots.length > 1 ? "s" : ""
