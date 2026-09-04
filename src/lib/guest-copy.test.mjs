@@ -11,6 +11,7 @@ import {
   GUEST_REGISTRATION_EMAIL_SENT,
   GUEST_REGISTRATION_EMAIL_UNKNOWN,
   guestCopyHasInternalLeak,
+  guestFallbackAiNote,
   guestSafeAiNotes,
 } from "./guest-copy.ts";
 
@@ -74,8 +75,16 @@ describe("AI fallback guest notes", () => {
       assert.equal(text.includes("OPENAI_API_KEY"), false, text);
       assert.equal(guestSafeAiNotes(text), text);
     }
-    assert.match(GUEST_AI_MISSING_KEY_NOTE, /missing key/i);
-    assert.match(GUEST_AI_MISSING_KEY_NOTE, /configured/i);
+    assert.match(GUEST_AI_MISSING_KEY_NOTE, /estimate unavailable/i);
+    assert.match(GUEST_AI_MISSING_KEY_NOTE, /isn.t configured/i);
+    assert.equal(
+      guestFallbackAiNote("fallback", GUEST_AI_UNAVAILABLE_NOTE),
+      GUEST_AI_MISSING_KEY_NOTE,
+    );
+    assert.equal(
+      guestFallbackAiNote("fallback", GUEST_AI_TIMEOUT_NOTE),
+      GUEST_AI_TIMEOUT_NOTE,
+    );
   });
 });
 

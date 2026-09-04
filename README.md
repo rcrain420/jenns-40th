@@ -56,7 +56,7 @@ Set `EVENT_PIN` in `.env` to exercise the event-unlock fallback. Registration co
 | `EMAIL_FROM` / `RESEND_FROM` | Optional From: header for Resend |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob token; omit locally to store uploads under `public/uploads/catches` |
 | `VENMO_URL` | Optional Venmo payment link override |
-| `OPENAI_API_KEY` | Server-only. Enables Livewell fish estimates and team-name suggestions. **Set this on the Vercel project for Production** (and Preview if you test uploads there). Missing or invalid key no longer spins the UI — the catch still logs as Unknown with **blank** size/weight and a guest-safe “AI unavailable — missing key” note (never a fake 18" / 3.5 lb) |
+| `OPENAI_API_KEY` | Server-only. Enables Livewell fish estimates and team-name suggestions. **Set this on the Vercel Production env for `jenns-40th`**, then redeploy. Missing key: catch still logs as Unknown with **blank** size/weight and “Estimate unavailable because AI isn’t configured” (never a fake 18" / 3.5 lb) |
 | `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` (must support vision / image_url) |
 | `OPENAI_TEAM_NAME_MODEL` | Optional; defaults to vision model or `gpt-4o-mini` |
 | `NEXT_PUBLIC_APP_URL` | Optional canonical site URL for metadata and magic links |
@@ -79,9 +79,9 @@ On [Vercel → Project → Settings → Environment Variables](https://vercel.co
 
 Optional: `OPENAI_VISION_MODEL` if you want something other than `gpt-4o-mini` (must support vision / `image_url`).
 
-A missing `OPENAI_API_KEY` is not an infinite “Estimating with AI…” spinner. The catch still logs. Guests see **AI unavailable — missing key** (estimates aren’t configured) and **blank** length/weight — not a pretend 18" / 3.5 lb guess. Timeouts, HEIC skip, and provider errors each get their own guest-safe note.
+A missing `OPENAI_API_KEY` is not an infinite “Estimating with AI…” spinner. The catch still logs. Guests see **Estimate unavailable because AI isn’t configured** and **blank** length/weight — not a pretend 18" / 3.5 lb guess. Timeouts, HEIC skip, and provider errors each get their own guest-safe note.
 
-**This is the Production gap on `jenns-40th`:** if `OPENAI_API_KEY` is unset, every Livewell upload takes the fallback path. Set the key on Production, then redeploy. Do not commit the value.
+**Production (`jenns-40th`):** set `OPENAI_API_KEY` on the Vercel Production environment, then redeploy. Do not commit the value. Without that key every Livewell upload takes the fallback path.
 
 Vision `breed` is locked to **Redfish**, **Trout**, **Black drum**, **Hardhead catfish**, **Gafftop**, or **Unknown**. Unusable photos and estimate failures use Unknown — never a freeform “unidentified gulf fish”. Size/weight are omitted unless the model actually returned numbers.
 

@@ -10,7 +10,7 @@ import {
 } from "@/lib/catch-photo-client";
 import { CATCH_PHOTO_INPUT, canShowLivewellPlus } from "@/lib/livewell-plus";
 import type { PublicUser } from "@/lib/users";
-import { guestSafeAiNotes } from "@/lib/guest-copy";
+import { guestFallbackAiNote } from "@/lib/guest-copy";
 import { raceTimeout } from "@/lib/race-timeout";
 import { AddCatchFab } from "./AddCatchFab";
 import { AuthForm } from "./AuthForm";
@@ -300,7 +300,7 @@ function LoggedCatchSummary({
   fish: LoggedCatch;
   notifyNote: string | null;
 }) {
-  const safeNotes = guestSafeAiNotes(fish.aiNotes);
+  const safeNotes = guestFallbackAiNote(fish.aiProvider, fish.aiNotes);
   return (
     <div className="animate-rise border-t border-[var(--line)] pt-6">
       <p className="text-sm uppercase tracking-[0.18em] text-sea">

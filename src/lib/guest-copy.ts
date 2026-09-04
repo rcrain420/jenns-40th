@@ -4,7 +4,7 @@ export const GUEST_AI_UNAVAILABLE_NOTE =
 
 /** OPENAI_API_KEY missing/empty on the server. Do not name the env var. */
 export const GUEST_AI_MISSING_KEY_NOTE =
-  "AI unavailable — missing key. Estimates aren’t configured. Size left blank (not a real guess).";
+  "Estimate unavailable because AI isn’t configured. Size left blank (not a real guess).";
 
 export const GUEST_AI_TIMEOUT_NOTE =
   "AI timed out looking at the photo. Size left blank — not a real guess.";
@@ -71,4 +71,20 @@ export function guestSafeAiNotes(
     return GUEST_AI_UNAVAILABLE_NOTE;
   }
   return trimmed;
+}
+
+/**
+ * Guest line for a fallback catch. Older rows stored a generic
+ * "estimate unavailable" note — show the configured-AI wording instead.
+ */
+export function guestFallbackAiNote(
+  aiProvider: string | null | undefined,
+  aiNotes: string | null | undefined,
+): string | null {
+  const safe = guestSafeAiNotes(aiNotes);
+  if (aiProvider !== "fallback") return safe;
+  if (!safe || safe === GUEST_AI_UNAVAILABLE_NOTE) {
+    return GUEST_AI_MISSING_KEY_NOTE;
+  }
+  return safe;
 }
