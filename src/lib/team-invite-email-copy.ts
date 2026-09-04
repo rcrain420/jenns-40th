@@ -22,7 +22,7 @@ export function teamInviteEmailCopy(
     "Tap the link to create an account and set a password — that hops you on the boat. After you join you can use the Livewell — no PIN or second unlock. Joining does not make you the captain. Later visits can sign in with that password.",
     input.inviteUrl,
     "",
-    "No email, or joining at Friday's captain's meeting? Use the shared invite link from your teammate, or ask an organizer for the event PIN. Walk-up adults can stay name-only. Kids must be registered by a parent or guardian — they do not get a create-account invite.",
+    "No email, or joining at Friday's captain's meeting? Use the shared invite link from your teammate, or ask an organizer for the event PIN. Adults without email can stay name-only. Kids must be registered by a parent or guardian — they do not get a create-account invite.",
     "",
     input.footerScript,
     input.eventName,
@@ -51,7 +51,7 @@ export function teamInviteEmailCopy(
             If the button is shy, paste this link: ${escapeHtml(input.inviteUrl)}
           </p>
           <p style="margin:0;font-size:14px;line-height:1.5;color:#16354f;">
-            No email, or joining Friday night? Use the shared invite link from your teammate, or ask an organizer for the event PIN. Walk-up adults can stay name-only. Kids must be registered by a parent or guardian — they do not get a create-account invite.
+            No email, or joining Friday night? Use the shared invite link from your teammate, or ask an organizer for the event PIN. Adults without email can stay name-only. Kids must be registered by a parent or guardian — they do not get a create-account invite.
           </p>
           <p style="margin:24px 0 0;font-size:18px;">${escapeHtml(input.footerScript)}</p>
         </td>

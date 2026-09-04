@@ -34,7 +34,7 @@ export default async function KidsPage() {
   return (
     <PageShell
       title="Rowan & Rider"
-      description="This weekend is theirs too. Register a youth angler as a full seat — the kids pot is host-funded, biggest qualifying fish."
+      description="This weekend is theirs too. Register a youth angler as a roster seat — the kids pot is host-funded, biggest qualifying fish."
     >
       <article className="space-y-10">
         <section>
@@ -44,9 +44,8 @@ export default async function KidsPage() {
           </h2>
           <p className="mt-3 text-ink/80">
             Jenn&apos;s birthday bash is a family tournament. Rowan and Rider
-            are part of this weekend too — not a side note, not a name-only
-            walk-up, and not a separate kids account. They fish on a real
-            boat, on a real roster.
+            are part of this weekend too — not a side note, and not a
+            separate kids account. They fish on a real boat, on a real roster.
           </p>
           <p className="mt-3 text-ink/80">
             The kids pot is their own lane on the scale: heaviest qualifying
@@ -58,9 +57,10 @@ export default async function KidsPage() {
           <span className="section-banner">How kids fish</span>
           <ul className="mt-4 list-disc space-y-3 pl-5 text-ink/80">
             <li>
-              A youth angler is a full paid roster seat — same{" "}
-              {formatUsd(FEE_PER_ANGLER_CENTS)}, same 2–4 cap, same “only
-              registered anglers&apos; fish count.”
+              A youth angler is a roster seat for the kids pot and stringer
+              rules — same 2–4 cap, same “only registered anglers&apos; fish
+              count.” They do not add {formatUsd(FEE_PER_ANGLER_CENTS)} to
+              the team bill.
             </li>
             <li>
               A parent or legal guardian registers them. Kids can use a
@@ -74,7 +74,8 @@ export default async function KidsPage() {
             </li>
             <li>
               Youth fish still count on the team stringer and on paid team
-              side pots. Their $75 still grows the main pot.
+              side pots. Kids do not pay the adult entry, so they do not grow
+              the main pot.
             </li>
           </ul>
           <p className="mt-4">
@@ -103,8 +104,8 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 Add youth anglers to {team.teamName} here. Same roster save as
-                My team. Kids count toward the four-angler cap and the $75
-                seat.
+                My team. Kids count toward the four-angler cap, not the $75
+                adult entry.
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({

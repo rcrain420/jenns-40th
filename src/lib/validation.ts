@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { optionalAnglerEmailSchema } from "./angler-email";
+import { contactEmailIssue } from "./boat-contact";
 import { MAX_ANGLERS, MIN_ANGLERS, SIDE_POT_IDS } from "./config";
 import {
   LICENSE_CONFIRM_ERROR,
@@ -42,53 +43,17 @@ const teamFieldsSchema = z.object({
     .transform((pots) => Array.from(new Set(pots))),
 });
 
-function refineBoatContact<T extends z.infer<typeof teamFieldsSchema>>(
+function refineOptionalContactEmail<T extends { contactEmail?: string }>(
   data: T,
   ctx: z.RefinementCtx,
 ) {
-  if (data.boatType === "GUIDED") {
-    if (!data.captainName?.trim()) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["captainName"],
-        message: "Captain name is required for guided boats",
-      });
-    }
-    if (!data.captainPhone?.trim()) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["captainPhone"],
-        message: "Captain phone is required for guided boats",
-      });
-    }
-  } else {
-    if (!data.contactName?.trim()) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["contactName"],
-        message: "Primary contact name is required",
-      });
-    }
-    if (!data.contactPhone?.trim()) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["contactPhone"],
-        message: "Primary contact phone is required",
-      });
-    }
-    if (!data.contactEmail?.trim()) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["contactEmail"],
-        message: "Primary contact email is required",
-      });
-    } else if (!z.string().email().safeParse(data.contactEmail).success) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["contactEmail"],
-        message: "Valid contact email required",
-      });
-    }
+  const issue = contactEmailIssue(data.contactEmail);
+  if (issue) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["contactEmail"],
+      message: issue,
+    });
   }
 }
 
@@ -115,7 +80,7 @@ export const registrationSchema = teamFieldsSchema
     }),
     youthGuardianAttested: z.boolean().optional(),
   })
-  .superRefine(refineBoatContact)
+  .superRefine(refineOptionalContactEmail)
   .superRefine(refineYouthAttestation);
 
 export const adminTeamUpdateSchema = teamFieldsSchema
@@ -124,7 +89,18 @@ export const adminTeamUpdateSchema = teamFieldsSchema
     paymentStatus: z.enum(["UNPAID", "PAID"]),
     youthGuardianAttested: z.boolean().optional(),
   })
-  .superRefine(refineBoatContact);
+  .superRefine(refineOptionalContactEmail);
+
+export const teamContactSchema = z
+  .object({
+    boatType: z.enum(["GUIDED", "NON_GUIDED"]).optional(),
+    captainName: z.string().optional(),
+    captainPhone: z.string().optional(),
+    contactName: z.string().optional(),
+    contactPhone: z.string().optional(),
+    contactEmail: z.string().optional(),
+  })
+  .superRefine(refineOptionalContactEmail);
 
 export const teamRosterSchema = z
   .object({
@@ -139,3 +115,4 @@ export const teamRosterSchema = z
 export type RegistrationInput = z.infer<typeof registrationSchema>;
 export type AdminTeamUpdateInput = z.infer<typeof adminTeamUpdateSchema>;
 export type TeamRosterInput = z.infer<typeof teamRosterSchema>;
+export type TeamContactInput = z.infer<typeof teamContactSchema>;

@@ -63,8 +63,9 @@ export default async function PotsPage() {
                 ★
               </span>
               <span>
-                Main tournament: {formatUsd(FEE_PER_ANGLER_CENTS)} per angler,
-                all of it in the pot — paid out {splitLabel}.
+                Main tournament: {formatUsd(FEE_PER_ANGLER_CENTS)} per adult
+                angler, all of it in the pot — paid out {splitLabel}. Youth
+                seats do not add to this pot.
               </span>
             </li>
             <li className="flex gap-3">
@@ -87,7 +88,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by Jenn
                   and Aaron
                   {pot.id === "kids"
-                    ? ", for the heaviest qualifying fish by a registered youth angler. Youth still pay the $75 seat and grow the main pot."
+                    ? ", for the heaviest qualifying fish by a registered youth angler. Youth do not pay the $75 adult entry."
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>

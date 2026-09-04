@@ -67,10 +67,10 @@ export function TeamRosterEditor({
   const [inviteNote, setInviteNote] = useState<string | null>(null);
 
   const nextDue = useMemo(
-    () => amountDueCents(anglers.length, sidePotCount),
-    [anglers.length, sidePotCount],
+    () => amountDueCents(anglers, sidePotCount),
+    [anglers, sidePotCount],
   );
-  const adding = anglers.length > initialAnglers.length;
+  const extraDue = nextDue - currentDueCents;
 
   function patchAngler(index: number, next: Partial<RosterAnglerDraft>) {
     setAnglers((prev) =>
@@ -218,8 +218,9 @@ export function TeamRosterEditor({
         <p className="text-sm text-ink/65">
           Email is optional. {YOUTH_EMAIL_HELPER} Invite on an adult seat
           sends Join the boat. Youth seats do not get a create-account invite
-          — parent login is the login. Walk-up adults can stay name-only on
-          the PIN / shared-link path. That is not the kids path.
+          — parent login is the login — and they do not add to the $75 entry
+          total. Adults without email can stay name-only on the PIN /
+          shared-link path. That is not the kids path.
           {canEditRoster
             ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. Use + Add angler to add a seat — the add form stays hidden until you click it.`
             : " Registration is closed, so names stay as they are — you can still add an email and resend Invite on adult seats."}
@@ -402,8 +403,8 @@ export function TeamRosterEditor({
           {sidePotCount > 0
             ? ` (includes ${sidePotCount} side pot${sidePotCount > 1 ? "s" : ""} at ${formatUsd(SIDE_POT_BUY_IN_CENTS)} each)`
             : ""}
-          {paymentStatus === "PAID" && adding
-            ? ` — Venmo the extra ${formatUsd(nextDue - currentDueCents)} after you save.`
+          {paymentStatus === "PAID" && extraDue > 0
+            ? ` — Venmo the extra ${formatUsd(extraDue)} after you save.`
             : null}
         </p>
       ) : null}

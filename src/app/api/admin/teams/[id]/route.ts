@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { amountDueCents } from "@/lib/config";
 import { prisma } from "@/lib/db";
+import { emptyToNull } from "@/lib/registration";
 import { adminTeamUpdateSchema } from "@/lib/validation";
 
 type Params = { params: Promise<{ id: string }> };
@@ -79,20 +80,17 @@ export async function PATCH(request: Request, { params }: Params) {
       data: {
         teamName: input.teamName,
         boatType: input.boatType,
-        captainName: guided ? input.captainName!.trim() : null,
-        captainPhone: guided ? input.captainPhone!.trim() : null,
-        contactName: guided ? null : input.contactName!.trim(),
-        contactPhone: guided ? null : input.contactPhone!.trim(),
-        contactEmail: guided ? null : input.contactEmail!.trim(),
+        captainName: guided ? emptyToNull(input.captainName) : null,
+        captainPhone: guided ? emptyToNull(input.captainPhone) : null,
+        contactName: guided ? null : emptyToNull(input.contactName),
+        contactPhone: guided ? null : emptyToNull(input.contactPhone),
+        contactEmail: guided ? null : emptyToNull(input.contactEmail),
         registrantEmail: input.registrantEmail,
         notes: input.notes ?? null,
         licenseConfirmed: input.licenseConfirmed,
         paymentStatus: input.paymentStatus,
         sidePots: input.sidePots,
-        amountDueCents: amountDueCents(
-          input.anglers.length,
-          input.sidePots.length,
-        ),
+        amountDueCents: amountDueCents(input.anglers, input.sidePots.length),
         anglers: {
           create: input.anglers.map((a, index) => ({
             fullName: a.fullName,
