@@ -3,6 +3,7 @@ import { CatchLogger } from "@/components/CatchLogger";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
 import { listCatchesGroupedByAuthor } from "@/lib/catches";
+import { livewellPlusIsActive } from "@/lib/livewell-plus";
 import { findTeamAnglersForUser } from "@/lib/users";
 
 export const dynamic = "force-dynamic";
@@ -64,6 +65,7 @@ export default async function CatchesPage() {
         <section>
           <CatchLogger
             viewer={viewer}
+            plusActive={livewellPlusIsActive()}
             teamAnglers={teamAnglers.map((a) => ({
               id: a.id,
               fullName: a.fullName,
