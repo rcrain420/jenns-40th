@@ -133,7 +133,7 @@ describe("event PIN fallback", () => {
   });
 });
 
-describe("registration confirmation email", () => {
+describe("event unlock landing", () => {
   it("always lands a valid unlock on the Livewell, never success or My team", () => {
     assert.equal(unlockLandingPath(), "/catches?unlocked=1");
     assert.equal(unlockLandingPath().startsWith("/register/success"), false);
