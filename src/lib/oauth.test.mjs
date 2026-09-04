@@ -104,6 +104,10 @@ describe("OAuth redirect URIs", () => {
       oauthStartPath("google", "/join?token=abc"),
       "/api/auth/oauth/google/start?next=%2Fjoin%3Ftoken%3Dabc",
     );
+    assert.equal(
+      oauthStartPath("google", "/register?youth=1"),
+      "/api/auth/oauth/google/start?next=%2Fregister%3Fyouth%3D1",
+    );
   });
 });
 

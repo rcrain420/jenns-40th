@@ -47,17 +47,26 @@ export default async function LoginPage({
   const mode = params.mode === "signup" ? "signup" : "signin";
   const adminHint = next.startsWith("/admin");
   const openMyTeam = mode === "signup" && next.startsWith("/team");
+  const registerTeam = next.startsWith("/register");
 
   return (
     <PageShell
       narrow
-      title={mode === "signup" ? "Create your account" : "Welcome back"}
+      title={
+        registerTeam && mode === "signup"
+          ? "Create an account to register"
+          : mode === "signup"
+            ? "Create your account"
+            : "Welcome back"
+      }
       description={
         adminHint
           ? "Organizer sign-in — use the admin email and your password."
-          : openMyTeam
-            ? "Use this email — Google, Facebook, or a password — to get on the boat you registered. Roster and Livewell, no PIN."
-            : "Same account for the Livewell, comments, and (if you’re an organizer) the admin console."
+          : registerTeam
+            ? "Log in, create an account, or continue with Google — then you’ll land back on team registration."
+            : openMyTeam
+              ? "Use this email — Google, Facebook, or a password — to get on the boat you registered. Roster and Livewell, no PIN."
+              : "Same account for the Livewell, comments, and (if you’re an organizer) the admin console."
       }
     >
       {user && adminHint && !user.isAdmin ? (
