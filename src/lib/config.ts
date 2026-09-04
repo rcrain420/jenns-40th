@@ -107,9 +107,9 @@ export const MAIN_POT_SPLITS = [
   { place: "3rd", pct: 20 },
 ] as const;
 
-/** Venmo handle for registration payments (without @). */
-export const VENMO_USERNAME = "Officialish-Tournament";
-export const VENMO_HANDLE = `@${VENMO_USERNAME}`;
+/** Venmo username for registration payments. Display and /u/ path. */
+export const VENMO_USERNAME = "Jennski";
+export const VENMO_HANDLE = VENMO_USERNAME;
 
 export function getVenmoUrl(): string {
   const override = process.env.VENMO_URL?.trim();

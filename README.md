@@ -72,7 +72,7 @@ Leave those env vars empty to keep email/password only. Production applies the `
 
 ### Venmo
 
-The app defaults to Venmo handle `@Officialish-Tournament` with QR at `public/venmo-qr.png`. Leave `VENMO_URL` empty unless you need a full custom payment URL override.
+The app defaults to Venmo handle `Jennski` (`https://venmo.com/u/Jennski`) with QR at `public/venmo-qr.png`. Leave `VENMO_URL` empty unless you need a full custom payment URL override.
 
 ## Production (Vercel + Neon + Blob)
 

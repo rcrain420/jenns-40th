@@ -6,8 +6,15 @@ const {
   YOUTH_ATTESTATION_ERROR,
   youthAttestationResult,
 } = await import("./youth.ts");
-const { amountDueCents, listedPots, paidEntrySeatCount, SIDE_POT_IDS } =
-  await import("./config.ts");
+const {
+  amountDueCents,
+  listedPots,
+  paidEntrySeatCount,
+  SIDE_POT_IDS,
+  VENMO_HANDLE,
+  VENMO_USERNAME,
+  getVenmoUrl,
+} = await import("./config.ts");
 const {
   CAPTAIN_REQUIRED_ON_CREATE,
   contactEmailIssue,
@@ -89,6 +96,14 @@ describe("optional captain and DIY contact", () => {
     assert.equal(contactEmailIssue(undefined), null);
     assert.equal(contactEmailIssue("aaron@example.com"), null);
     assert.equal(contactEmailIssue("not-an-email"), "Valid contact email required");
+  });
+});
+
+describe("Venmo handle", () => {
+  it("points payments at Jennski", () => {
+    assert.equal(VENMO_USERNAME, "Jennski");
+    assert.equal(VENMO_HANDLE, "Jennski");
+    assert.equal(getVenmoUrl(), "https://venmo.com/u/Jennski");
   });
 });
 

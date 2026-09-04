@@ -233,7 +233,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/venmo-qr.png"
-                alt="Venmo QR code for @Officialish-Tournament"
+                alt={`Venmo QR code for ${VENMO_HANDLE}`}
                 className="h-52 w-52 bg-paper object-contain"
               />
             </a>
