@@ -192,12 +192,17 @@ export const FISH_ESTIMATE_JSON_SCHEMA = {
   },
 } as const;
 
+/**
+ * Chat Completions body for Livewell vision.
+ * Use json_object (not json_schema): structured-output schema from PR #18
+ * 400s on some accounts/models and every failure looks like Unknown +
+ * identical placeholder sizes. Species lock is the prompt + normalizeFishBreed.
+ */
 export function fishEstimateChatBody(imageUrl: string, model: string) {
   return {
     model,
     response_format: {
-      type: "json_schema" as const,
-      json_schema: FISH_ESTIMATE_JSON_SCHEMA,
+      type: "json_object" as const,
     },
     temperature: 0.2,
     messages: [

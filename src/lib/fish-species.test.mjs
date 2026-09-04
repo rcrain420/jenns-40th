@@ -92,13 +92,10 @@ describe("vision prompt and JSON schema", () => {
     );
   });
 
-  it("sends the enum schema on the OpenAI chat body", () => {
+  it("sends json_object plus the locked prompt (not json_schema)", () => {
     const body = fishEstimateChatBody("https://blob.example/catch.jpg", "gpt-4o-mini");
-    assert.equal(body.response_format.type, "json_schema");
-    assert.deepEqual(
-      body.response_format.json_schema.schema.properties.breed.enum,
-      [...FISH_ESTIMATE_BREEDS],
-    );
+    assert.equal(body.response_format.type, "json_object");
+    assert.equal("json_schema" in body.response_format, false);
     assert.equal(body.messages[0]?.content, FISH_ESTIMATE_SYSTEM_PROMPT);
     const userText = body.messages[1]?.content[0];
     assert.equal(userText?.type, "text");

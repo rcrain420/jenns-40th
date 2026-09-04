@@ -10,7 +10,7 @@ import {
 } from "@/lib/catch-photo-client";
 import { CATCH_PHOTO_INPUT, canShowLivewellPlus } from "@/lib/livewell-plus";
 import type { PublicUser } from "@/lib/users";
-import { guestSafeAiNotes } from "@/lib/guest-copy";
+import { guestFallbackAiNote } from "@/lib/guest-copy";
 import { raceTimeout } from "@/lib/race-timeout";
 import { AddCatchFab } from "./AddCatchFab";
 import { AuthForm } from "./AuthForm";
@@ -33,8 +33,8 @@ type LoggedCatch = {
   id: string;
   photoPath: string;
   breed: string;
-  lengthInches: number;
-  weightLbs: number;
+  lengthInches: number | null;
+  weightLbs: number | null;
   confidence: number | null;
   aiNotes: string | null;
   aiProvider: string;
@@ -300,7 +300,7 @@ function LoggedCatchSummary({
   fish: LoggedCatch;
   notifyNote: string | null;
 }) {
-  const safeNotes = guestSafeAiNotes(fish.aiNotes);
+  const safeNotes = guestFallbackAiNote(fish.aiProvider, fish.aiNotes);
   return (
     <div className="animate-rise border-t border-[var(--line)] pt-6">
       <p className="text-sm uppercase tracking-[0.18em] text-sea">
@@ -328,13 +328,17 @@ function LoggedCatchSummary({
           <div>
             <dt className="text-ink/55">Length</dt>
             <dd className="font-semibold text-wave">
-              {fish.lengthInches}&quot;
+              {fish.aiProvider === "fallback" || fish.lengthInches == null
+                ? "—"
+                : `${fish.lengthInches}"`}
             </dd>
           </div>
           <div>
             <dt className="text-ink/55">Weight</dt>
             <dd className="font-semibold text-wave">
-              {fish.weightLbs} lb
+              {fish.aiProvider === "fallback" || fish.weightLbs == null
+                ? "—"
+                : `${fish.weightLbs} lb`}
             </dd>
           </div>
           <div>
@@ -350,7 +354,7 @@ function LoggedCatchSummary({
       {fish.aiProvider === "fallback" ? (
         <p className="mt-3 rounded-md bg-alert/10 px-3 py-2 text-sm text-alert">
           {safeNotes ??
-            "AI guess unavailable — breed and size are placeholders. Try again or fill in after weigh-in."}
+            "AI guess unavailable — size left blank, not a real estimate."}
         </p>
       ) : safeNotes ? (
         <p className="mt-3 text-sm text-ink/65">{safeNotes}</p>

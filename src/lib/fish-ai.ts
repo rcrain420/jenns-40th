@@ -1,28 +1,46 @@
-import { GUEST_AI_UNAVAILABLE_NOTE, guestSafeAiNotes } from "./guest-copy";
+import {
+  GUEST_AI_MISSING_KEY_NOTE,
+  GUEST_AI_NO_IMAGE_NOTE,
+  GUEST_AI_PROVIDER_ERROR_NOTE,
+  GUEST_AI_TIMEOUT_NOTE,
+  GUEST_AI_UNAVAILABLE_NOTE,
+  GUEST_AI_UNSUPPORTED_PHOTO_NOTE,
+  guestSafeAiNotes,
+} from "./guest-copy.ts";
 import {
   FISH_AI_TIMEOUT_MS,
   type EstimateFishInput,
   resolveOpenAiApiKey,
   shouldSkipOpenAiEstimate,
   visionImageUrl,
-} from "./fish-ai-vision";
+} from "./fish-ai-vision.ts";
 import {
   UNKNOWN_FISH_BREED,
   fishEstimateChatBody,
   normalizeFishBreed,
   type FishEstimateBreed,
-} from "./fish-species";
-import { raceTimeout } from "./race-timeout";
+} from "./fish-species.ts";
+import { raceTimeout } from "./race-timeout.ts";
 
 export type { FishEstimateBreed };
 
+export type FishAiFallbackReason =
+  | "missing-key"
+  | "unsupported-type"
+  | "no-usable-image"
+  | "timeout"
+  | "openai-error"
+  | "empty-response"
+  | "bad-json";
+
 export type FishEstimate = {
   breed: FishEstimateBreed;
-  lengthInches: number;
-  weightLbs: number;
+  lengthInches: number | null;
+  weightLbs: number | null;
   confidence: number | null;
   notes: string | null;
   provider: "openai" | "fallback";
+  fallbackReason?: FishAiFallbackReason;
 };
 
 export type EstimateFishOptions = {
@@ -38,7 +56,7 @@ export {
   resolveOpenAiApiKey,
   visionImageUrl,
   visionMimeSupported,
-} from "./fish-ai-vision";
+} from "./fish-ai-vision.ts";
 
 type AiJson = {
   breed?: unknown;
@@ -60,12 +78,52 @@ function asNumber(value: unknown): number | null {
   return null;
 }
 
+export function guestNoteForFallback(reason: FishAiFallbackReason): string {
+  switch (reason) {
+    case "missing-key":
+      return GUEST_AI_MISSING_KEY_NOTE;
+    case "unsupported-type":
+      return GUEST_AI_UNSUPPORTED_PHOTO_NOTE;
+    case "no-usable-image":
+      return GUEST_AI_NO_IMAGE_NOTE;
+    case "timeout":
+      return GUEST_AI_TIMEOUT_NOTE;
+    case "openai-error":
+    case "empty-response":
+    case "bad-json":
+      return GUEST_AI_PROVIDER_ERROR_NOTE;
+    default:
+      return GUEST_AI_UNAVAILABLE_NOTE;
+  }
+}
+
+export function parseAiJsonContent(content: string): AiJson | null {
+  const trimmed = content
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "");
+  try {
+    return JSON.parse(trimmed) as AiJson;
+  } catch {
+    const start = trimmed.indexOf("{");
+    const end = trimmed.lastIndexOf("}");
+    if (start >= 0 && end > start) {
+      try {
+        return JSON.parse(trimmed.slice(start, end + 1)) as AiJson;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+}
+
 export function normalizeEstimate(
   raw: AiJson,
   provider: FishEstimate["provider"],
 ): FishEstimate {
-  const length = clamp(asNumber(raw.lengthInches) ?? 18, 4, 80);
-  const weight = clamp(asNumber(raw.weightLbs) ?? 3, 0.2, 120);
+  const lengthRaw = asNumber(raw.lengthInches);
+  const weightRaw = asNumber(raw.weightLbs);
   const confidenceRaw = asNumber(raw.confidence);
   const confidence =
     confidenceRaw == null ? null : clamp(confidenceRaw, 0, 1);
@@ -77,29 +135,45 @@ export function normalizeEstimate(
 
   return {
     breed,
-    lengthInches: Math.round(length * 10) / 10,
-    weightLbs: Math.round(weight * 10) / 10,
+    lengthInches:
+      lengthRaw == null ? null : Math.round(clamp(lengthRaw, 4, 80) * 10) / 10,
+    weightLbs:
+      weightRaw == null ? null : Math.round(clamp(weightRaw, 0.2, 120) * 10) / 10,
     confidence,
     notes,
     provider,
   };
 }
 
-export function fallbackEstimate(): FishEstimate {
+/** Placeholder when vision did not run or failed. Never invent 18" / 3.5 lb. */
+export function fallbackEstimate(
+  reason: FishAiFallbackReason = "openai-error",
+): FishEstimate {
   return {
     breed: UNKNOWN_FISH_BREED,
-    lengthInches: 18,
-    weightLbs: 3.5,
+    lengthInches: null,
+    weightLbs: null,
     confidence: null,
-    notes: GUEST_AI_UNAVAILABLE_NOTE,
+    notes: guestNoteForFallback(reason),
     provider: "fallback",
+    fallbackReason: reason,
   };
+}
+
+function isTimeoutError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  return (
+    err.name === "AbortError" ||
+    err.name === "TimeoutError" ||
+    /timed out/i.test(err.message)
+  );
 }
 
 /**
  * Estimate species, length, and weight from a catch photo using OpenAI vision.
  * Always settles — missing key, unsupported photo, timeout, or API failure
- * return placeholder numbers plus a guest-safe note (never hang the Livewell).
+ * return Unknown + a guest-safe reason and blank size (never hang the Livewell,
+ * never stamp identical fake inches/pounds).
  */
 export async function estimateFishFromPhoto(
   input: EstimateFishInput,
@@ -111,20 +185,26 @@ export async function estimateFishFromPhoto(
     console.warn(
       "Fish AI estimate skipped: OPENAI_API_KEY is not set on this server",
     );
-    return fallbackEstimate();
+    return fallbackEstimate("missing-key");
+  }
+  if (skip === "unsupported-type" || skip === "no-usable-image") {
+    console.warn("Fish AI estimate skipped:", skip, input.mimeType);
+    return fallbackEstimate(skip);
   }
   if (skip) {
     console.warn("Fish AI estimate skipped:", skip, input.mimeType);
-    return fallbackEstimate();
+    return fallbackEstimate("no-usable-image");
   }
 
   const imageUrl = visionImageUrl(input);
   if (!imageUrl) {
-    return fallbackEstimate();
+    return fallbackEstimate("no-usable-image");
   }
 
   const timeoutMs = options.timeoutMs ?? FISH_AI_TIMEOUT_MS;
   const fetchImpl = options.fetchImpl ?? fetch;
+  const controller =
+    typeof AbortController !== "undefined" ? new AbortController() : null;
 
   try {
     const request = fetchImpl("https://api.openai.com/v1/chat/completions", {
@@ -139,14 +219,25 @@ export async function estimateFishFromPhoto(
           process.env.OPENAI_VISION_MODEL?.trim() || "gpt-4o-mini",
         ),
       ),
+      signal: controller?.signal,
     });
 
-    const res = await raceTimeout(request, timeoutMs, "Fish AI estimate timed out");
+    let res: Response;
+    try {
+      res = await raceTimeout(request, timeoutMs, "Fish AI estimate timed out");
+    } catch (err) {
+      controller?.abort();
+      if (isTimeoutError(err)) {
+        console.error("Fish AI estimate error", err);
+        return fallbackEstimate("timeout");
+      }
+      throw err;
+    }
 
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
       console.error("OpenAI fish estimate failed", res.status, detail);
-      return fallbackEstimate();
+      return fallbackEstimate("openai-error");
     }
 
     const data = (await raceTimeout(
@@ -160,13 +251,20 @@ export async function estimateFishFromPhoto(
     };
     const content = data.choices?.[0]?.message?.content;
     if (!content) {
-      return fallbackEstimate();
+      return fallbackEstimate("empty-response");
     }
 
-    const parsed = JSON.parse(content) as AiJson;
+    const parsed = parseAiJsonContent(content);
+    if (!parsed) {
+      return fallbackEstimate("bad-json");
+    }
     return normalizeEstimate(parsed, "openai");
   } catch (err) {
+    if (isTimeoutError(err)) {
+      console.error("Fish AI estimate error", err);
+      return fallbackEstimate("timeout");
+    }
     console.error("Fish AI estimate error", err);
-    return fallbackEstimate();
+    return fallbackEstimate("openai-error");
   }
 }

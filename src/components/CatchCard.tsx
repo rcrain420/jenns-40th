@@ -6,15 +6,19 @@ import {
   CatchComments,
   type CatchCommentItem,
 } from "./CatchComments";
+import { formatCatchSizeLine } from "@/lib/catch-size";
+import { guestFallbackAiNote } from "@/lib/guest-copy";
 import type { PublicUser } from "@/lib/users";
 
 export type CatchCardFish = {
   id: string;
   photoPath: string;
   breed: string;
-  lengthInches: number;
-  weightLbs: number;
+  lengthInches: number | null;
+  weightLbs: number | null;
   confidence: number | null;
+  aiProvider?: string | null;
+  aiNotes?: string | null;
   createdAt: string;
   comments: CatchCommentItem[];
 };
@@ -64,9 +68,12 @@ export function CatchCard({ fish, anglerName, viewer }: Props) {
         </div>
         <div className="mt-2 space-y-0.5">
           <p className="font-semibold leading-tight text-wave">{fish.breed}</p>
-          <p className="text-sm text-ink/70">
-            {fish.lengthInches}&quot; · {fish.weightLbs} lb
-          </p>
+          <p className="text-sm text-ink/70">{formatCatchSizeLine(fish)}</p>
+          {fish.aiProvider === "fallback" ? (
+            <p className="text-xs text-ink/55">
+              {guestFallbackAiNote(fish.aiProvider, fish.aiNotes)}
+            </p>
+          ) : null}
           <p className="text-xs text-ink/45">
             {formatCaughtAt(fish.createdAt)}
             {fish.confidence != null

@@ -83,8 +83,8 @@ export type CatchAuthorGroup = {
     id: string;
     photoPath: string;
     breed: string;
-    lengthInches: number;
-    weightLbs: number;
+    lengthInches: number | null;
+    weightLbs: number | null;
     confidence: number | null;
     aiNotes: string | null;
     aiProvider: string;
@@ -147,6 +147,10 @@ export async function listCatchesGroupedByAuthor(): Promise<CatchAuthorGroup[]> 
 /** Heaviest catches for the homepage Brag Board (not official standings). */
 export async function listBragBoardCatches(limit = 5) {
   const catches = await prisma.fishCatch.findMany({
+    where: {
+      aiProvider: "openai",
+      weightLbs: { not: null },
+    },
     orderBy: [{ weightLbs: "desc" }, { createdAt: "desc" }],
     take: limit,
     select: {
@@ -174,8 +178,8 @@ export async function listBragBoardCatches(limit = 5) {
     id: c.id,
     teamName: authorTeamName(c) || authorName(c),
     breed: c.breed,
-    lengthInches: c.lengthInches,
-    weightLbs: c.weightLbs,
+    lengthInches: c.lengthInches ?? 0,
+    weightLbs: c.weightLbs ?? 0,
     note: guestSafeAiNotes(c.aiNotes),
   }));
 }
@@ -203,7 +207,9 @@ async function saveCatchPhotoAndEstimate(input: {
   const estimate = await estimateFishFromPhoto({
     mimeType: mime,
     imageUrl: hosted ? photoPath : undefined,
-    imageBase64: hosted ? undefined : bytes.toString("base64"),
+    // Always pass bytes so vision can inline a data URL. Blob-only URLs
+    // made OpenAI fetch Vercel storage and often timed out in production.
+    imageBase64: bytes.toString("base64"),
   });
 
   return prisma.fishCatch.create({

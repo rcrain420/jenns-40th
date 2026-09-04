@@ -3,8 +3,8 @@ import { EVENT } from "./config";
 export type CatchNotifyPayload = {
   catchId: string;
   breed: string;
-  lengthInches: number;
-  weightLbs: number;
+  lengthInches: number | null;
+  weightLbs: number | null;
   anglerName: string;
   teamName: string;
 };
@@ -13,9 +13,13 @@ const FUN_LINES = [
   (p: CatchNotifyPayload) =>
     `${p.anglerName} just put a ${p.breed} on the board — time to talk trash.`,
   (p: CatchNotifyPayload) =>
-    `${p.teamName} is on the board with a ${p.weightLbs} lb AI guess. Weighmaster still undecided.`,
+    p.weightLbs == null
+      ? `${p.teamName} just dropped a photo on the board. Weighmaster still undecided.`
+      : `${p.teamName} is on the board with a ${p.weightLbs} lb AI guess. Weighmaster still undecided.`,
   (p: CatchNotifyPayload) =>
-    `Photo dropped: ${p.anglerName}'s ${p.breed} (${p.lengthInches}"). For fun only — scale day is later.`,
+    p.lengthInches == null
+      ? `Photo dropped: ${p.anglerName}'s ${p.breed}. For fun only — scale day is later.`
+      : `Photo dropped: ${p.anglerName}'s ${p.breed} (${p.lengthInches}"). For fun only — scale day is later.`,
   (p: CatchNotifyPayload) =>
     `${p.anglerName} logged a catch. Comment if you dare. Estimates ≠ weigh-in.`,
   (p: CatchNotifyPayload) =>

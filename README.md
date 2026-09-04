@@ -56,7 +56,7 @@ Set `EVENT_PIN` in `.env` to exercise the event-unlock fallback. Registration co
 | `EMAIL_FROM` / `RESEND_FROM` | Optional From: header for Resend |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob token; omit locally to store uploads under `public/uploads/catches` |
 | `VENMO_URL` | Optional Venmo payment link override |
-| `OPENAI_API_KEY` | Server-only. Enables Livewell fish estimates and team-name suggestions. **Set this on the Vercel project for Production** (and Preview if you test uploads there). Missing or invalid key no longer spins the UI — the catch still logs with placeholder breed/size/weight and a guest-safe “estimate unavailable” note |
+| `OPENAI_API_KEY` | Server-only. Enables Livewell fish estimates and team-name suggestions. **Set this on the Vercel Production env for `jenns-40th`**, then redeploy. Missing key: catch still logs as Unknown with **blank** size/weight and “Estimate unavailable because AI isn’t configured” (never a fake 18" / 3.5 lb) |
 | `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` (must support vision / image_url) |
 | `OPENAI_TEAM_NAME_MODEL` | Optional; defaults to vision model or `gpt-4o-mini` |
 | `NEXT_PUBLIC_APP_URL` | Optional canonical site URL for metadata and magic links |
@@ -72,16 +72,18 @@ Leave those env vars empty to keep email/password only. Production applies the `
 
 ### Vercel: Livewell AI estimates
 
-On [Vercel → Project → Settings → Environment Variables](https://vercel.com/docs/environment-variables), Production needs:
+On [Vercel → Project → Settings → Environment Variables](https://vercel.com/docs/environment-variables), Production needs these **names** (values are secrets — set them in the dashboard, never commit them):
 
-1. `OPENAI_API_KEY` — server secret for `POST /api/catches` vision estimates (same key team-name suggestions use). Do not prefix with `NEXT_PUBLIC_`.
-2. `BLOB_READ_WRITE_TOKEN` — usually injected when a Blob store is linked. Public photo URLs are what vision fetches in production (the API no longer posts a multi-megabyte data URL).
+1. `OPENAI_API_KEY` — server secret for `POST /api/catches` vision estimates (same key team-name suggestions use). Do not prefix with `NEXT_PUBLIC_`. Must be present on the **Production** environment (Preview is separate). Redeploy after adding or rotating.
+2. `BLOB_READ_WRITE_TOKEN` — usually injected when a Blob store is linked. Used to host the catch photo. Vision now inlines a modest JPEG data URL when the upload is small enough; the Blob URL is only a fallback for oversized files.
 
-Optional: `OPENAI_VISION_MODEL` if you want something other than `gpt-4o-mini`.
+Optional: `OPENAI_VISION_MODEL` if you want something other than `gpt-4o-mini` (must support vision / `image_url`).
 
-After adding or rotating `OPENAI_API_KEY`, redeploy Production. A missing key is not an infinite “Estimating with AI…” spinner — the Livewell times out the OpenAI call and the browser times out the POST, then shows results (placeholders) or a retryable error.
+A missing `OPENAI_API_KEY` is not an infinite “Estimating with AI…” spinner. The catch still logs. Guests see **Estimate unavailable because AI isn’t configured** and **blank** length/weight — not a pretend 18" / 3.5 lb guess. Timeouts, HEIC skip, and provider errors each get their own guest-safe note.
 
-Vision `breed` is locked to **Redfish**, **Trout**, **Black drum**, **Hardhead catfish**, **Gafftop**, or **Unknown**. Unusable photos and estimate failures use Unknown — never a freeform “unidentified gulf fish”. Size/weight guesses still come back.
+**Production (`jenns-40th`):** set `OPENAI_API_KEY` on the Vercel Production environment, then redeploy. Do not commit the value. Without that key every Livewell upload takes the fallback path.
+
+Vision `breed` is locked to **Redfish**, **Trout**, **Black drum**, **Hardhead catfish**, **Gafftop**, or **Unknown**. Unusable photos and estimate failures use Unknown — never a freeform “unidentified gulf fish”. Size/weight are omitted unless the model actually returned numbers.
 
 ### Venmo
 
