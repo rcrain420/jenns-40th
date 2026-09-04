@@ -111,4 +111,5 @@ npm run db:up
 | `npm run build` | Generate Prisma client, migrate deploy, production build |
 | `npm run db:migrate` | Run Prisma migrations (dev) |
 | `npm run db:up` | Start local Postgres (Docker) |
+| `npm run db:wipe -- --yes` | Empty teams/users/anglers on the `.env` `DATABASE_URL` (Neon only; add `--local` for Docker) |
 | `npm test` | Token, magic-link, and PIN unlock unit tests |

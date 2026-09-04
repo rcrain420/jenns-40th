@@ -11,6 +11,7 @@
     "db:up": "docker compose up -d",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
+    "db:wipe": "node --experimental-strip-types scripts/wipe-tournament.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {
