@@ -27,7 +27,9 @@ def fill_corner_voids(im: Image.Image, fill: tuple[int, int, int] = NAVY) -> Ima
         if (x, y) in seen or x < 0 or y < 0 or x >= w or y >= h:
             continue
         r, g, b = pixels[x, y]
-        if r > 18 or g > 18 or b > 22:
+        near_black = r <= 18 and g <= 18 and b <= 22
+        near_white = r >= 245 and g >= 245 and b >= 245
+        if not near_black and not near_white:
             continue
         seen.add((x, y))
         pixels[x, y] = fill
