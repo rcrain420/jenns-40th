@@ -291,6 +291,13 @@ export function RegisterForm({
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-8">
+      {viewer && !viewer.teamName ? (
+        <p className="rounded-md border border-wave/15 bg-mist/60 px-4 py-3 text-sm text-wave">
+          Signed in as <strong>{viewer.name}</strong>. You&apos;re not on a boat
+          yet — submit this form to register your team and get in the
+          tournament.
+        </p>
+      ) : null}
       {formError && (
         <p className="rounded-md bg-alert/10 px-4 py-3 text-sm text-alert" role="alert">
           {formError}

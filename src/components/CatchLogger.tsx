@@ -3,8 +3,10 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { CATCH_PHOTO_INPUT, canShowLivewellPlus } from "@/lib/livewell-plus";
 import type { PublicUser } from "@/lib/users";
 import { guestSafeAiNotes } from "@/lib/guest-copy";
+import { AddCatchFab } from "./AddCatchFab";
 import { AuthForm } from "./AuthForm";
 import { ConfirmEmailPanel } from "./ConfirmEmailPanel";
 
@@ -17,6 +19,8 @@ export type CatchLoggerAngler = {
 type Props = {
   viewer: PublicUser | null;
   teamAnglers?: CatchLoggerAngler[];
+  /** True when + should open the upload (live window or test-live flag). */
+  plusActive?: boolean;
 };
 
 type LoggedCatch = {
@@ -30,7 +34,11 @@ type LoggedCatch = {
   aiProvider: string;
 };
 
-export function CatchLogger({ viewer, teamAnglers = [] }: Props) {
+export function CatchLogger({
+  viewer,
+  teamAnglers = [],
+  plusActive = false,
+}: Props) {
   const router = useRouter();
   const inputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -133,10 +141,25 @@ export function CatchLogger({ viewer, teamAnglers = [] }: Props) {
     return <ConfirmEmailPanel email={viewer.email} next="/catches" />;
   }
 
+  const showPlus = canShowLivewellPlus({
+    loggedIn: true,
+    emailVerified: true,
+  });
+
+  function openAddCatch() {
+    document.getElementById("log-catch")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    fileRef.current?.click();
+  }
+
   return (
+    <>
     <form
+      id="log-catch"
       onSubmit={onSubmit}
-      className="space-y-6 rounded-xl bg-white px-5 py-8 shadow-[0_20px_60px_rgba(6,28,40,0.08)] md:px-8"
+      className="scroll-mt-24 space-y-6 rounded-xl bg-white px-5 py-8 shadow-[0_20px_60px_rgba(6,28,40,0.08)] md:px-8"
     >
       <p className="text-sm font-semibold text-wave">
         Posting as {viewer.name}
@@ -192,8 +215,7 @@ export function CatchLogger({ viewer, teamAnglers = [] }: Props) {
           ref={fileRef}
           id={inputId}
           type="file"
-          accept="image/*"
-          capture="environment"
+          accept={CATCH_PHOTO_INPUT.accept}
           className="sr-only"
           onChange={(e) => onFileChange(e.target.files)}
         />
@@ -236,6 +258,8 @@ export function CatchLogger({ viewer, teamAnglers = [] }: Props) {
         <LoggedCatchSummary fish={lastCatch} notifyNote={notifyNote} />
       )}
     </form>
+    {showPlus ? <AddCatchFab active={plusActive} onAdd={openAddCatch} /> : null}
+    </>
   );
 }
 

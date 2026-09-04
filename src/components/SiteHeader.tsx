@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { NotificationBell } from "@/components/NotificationBell";
+import { UserAvatar } from "@/components/UserAvatar";
 import { AUTH_CHANGED_EVENT } from "@/lib/auth-client";
 import { EVENT } from "@/lib/config";
 import { firstName } from "@/lib/safe-path";
@@ -13,7 +14,7 @@ const NAV = [
   { href: "/", label: "Home" },
   { href: "/register", label: "Register" },
   { href: "/kids", label: "Kids" },
-  { href: "/rules", label: "Tournament Rules" },
+  { href: "/rules", label: "Rules" },
   { href: "/pots", label: "Pot Total" },
   { href: "/guides", label: "Guides" },
   { href: "/catches", label: "Livewell" },
@@ -71,13 +72,21 @@ export function SiteHeader({
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  async function logOut() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setSession(null);
+    setOpen(false);
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+    router.refresh();
+  }
+
   const linkClass = (href: string) => {
     const active =
       href === "/"
         ? pathname === "/"
         : pathname === href || pathname.startsWith(`${href}/`);
     return [
-      "font-label tracking-[0.14em] transition",
+      "whitespace-nowrap font-label text-[0.78rem] tracking-[0.08em] transition",
       active ? "text-paper" : "text-paper/70 hover:text-paper",
     ].join(" ");
   };
@@ -91,61 +100,52 @@ export function SiteHeader({
       }
     >
       <div
-        className={`mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 md:h-[3.875rem] md:px-10 ${
+        className={`mx-auto flex h-14 max-w-7xl flex-nowrap items-center justify-between gap-4 px-4 md:h-16 md:px-6 ${
           variant === "overlay" ? "py-4 md:py-5" : ""
         }`}
       >
         <Link
           href="/"
-          className="min-w-0 font-display text-[0.72rem] leading-tight tracking-[0.06em] sm:text-[0.85rem] md:text-[1.05rem] md:tracking-[0.08em]"
+          className="shrink-0 whitespace-nowrap font-display text-[0.68rem] tracking-[0.05em] sm:text-[0.8rem] md:text-[0.92rem] md:tracking-[0.06em]"
         >
           {EVENT.brandNav}
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2.5 md:gap-3">
           <nav
-            className="hidden items-center gap-6 lg:flex"
+            className="hidden items-center gap-x-3.5 xl:flex 2xl:gap-x-4"
             aria-label="Main"
           >
             {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`text-[0.95rem] ${linkClass(item.href)}`}
-              >
+              <Link key={item.href} href={item.href} className={linkClass(item.href)}>
                 {item.label}
               </Link>
             ))}
             {session?.teamName ? (
-              <Link
-                href="/team"
-                className={`text-[0.95rem] ${linkClass("/team")}`}
-              >
+              <Link href="/team" className={linkClass("/team")}>
                 My team
               </Link>
             ) : null}
             {session?.isAdmin ? (
               <Link
                 href="/admin"
-                className="font-label text-[0.95rem] tracking-[0.14em] text-paper/45 transition hover:text-paper"
+                className="whitespace-nowrap font-label text-[0.78rem] tracking-[0.08em] text-paper/45 transition hover:text-paper"
               >
                 Admin
               </Link>
             ) : null}
             {session ? (
               <>
-                <span className="font-label text-[0.95rem] tracking-[0.14em] text-paper">
-                  {firstName(session.name)}
+                <span className="flex items-center gap-2 pl-1">
+                  <UserAvatar name={session.name} imageUrl={session.imageUrl} />
+                  <span className="whitespace-nowrap font-label text-[0.78rem] tracking-[0.08em] text-paper">
+                    {firstName(session.name)}
+                  </span>
                 </span>
                 <button
                   type="button"
-                  onClick={async () => {
-                    await fetch("/api/auth/logout", { method: "POST" });
-                    setSession(null);
-                    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
-                    router.refresh();
-                  }}
-                  className="font-label text-[0.95rem] tracking-[0.14em] text-paper/70 transition hover:text-paper"
+                  onClick={() => void logOut()}
+                  className="whitespace-nowrap font-label text-[0.78rem] tracking-[0.08em] text-paper/70 transition hover:text-paper"
                 >
                   Log out
                 </button>
@@ -153,7 +153,7 @@ export function SiteHeader({
             ) : (
               <Link
                 href={`/login?next=${encodeURIComponent(returnPath)}`}
-                className={`text-[0.95rem] ${linkClass("/login")}`}
+                className={linkClass("/login")}
               >
                 Log in
               </Link>
@@ -164,7 +164,7 @@ export function SiteHeader({
 
           <button
             type="button"
-            className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 lg:hidden"
+            className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 xl:hidden"
             aria-expanded={open}
             aria-controls={menuId}
             aria-label={open ? "Close menu" : "Open menu"}
@@ -192,7 +192,7 @@ export function SiteHeader({
       {open ? (
         <div
           id={menuId}
-          className="border-t border-paper/20 bg-wave px-5 pb-5 pt-3 lg:hidden"
+          className="border-t border-paper/20 bg-wave px-5 pb-5 pt-3 xl:hidden"
         >
           <nav className="flex flex-col gap-3" aria-label="Mobile">
             {NAV.map((item) => (
@@ -205,36 +205,28 @@ export function SiteHeader({
               </Link>
             ))}
             {session?.teamName ? (
-              <Link
-                href="/team"
-                className={`text-[1rem] ${linkClass("/team")}`}
-              >
+              <Link href="/team" className={`text-[1rem] ${linkClass("/team")}`}>
                 My team
               </Link>
             ) : null}
             {session?.isAdmin ? (
               <Link
                 href="/admin"
-                className="font-label text-[1rem] tracking-[0.14em] text-paper/45"
+                className="font-label text-[1rem] tracking-[0.08em] text-paper/45"
               >
                 Admin
               </Link>
             ) : null}
             {session ? (
               <>
-                <p className="font-label text-[1rem] tracking-[0.14em] text-paper">
+                <p className="flex items-center gap-2.5 font-label text-[1rem] tracking-[0.08em] text-paper">
+                  <UserAvatar name={session.name} imageUrl={session.imageUrl} size={32} />
                   {firstName(session.name)}
                 </p>
                 <button
                   type="button"
-                  onClick={async () => {
-                    await fetch("/api/auth/logout", { method: "POST" });
-                    setSession(null);
-                    setOpen(false);
-                    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
-                    router.refresh();
-                  }}
-                  className="text-left font-label text-[1rem] tracking-[0.14em] text-paper/70"
+                  onClick={() => void logOut()}
+                  className="text-left font-label text-[1rem] tracking-[0.08em] text-paper/70"
                 >
                   Log out
                 </button>

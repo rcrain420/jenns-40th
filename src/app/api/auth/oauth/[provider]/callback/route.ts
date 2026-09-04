@@ -13,6 +13,7 @@ import {
 } from "@/lib/oauth";
 import { fetchOAuthProfile } from "@/lib/oauth-providers";
 import { registrantClaimMatches } from "@/lib/open-my-team-access";
+import { afterAuthPath, userHasRegisteredTeam } from "@/lib/register-logged-in";
 import { safeNextPath } from "@/lib/safe-path";
 import { loginWithOAuth } from "@/lib/users";
 
@@ -87,5 +88,9 @@ export async function GET(request: Request, context: RouteContext) {
     await clearRegistrantClaim();
   }
   await setLoggedInUser(result.user.id);
-  return NextResponse.redirect(new URL(next, origin));
+  const dest = afterAuthPath({
+    next,
+    hasTeam: userHasRegisteredTeam(result.user),
+  });
+  return NextResponse.redirect(new URL(dest, origin));
 }

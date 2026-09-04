@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { notifyAuthChanged } from "@/lib/auth-client";
 import { oauthErrorMessage } from "@/lib/oauth-errors";
+import { afterAuthPath, userHasRegisteredTeam } from "@/lib/register-logged-in";
+import type { PublicUser } from "@/lib/users";
 import { PasswordField } from "./PasswordField";
 
 export type AuthMode = "signin" | "signup";
@@ -99,6 +101,7 @@ export function AuthForm({
       const data = (await res.json()) as {
         error?: string;
         code?: string;
+        user?: PublicUser | null;
         devConfirmUrl?: string;
         confirmationEmailSent?: boolean;
       };
@@ -122,7 +125,12 @@ export function AuthForm({
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push(next);
+        router.push(
+          afterAuthPath({
+            next,
+            hasTeam: userHasRegisteredTeam(data.user),
+          }),
+        );
       }
       router.refresh();
     } catch {

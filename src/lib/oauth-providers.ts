@@ -1,3 +1,4 @@
+import { sanitizeAvatarUrl } from "./avatar";
 import {
   facebookCredentials,
   googleCredentials,
@@ -10,6 +11,7 @@ export type OAuthProfile = {
   providerUserId: string;
   email: string;
   name: string;
+  imageUrl: string | null;
 };
 
 type TokenResult =
@@ -118,6 +120,7 @@ async function fetchGoogleProfile(
         providerUserId,
         email,
         name: asString(data.name) || email.split("@")[0] || "Angler",
+        imageUrl: sanitizeAvatarUrl(data.picture),
       },
     };
   } catch (err) {
@@ -150,6 +153,7 @@ async function fetchFacebookProfile(
         providerUserId,
         email,
         name: asString(data.name) || email.split("@")[0] || "Angler",
+        imageUrl: null,
       },
     };
   } catch (err) {

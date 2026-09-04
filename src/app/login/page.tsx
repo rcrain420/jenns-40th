@@ -3,6 +3,7 @@ import { AuthForm } from "@/components/AuthForm";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
 import { oauthErrorMessage } from "@/lib/oauth-errors";
+import { afterAuthPath, userHasRegisteredTeam } from "@/lib/register-logged-in";
 import { safeNextPath } from "@/lib/safe-path";
 
 export const dynamic = "force-dynamic";
@@ -29,16 +30,17 @@ export default async function LoginPage({
     } else if (
       !user.emailVerified &&
       !next.startsWith("/join") &&
-      !next.startsWith("/team")
+      !next.startsWith("/team") &&
+      !next.startsWith("/register")
     ) {
       redirect(`/confirm-email?next=${encodeURIComponent(next)}`);
-    } else if (next === "/login") {
-      redirect("/catches");
-    } else if (next === "/register/success") {
-      // Success needs ?team=; without it this route 404s and feels like a dead click.
-      redirect("/catches");
     } else {
-      redirect(next);
+      redirect(
+        afterAuthPath({
+          next,
+          hasTeam: userHasRegisteredTeam(user),
+        }),
+      );
     }
   }
 
