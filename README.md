@@ -9,7 +9,7 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 - $75 per adult angler; youth roster seats do not add entry; Venmo payment link + QR (`public/venmo-qr.png`)
 - Fishing license confirmation checkbox
 - Soft cap of 25 teams; public registration closes Oct 1, 2026
-- Catch log: anglers photograph fish; AI estimates breed, length, and weight; board grouped by angler
+- Catch log: anglers photograph fish; AI estimates breed (Redfish, Trout, Black drum, Hardhead catfish, Gafftop, or Unknown), length, and weight; board grouped by angler
 - Catch alerts: in-app notification bell + optional browser notifications on `/catches`
 - Comments on each catch photo
 - Email + password accounts with confirmation; Google and Facebook sign-in when those env vars are set. Social accounts are verified immediately. Any confirmed user posts catches and comments as themselves
@@ -80,6 +80,8 @@ On [Vercel → Project → Settings → Environment Variables](https://vercel.co
 Optional: `OPENAI_VISION_MODEL` if you want something other than `gpt-4o-mini`.
 
 After adding or rotating `OPENAI_API_KEY`, redeploy Production. A missing key is not an infinite “Estimating with AI…” spinner — the Livewell times out the OpenAI call and the browser times out the POST, then shows results (placeholders) or a retryable error.
+
+Vision `breed` is locked to **Redfish**, **Trout**, **Black drum**, **Hardhead catfish**, **Gafftop**, or **Unknown**. Unusable photos and estimate failures use Unknown — never a freeform “unidentified gulf fish”. Size/weight guesses still come back.
 
 ### Venmo
 

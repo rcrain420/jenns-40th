@@ -6,10 +6,18 @@ import {
   shouldSkipOpenAiEstimate,
   visionImageUrl,
 } from "./fish-ai-vision";
+import {
+  UNKNOWN_FISH_BREED,
+  fishEstimateChatBody,
+  normalizeFishBreed,
+  type FishEstimateBreed,
+} from "./fish-species";
 import { raceTimeout } from "./race-timeout";
 
+export type { FishEstimateBreed };
+
 export type FishEstimate = {
-  breed: string;
+  breed: FishEstimateBreed;
   lengthInches: number;
   weightLbs: number;
   confidence: number | null;
@@ -61,10 +69,7 @@ export function normalizeEstimate(
   const confidenceRaw = asNumber(raw.confidence);
   const confidence =
     confidenceRaw == null ? null : clamp(confidenceRaw, 0, 1);
-  const breed =
-    typeof raw.breed === "string" && raw.breed.trim()
-      ? raw.breed.trim()
-      : "Unidentified fish";
+  const breed = normalizeFishBreed(raw.breed);
   const notes =
     typeof raw.notes === "string" && raw.notes.trim()
       ? guestSafeAiNotes(raw.notes)
@@ -82,7 +87,7 @@ export function normalizeEstimate(
 
 export function fallbackEstimate(): FishEstimate {
   return {
-    breed: "Unidentified Gulf fish",
+    breed: UNKNOWN_FISH_BREED,
     lengthInches: 18,
     weightLbs: 3.5,
     confidence: null,
@@ -128,34 +133,12 @@ export async function estimateFishFromPhoto(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: process.env.OPENAI_VISION_MODEL?.trim() || "gpt-4o-mini",
-        response_format: { type: "json_object" },
-        temperature: 0.2,
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert ichthyologist for Texas Gulf Coast recreational fishing (Rockport / Aransas Bay). From a photo, estimate the fish breed/species, total length in inches, and weight in pounds. Prefer common names used by Texas anglers (e.g. Red drum/Redfish, Speckled trout, Flounder, Black drum, Sheepshead, Spanish mackerel). If unsure, say so in notes and lower confidence. Respond ONLY with JSON: {\"breed\":string,\"lengthInches\":number,\"weightLbs\":number,\"confidence\":number,\"notes\":string}. confidence is 0-1.",
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "Estimate this catch. Use any visible scale, lure, hand, or deck for size reference if present.",
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: imageUrl,
-                  detail: "low",
-                },
-              },
-            ],
-          },
-        ],
-      }),
+      body: JSON.stringify(
+        fishEstimateChatBody(
+          imageUrl,
+          process.env.OPENAI_VISION_MODEL?.trim() || "gpt-4o-mini",
+        ),
+      ),
     });
 
     const res = await raceTimeout(request, timeoutMs, "Fish AI estimate timed out");

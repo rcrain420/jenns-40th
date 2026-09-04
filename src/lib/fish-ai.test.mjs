@@ -7,6 +7,7 @@ import {
   visionImageUrl,
   visionMimeSupported,
 } from "./fish-ai-vision.ts";
+import { UNKNOWN_FISH_BREED } from "./fish-species.ts";
 
 describe("visionMimeSupported", () => {
   it("allows jpeg/png/webp/gif and rejects heic", () => {
@@ -72,5 +73,12 @@ describe("shouldSkipOpenAiEstimate", () => {
       }),
       "https://blob.example/catch.jpg",
     );
+  });
+});
+
+describe("estimate fallback breed", () => {
+  it("uses Unknown instead of a freeform gulf label", () => {
+    assert.equal(UNKNOWN_FISH_BREED, "Unknown");
+    assert.notEqual(UNKNOWN_FISH_BREED.toLowerCase(), "unidentified gulf fish");
   });
 });
