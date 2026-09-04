@@ -22,6 +22,7 @@ describe("register success leftover copy", () => {
     }
     assert.match(text, /Join the boat/);
     assert.match(text, /Livewell/);
+    assert.equal(/walk-?ups?/i.test(text), false);
   });
 
   it("does not treat Venmo as a gate to use the site", () => {

@@ -19,7 +19,7 @@ describe("CSV youth column", () => {
         licenseConfirmed: true,
         paymentStatus: "UNPAID",
         sidePots: [],
-        amountDueCents: 22500,
+        amountDueCents: 7500,
         claimedByUserId: null,
         createdAt: new Date("2026-08-28T00:00:00.000Z"),
         updatedAt: new Date("2026-08-28T00:00:00.000Z"),

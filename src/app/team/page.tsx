@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { InviteLinkCopy } from "@/components/InviteLinkCopy";
 import { PageShell } from "@/components/PageShell";
+import { TeamCaptainEditor } from "@/components/TeamCaptainEditor";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
 import { isRegistrationOpen } from "@/lib/config";
@@ -63,9 +64,9 @@ export default async function MyTeamPage({
         description={`Hi ${firstName(user.name)} — you’re not on a boat yet.`}
       >
         <p className="text-ink/70">
-          Register a team to get in the tournament — you add the captain and
-          invite teammates — or ask the person who registered for their invite
-          link. Captains might never log in.
+          Register a team — invite teammates, and add a captain anytime if you
+          have one — or ask the person who registered for their invite link.
+          Captains might never log in.
         </p>
         <p className="mt-4">
           <Link href="/register" className="font-semibold text-sea hover:underline">
@@ -119,11 +120,11 @@ export default async function MyTeamPage({
           <span className="section-banner">Invite the boat</span>
           <p className="mt-3 text-ink/75">
             {isRegistrant
-              ? "You registered this boat, so you invite teammates. Add the captain yourself if you have one — they must be 18+ and might never log in. Adding an email on an adult seat (here via Invite, or at register) sends Join the boat. Youth seats do not get a create-account invite — parent login is the login. After adults join they can see the team and post on the Livewell — no PIN or second unlock. Walk-up adults can stay name-only on the PIN / shared-link path. That is not the kids path. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
+              ? "You registered this boat, so you invite teammates. Add a captain anytime if you have one — they must be 18+ and might never log in. Adding an email on an adult seat (here via Invite, or at register) sends Join the boat. Youth seats do not get a create-account invite — parent login is the login — and they do not add $75 to the bill. After adults join they can see the team and post on the Livewell — no PIN or second unlock. Adults without email can stay name-only on the PIN / shared-link path. That is not the kids path. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
               : "You’re on this boat. After you joined, the Livewell is unlocked here — no PIN or extra email confirm. Joining did not make you the captain or add you to the paid roster."}
           </p>
           <div className="mt-4">
-            <InviteLinkCopy url={inviteUrl} />
+            <InviteLinkCopy url={inviteUrl} shareTitle={`Join ${team.teamName}`} />
           </div>
         </section>
 
@@ -144,6 +145,26 @@ export default async function MyTeamPage({
             ))}
           </ul>
         </section>
+
+        {isRegistrant ? (
+          <section>
+            <span className="section-banner">Captain</span>
+            <p className="mt-3 text-sm text-ink/65">
+              Not required. Add or edit anytime — even after registration
+              closes.
+            </p>
+            <div className="mt-4">
+              <TeamCaptainEditor
+                boatType={team.boatType === "GUIDED" ? "GUIDED" : "NON_GUIDED"}
+                captainName={team.captainName ?? ""}
+                captainPhone={team.captainPhone ?? ""}
+                contactName={team.contactName ?? ""}
+                contactPhone={team.contactPhone ?? ""}
+                contactEmail={team.contactEmail ?? ""}
+              />
+            </div>
+          </section>
+        ) : null}
 
         <section>
           <span className="section-banner">Official roster</span>

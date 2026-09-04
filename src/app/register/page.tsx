@@ -87,8 +87,9 @@ export default async function RegisterPage({
         ) : (
           <>
             {EVENT.dateLabel} · {EVENT.venue}, {EVENT.address}. You register the
-            team — that does not make you the captain. Add the captain if you
-            have one, then invite teammates. Captains might never log in.{" "}
+            team — that does not make you the captain. A captain is optional;
+            add one now or anytime later on My team, then invite teammates.
+            Captains might never log in.{" "}
             <Link
               href="/guides"
               className="text-coral underline-offset-4 hover:underline"

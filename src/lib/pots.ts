@@ -32,12 +32,15 @@ export async function getPotTotals(): Promise<PotTotals> {
   const teams = await prisma.team.findMany({
     select: {
       sidePots: true,
-      _count: { select: { anglers: true } },
+      anglers: { select: { isYouth: true } },
     },
   });
 
   const teamCount = teams.length;
-  const anglerCount = teams.reduce((sum, t) => sum + t._count.anglers, 0);
+  const anglerCount = teams.reduce(
+    (sum, t) => sum + t.anglers.filter((a) => a.isYouth !== true).length,
+    0,
+  );
   const mainPotCents = anglerCount * FEE_PER_ANGLER_CENTS;
 
   const payouts = MAIN_POT_SPLITS.map((split) => ({

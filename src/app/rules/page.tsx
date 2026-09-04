@@ -206,8 +206,8 @@ export default function RulesPage() {
             items={[
               "All anglers must be officially registered before fishing begins. No surprise substitutes, mysterious cousins or last-minute ringers.",
               "Anglers 17 or younger must be registered by a parent or legal guardian. The guardian may use their own email for the child.",
-              "Each team must name one person as its captain. Choose wisely. This is the person we will contact when somebody forgets what time weigh-in closes. The captain and the DIY primary contact must be 18 or older.",
-              "Teams may have up to four registered anglers. Youth anglers count toward that cap as full paid seats.",
+              "A captain is optional. Add one when you register or anytime later on My team. If you name a captain or DIY primary contact, they must be 18 or older. This is the person we will contact when somebody forgets what time weigh-in closes.",
+              "Teams may have up to four registered anglers. Youth anglers count toward that cap as roster seats. They do not pay the $75 adult entry.",
               "Only registered anglers may catch fish entered in the main tournament, paid side pots or bonus categories.",
               "Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.",
             ]}
@@ -518,16 +518,17 @@ export default function RulesPage() {
               Adults may help with safety. The child needs to do the fishing.
             </p>
             <p>
-              Youth anglers are full paid roster seats. Their $75 entry still
-              goes into the main tournament pot. Their fish still count on the
-              team stringer, and they still count toward paid team side pots
-              when the team has entered those pots.
+              Youth anglers are roster seats for the kids pot and stringer
+              rules. They do not pay the $75 adult entry and do not grow the
+              main tournament pot. Their fish still count on the team
+              stringer, and they still count toward paid team side pots when
+              the team has entered those pots.
             </p>
             <p>
               A parent or guardian may use their own email for the child. The
               child does not get a tournament account. Parent login is the
-              login. Walk-up adults may stay name-only; that is not the kids
-              path.
+              login. Adults without email may stay name-only; that is not the
+              kids path.
             </p>
             <p>
               <Link

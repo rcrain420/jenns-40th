@@ -5,8 +5,8 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 ## Features
 
 - Public landing page and team registration (AI team-name suggestions after sign-in)
-- Teams of 2–4 anglers; guided (captain) or non-guided (primary contact)
-- $75 per fishing angler; Venmo payment link + QR (`public/venmo-qr.png`)
+- Teams of 2–4 anglers; guided (optional captain) or non-guided (optional primary contact)
+- $75 per adult angler; youth roster seats do not add entry; Venmo payment link + QR (`public/venmo-qr.png`)
 - Fishing license confirmation checkbox
 - Soft cap of 25 teams; public registration closes Oct 1, 2026
 - Catch log: anglers photograph fish; AI estimates breed, length, and weight; board grouped by angler
@@ -72,7 +72,7 @@ Leave those env vars empty to keep email/password only. Production applies the `
 
 ### Venmo
 
-The app defaults to Venmo handle `@Officialish-Tournament` with QR at `public/venmo-qr.png`. Leave `VENMO_URL` empty unless you need a full custom payment URL override.
+The app defaults to Venmo handle `Jennski` (`https://venmo.com/u/Jennski`) with QR at `public/venmo-qr.png`. Leave `VENMO_URL` empty unless you need a full custom payment URL override.
 
 ## Production (Vercel + Neon + Blob)
 

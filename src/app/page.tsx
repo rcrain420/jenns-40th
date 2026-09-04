@@ -161,7 +161,7 @@ export default async function HomePage() {
           <FactCell value="1" label="Boat per team" />
           <FactCell
             value={feeLabel}
-            label={`Per angler · ${teamFeeLabel} team`}
+            label={`Per adult · ${teamFeeLabel} team`}
             accent
           />
           <FactCell value="GUIDED OR NOT" label="Both welcome" compact />
@@ -226,8 +226,7 @@ export default async function HomePage() {
               Rowan &amp; Rider kids pot
             </Link>{" "}
             is also free and host-funded — heaviest qualifying fish by a
-            registered youth angler. Youth still pay the $75 seat and grow
-            the main pot.{" "}
+            registered youth angler. Youth do not pay the $75 adult entry.{" "}
             <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
               Kids pot rules →
             </Link>

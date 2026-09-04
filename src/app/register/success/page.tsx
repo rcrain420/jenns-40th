@@ -27,6 +27,7 @@ import {
   SUCCESS_VENMO_BANNER,
   SUCCESS_VENMO_NOTE,
 } from "@/lib/register-success-copy";
+import { publicAbsoluteUrl } from "@/lib/safe-path";
 import { issueTeamInviteToken, teamInvitePath } from "@/lib/team-invite";
 
 export const dynamic = "force-dynamic";
@@ -62,12 +63,14 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     note: venmoNote,
   });
   const { token: inviteToken } = issueTeamInviteToken({ teamId: team.id });
-  const inviteUrl = teamInvitePath(inviteToken);
+  const inviteUrl = publicAbsoluteUrl(teamInvitePath(inviteToken));
   const { token: unlockToken } = issueEventUnlockToken({
     teamId: team.id,
     email: team.registrantEmail,
   });
-  const unlockUrl = eventUnlockPath(unlockToken);
+  const unlockUrl = publicAbsoluteUrl(eventUnlockPath(unlockToken));
+  const paidSeats = team.anglers.filter((a) => !a.isYouth).length;
+  const youthSeats = team.anglers.length - paidSeats;
   const mailNote =
     mail === "sent"
       ? GUEST_REGISTRATION_EMAIL_SENT
@@ -86,7 +89,10 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           <span className="font-semibold text-coral">
             {formatUsd(team.amountDueCents)}
           </span>{" "}
-          ({team.anglers.length} anglers
+          ({paidSeats} adult{paidSeats === 1 ? "" : "s"}
+          {youthSeats > 0
+            ? ` + ${youthSeats} youth (no entry fee)`
+            : ""}
           {team.sidePots.length > 0
             ? ` + ${team.sidePots.length} side pot${
                 team.sidePots.length > 1 ? "s" : ""
@@ -109,8 +115,8 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           </p>
           <p className="mt-3 text-ink/75">
             You registered this team. That does not make you the captain — add
-            the captain yourself if you have one, and invite teammates. Captains
-            might never log in.
+            a captain anytime on My team if you have one, and invite teammates.
+            Captains might never log in.
           </p>
           <p className="mt-3 text-ink/75">{SUCCESS_CREATOR_ACCESS_NOTE}</p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
@@ -119,7 +125,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
                 Invite teammates
               </h3>
               <p className="mt-2 text-sm text-ink/65">
-                Shared backup for name-only walk-up adults. Anglers with an
+                Shared backup for name-only adult seats. Anglers with an
                 email already get Join the boat — except youth seats, who do
                 not get a create-account invite. You can also send Invite
                 from My team. Kids must be registered by a parent. Joining
@@ -138,6 +144,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
                 <InviteLinkCopy
                   url={unlockUrl}
                   buttonLabel="Copy unlock link"
+                  shareTitle="Open my team"
                 />
               </div>
             </div>
@@ -226,7 +233,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/venmo-qr.png"
-                alt="Venmo QR code for @Officialish-Tournament"
+                alt={`Venmo QR code for ${VENMO_HANDLE}`}
                 className="h-52 w-52 bg-paper object-contain"
               />
             </a>
@@ -239,8 +246,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               Create your account
             </h2>
             <p className="mt-3 text-ink/75">
-              Until you set a password, you are missing from the boat list. The
-              captain does not need an account — you add them and send invites.
+              Until you set a password, you are missing from the boat list. A
+              captain does not need an account — add them anytime on My team
+              and send invites.
             </p>
             <div className="mt-4">
               <SetPasswordForm email={team.registrantEmail} />
@@ -265,16 +273,18 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <div className="flex justify-between gap-4">
                 <dt className="text-ink/60">Captain</dt>
                 <dd className="text-right">
-                  {team.captainName}
-                  {team.captainPhone ? ` · ${team.captainPhone}` : ""}
+                  {team.captainName
+                    ? `${team.captainName}${team.captainPhone ? ` · ${team.captainPhone}` : ""}`
+                    : "Not added yet — add anytime on My team"}
                 </dd>
               </div>
             ) : (
               <div className="flex justify-between gap-4">
                 <dt className="text-ink/60">Primary contact</dt>
                 <dd className="text-right">
-                  {team.contactName}
-                  {team.contactPhone ? ` · ${team.contactPhone}` : ""}
+                  {team.contactName
+                    ? `${team.contactName}${team.contactPhone ? ` · ${team.contactPhone}` : ""}`
+                    : "Not added yet — add anytime on My team"}
                 </dd>
               </div>
             )}

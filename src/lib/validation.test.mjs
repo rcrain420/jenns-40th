@@ -6,7 +6,19 @@ const {
   YOUTH_ATTESTATION_ERROR,
   youthAttestationResult,
 } = await import("./youth.ts");
-const { amountDueCents, listedPots, SIDE_POT_IDS } = await import("./config.ts");
+const {
+  amountDueCents,
+  listedPots,
+  paidEntrySeatCount,
+  SIDE_POT_IDS,
+  VENMO_HANDLE,
+  VENMO_USERNAME,
+  getVenmoUrl,
+} = await import("./config.ts");
+const {
+  CAPTAIN_REQUIRED_ON_CREATE,
+  contactEmailIssue,
+} = await import("./boat-contact.ts");
 
 describe("optional angler email", () => {
   it("allows a blank seat and keeps a valid plus-alias", () => {
@@ -50,14 +62,48 @@ describe("isYouth registration", () => {
     );
   });
 
-  it("lets a youth seat stay email-optional and still count as a full $75 seat", () => {
+  it("lets a youth seat stay email-optional and does not add $75", () => {
     const email = optionalAnglerEmailSchema.parse("");
     assert.equal(email, undefined);
     const parentEmail = optionalAnglerEmailSchema.parse("parent@example.com");
     assert.equal(parentEmail, "parent@example.com");
     assert.equal(amountDueCents(2, 0), 15000);
     assert.equal(amountDueCents(3, 1), 27500);
+    assert.equal(paidEntrySeatCount([{ isYouth: false }, { isYouth: true }]), 1);
+    assert.equal(
+      amountDueCents([{ isYouth: false }, { isYouth: true }], 0),
+      7500,
+    );
+    assert.equal(
+      amountDueCents(
+        [{ isYouth: false }, { isYouth: false }, { isYouth: true }],
+        1,
+      ),
+      20000,
+    );
     assert.equal(SIDE_POT_IDS.includes("kids"), false);
+  });
+});
+
+describe("optional captain and DIY contact", () => {
+  it("does not require a captain on create", () => {
+    assert.equal(CAPTAIN_REQUIRED_ON_CREATE, false);
+  });
+
+  it("allows a blank contact email and rejects junk", () => {
+    assert.equal(contactEmailIssue(""), null);
+    assert.equal(contactEmailIssue("   "), null);
+    assert.equal(contactEmailIssue(undefined), null);
+    assert.equal(contactEmailIssue("aaron@example.com"), null);
+    assert.equal(contactEmailIssue("not-an-email"), "Valid contact email required");
+  });
+});
+
+describe("Venmo handle", () => {
+  it("points payments at Jennski", () => {
+    assert.equal(VENMO_USERNAME, "Jennski");
+    assert.equal(VENMO_HANDLE, "Jennski");
+    assert.equal(getVenmoUrl(), "https://venmo.com/u/Jennski");
   });
 });
 

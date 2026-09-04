@@ -25,6 +25,11 @@ export async function getRegistrationAvailability() {
   };
 }
 
+export function emptyToNull(value?: string | null): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
 export function teamCreateData(input: RegistrationInput) {
   const anglers = input.anglers.map((a, index) => ({
     fullName: a.fullName,
@@ -39,17 +44,17 @@ export function teamCreateData(input: RegistrationInput) {
   return {
     teamName: input.teamName,
     boatType: input.boatType,
-    captainName: guided ? input.captainName!.trim() : null,
-    captainPhone: guided ? input.captainPhone!.trim() : null,
-    contactName: guided ? null : input.contactName!.trim(),
-    contactPhone: guided ? null : input.contactPhone!.trim(),
-    contactEmail: guided ? null : input.contactEmail!.trim(),
+    captainName: guided ? emptyToNull(input.captainName) : null,
+    captainPhone: guided ? emptyToNull(input.captainPhone) : null,
+    contactName: guided ? null : emptyToNull(input.contactName),
+    contactPhone: guided ? null : emptyToNull(input.contactPhone),
+    contactEmail: guided ? null : emptyToNull(input.contactEmail),
     registrantEmail: input.registrantEmail,
     notes: input.notes ?? null,
     licenseConfirmed: input.licenseConfirmed,
     paymentStatus: "UNPAID" as const,
     sidePots: input.sidePots,
-    amountDueCents: amountDueCents(anglers.length, input.sidePots.length),
+    amountDueCents: amountDueCents(anglers, input.sidePots.length),
     anglers: {
       create: anglers,
     },

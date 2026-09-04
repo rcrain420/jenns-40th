@@ -36,8 +36,9 @@ describe("team invite email", () => {
     assert.ok(message.html.includes("Join the boat"));
     assert.ok(message.text.includes("Pretty Pier Pressure added you as an angler"));
     assert.ok(message.text.includes("event PIN"));
-    assert.ok(message.text.includes("Walk-up adults"));
-    assert.equal(message.text.includes("Walk-ups and kids"), false);
+    assert.ok(message.text.includes("Adults without email can stay name-only"));
+    assert.equal(/walk-?ups?/i.test(message.text), false);
+    assert.equal(/walk-?ups?/i.test(message.html), false);
     assert.ok(message.text.includes("Kids must be registered"));
     assert.ok(message.text.includes("Livewell"));
     assert.ok(message.text.includes("no PIN or second unlock"));

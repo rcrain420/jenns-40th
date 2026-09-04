@@ -103,7 +103,7 @@ model Angler {
   phone     String?
   /// Optional. Name-only seats stay on the PIN / shared-link path.
   email     String?
-  /// 17 or under. Full paid seat. No child User account.
+  /// 17 or under. Roster seat for the kids pot; no $75 entry. No child User account.
   isYouth   Boolean        @default(false)
   sortOrder Int
   catches   FishCatch[]
