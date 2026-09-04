@@ -75,6 +75,7 @@ describe("AI fallback guest notes", () => {
       assert.equal(guestSafeAiNotes(text), text);
     }
     assert.match(GUEST_AI_MISSING_KEY_NOTE, /missing key/i);
+    assert.match(GUEST_AI_MISSING_KEY_NOTE, /configured/i);
   });
 });
 

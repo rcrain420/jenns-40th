@@ -4,7 +4,7 @@ export const GUEST_AI_UNAVAILABLE_NOTE =
 
 /** OPENAI_API_KEY missing/empty on the server. Do not name the env var. */
 export const GUEST_AI_MISSING_KEY_NOTE =
-  "AI unavailable — missing key. Size left blank (not a real guess).";
+  "AI unavailable — missing key. Estimates aren’t configured. Size left blank (not a real guess).";
 
 export const GUEST_AI_TIMEOUT_NOTE =
   "AI timed out looking at the photo. Size left blank — not a real guess.";

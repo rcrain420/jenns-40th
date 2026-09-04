@@ -354,7 +354,7 @@ function LoggedCatchSummary({
       {fish.aiProvider === "fallback" ? (
         <p className="mt-3 rounded-md bg-alert/10 px-3 py-2 text-sm text-alert">
           {safeNotes ??
-            "AI guess unavailable — breed and size are placeholders. Try again or fill in after weigh-in."}
+            "AI guess unavailable — size left blank, not a real estimate."}
         </p>
       ) : safeNotes ? (
         <p className="mt-3 text-sm text-ink/65">{safeNotes}</p>

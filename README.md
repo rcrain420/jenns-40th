@@ -79,7 +79,9 @@ On [Vercel → Project → Settings → Environment Variables](https://vercel.co
 
 Optional: `OPENAI_VISION_MODEL` if you want something other than `gpt-4o-mini` (must support vision / `image_url`).
 
-A missing `OPENAI_API_KEY` is not an infinite “Estimating with AI…” spinner. The catch still logs. Guests see **AI unavailable — missing key** and **blank** length/weight — not a pretend 18" / 3.5 lb guess. Timeouts, HEIC skip, and provider errors each get their own guest-safe note.
+A missing `OPENAI_API_KEY` is not an infinite “Estimating with AI…” spinner. The catch still logs. Guests see **AI unavailable — missing key** (estimates aren’t configured) and **blank** length/weight — not a pretend 18" / 3.5 lb guess. Timeouts, HEIC skip, and provider errors each get their own guest-safe note.
+
+**This is the Production gap on `jenns-40th`:** if `OPENAI_API_KEY` is unset, every Livewell upload takes the fallback path. Set the key on Production, then redeploy. Do not commit the value.
 
 Vision `breed` is locked to **Redfish**, **Trout**, **Black drum**, **Hardhead catfish**, **Gafftop**, or **Unknown**. Unusable photos and estimate failures use Unknown — never a freeform “unidentified gulf fish”. Size/weight are omitted unless the model actually returned numbers.
 
