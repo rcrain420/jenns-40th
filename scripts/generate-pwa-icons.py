@@ -58,8 +58,9 @@ def main() -> None:
     fit(art, 180).save(OUT_PUBLIC / "apple-touch-icon.png", "PNG")
     fit(art, 32).save(OUT_PUBLIC / "icon-32.png", "PNG")
 
-    ico_16 = fit(art, 16)
-    ico_32 = fit(art, 32)
+    # Next.js decodes app/favicon.ico as ICO-wrapped PNG and requires RGBA.
+    ico_16 = fit(art, 16).convert("RGBA")
+    ico_32 = fit(art, 32).convert("RGBA")
     ico_32.save(
         OUT_APP / "favicon.ico",
         format="ICO",
