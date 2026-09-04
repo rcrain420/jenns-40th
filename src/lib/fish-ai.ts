@@ -1,4 +1,12 @@
 import { GUEST_AI_UNAVAILABLE_NOTE, guestSafeAiNotes } from "./guest-copy";
+import {
+  FISH_AI_TIMEOUT_MS,
+  type EstimateFishInput,
+  resolveOpenAiApiKey,
+  shouldSkipOpenAiEstimate,
+  visionImageUrl,
+} from "./fish-ai-vision";
+import { raceTimeout } from "./race-timeout";
 
 export type FishEstimate = {
   breed: string;
@@ -8,6 +16,21 @@ export type FishEstimate = {
   notes: string | null;
   provider: "openai" | "fallback";
 };
+
+export type EstimateFishOptions = {
+  apiKey?: string | null;
+  timeoutMs?: number;
+  fetchImpl?: typeof fetch;
+};
+
+export type { EstimateFishInput };
+export {
+  FISH_AI_MAX_BASE64_BYTES,
+  FISH_AI_TIMEOUT_MS,
+  resolveOpenAiApiKey,
+  visionImageUrl,
+  visionMimeSupported,
+} from "./fish-ai-vision";
 
 type AiJson = {
   breed?: unknown;
@@ -29,7 +52,10 @@ function asNumber(value: unknown): number | null {
   return null;
 }
 
-function normalizeEstimate(raw: AiJson, provider: FishEstimate["provider"]): FishEstimate {
+export function normalizeEstimate(
+  raw: AiJson,
+  provider: FishEstimate["provider"],
+): FishEstimate {
   const length = clamp(asNumber(raw.lengthInches) ?? 18, 4, 80);
   const weight = clamp(asNumber(raw.weightLbs) ?? 3, 0.2, 120);
   const confidenceRaw = asNumber(raw.confidence);
@@ -54,7 +80,7 @@ function normalizeEstimate(raw: AiJson, provider: FishEstimate["provider"]): Fis
   };
 }
 
-function fallbackEstimate(): FishEstimate {
+export function fallbackEstimate(): FishEstimate {
   return {
     breed: "Unidentified Gulf fish",
     lengthInches: 18,
@@ -67,19 +93,36 @@ function fallbackEstimate(): FishEstimate {
 
 /**
  * Estimate species, length, and weight from a catch photo using OpenAI vision.
- * Falls back to placeholders when no API key is configured or the call fails.
+ * Always settles — missing key, unsupported photo, timeout, or API failure
+ * return placeholder numbers plus a guest-safe note (never hang the Livewell).
  */
 export async function estimateFishFromPhoto(
-  imageBase64: string,
-  mimeType: string,
+  input: EstimateFishInput,
+  options: EstimateFishOptions = {},
 ): Promise<FishEstimate> {
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
-  if (!apiKey) {
+  const apiKey = resolveOpenAiApiKey(options.apiKey);
+  const skip = shouldSkipOpenAiEstimate(input, apiKey);
+  if (skip === "missing-key") {
+    console.warn(
+      "Fish AI estimate skipped: OPENAI_API_KEY is not set on this server",
+    );
+    return fallbackEstimate();
+  }
+  if (skip) {
+    console.warn("Fish AI estimate skipped:", skip, input.mimeType);
     return fallbackEstimate();
   }
 
+  const imageUrl = visionImageUrl(input);
+  if (!imageUrl) {
+    return fallbackEstimate();
+  }
+
+  const timeoutMs = options.timeoutMs ?? FISH_AI_TIMEOUT_MS;
+  const fetchImpl = options.fetchImpl ?? fetch;
+
   try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    const request = fetchImpl("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -105,7 +148,8 @@ export async function estimateFishFromPhoto(
               {
                 type: "image_url",
                 image_url: {
-                  url: `data:${mimeType};base64,${imageBase64}`,
+                  url: imageUrl,
+                  detail: "low",
                 },
               },
             ],
@@ -114,13 +158,21 @@ export async function estimateFishFromPhoto(
       }),
     });
 
+    const res = await raceTimeout(request, timeoutMs, "Fish AI estimate timed out");
+
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
       console.error("OpenAI fish estimate failed", res.status, detail);
       return fallbackEstimate();
     }
 
-    const data = (await res.json()) as {
+    const data = (await raceTimeout(
+      res.json() as Promise<{
+        choices?: { message?: { content?: string } }[];
+      }>,
+      timeoutMs,
+      "Fish AI estimate response timed out",
+    )) as {
       choices?: { message?: { content?: string } }[];
     };
     const content = data.choices?.[0]?.message?.content;

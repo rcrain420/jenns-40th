@@ -199,7 +199,12 @@ async function saveCatchPhotoAndEstimate(input: {
   const id = crypto.randomUUID();
   const photoPath = await uploadCatchPhoto({ id, bytes, mime, ext });
 
-  const estimate = await estimateFishFromPhoto(bytes.toString("base64"), mime);
+  const hosted = /^https:\/\//i.test(photoPath);
+  const estimate = await estimateFishFromPhoto({
+    mimeType: mime,
+    imageUrl: hosted ? photoPath : undefined,
+    imageBase64: hosted ? undefined : bytes.toString("base64"),
+  });
 
   return prisma.fishCatch.create({
     data: {

@@ -3,9 +3,15 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import {
+  CATCH_SUBMIT_TIMEOUT_ERROR,
+  CATCH_SUBMIT_TIMEOUT_MS,
+  prepareCatchPhotoForUpload,
+} from "@/lib/catch-photo-client";
 import { CATCH_PHOTO_INPUT, canShowLivewellPlus } from "@/lib/livewell-plus";
 import type { PublicUser } from "@/lib/users";
 import { guestSafeAiNotes } from "@/lib/guest-copy";
+import { raceTimeout } from "@/lib/race-timeout";
 import { AddCatchFab } from "./AddCatchFab";
 import { AuthForm } from "./AuthForm";
 import { ConfirmEmailPanel } from "./ConfirmEmailPanel";
@@ -87,19 +93,24 @@ export function CatchLogger({
 
     setSubmitting(true);
     try {
+      const photo = await prepareCatchPhotoForUpload(file);
       const body = new FormData();
-      body.set("photo", file);
+      body.set("photo", photo);
       if (caughtById) body.set("anglerId", caughtById);
 
-      const res = await fetch("/api/catches", { method: "POST", body });
-      const data = (await res.json()) as {
+      const res = await raceTimeout(
+        fetch("/api/catches", { method: "POST", body }),
+        CATCH_SUBMIT_TIMEOUT_MS,
+        CATCH_SUBMIT_TIMEOUT_ERROR,
+      );
+      const data = (await readCatchApiJson(res)) as {
         error?: string;
         catch?: LoggedCatch;
         notify?: { alerted?: boolean; channel?: string };
       };
 
       if (!res.ok || !data.catch) {
-        setError(data.error ?? "Could not log catch");
+        setError(data.error ?? "Could not log catch. Try again.");
         return;
       }
 
@@ -112,8 +123,12 @@ export function CatchLogger({
       setPreviewUrl(null);
       if (fileRef.current) fileRef.current.value = "";
       router.refresh();
-    } catch {
-      setError("Network error — try again");
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message === CATCH_SUBMIT_TIMEOUT_ERROR
+          ? CATCH_SUBMIT_TIMEOUT_ERROR
+          : "Network error — try again";
+      setError(message);
     } finally {
       setSubmitting(false);
     }
@@ -253,6 +268,11 @@ export function CatchLogger({
       >
         {submitting ? "Estimating with AI…" : "Log catch & estimate"}
       </button>
+      {submitting ? (
+        <p className="text-sm text-ink/60">
+          Looking at the photo — this should only take a few seconds.
+        </p>
+      ) : null}
 
       {lastCatch && (
         <LoggedCatchSummary fish={lastCatch} notifyNote={notifyNote} />
@@ -261,6 +281,16 @@ export function CatchLogger({
     {showPlus ? <AddCatchFab active={plusActive} onAdd={openAddCatch} /> : null}
     </>
   );
+}
+
+async function readCatchApiJson(res: Response): Promise<Record<string, unknown>> {
+  const text = await res.text();
+  if (!text.trim()) return {};
+  try {
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
 }
 
 function LoggedCatchSummary({
@@ -317,9 +347,14 @@ function LoggedCatchSummary({
           </div>
         </dl>
       </div>
-      {safeNotes && (
+      {fish.aiProvider === "fallback" ? (
+        <p className="mt-3 rounded-md bg-alert/10 px-3 py-2 text-sm text-alert">
+          {safeNotes ??
+            "AI guess unavailable — breed and size are placeholders. Try again or fill in after weigh-in."}
+        </p>
+      ) : safeNotes ? (
         <p className="mt-3 text-sm text-ink/65">{safeNotes}</p>
-      )}
+      ) : null}
       {notifyNote && <p className="mt-3 text-sm text-sea">{notifyNote}</p>}
     </div>
   );

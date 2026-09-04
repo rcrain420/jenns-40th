@@ -56,8 +56,8 @@ Set `EVENT_PIN` in `.env` to exercise the event-unlock fallback. Registration co
 | `EMAIL_FROM` / `RESEND_FROM` | Optional From: header for Resend |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob token; omit locally to store uploads under `public/uploads/catches` |
 | `VENMO_URL` | Optional Venmo payment link override |
-| `OPENAI_API_KEY` | Optional; enables AI fish estimates and team-name suggestions |
-| `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` |
+| `OPENAI_API_KEY` | Server-only. Enables Livewell fish estimates and team-name suggestions. **Set this on the Vercel project for Production** (and Preview if you test uploads there). Missing or invalid key no longer spins the UI — the catch still logs with placeholder breed/size/weight and a guest-safe “estimate unavailable” note |
+| `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` (must support vision / image_url) |
 | `OPENAI_TEAM_NAME_MODEL` | Optional; defaults to vision model or `gpt-4o-mini` |
 | `NEXT_PUBLIC_APP_URL` | Optional canonical site URL for metadata and magic links |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional. Shows “Continue with Google” on the shared login form |
@@ -69,6 +69,17 @@ Google / Facebook redirect URIs the app serves:
 - `https://officialishfishingtournament.com/api/auth/oauth/{google|facebook}/callback`
 
 Leave those env vars empty to keep email/password only. Production applies the `OAuthAccount` / nullable `passwordHash` migration on the next Vercel build (`prisma migrate deploy` is already in `npm run build`).
+
+### Vercel: Livewell AI estimates
+
+On [Vercel → Project → Settings → Environment Variables](https://vercel.com/docs/environment-variables), Production needs:
+
+1. `OPENAI_API_KEY` — server secret for `POST /api/catches` vision estimates (same key team-name suggestions use). Do not prefix with `NEXT_PUBLIC_`.
+2. `BLOB_READ_WRITE_TOKEN` — usually injected when a Blob store is linked. Public photo URLs are what vision fetches in production (the API no longer posts a multi-megabyte data URL).
+
+Optional: `OPENAI_VISION_MODEL` if you want something other than `gpt-4o-mini`.
+
+After adding or rotating `OPENAI_API_KEY`, redeploy Production. A missing key is not an infinite “Estimating with AI…” spinner — the Livewell times out the OpenAI call and the browser times out the POST, then shows results (placeholders) or a retryable error.
 
 ### Venmo
 
