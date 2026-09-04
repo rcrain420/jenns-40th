@@ -1,31 +1,46 @@
 #!/usr/bin/env python3
-"""Build PWA icons from the existing tournament poster (not a new brand)."""
+"""Build PWA icons from Aaron's official square tournament artwork."""
 
+from collections import deque
 from pathlib import Path
 
 from PIL import Image
 
-SRC = Path("public/brand/hero-tournament-v2.png")
+SRC = Path("public/brand/official-app-icon.png")
 OUT_PUBLIC = Path("public/icons")
 OUT_APP = Path("src/app")
-PARCHMENT = (246, 236, 214)  # --paper
+NAVY = (22, 53, 79)  # --navy / #16354f
+# Android maskable safe zone is the inner ~80%. Top script + stars sit near the
+# edge of the source, so pad extra with navy (same as the art border).
+MASKABLE_PAD = 0.20
 
 
-def square_from_poster(im: Image.Image) -> Image.Image:
-    """Right-weighted square so the title treatment stays in frame."""
-    w, h = im.size
-    side = min(w, h)
-    left = max(0, w - side - int(w * 0.04))
-    return im.crop((left, 0, left + side, side))
+def fill_corner_voids(im: Image.Image, fill: tuple[int, int, int] = NAVY) -> Image.Image:
+    """Replace near-black rounded-corner padding with navy so OS masks stay clean."""
+    rgb = im.convert("RGB")
+    pixels = rgb.load()
+    w, h = rgb.size
+    seen: set[tuple[int, int]] = set()
+    queue: deque[tuple[int, int]] = deque([(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)])
+    while queue:
+        x, y = queue.popleft()
+        if (x, y) in seen or x < 0 or y < 0 or x >= w or y >= h:
+            continue
+        r, g, b = pixels[x, y]
+        if r > 18 or g > 18 or b > 22:
+            continue
+        seen.add((x, y))
+        pixels[x, y] = fill
+        queue.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
+    return rgb
 
 
 def fit(im: Image.Image, size: int) -> Image.Image:
     return im.resize((size, size), Image.Resampling.LANCZOS)
 
 
-def maskable(im: Image.Image, size: int, pad_ratio: float = 0.12) -> Image.Image:
-    """Keep artwork inside the Android maskable safe zone."""
-    canvas = Image.new("RGB", (size, size), PARCHMENT)
+def maskable(im: Image.Image, size: int, pad_ratio: float = MASKABLE_PAD) -> Image.Image:
+    canvas = Image.new("RGB", (size, size), NAVY)
     inner = int(size * (1 - 2 * pad_ratio))
     art = fit(im, inner)
     origin = (size - inner) // 2
@@ -34,18 +49,33 @@ def maskable(im: Image.Image, size: int, pad_ratio: float = 0.12) -> Image.Image
 
 
 def main() -> None:
-    poster = Image.open(SRC).convert("RGB")
-    art = square_from_poster(poster)
+    art = fill_corner_voids(Image.open(SRC))
     OUT_PUBLIC.mkdir(parents=True, exist_ok=True)
 
     fit(art, 192).save(OUT_PUBLIC / "icon-192.png", "PNG")
     fit(art, 512).save(OUT_PUBLIC / "icon-512.png", "PNG")
     maskable(art, 512).save(OUT_PUBLIC / "icon-512-maskable.png", "PNG")
     fit(art, 180).save(OUT_PUBLIC / "apple-touch-icon.png", "PNG")
+    fit(art, 32).save(OUT_PUBLIC / "icon-32.png", "PNG")
+
+    ico_16 = fit(art, 16)
+    ico_32 = fit(art, 32)
+    ico_32.save(
+        OUT_APP / "favicon.ico",
+        format="ICO",
+        sizes=[(16, 16), (32, 32)],
+        append_images=[ico_16],
+    )
+    ico_32.save(
+        Path("public/favicon.ico"),
+        format="ICO",
+        sizes=[(16, 16), (32, 32)],
+        append_images=[ico_16],
+    )
 
     fit(art, 192).save(OUT_APP / "icon.png", "PNG")
     fit(art, 180).save(OUT_APP / "apple-icon.png", "PNG")
-    print("wrote", list(OUT_PUBLIC.iterdir()))
+    print("wrote", sorted(p.name for p in OUT_PUBLIC.iterdir()))
 
 
 if __name__ == "__main__":
