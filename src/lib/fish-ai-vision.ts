@@ -3,8 +3,12 @@
  * without extension rewriting.
  */
 
-/** OpenAI vision hangs or 504s the Livewell POST if this is unbounded. */
-export const FISH_AI_TIMEOUT_MS = 12_000;
+/**
+ * OpenAI vision + image download. 12s was too tight once production sent a
+ * Blob URL for OpenAI to fetch (PR #17) — every call fell through to
+ * placeholders. Client CATCH_SUBMIT_TIMEOUT_MS is 35s; stay under that.
+ */
+export const FISH_AI_TIMEOUT_MS = 25_000;
 
 /** Skip data-URL payloads larger than this (raw bytes, before base64). */
 export const FISH_AI_MAX_BASE64_BYTES = 4 * 1024 * 1024;
@@ -40,21 +44,25 @@ function publicImageUrl(url: string | undefined): string | null {
   return trimmed;
 }
 
-/** Public https URL, or a modest jpeg/png/webp/gif data URL. Null = skip OpenAI. */
+/**
+ * Prefer an inlined data URL so OpenAI does not have to fetch Vercel Blob.
+ * Blob-only URLs were the production path after PR #17 and fail closed
+ * (timeout / download error) into identical placeholder sizes.
+ * Null = skip OpenAI.
+ */
 export function visionImageUrl(input: EstimateFishInput): string | null {
   if (!visionMimeSupported(input.mimeType)) return null;
 
-  const hosted = publicImageUrl(input.imageUrl);
-  if (hosted) return hosted;
-
   const mime = input.mimeType.toLowerCase().split(";")[0]?.trim() || "image/jpeg";
   const base64 = input.imageBase64?.trim();
-  if (!base64) return null;
+  if (base64) {
+    const approxBytes = Math.ceil((base64.length * 3) / 4);
+    if (approxBytes <= FISH_AI_MAX_BASE64_BYTES) {
+      return `data:${mime};base64,${base64}`;
+    }
+  }
 
-  const approxBytes = Math.ceil((base64.length * 3) / 4);
-  if (approxBytes > FISH_AI_MAX_BASE64_BYTES) return null;
-
-  return `data:${mime};base64,${base64}`;
+  return publicImageUrl(input.imageUrl);
 }
 
 export function shouldSkipOpenAiEstimate(

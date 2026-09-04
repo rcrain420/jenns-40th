@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  GUEST_AI_MISSING_KEY_NOTE,
+  GUEST_AI_NO_IMAGE_NOTE,
+  GUEST_AI_PROVIDER_ERROR_NOTE,
+  GUEST_AI_TIMEOUT_NOTE,
   GUEST_AI_UNAVAILABLE_NOTE,
+  GUEST_AI_UNSUPPORTED_PHOTO_NOTE,
   GUEST_REGISTRATION_EMAIL_FAILED,
   GUEST_REGISTRATION_EMAIL_SENT,
   GUEST_REGISTRATION_EMAIL_UNKNOWN,
@@ -51,6 +56,25 @@ describe("guestSafeAiNotes", () => {
     assert.equal(guestCopyHasInternalLeak("Missing RESEND_API_KEY"), true);
     assert.equal(guestCopyHasInternalLeak("Use RESEND_FROM instead"), true);
     assert.equal(guestCopyHasInternalLeak("EVENT_PIN is unset"), true);
+  });
+});
+
+describe("AI fallback guest notes", () => {
+  it("explains why AI did not run without leaking env names", () => {
+    const notes = [
+      GUEST_AI_MISSING_KEY_NOTE,
+      GUEST_AI_TIMEOUT_NOTE,
+      GUEST_AI_UNSUPPORTED_PHOTO_NOTE,
+      GUEST_AI_NO_IMAGE_NOTE,
+      GUEST_AI_PROVIDER_ERROR_NOTE,
+      GUEST_AI_UNAVAILABLE_NOTE,
+    ];
+    for (const text of notes) {
+      assert.equal(guestCopyHasInternalLeak(text), false, text);
+      assert.equal(text.includes("OPENAI_API_KEY"), false, text);
+      assert.equal(guestSafeAiNotes(text), text);
+    }
+    assert.match(GUEST_AI_MISSING_KEY_NOTE, /missing key/i);
   });
 });
 

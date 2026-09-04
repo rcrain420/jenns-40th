@@ -26,6 +26,7 @@ export default async function CatchesPage() {
       lengthInches: c.lengthInches,
       weightLbs: c.weightLbs,
       confidence: c.confidence,
+      aiProvider: c.aiProvider,
       createdAt: c.createdAt.toISOString(),
       comments: c.comments.map((comment) => ({
         id: comment.id,

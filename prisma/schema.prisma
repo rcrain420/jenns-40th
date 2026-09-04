@@ -120,8 +120,10 @@ model FishCatch {
   user         User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   photoPath    String
   breed        String
-  lengthInches Float
-  weightLbs    Float
+  /// Null when AI did not run (fallback) — do not invent placeholder inches.
+  lengthInches Float?
+  /// Null when AI did not run (fallback) — do not invent placeholder pounds.
+  weightLbs    Float?
   confidence   Float?
   aiNotes      String?
   aiProvider   String

@@ -2,6 +2,22 @@
 export const GUEST_AI_UNAVAILABLE_NOTE =
   "Estimate unavailable — edit after weigh-in if needed.";
 
+/** OPENAI_API_KEY missing/empty on the server. Do not name the env var. */
+export const GUEST_AI_MISSING_KEY_NOTE =
+  "AI unavailable — missing key. Size left blank (not a real guess).";
+
+export const GUEST_AI_TIMEOUT_NOTE =
+  "AI timed out looking at the photo. Size left blank — not a real guess.";
+
+export const GUEST_AI_UNSUPPORTED_PHOTO_NOTE =
+  "AI skipped this photo format. Try a JPEG or PNG from the camera.";
+
+export const GUEST_AI_NO_IMAGE_NOTE =
+  "AI could not read this photo. Try a clearer JPEG.";
+
+export const GUEST_AI_PROVIDER_ERROR_NOTE =
+  "AI guess unavailable right now. Size left blank — not a real estimate.";
+
 /** Guest-facing copy when the shared event PIN is missing on the server. */
 export const GUEST_EVENT_PIN_UNAVAILABLE =
   "Catch logging isn't available right now. Try again later, or find a host.";

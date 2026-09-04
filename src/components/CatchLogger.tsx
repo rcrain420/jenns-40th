@@ -33,8 +33,8 @@ type LoggedCatch = {
   id: string;
   photoPath: string;
   breed: string;
-  lengthInches: number;
-  weightLbs: number;
+  lengthInches: number | null;
+  weightLbs: number | null;
   confidence: number | null;
   aiNotes: string | null;
   aiProvider: string;
@@ -328,13 +328,17 @@ function LoggedCatchSummary({
           <div>
             <dt className="text-ink/55">Length</dt>
             <dd className="font-semibold text-wave">
-              {fish.lengthInches}&quot;
+              {fish.aiProvider === "fallback" || fish.lengthInches == null
+                ? "—"
+                : `${fish.lengthInches}"`}
             </dd>
           </div>
           <div>
             <dt className="text-ink/55">Weight</dt>
             <dd className="font-semibold text-wave">
-              {fish.weightLbs} lb
+              {fish.aiProvider === "fallback" || fish.weightLbs == null
+                ? "—"
+                : `${fish.weightLbs} lb`}
             </dd>
           </div>
           <div>
