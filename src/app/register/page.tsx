@@ -41,10 +41,7 @@ export default async function RegisterPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const [availability, viewer] = await Promise.all([
-    getRegistrationAvailability(),
-    getCurrentUser(),
-  ]);
+  const viewer = await getCurrentUser();
   const params = await searchParams;
   const initialBoatType = parseBoatType(params.boat);
   const initialCaptainName = parseCaptain(params.captain);
@@ -91,6 +88,7 @@ export default async function RegisterPage({
   }
 
   const welcomeName = firstName(viewer?.name ?? "");
+  const availability = await getRegistrationAvailability();
 
   return (
     <PageShell
