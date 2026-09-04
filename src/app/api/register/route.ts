@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendJoinEmailsForRegisteredAnglers } from "@/lib/angler-join-invites";
 import { getCurrentUser } from "@/lib/auth";
+import { paidEntrySeatCount } from "@/lib/config";
 import {
   registerApiAllowsCreate,
   userHasRegisteredTeam,
@@ -63,6 +64,8 @@ export async function POST(request: Request) {
       teamName: result.team.teamName,
       amountDueCents: result.team.amountDueCents,
       registrantEmail: result.team.registrantEmail,
+      paidSeatCount: paidEntrySeatCount(result.team.anglers),
+      youthSeatCount: result.team.anglers.filter((a) => a.isYouth).length,
     });
     confirmationEmailSent = delivery.delivered;
     if (!delivery.delivered) {

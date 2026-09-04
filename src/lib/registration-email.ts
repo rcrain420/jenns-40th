@@ -1,16 +1,22 @@
-import { EVENT, VENMO_HANDLE, getAppUrl, getVenmoUrl } from "./config";
+import {
+  EVENT,
+  FEE_PER_ANGLER_CENTS,
+  VENMO_HANDLE,
+  getVenmoUrl,
+} from "./config";
 import { sendEmail, type EmailDelivery } from "./email";
-import { issueEventUnlockToken } from "./event-unlock-token";
-import { formatUsd } from "./money";
+import { formatUsd, formatUsdWhole } from "./money";
+import { OPEN_MY_TEAM_NEXT } from "./open-my-team-access";
 import { registrationConfirmationCopy } from "./registration-email-copy";
+import { publicAbsoluteUrl } from "./safe-path";
 
 export type RegistrationConfirmationInput = {
   teamId: string;
   teamName: string;
   amountDueCents: number;
   registrantEmail: string;
-  token?: string;
-  now?: Date;
+  paidSeatCount?: number;
+  youthSeatCount?: number;
 };
 
 export type RegistrationConfirmationMessage = {
@@ -18,31 +24,21 @@ export type RegistrationConfirmationMessage = {
   subject: string;
   text: string;
   html: string;
-  unlockUrl: string;
-  token: string;
+  teamUrl: string;
 };
 
-export function buildEventUnlockUrl(token: string): string {
-  const url = new URL("/unlock", `${getAppUrl()}/`);
-  url.searchParams.set("token", token);
-  return url.toString();
+export function buildTeamPageUrl(): string {
+  return publicAbsoluteUrl(OPEN_MY_TEAM_NEXT);
 }
 
 export function buildRegistrationConfirmation(
   input: RegistrationConfirmationInput,
 ): RegistrationConfirmationMessage {
-  const token =
-    input.token ??
-    issueEventUnlockToken({
-      teamId: input.teamId,
-      email: input.registrantEmail,
-      now: input.now,
-    }).token;
-  const unlockUrl = buildEventUnlockUrl(token);
+  const teamUrl = buildTeamPageUrl();
   const copy = registrationConfirmationCopy({
     teamName: input.teamName,
     amountLabel: formatUsd(input.amountDueCents),
-    unlockUrl,
+    teamUrl,
     venmoHandle: VENMO_HANDLE,
     venmoUrl: getVenmoUrl(),
     eventName: EVENT.name,
@@ -50,6 +46,9 @@ export function buildRegistrationConfirmation(
     dateLabel: EVENT.dateLabel,
     venue: EVENT.venue,
     footerScript: EVENT.footerScript,
+    adultSeatFeeLabel: formatUsdWhole(FEE_PER_ANGLER_CENTS),
+    paidSeatCount: input.paidSeatCount,
+    youthSeatCount: input.youthSeatCount,
   });
 
   return {
@@ -57,14 +56,13 @@ export function buildRegistrationConfirmation(
     subject: copy.subject,
     text: copy.text,
     html: copy.html,
-    unlockUrl,
-    token,
+    teamUrl,
   };
 }
 
 export async function sendRegistrationConfirmation(
   input: RegistrationConfirmationInput,
-): Promise<EmailDelivery & { unlockUrl: string }> {
+): Promise<EmailDelivery & { teamUrl: string }> {
   const message = buildRegistrationConfirmation(input);
   const delivery = await sendEmail({
     to: message.to,
@@ -72,5 +70,5 @@ export async function sendRegistrationConfirmation(
     text: message.text,
     html: message.html,
   });
-  return { ...delivery, unlockUrl: message.unlockUrl };
+  return { ...delivery, teamUrl: message.teamUrl };
 }
