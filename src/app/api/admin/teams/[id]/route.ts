@@ -97,6 +97,7 @@ export async function PATCH(request: Request, { params }: Params) {
             phone: a.phone ?? null,
             email: a.email ?? null,
             isYouth: a.isYouth === true,
+            shirtSize: a.shirtSize,
             sortOrder: index,
           })),
         },

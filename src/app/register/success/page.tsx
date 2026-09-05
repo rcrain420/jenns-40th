@@ -312,7 +312,11 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <dd className="text-right">
                 {team.anglers
                   .map((a) =>
-                    a.isYouth ? `${a.fullName} (youth)` : a.fullName,
+                    a.isYouth
+                      ? `${a.fullName} (youth${a.shirtSize ? `, ${a.shirtSize}` : ""})`
+                      : a.shirtSize
+                        ? `${a.fullName} (${a.shirtSize})`
+                        : a.fullName,
                   )
                   .join(", ")}
               </dd>

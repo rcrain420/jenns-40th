@@ -31,6 +31,7 @@ describe("CSV youth column", () => {
             phone: null,
             email: "aaron@example.com",
             isYouth: false,
+            shirtSize: "L",
             sortOrder: 0,
           },
           {
@@ -40,6 +41,7 @@ describe("CSV youth column", () => {
             phone: null,
             email: "aaron@example.com",
             isYouth: true,
+            shirtSize: "XS",
             sortOrder: 1,
           },
         ],
@@ -48,7 +50,9 @@ describe("CSV youth column", () => {
 
     const [header, row] = csv.split("\n");
     assert.match(header, /,youth,/);
-    assert.match(row, /Rowan \(youth\)/);
+    assert.match(header, /,shirtSizes,/);
+    assert.match(row, /Rowan \(youth\) \[XS\]/);
+    assert.match(row, /Aaron: L; Rowan: XS/);
     assert.match(row, /,Rowan,/);
   });
 });

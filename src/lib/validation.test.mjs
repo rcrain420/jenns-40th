@@ -3,6 +3,11 @@ import { describe, it } from "node:test";
 
 const { optionalAnglerEmailSchema } = await import("./angler-email.ts");
 const {
+  SHIRT_SIZE_REQUIRED_ERROR,
+  isShirtSize,
+  missingShirtSize,
+} = await import("./shirt-size.ts");
+const {
   YOUTH_ATTESTATION_ERROR,
   youthAttestationResult,
 } = await import("./youth.ts");
@@ -83,6 +88,30 @@ describe("isYouth registration", () => {
       20000,
     );
     assert.equal(SIDE_POT_IDS.includes("kids"), false);
+  });
+});
+
+describe("shirt size on register", () => {
+  it("requires a standard size on each named angler", () => {
+    assert.equal(isShirtSize("L"), true);
+    assert.equal(isShirtSize("3XL"), true);
+    assert.equal(isShirtSize(""), false);
+    assert.equal(isShirtSize("YY"), false);
+    assert.equal(SHIRT_SIZE_REQUIRED_ERROR, "Shirt size is required");
+    assert.equal(
+      missingShirtSize([
+        { fullName: "Aaron QA", shirtSize: "L" },
+        { fullName: "Rowan QA", shirtSize: "XS" },
+      ]),
+      false,
+    );
+    assert.equal(
+      missingShirtSize([
+        { fullName: "Aaron QA", shirtSize: "L" },
+        { fullName: "Rowan QA" },
+      ]),
+      true,
+    );
   });
 });
 

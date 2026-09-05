@@ -2,6 +2,7 @@ import { z } from "zod";
 import { optionalAnglerEmailSchema } from "./angler-email";
 import { contactEmailIssue } from "./boat-contact";
 import { MAX_ANGLERS, MIN_ANGLERS, SIDE_POT_IDS } from "./config";
+import { SHIRT_SIZE_REQUIRED_ERROR, SHIRT_SIZES } from "./shirt-size";
 import {
   LICENSE_CONFIRM_ERROR,
   YOUTH_ATTESTATION_ERROR,
@@ -17,6 +18,7 @@ const anglerSchema = z.object({
     .transform((v) => (v ? v : undefined)),
   email: optionalAnglerEmailSchema,
   isYouth: z.boolean().optional().default(false),
+  shirtSize: z.enum(SHIRT_SIZES, { error: SHIRT_SIZE_REQUIRED_ERROR }),
 });
 
 const teamFieldsSchema = z.object({

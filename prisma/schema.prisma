@@ -118,6 +118,8 @@ model Angler {
   email     String?
   /// 17 or under. Roster seat for the kids pot; no $75 entry. No child User account.
   isYouth   Boolean        @default(false)
+  /// XS–3XL merch size. Required on register / roster save for named anglers.
+  shirtSize String?
   sortOrder Int
   catches   FishCatch[]
   comments  CatchComment[]

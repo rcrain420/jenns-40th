@@ -11,12 +11,14 @@ import {
   type SidePotId,
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
+import { ShirtSizeSelect } from "./ShirtSizeSelect";
 
 type AnglerDraft = {
   fullName: string;
   phone: string;
   email: string;
   isYouth: boolean;
+  shirtSize: string;
 };
 type BoatType = "GUIDED" | "NON_GUIDED";
 
@@ -46,6 +48,7 @@ const emptyAngler = (): AnglerDraft => ({
   phone: "",
   email: "",
   isYouth: false,
+  shirtSize: "",
 });
 
 export function AdminTeamEditor({ mode, teamId, initial }: Props) {
@@ -256,7 +259,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
           </button>
         </div>
         {anglers.map((angler, index) => (
-          <div key={index} className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
+          <div key={index} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_7.5rem_1fr_1fr_auto]">
             <div>
             <input
               className={inputClass}
@@ -277,6 +280,19 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
               </p>
             ) : null}
             </div>
+            <ShirtSizeSelect
+              className={inputClass}
+              value={angler.shirtSize}
+              onChange={(shirtSize) =>
+                setAnglers((prev) =>
+                  prev.map((a, i) =>
+                    i === index ? { ...a, shirtSize } : a,
+                  ),
+                )
+              }
+              required
+              aria-label={`Shirt size for angler ${index + 1}`}
+            />
             <input
               type="email"
               className={inputClass}
@@ -312,7 +328,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
             >
               Remove
             </button>
-            <label className="flex items-center gap-2 text-sm sm:col-span-3">
+            <label className="flex items-center gap-2 text-sm sm:col-span-2 lg:col-span-5">
               <input
                 type="checkbox"
                 checked={angler.isYouth}

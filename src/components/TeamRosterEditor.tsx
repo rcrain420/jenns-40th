@@ -17,6 +17,8 @@ import {
   YOUTH_EMAIL_HELPER,
   hasYouthAngler,
 } from "@/lib/youth";
+import { SHIRT_SIZE_REQUIRED_ERROR, missingShirtSize } from "@/lib/shirt-size";
+import { ShirtSizeSelect } from "./ShirtSizeSelect";
 
 export type RosterAnglerDraft = {
   id?: string;
@@ -24,6 +26,7 @@ export type RosterAnglerDraft = {
   phone: string;
   email: string;
   isYouth: boolean;
+  shirtSize: string;
 };
 
 type Props = {
@@ -43,6 +46,7 @@ const emptyAngler = (isYouth = false): RosterAnglerDraft => ({
   phone: "",
   email: "",
   isYouth,
+  shirtSize: "",
 });
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -115,6 +119,7 @@ export function TeamRosterEditor({
           phone: a.phone,
           email: a.email,
           isYouth: a.isYouth,
+          shirtSize: a.shirtSize,
         })),
         youthGuardianAttested,
       }),
@@ -133,6 +138,7 @@ export function TeamRosterEditor({
       phone: a.phone ?? "",
       email: a.email ?? "",
       isYouth: a.isYouth === true,
+      shirtSize: a.shirtSize ?? "",
     }));
     setAnglers(next);
     setAddingCount(0);
@@ -144,6 +150,10 @@ export function TeamRosterEditor({
     if (!canEditRoster) return;
     if (hasYouthAngler(anglers) && !youthGuardianAttested) {
       setError(YOUTH_ATTESTATION_ERROR);
+      return;
+    }
+    if (missingShirtSize(anglers)) {
+      setError(SHIRT_SIZE_REQUIRED_ERROR);
       return;
     }
     setSaving(true);
@@ -271,17 +281,36 @@ export function TeamRosterEditor({
                   ) : null}
                 </p>
                 {canEditRoster ? (
-                  <label className="mt-2 flex items-center gap-2 text-sm text-ink/70">
-                    <input
-                      type="checkbox"
-                      checked={angler.isYouth}
-                      onChange={(e) =>
-                        patchAngler(index, { isYouth: e.target.checked })
-                      }
-                      className="h-4 w-4 accent-sea"
-                    />
-                    {YOUTH_CHECKBOX_LABEL}
-                  </label>
+                  <div className="mt-2 flex flex-wrap items-end gap-4">
+                    <label className="flex items-center gap-2 text-sm text-ink/70">
+                      <input
+                        type="checkbox"
+                        checked={angler.isYouth}
+                        onChange={(e) =>
+                          patchAngler(index, { isYouth: e.target.checked })
+                        }
+                        className="h-4 w-4 accent-sea"
+                      />
+                      {YOUTH_CHECKBOX_LABEL}
+                    </label>
+                    <label className="block min-w-[7.5rem]">
+                      <span className={labelClass}>Shirt size</span>
+                      <ShirtSizeSelect
+                        id={`roster-shirt-${index}`}
+                        className={inputClass}
+                        value={angler.shirtSize}
+                        onChange={(shirtSize) =>
+                          patchAngler(index, { shirtSize })
+                        }
+                        required
+                        aria-label={`Shirt size for ${angler.fullName}`}
+                      />
+                    </label>
+                  </div>
+                ) : angler.shirtSize ? (
+                  <p className="mt-1 text-sm text-ink/60">
+                    Shirt {angler.shirtSize}
+                  </p>
                 ) : null}
               </div>
               <div className="flex flex-1 flex-col gap-2 sm:max-w-md sm:flex-row sm:items-center">
@@ -326,7 +355,7 @@ export function TeamRosterEditor({
         return (
           <div
             key={`new-${index}`}
-            className="grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-[1fr_1fr_auto]"
+            className="grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-[1fr_7.5rem_1fr_auto]"
           >
             <div>
               <label className={labelClass} htmlFor={`roster-name-${index}`}>
@@ -337,6 +366,18 @@ export function TeamRosterEditor({
                 className={inputClass}
                 value={angler.fullName}
                 onChange={(e) => patchAngler(index, { fullName: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor={`roster-shirt-${index}`}>
+                Shirt size <span className="text-alert">*</span>
+              </label>
+              <ShirtSizeSelect
+                id={`roster-shirt-${index}`}
+                className={inputClass}
+                value={angler.shirtSize}
+                onChange={(shirtSize) => patchAngler(index, { shirtSize })}
                 required
               />
             </div>

@@ -14,7 +14,12 @@ export type AdminTeamRow = {
   registrantEmail: string;
   captainName: string | null;
   contactName: string | null;
-  anglers: { fullName: string; email?: string | null; isYouth?: boolean }[];
+  anglers: {
+    fullName: string;
+    email?: string | null;
+    isYouth?: boolean;
+    shirtSize?: string | null;
+  }[];
   createdAt: string;
 };
 
@@ -47,6 +52,7 @@ export function AdminDashboard({ teams, stats }: Props) {
         t.registrantEmail,
         ...t.anglers.map((a) => a.fullName),
         ...t.anglers.map((a) => a.email),
+        ...t.anglers.map((a) => a.shirtSize),
       ]
         .filter(Boolean)
         .join(" ")
@@ -177,6 +183,14 @@ export function AdminDashboard({ teams, stats }: Props) {
                     <span className="ml-2 inline-block rounded-full bg-sun/20 px-2 py-0.5 text-[0.7rem] uppercase tracking-[0.08em] text-wave">
                       {team.anglers.filter((a) => a.isYouth).length} youth
                     </span>
+                  ) : null}
+                  {team.anglers.some((a) => a.shirtSize) ? (
+                    <p className="mt-1 text-xs text-ink/50">
+                      {team.anglers
+                        .map((a) => a.shirtSize)
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
                   ) : null}
                 </td>
                 <td className="px-4 py-3">

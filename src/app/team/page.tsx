@@ -212,6 +212,7 @@ export default async function MyTeamPage({
                   phone: a.phone ?? "",
                   email: a.email ?? "",
                   isYouth: a.isYouth,
+                  shirtSize: a.shirtSize ?? "",
                 }))}
                 sidePotCount={team.sidePots.length}
                 paymentStatus={

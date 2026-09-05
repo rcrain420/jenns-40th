@@ -17,6 +17,7 @@ describe("anglersSectionHelp", () => {
     assert.match(text, /two names/);
     assert.match(text, /My team/);
     assert.match(text, /17-or-under/);
+    assert.match(text, /shirt size/);
     assert.match(text, /email is optional/i);
     assert.match(text, new RegExp(`no \\$${fee}`));
     assert.match(text, /create-account invite/);
