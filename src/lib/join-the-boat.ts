@@ -18,8 +18,9 @@
  * adult may still finish join — that fills their existing seat.
  *
  * Leaf module so Node tests can import it without extension rewriting.
+ * Invite cap matches config.MAX_ANGLERS (kept local — no config import).
  */
-import { MAX_ANGLERS } from "./config";
+const MAX_ANGLERS = 4;
 
 export const JOIN_THE_BOAT = {
   firstTap: "create-account",
