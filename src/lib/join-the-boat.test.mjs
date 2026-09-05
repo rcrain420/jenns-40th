@@ -14,6 +14,8 @@ const {
   canJoinBoat,
   directoryStatusLabel,
   invitedAnglerCount,
+  isBoatContactNotAngler,
+  isListedAsAdultAngler,
   isBoatInviteLocked,
   joinFillsExistingSeat,
   joinTheBoatAuthMode,
@@ -103,8 +105,8 @@ describe("boat roster after Join the boat", () => {
         { name: "Later Invite", status: "pending" },
       ],
     );
-    assert.equal(boatRosterStatusLabel("pending"), "Pending");
-    assert.equal(boatRosterStatusLabel("joined"), "Joined");
+    assert.equal(boatRosterStatusLabel("pending"), "Angler · Pending");
+    assert.equal(boatRosterStatusLabel("joined"), "Angler · Joined");
   });
 
   it("keeps name-only seats as not-emailed and still attaches a joiner with no paid seat", () => {
@@ -121,13 +123,14 @@ describe("boat roster after Join the boat", () => {
       {
         name: "Shared Link Joiner",
         email: "walkup@example.com",
-        status: "joined",
+        status: "boat-account",
       },
     ]);
     assert.equal(
       boatRosterStatusLabel("name-only"),
       "Name-only · not emailed",
     );
+    assert.equal(boatRosterStatusLabel("boat-account"), "Boat account");
   });
 
   it("marks youth seats as parent-login, never pending create-account", () => {
@@ -297,12 +300,37 @@ describe("teams directory", () => {
 
     assert.equal(team.isOwn, true);
     assert.deepEqual(
-      team.anglers.map((row) => ({ name: row.name, label: row.statusLabel })),
+      team.anglers.map((row) => ({
+        name: row.name,
+        label: row.statusLabel,
+        isYouth: row.isYouth,
+        isAnglerSeat: row.isAnglerSeat,
+      })),
       [
-        { name: "Aaron", label: "Joined" },
-        { name: "Pat", label: "Pending" },
-        { name: "Rowan", label: "Youth · parent login" },
-        { name: "Walkup", label: null },
+        {
+          name: "Aaron",
+          label: "Angler · Joined",
+          isYouth: false,
+          isAnglerSeat: true,
+        },
+        {
+          name: "Pat",
+          label: "Angler · Pending",
+          isYouth: false,
+          isAnglerSeat: true,
+        },
+        {
+          name: "Rowan",
+          label: "Youth · parent login",
+          isYouth: true,
+          isAnglerSeat: true,
+        },
+        {
+          name: "Walkup",
+          label: "Angler",
+          isYouth: false,
+          isAnglerSeat: true,
+        },
       ],
     );
     const blob = JSON.stringify(team);
@@ -310,9 +338,98 @@ describe("teams directory", () => {
     assert.equal(/\bPIN\b/i.test(blob), false);
   });
 
-  it("does not invent a status for name-only seats", () => {
-    assert.equal(directoryStatusLabel("name-only"), null);
-    assert.equal(directoryStatusLabel("joined"), "Joined");
-    assert.equal(directoryStatusLabel("pending"), "Pending");
+  it("labels adult seats as Angler and boat-only accounts as not a seat", () => {
+    assert.equal(directoryStatusLabel("name-only"), "Angler");
+    assert.equal(directoryStatusLabel("joined"), "Angler · Joined");
+    assert.equal(directoryStatusLabel("pending"), "Angler · Pending");
+    assert.equal(directoryStatusLabel("boat-account"), "Boat account");
+    assert.equal(directoryStatusLabel("youth"), "Youth · parent login");
+  });
+
+  it("keeps a parent who joined the boat off the paid Angler list", () => {
+    const team = toDirectoryTeam({
+      id: "team_jarah",
+      teamName: "Family Boat",
+      anglers: [
+        { fullName: "Kid One", email: "jarah@example.com", isYouth: true },
+        { fullName: "Kid Two", email: "jarah@example.com", isYouth: true },
+        { fullName: "Aunt Pat", email: "pat@example.com" },
+        { fullName: "Uncle Mike", email: "mike@example.com" },
+      ],
+      members: [
+        { name: "Jarah", email: "jarah@example.com" },
+        { name: "Aunt Pat", email: "pat@example.com" },
+      ],
+    });
+
+    assert.deepEqual(
+      team.anglers.map((row) => ({
+        name: row.name,
+        label: row.statusLabel,
+        isAnglerSeat: row.isAnglerSeat,
+      })),
+      [
+        {
+          name: "Kid One",
+          label: "Youth · parent login",
+          isAnglerSeat: true,
+        },
+        {
+          name: "Kid Two",
+          label: "Youth · parent login",
+          isAnglerSeat: true,
+        },
+        {
+          name: "Aunt Pat",
+          label: "Angler · Joined",
+          isAnglerSeat: true,
+        },
+        {
+          name: "Uncle Mike",
+          label: "Angler · Pending",
+          isAnglerSeat: true,
+        },
+        {
+          name: "Jarah",
+          label: "Boat account",
+          isAnglerSeat: false,
+        },
+      ],
+    );
+  });
+});
+
+describe("boat contact vs adult angler seat", () => {
+  it("treats a parent registrant who is not on the adult list as boat contact", () => {
+    const anglers = [
+      { fullName: "Rowan", email: "jarah@example.com", isYouth: true },
+      { fullName: "Aunt Pat", email: "pat@example.com" },
+    ];
+    assert.equal(
+      isListedAsAdultAngler(anglers, { email: "jarah@example.com" }),
+      false,
+    );
+    assert.equal(
+      isBoatContactNotAngler(anglers, {
+        email: "jarah@example.com",
+        name: "Jarah",
+      }),
+      true,
+    );
+  });
+
+  it("does not nudge an adult who already listed themselves", () => {
+    const anglers = [
+      { fullName: "Aaron Crain", email: "aaron@example.com" },
+      { fullName: "Pat", email: "pat@example.com" },
+    ];
+    assert.equal(
+      isBoatContactNotAngler(anglers, { email: "aaron@example.com" }),
+      false,
+    );
+    assert.equal(
+      isBoatContactNotAngler(anglers, { name: "Aaron Crain" }),
+      false,
+    );
   });
 });

@@ -8,16 +8,18 @@ import { PageShell } from "@/components/PageShell";
 import { TeamCaptainEditor } from "@/components/TeamCaptainEditor";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
-import { isRegistrationOpen } from "@/lib/config";
+import { boatContactNotAnglerNudge } from "@/lib/boat-contact-copy";
+import { FEE_PER_ANGLER_CENTS, isRegistrationOpen } from "@/lib/config";
 import { firstName } from "@/lib/safe-path";
 import { prisma } from "@/lib/db";
 import {
   BOAT_FULL_NOTE,
   boatRosterStatusLabel,
   buildBoatRoster,
+  isBoatContactNotAngler,
   isBoatInviteLocked,
 } from "@/lib/join-the-boat";
-import { formatUsd } from "@/lib/money";
+import { formatUsd, formatUsdWhole } from "@/lib/money";
 import {
   INVITE_THE_BOAT_MEMBER_LINES,
   INVITE_THE_BOAT_REGISTRANT_LINES,
@@ -108,12 +110,19 @@ export default async function MyTeamPage({
   const registrantEmail =
     team.members.find((m) => m.user.id === team.claimedByUserId)?.user.email ??
     null;
+  const adultSeatCount = team.anglers.filter((a) => a.isYouth !== true).length;
+  const showBoatContactNudge =
+    isRegistrant &&
+    isBoatContactNotAngler(boatRosterInput.anglers, {
+      email: user.email,
+      name: user.name,
+    });
 
   return (
     <PageShell
       narrow
       title={team.teamName}
-      description={`${formatUsd(team.amountDueCents)} due · ${team.anglers.length} anglers on the official roster`}
+      description={`${formatUsd(team.amountDueCents)} due · ${adultSeatCount} adult angler ${adultSeatCount === 1 ? "seat" : "seats"} on the official roster`}
     >
       <div className="space-y-10">
         {joined === "1" ? (
@@ -128,6 +137,11 @@ export default async function MyTeamPage({
             {inviteLocked
               ? ` ${BOAT_FULL_NOTE}`
               : " Invite teammates below."}
+          </p>
+        ) : null}
+        {showBoatContactNudge ? (
+          <p className="rounded-md border border-wave/15 bg-mist/60 px-4 py-3 text-sm text-wave">
+            {boatContactNotAnglerNudge(formatUsdWhole(FEE_PER_ANGLER_CENTS))}
           </p>
         ) : null}
 

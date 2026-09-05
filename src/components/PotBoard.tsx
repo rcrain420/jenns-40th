@@ -20,7 +20,8 @@ export function PotBoard({ totals }: { totals: PotTotals }) {
         </p>
         <p className="font-label text-[0.875rem] tracking-[0.1em] text-wave/70 md:text-base">
           {totals.teamCount} team{totals.teamCount === 1 ? "" : "s"} ·{" "}
-          {totals.anglerCount} angler{totals.anglerCount === 1 ? "" : "s"} ×{" "}
+          {totals.anglerCount} adult angler seat
+          {totals.anglerCount === 1 ? "" : "s"} ×{" "}
           {formatUsd(FEE_PER_ANGLER_CENTS)}
         </p>
         <div className="grid grid-cols-3 border-y-[3px] border-double border-wave">

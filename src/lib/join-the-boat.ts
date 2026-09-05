@@ -8,9 +8,11 @@
  * — name on the roster, Joined, full Livewell, not captain. Later visits
  * use that same sign-in. Youth seats stay name-only / parent login.
  *
- * The boat lists every invited adult as Joined or Pending. Name-only
- * seats stay name-only / not emailed. Youth seats are parent-login
- * and never pending create-account.
+ * The boat lists every invited adult as Angler · Joined or
+ * Angler · Pending. Name-only seats stay name-only / not emailed.
+ * Youth seats are parent-login and never pending create-account.
+ * Accounts that joined the boat but are not on the paid Angler roster
+ * (parent / registrant / share-link) are Boat account — not a $75 seat.
  *
  * Product contract 2026-09-05 (Aaron): four invited anglers lock the
  * boat. Pending, youth, and name-only official seats count. Extra
@@ -30,7 +32,12 @@ export const JOIN_THE_BOAT = {
   addsPaidRoster: false,
 } as const;
 
-export type BoatRosterStatus = "joined" | "pending" | "name-only" | "youth";
+export type BoatRosterStatus =
+  | "joined"
+  | "pending"
+  | "name-only"
+  | "youth"
+  | "boat-account";
 
 export type BoatRosterRow = {
   name: string;
@@ -102,7 +109,7 @@ export function buildBoatRoster(input: BoatRosterInput): BoatRosterRow[] {
     rows.push({
       name: member.name,
       email,
-      status: "joined",
+      status: "boat-account",
     });
   }
 
@@ -110,16 +117,24 @@ export function buildBoatRoster(input: BoatRosterInput): BoatRosterRow[] {
 }
 
 export function boatRosterStatusLabel(status: BoatRosterStatus): string {
-  if (status === "joined") return "Joined";
-  if (status === "pending") return "Pending";
+  if (status === "joined") return "Angler · Joined";
+  if (status === "pending") return "Angler · Pending";
   if (status === "youth") return "Youth · parent login";
+  if (status === "boat-account") return "Boat account";
   return "Name-only · not emailed";
+}
+
+/** Paid fishing seats, including youth. Boat-only accounts are not seats. */
+export function isOfficialAnglerSeat(status: BoatRosterStatus): boolean {
+  return status !== "boat-account";
 }
 
 export type DirectoryAngler = {
   name: string;
   status: BoatRosterStatus;
   statusLabel: string | null;
+  isYouth: boolean;
+  isAnglerSeat: boolean;
 };
 
 export type DirectoryTeam = {
@@ -129,14 +144,56 @@ export type DirectoryTeam = {
   anglers: DirectoryAngler[];
 };
 
-/** Joined/Pending when we already track them. Youth label is existing, not new. */
+/**
+ * Teams official-roster labels. Adult seats say Angler so they do not
+ * look like boat-only accounts. Name-only adults are still $75 seats.
+ */
 export function directoryStatusLabel(
   status: BoatRosterStatus,
 ): string | null {
-  if (status === "joined" || status === "pending" || status === "youth") {
+  if (status === "name-only") return "Angler";
+  if (
+    status === "joined" ||
+    status === "pending" ||
+    status === "youth" ||
+    status === "boat-account"
+  ) {
     return boatRosterStatusLabel(status);
   }
   return null;
+}
+
+function normalizePersonName(name: string | null | undefined): string | null {
+  const trimmed = name?.trim().toLowerCase() ?? "";
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
+ * True when this person already occupies a paid adult Angler seat
+ * (email match, or exact full-name match for name-only seats).
+ */
+export function isListedAsAdultAngler(
+  anglers: BoatRosterInput["anglers"],
+  identity: { email?: string | null; name?: string | null },
+): boolean {
+  if (joinFillsExistingSeat({ anglers, members: [] }, identity.email)) {
+    return true;
+  }
+  const name = normalizePersonName(identity.name);
+  if (!name) return false;
+  return anglers.some(
+    (angler) =>
+      angler.isYouth !== true &&
+      normalizePersonName(angler.fullName) === name,
+  );
+}
+
+/** Registrant / boat contact who is not a paid adult Angler seat. */
+export function isBoatContactNotAngler(
+  anglers: BoatRosterInput["anglers"],
+  identity: { email?: string | null; name?: string | null },
+): boolean {
+  return !isListedAsAdultAngler(anglers, identity);
 }
 
 export function toDirectoryTeam(input: {
@@ -158,6 +215,8 @@ export function toDirectoryTeam(input: {
       name: row.name,
       status: row.status,
       statusLabel: directoryStatusLabel(row.status),
+      isYouth: row.status === "youth",
+      isAnglerSeat: isOfficialAnglerSeat(row.status),
     })),
   };
 }
