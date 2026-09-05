@@ -12,6 +12,7 @@ import {
   listedPots,
   MAX_ANGLERS,
   remainingUntil,
+  YOUTH_TOURNAMENT,
 } from "@/lib/config";
 import { getPotTotals } from "@/lib/pots";
 import { getRegistrationAvailability } from "@/lib/registration";
@@ -223,12 +224,13 @@ export default async function HomePage() {
             Paid pots via Venmo at Friday&apos;s captain&apos;s meeting. Catfish
             is free — every team is already in. The{" "}
             <Link href="/kids" className="text-sun underline-offset-2 hover:underline">
-              Rowan &amp; Rider kids pot
+              {YOUTH_TOURNAMENT.name}
             </Link>{" "}
-            is also free and host-funded — heaviest qualifying fish by a
-            registered youth angler. Youth do not pay the $75 adult entry.{" "}
+            is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Heaviest
+            qualifying fish by a registered youth angler. Youth do not pay the
+            $75 adult entry.{" "}
             <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
-              Kids pot rules →
+              {YOUTH_TOURNAMENT.name} rules →
             </Link>
           </p>
         </div>

@@ -13,6 +13,7 @@ const {
   SIDE_POT_IDS,
   VENMO_HANDLE,
   VENMO_USERNAME,
+  YOUTH_TOURNAMENT,
   getVenmoUrl,
 } = await import("./config.ts");
 const {
@@ -108,10 +109,11 @@ describe("Venmo handle", () => {
 });
 
 describe("kids pot $0 listing", () => {
-  it("lists the kids pot at $0 and never as a paid Team.sidePots id", () => {
+  it("lists the youth tournament at $0 and never as a paid Team.sidePots id", () => {
     const pots = listedPots();
     const kids = pots.find((pot) => pot.id === "kids");
     assert.ok(kids);
+    assert.equal(kids.name, YOUTH_TOURNAMENT.name);
     assert.equal(kids.buyInCents, 0);
     assert.equal(kids.hostFunded, true);
     assert.equal(SIDE_POT_IDS.includes("kids"), false);

@@ -194,19 +194,21 @@ The Weighmaster has final authority over whether a marking qualifies as a spot. 
 
 If two fish have the same number of spots, the heavier fish wins. If they also weigh the same, the fish weighed first wins.
 
-### Kids pot (Rowan & Rider)
+### RowRide Youth Angler Tournament
 
-There is no entry fee for the kids pot. It is host-funded, like the Birthday Trash Fish prize, and does not come from paid side-pot money.
+Little Anglers. Big Fish. Bigger Bragging Rights.
 
-The kids pot is open to registered youth anglers — anglers 17 or younger whom a parent or legal guardian has registered on a team.
+There is no entry fee for the RowRide Youth Angler Tournament. It is host-funded, like the Birthday Trash Fish prize, and does not come from paid side-pot money.
+
+The RowRide Youth Angler Tournament is open to registered youth anglers — anglers 17 or younger whom a parent or legal guardian has registered on a team.
 
 The heaviest qualifying fish caught by a registered youth angler wins.
 
-A qualifying fish must be legal, caught during tournament hours, presented whole and accepted by the Weighmaster. Official kids-pot results come from weigh-in, not from AI Livewell estimates.
+A qualifying fish must be legal, caught during tournament hours, presented whole and accepted by the Weighmaster. Official RowRide Youth Angler Tournament results come from weigh-in, not from AI Livewell estimates.
 
 The youth angler must personally hook the fish and land it. Adults may help with safety. The child needs to do the fishing.
 
-Youth anglers are roster seats for the kids pot and stringer rules. They do not pay the $75 adult entry and do not grow the main tournament pot. Their fish still count on the team stringer, and they still count toward paid team side pots when the team has entered those pots.
+Youth anglers are roster seats for the RowRide Youth Angler Tournament and stringer rules. They do not pay the $75 adult entry and do not grow the main tournament pot. Their fish still count on the team stringer, and they still count toward paid team side pots when the team has entered those pots.
 
 A parent or guardian may use their own email for the child. The child does not get a tournament account. Parent login is the login. Adults without email may stay name-only on the roster; they still create an account from the invite link. That is not the kids path.
 
