@@ -33,6 +33,8 @@ type Props = {
   currentDueCents: number;
   canEditRoster: boolean;
   canInvite: boolean;
+  /** True at 4 invited anglers — hide + Add angler, not per-seat Invite. */
+  boatInviteLocked?: boolean;
   defaultNewIsYouth?: boolean;
 };
 
@@ -52,6 +54,7 @@ export function TeamRosterEditor({
   currentDueCents,
   canEditRoster,
   canInvite,
+  boatInviteLocked = false,
   defaultNewIsYouth = false,
 }: Props) {
   const router = useRouter();
@@ -78,8 +81,11 @@ export function TeamRosterEditor({
     );
   }
 
+  const canAddSeat =
+    canEditRoster && anglers.length < MAX_ANGLERS && !boatInviteLocked;
+
   function addAngler() {
-    if (anglers.length >= MAX_ANGLERS) return;
+    if (!canAddSeat) return;
     setAnglers((prev) => [...prev, emptyAngler(defaultNewIsYouth)]);
     setAddingCount((count) => count + 1);
     setSaved(false);
@@ -223,15 +229,16 @@ export function TeamRosterEditor({
           by creating an account from the invite link. That is not the kids
           path.
           {canEditRoster
-            ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. Use + Add angler to add a seat — the add form stays hidden until you click it.`
+            ? boatInviteLocked
+              ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. This boat is full — remove a seat to add someone else.`
+              : ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. Use + Add angler to add a seat — the add form stays hidden until you click it.`
             : " Registration is closed, so names stay as they are — you can still add an email and resend Invite on adult seats."}
         </p>
-        {canEditRoster ? (
+        {canAddSeat ? (
           <button
             type="button"
             onClick={addAngler}
-            disabled={anglers.length >= MAX_ANGLERS}
-            className="shrink-0 text-sm font-semibold text-sea disabled:opacity-40"
+            className="shrink-0 text-sm font-semibold text-sea"
           >
             + Add angler
           </button>

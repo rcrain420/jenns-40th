@@ -6,11 +6,18 @@ process.env.SESSION_SECRET ??= "test-session-secret-at-least-32-chars!!";
 const { JOIN_SITE_ACCESS } = await import("./join-site-access.ts");
 const { OPEN_MY_TEAM_ACCESS } = await import("./open-my-team-access.ts");
 const {
+  BOAT_FULL_MESSAGE,
+  BOAT_FULL_NOTE,
   JOIN_THE_BOAT,
   boatRosterStatusLabel,
   buildBoatRoster,
+  canJoinBoat,
   directoryStatusLabel,
+  invitedAnglerCount,
+  isBoatInviteLocked,
+  joinFillsExistingSeat,
   joinTheBoatAuthMode,
+  rosterWouldExceedInviteCapacity,
   toDirectoryTeam,
 } = await import("./join-the-boat.ts");
 const { anglerInvitePath, issueTeamInviteToken } = await import(
@@ -139,6 +146,137 @@ describe("boat roster after Join the boat", () => {
       ],
     );
     assert.equal(boatRosterStatusLabel("youth"), "Youth · parent login");
+  });
+});
+
+describe("boat invite lock at four invited anglers", () => {
+  it("stays open at three On this boat seats, including Pending", () => {
+    const input = {
+      anglers: [
+        { fullName: "Aaron", email: "aaron@example.com" },
+        { fullName: "Pat", email: "pat@example.com" },
+        { fullName: "Mike", email: "mike@example.com" },
+      ],
+      members: [{ name: "Aaron", email: "aaron@example.com" }],
+    };
+    assert.equal(invitedAnglerCount(input), 3);
+    assert.equal(isBoatInviteLocked(input), false);
+    assert.equal(canJoinBoat(input, "new@example.com"), true);
+  });
+
+  it("locks at four Joined + Pending official seats", () => {
+    const input = {
+      anglers: [
+        { fullName: "Matt Johnson", email: "matt@example.com" },
+        { fullName: "Pratt Kramer", email: "pratt@example.com" },
+        { fullName: "Mike Wright", email: "mike@example.com" },
+        { fullName: "Aaron Crain", email: "aaron@example.com" },
+      ],
+      members: [
+        { name: "Matt Johnson", email: "matt@example.com" },
+        { name: "Aaron Crain", email: "aaron@example.com" },
+      ],
+    };
+    assert.equal(invitedAnglerCount(input), 4);
+    assert.equal(isBoatInviteLocked(input), true);
+    assert.equal(canJoinBoat(input, "fifth@example.com"), false);
+    assert.equal(canJoinBoat(input, "pratt@example.com"), true);
+    assert.equal(joinFillsExistingSeat(input, "mike@example.com"), true);
+    assert.match(BOAT_FULL_MESSAGE, /4\/4/);
+    assert.equal(BOAT_FULL_NOTE, "Boat is full (4/4).");
+  });
+
+  it("counts youth and name-only official seats toward the lock", () => {
+    const input = {
+      anglers: [
+        { fullName: "Adult", email: "adult@example.com" },
+        { fullName: "Kid", email: "parent@example.com", isYouth: true },
+        { fullName: "Walkup", email: null },
+        { fullName: "Later", email: "later@example.com" },
+      ],
+      members: [{ name: "Adult", email: "adult@example.com" }],
+    };
+    assert.equal(isBoatInviteLocked(input), true);
+    assert.equal(joinFillsExistingSeat(input, "parent@example.com"), false);
+    assert.equal(canJoinBoat(input, "parent@example.com"), false);
+  });
+
+  it("counts share-link joiners who are not on the paid roster", () => {
+    const input = {
+      anglers: [
+        { fullName: "Walkup", email: null },
+        { fullName: "Other", email: null },
+      ],
+      members: [
+        { name: "Link One", email: "one@example.com" },
+        { name: "Link Two", email: "two@example.com" },
+      ],
+    };
+    assert.equal(invitedAnglerCount(input), 4);
+    assert.equal(isBoatInviteLocked(input), true);
+    assert.equal(canJoinBoat(input, "three@example.com"), false);
+  });
+
+  it("does not treat the captain name as an invited seat", () => {
+    const input = {
+      anglers: [
+        { fullName: "Aaron", email: "aaron@example.com" },
+        { fullName: "Pat", email: "pat@example.com" },
+      ],
+      members: [{ name: "Aaron", email: "aaron@example.com" }],
+    };
+    assert.equal(invitedAnglerCount(input), 2);
+    assert.equal(isBoatInviteLocked(input), false);
+  });
+
+  it("rejects adding a fifth official seat when extra joiners already fill the boat", () => {
+    const current = {
+      anglers: [
+        { fullName: "A", email: null },
+        { fullName: "B", email: null },
+      ],
+      members: [
+        { name: "Link One", email: "one@example.com" },
+        { name: "Link Two", email: "two@example.com" },
+      ],
+    };
+    assert.equal(
+      rosterWouldExceedInviteCapacity({
+        current,
+        nextAnglers: [
+          ...current.anglers,
+          { fullName: "C", email: "c@example.com" },
+        ],
+      }),
+      true,
+    );
+    assert.equal(
+      rosterWouldExceedInviteCapacity({
+        current,
+        nextAnglers: current.anglers,
+      }),
+      false,
+    );
+  });
+
+  it("allows saving an already-over roster without adding another seat", () => {
+    const current = {
+      anglers: [
+        { fullName: "A", email: "a@example.com" },
+        { fullName: "B", email: "b@example.com" },
+        { fullName: "C", email: "c@example.com" },
+        { fullName: "D", email: "d@example.com" },
+      ],
+      members: [{ name: "Extra", email: "extra@example.com" }],
+    };
+    assert.equal(invitedAnglerCount(current), 5);
+    assert.equal(
+      rosterWouldExceedInviteCapacity({
+        current,
+        nextAnglers: current.anglers,
+      }),
+      false,
+    );
   });
 });
 

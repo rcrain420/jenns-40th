@@ -1,5 +1,8 @@
-import { MAX_ANGLERS } from "./config";
 import { prisma } from "./db";
+import {
+  BOAT_FULL_MESSAGE,
+  canJoinBoat,
+} from "./join-the-boat";
 import { publicAbsoluteUrl } from "./safe-path";
 import {
   generateInviteCode,
@@ -104,10 +107,28 @@ export async function ensureTeamMember(userId: string, teamId: string) {
 }
 
 export async function joinTeam(userId: string, teamId: string) {
-  const team = await prisma.team.findUnique({
-    where: { id: teamId },
-    select: { id: true, teamName: true },
-  });
+  const [user, team] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    }),
+    prisma.team.findUnique({
+      where: { id: teamId },
+      select: {
+        id: true,
+        teamName: true,
+        anglers: {
+          select: { fullName: true, email: true, isYouth: true },
+          orderBy: { sortOrder: "asc" },
+        },
+        members: {
+          include: { user: { select: { name: true, email: true } } },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    }),
+  ]);
+
   if (!team) {
     return { ok: false as const, error: "That invite is not valid.", status: 404 };
   }
@@ -124,11 +145,17 @@ export async function joinTeam(userId: string, teamId: string) {
     };
   }
 
-  const count = await prisma.teamMember.count({ where: { teamId } });
-  if (count >= MAX_ANGLERS) {
+  const roster = {
+    anglers: team.anglers,
+    members: team.members.map((member) => ({
+      name: member.user.name,
+      email: member.user.email,
+    })),
+  };
+  if (!canJoinBoat(roster, user?.email)) {
     return {
       ok: false as const,
-      error: "This boat is full (4 accounts).",
+      error: BOAT_FULL_MESSAGE,
       status: 409,
     };
   }

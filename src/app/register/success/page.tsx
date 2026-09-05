@@ -27,6 +27,7 @@ import {
   SUCCESS_VENMO_BANNER,
   SUCCESS_VENMO_NOTE,
 } from "@/lib/register-success-copy";
+import { BOAT_FULL_NOTE, isBoatInviteLocked } from "@/lib/join-the-boat";
 import { publicAbsoluteUrl } from "@/lib/safe-path";
 import { teamInviteUrl } from "@/lib/team-invite";
 
@@ -42,7 +43,12 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
 
   const team = await prisma.team.findUnique({
     where: { id: teamId },
-    include: { anglers: { orderBy: { sortOrder: "asc" } } },
+    include: {
+      anglers: { orderBy: { sortOrder: "asc" } },
+      members: {
+        include: { user: { select: { name: true, email: true } } },
+      },
+    },
   });
 
   if (!team) notFound();
@@ -62,7 +68,14 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     amountCents: team.amountDueCents,
     note: venmoNote,
   });
-  const inviteUrl = await teamInviteUrl(team.id);
+  const inviteLocked = isBoatInviteLocked({
+    anglers: team.anglers,
+    members: team.members.map((member) => ({
+      name: member.user.name,
+      email: member.user.email,
+    })),
+  });
+  const inviteUrl = inviteLocked ? null : await teamInviteUrl(team.id);
   const { token: unlockToken } = issueEventUnlockToken({
     teamId: team.id,
     email: team.registrantEmail,
@@ -123,17 +136,23 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
                 Invite teammates
               </h3>
-              <p className="mt-2 text-sm text-ink/65">
-                Shared backup for name-only adult seats — they still create
-                an account from this link. Anglers with an email already get
-                Join the boat — except youth seats, who do not get a
-                create-account invite. You can also send Invite from My team.
-                Kids must be registered by a parent. Joining does not add
-                them to the paid roster.
-              </p>
-              <div className="mt-3">
-                <InviteLinkCopy url={inviteUrl} />
-              </div>
+              {inviteLocked || !inviteUrl ? (
+                <p className="mt-2 text-sm text-ink/65">{BOAT_FULL_NOTE}</p>
+              ) : (
+                <>
+                  <p className="mt-2 text-sm text-ink/65">
+                    Shared backup for name-only adult seats — they still create
+                    an account from this link. Anglers with an email already get
+                    Join the boat — except youth seats, who do not get a
+                    create-account invite. You can also send Invite from My team.
+                    Kids must be registered by a parent. Joining does not add
+                    them to the paid roster.
+                  </p>
+                  <div className="mt-3">
+                    <InviteLinkCopy url={inviteUrl} />
+                  </div>
+                </>
+              )}
             </div>
             <div>
               <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">

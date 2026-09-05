@@ -2,6 +2,7 @@ import { PageShell } from "@/components/PageShell";
 import { JoinTeamPanel } from "@/components/JoinTeamPanel";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { BOAT_FULL_MESSAGE, canJoinBoat } from "@/lib/join-the-boat";
 import { resolveJoinInvite } from "@/lib/team-invite";
 
 export async function JoinInviteView({
@@ -39,7 +40,17 @@ export async function JoinInviteView({
 
   const team = await prisma.team.findUnique({
     where: { id: verified.teamId },
-    select: { teamName: true },
+    select: {
+      teamName: true,
+      anglers: {
+        select: { fullName: true, email: true, isYouth: true },
+        orderBy: { sortOrder: "asc" },
+      },
+      members: {
+        include: { user: { select: { id: true, name: true, email: true } } },
+        orderBy: { createdAt: "asc" },
+      },
+    },
   });
 
   if (!team) {
@@ -50,6 +61,37 @@ export async function JoinInviteView({
         description="That team is gone."
       >
         <p className="text-ink/70">Ask your teammate for a new link.</p>
+      </PageShell>
+    );
+  }
+
+  const alreadyOnThisBoat = viewer
+    ? team.members.some((member) => member.user.id === viewer.id)
+    : false;
+  const roster = {
+    anglers: team.anglers,
+    members: team.members.map((member) => ({
+      name: member.user.name,
+      email: member.user.email,
+    })),
+  };
+  // Signed-out visitors may still be a pending invitee; joinTeam decides
+  // after they create an account. Only block a signed-in extra person here.
+  if (
+    viewer &&
+    !alreadyOnThisBoat &&
+    !canJoinBoat(roster, viewer.email)
+  ) {
+    return (
+      <PageShell
+        narrow
+        title={`Join ${team.teamName}`}
+        description={BOAT_FULL_MESSAGE}
+      >
+        <p className="text-ink/70">
+          This boat already has four invited anglers. Ask the person who
+          registered if a seat opens.
+        </p>
       </PageShell>
     );
   }
