@@ -43,8 +43,9 @@ export default async function PotsPage() {
             Pot Total
           </h1>
           <p className="animate-rise-delay mt-3 max-w-xl text-paper/85">
-            Every entry fee goes straight into the pot, and the pot grows as
-            teams register. Here&apos;s where it stands right now.
+            Every adult angler seat fee goes straight into the pot, and the
+            pot grows as teams register. Here&apos;s where it stands right
+            now.
           </p>
         </div>
       </div>
@@ -65,8 +66,8 @@ export default async function PotsPage() {
               </span>
               <span>
                 Main tournament: {formatUsd(FEE_PER_ANGLER_CENTS)} per adult
-                angler, all of it in the pot — paid out {splitLabel}. Youth
-                seats do not add to this pot.
+                angler seat, all of it in the pot — paid out {splitLabel}.
+                Youth seats and boat-only accounts do not add to this pot.
               </span>
             </li>
             <li className="flex gap-3">

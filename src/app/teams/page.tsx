@@ -3,16 +3,22 @@ import Link from "next/link";
 import { OfficialRosterByBoat } from "@/components/OfficialRosterByBoat";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
-import { EVENT } from "@/lib/config";
+import { EVENT, FEE_PER_ANGLER_CENTS } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { toDirectoryTeam } from "@/lib/join-the-boat";
-import { groupOfficialRosterByBoat } from "@/lib/official-roster";
+import { formatUsdWhole } from "@/lib/money";
+import {
+  groupOfficialRosterByBoat,
+  officialRosterAdultSeatCount,
+  officialRosterPotSummary,
+} from "@/lib/official-roster";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `Teams · ${EVENT.shortName}`,
-  description: "Official roster grouped by boat.",
+  description:
+    "Official fishing roster grouped by boat. Main pot is adult angler seats × $75.",
 };
 
 export default async function TeamsDirectoryPage() {
@@ -85,15 +91,28 @@ export default async function TeamsDirectoryPage() {
       isOwn: team.isOwn,
       anglers: team.anglers.map((row) => ({
         fullName: row.name,
+        isYouth: row.isYouth,
         statusLabel: row.statusLabel,
+        isAnglerSeat: row.isAnglerSeat,
       })),
     })),
   );
+  const adultAnglerCount = officialRosterAdultSeatCount(
+    boats.flatMap((boat) => boat.anglers),
+  );
+  const pageSummary =
+    directory.length === 0
+      ? null
+      : officialRosterPotSummary({
+          adultAnglerCount,
+          potCents: adultAnglerCount * FEE_PER_ANGLER_CENTS,
+          format: formatUsdWhole,
+        });
 
   return (
     <PageShell
       title="Teams"
-      description="Official roster — each boat, then the anglers on it."
+      description="Official fishing roster — paid adult Angler seats grow the main pot ($75 each). Youth are $0. Boat accounts who joined but are not fishing are not seats."
     >
       <div className="space-y-6">
         {directory.length === 0 ? null : otherCount === 0 ? (
@@ -101,7 +120,8 @@ export default async function TeamsDirectoryPage() {
         ) : (
           <p className="text-ink/65">
             {directory.length} {directory.length === 1 ? "boat" : "boats"} on
-            the list.
+            the list
+            {pageSummary ? ` · ${pageSummary}` : ""}.
           </p>
         )}
         <OfficialRosterByBoat

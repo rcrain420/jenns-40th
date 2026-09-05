@@ -1,6 +1,13 @@
 import type { ReactNode } from "react";
+import { FEE_PER_ANGLER_CENTS } from "@/lib/config";
+import { formatUsdWhole } from "@/lib/money";
 import {
+  alsoOnThisBoatLine,
+  isOfficialRosterSeat,
+  officialRosterAdultSeatCount,
   officialRosterAnglerLine,
+  officialRosterPotAmountLabel,
+  officialRosterPotSummary,
   type OfficialRosterBoat,
 } from "@/lib/official-roster";
 
@@ -44,6 +51,56 @@ export function BoatRosterFrame({
   );
 }
 
+function BoatRosterRows({ boat }: { boat: OfficialRosterBoat }) {
+  const seats = boat.anglers.filter(isOfficialRosterSeat);
+  const extras = boat.anglers.filter((row) => !isOfficialRosterSeat(row));
+  const adultAnglerCount = officialRosterAdultSeatCount(boat.anglers);
+  const potCents = adultAnglerCount * FEE_PER_ANGLER_CENTS;
+  const extraLine = alsoOnThisBoatLine(extras.map((row) => row.name));
+
+  if (boat.anglers.length === 0) {
+    return (
+      <p className="text-sm text-ink/60">No names on the roster yet.</p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {seats.length === 0 ? (
+        <p className="text-sm text-ink/60">No angler seats on this boat yet.</p>
+      ) : (
+        <ul className="space-y-1.5 text-ink/80">
+          {seats.map((row, index) => (
+            <li
+              key={`${boat.id}:seat:${index}:${row.name}`}
+              className="flex items-baseline justify-between gap-3"
+            >
+              <span className="min-w-0">{officialRosterAnglerLine(row)}</span>
+              <span className="font-label shrink-0 text-[0.75rem] tracking-[0.08em] text-ink/55">
+                {officialRosterPotAmountLabel(
+                  row,
+                  FEE_PER_ANGLER_CENTS,
+                  formatUsdWhole,
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="font-label text-[0.7rem] tracking-[0.08em] text-ink/50">
+        {officialRosterPotSummary({
+          adultAnglerCount,
+          potCents,
+          format: formatUsdWhole,
+        })}
+      </p>
+      {extraLine ? (
+        <p className="text-sm text-ink/50">{extraLine}</p>
+      ) : null}
+    </div>
+  );
+}
+
 export function OfficialRosterByBoat({
   boats,
   banner = "Official roster",
@@ -70,19 +127,7 @@ export function OfficialRosterByBoat({
               boatName={boat.boatName}
               isOwn={boat.isOwn}
             >
-              {boat.anglers.length === 0 ? (
-                <p className="text-sm text-ink/60">
-                  No names on the roster yet.
-                </p>
-              ) : (
-                <ul className="space-y-1.5 text-ink/80">
-                  {boat.anglers.map((row, index) => (
-                    <li key={`${boat.id}:${index}:${row.name}`}>
-                      {officialRosterAnglerLine(row)}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <BoatRosterRows boat={boat} />
             </BoatRosterFrame>
           ))
         )}

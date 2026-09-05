@@ -13,7 +13,9 @@ import {
   paidEntrySeatCount,
   type SidePotId,
 } from "@/lib/config";
-import { formatUsd } from "@/lib/money";
+import { boatContactNotAnglerNudge } from "@/lib/boat-contact-copy";
+import { isBoatContactNotAngler } from "@/lib/join-the-boat";
+import { formatUsd, formatUsdWhole } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
 import { anglersSectionHelp } from "@/lib/register-form-copy";
 import type { PublicUser } from "@/lib/users";
@@ -105,6 +107,14 @@ export function RegisterForm({
 
   const paidSeats = paidEntrySeatCount(anglers);
   const youthSeats = anglers.length - paidSeats;
+  const showBoatContactNudge = isBoatContactNotAngler(
+    anglers.map((a) => ({
+      fullName: a.fullName,
+      email: a.email,
+      isYouth: a.isYouth,
+    })),
+    { email: registrantEmail, name: viewer?.name },
+  );
   const entryCents = FEE_PER_ANGLER_CENTS * paidSeats;
   const sidePotCents = SIDE_POT_BUY_IN_CENTS * sidePots.length;
   const total = useMemo(
@@ -597,6 +607,11 @@ export function RegisterForm({
             + Add angler
           </button>
         </div>
+        {showBoatContactNudge ? (
+          <p className="mt-3 rounded-md border border-wave/15 bg-mist/60 px-3 py-2 text-sm text-wave">
+            {boatContactNotAnglerNudge(formatUsdWhole(FEE_PER_ANGLER_CENTS))}
+          </p>
+        ) : null}
         {emphasizeYouth ? (
           <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
             Registering a youth angler? Check <strong>17 or under</strong> on
@@ -828,8 +843,8 @@ export function RegisterForm({
         <p className="text-lg">
           Total due: <span className="font-semibold">{total}</span>
           <span className="block text-sm text-ink/60">
-            {formatUsd(FEE_PER_ANGLER_CENTS)} × {paidSeats} adult
-            {paidSeats === 1 ? "" : "s"}
+            {formatUsd(FEE_PER_ANGLER_CENTS)} × {paidSeats} adult angler
+            {paidSeats === 1 ? " seat" : " seats"}
             {youthSeats > 0
               ? ` · ${youthSeats} youth (no entry fee)`
               : ""}
