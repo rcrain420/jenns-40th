@@ -73,6 +73,10 @@ export async function PATCH(request: Request, { params }: Params) {
 
   const input = parsed.data;
   const guided = input.boatType === "GUIDED";
+  const previous = await prisma.team.findUnique({
+    where: { id },
+    select: { captainEmail: true },
+  });
 
   const team = await prisma.$transaction(async (tx) => {
     await tx.angler.deleteMany({ where: { teamId: id } });
@@ -108,7 +112,9 @@ export async function PATCH(request: Request, { params }: Params) {
     });
   });
 
-  if (team.captainEmail) {
+  const prevEmail = previous?.captainEmail?.trim().toLowerCase() ?? "";
+  const nextEmail = team.captainEmail?.trim().toLowerCase() ?? "";
+  if (nextEmail && nextEmail !== prevEmail) {
     try {
       await sendCaptainJoinInvite({
         teamId: team.id,
