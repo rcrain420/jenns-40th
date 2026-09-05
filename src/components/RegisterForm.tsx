@@ -15,6 +15,7 @@ import {
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
+import { anglersSectionHelp } from "@/lib/register-form-copy";
 import type { PublicUser } from "@/lib/users";
 import {
   CAPTAIN_CONTACT_ADULT_NOTE,
@@ -566,20 +567,7 @@ export function RegisterForm({
             <h3 className="font-display text-xl text-wave">
               Anglers <span className="text-alert">*</span>
             </h3>
-            <p className="text-sm text-ink/65">
-              {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers, including kids.
-              Name and whether they are 17 or under are required. Email is
-              optional — {YOUTH_EMAIL_HELPER} Adults without email can stay
-              name-only on the roster and still join by creating an account
-              from the shared invite link. That is not the kids path. If you
-              add an email on an adult seat, they get a Join the boat email.
-              Youth seats do not
-              get a create-account invite and do not add $
-              {FEE_PER_ANGLER_CENTS / 100} to the bill. The captain is not an
-              angler slot and must be 18+ if you add one — now or later from
-              My team. Need two names to lock the boat; add the rest later
-              from My team.
-            </p>
+            <p className="text-sm text-ink/65">{anglersSectionHelp()}</p>
           </div>
           <button
             type="button"
