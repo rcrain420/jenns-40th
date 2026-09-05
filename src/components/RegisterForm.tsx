@@ -27,7 +27,9 @@ import {
   YOUTH_EMAIL_HELPER,
   hasYouthAngler,
 } from "@/lib/youth";
+import { SHIRT_SIZE_REQUIRED_ERROR, isShirtSize } from "@/lib/shirt-size";
 import { ResendConfirmButton } from "./ResendConfirmButton";
+import { ShirtSizeSelect } from "./ShirtSizeSelect";
 
 type BoatType = "GUIDED" | "NON_GUIDED";
 
@@ -36,6 +38,7 @@ type AnglerDraft = {
   phone: string;
   email: string;
   isYouth: boolean;
+  shirtSize: string;
 };
 
 type FieldErrors = Record<string, string[] | undefined>;
@@ -45,6 +48,7 @@ const emptyAngler = (isYouth = false): AnglerDraft => ({
   phone: "",
   email: "",
   isYouth,
+  shirtSize: "",
 });
 
 const FIELD_ORDER = [
@@ -183,6 +187,9 @@ export function RegisterForm({
       if (a.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email.trim())) {
         next[`angler-email-${index}`] = ["Valid email required"];
       }
+      if (a.fullName.trim() && !isShirtSize(a.shirtSize)) {
+        next[`angler-shirt-${index}`] = [SHIRT_SIZE_REQUIRED_ERROR];
+      }
     });
     if (hasYouthAngler(anglers) && !youthGuardianAttested) {
       next.youthGuardianAttested = [YOUTH_ATTESTATION_ERROR];
@@ -194,16 +201,22 @@ export function RegisterForm({
   }
 
   function focusFirstError(errors: FieldErrors) {
-    const key = FIELD_ORDER.find((field) => errors[field]?.length);
+    const key =
+      FIELD_ORDER.find((field) => errors[field]?.length) ??
+      Object.keys(errors).find((field) => errors[field]?.length);
     if (!key) return;
     const el =
       document.getElementById(key) ??
       document.querySelector<HTMLElement>(`[data-field="${key}"]`);
     el?.scrollIntoView({ behavior: "smooth", block: "center" });
-    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+    if (
+      el instanceof HTMLInputElement ||
+      el instanceof HTMLTextAreaElement ||
+      el instanceof HTMLSelectElement
+    ) {
       el.focus({ preventScroll: true });
     } else {
-      el?.querySelector<HTMLInputElement>("input, textarea, button")?.focus({
+      el?.querySelector<HTMLInputElement>("input, textarea, select, button")?.focus({
         preventScroll: true,
       });
     }
@@ -596,7 +609,7 @@ export function RegisterForm({
           {anglers.map((angler, index) => (
             <div
               key={index}
-              className="grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-[1fr_1fr_1fr_auto]"
+              className="grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-2 lg:grid-cols-[1fr_7.5rem_1fr_1fr_auto]"
             >
               <div>
                 <label className={labelClass} htmlFor={`angler-name-${index}`}>
@@ -611,6 +624,27 @@ export function RegisterForm({
                   }
                   required
                 />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor={`angler-shirt-${index}`}>
+                  Shirt size <span className="text-alert">*</span>
+                </label>
+                <ShirtSizeSelect
+                  id={`angler-shirt-${index}`}
+                  className={inputClass}
+                  value={angler.shirtSize}
+                  onChange={(shirtSize) => updateAngler(index, { shirtSize })}
+                  required
+                  aria-invalid={Boolean(
+                    fieldErrors[`angler-shirt-${index}`]?.length,
+                  )}
+                  aria-describedby={
+                    fieldErrors[`angler-shirt-${index}`]?.length
+                      ? `angler-shirt-${index}-error`
+                      : undefined
+                  }
+                />
+                {err(`angler-shirt-${index}`)}
               </div>
               <div>
                 <label className={labelClass} htmlFor={`angler-email-${index}`}>
@@ -664,7 +698,7 @@ export function RegisterForm({
                   Remove
                 </button>
               </div>
-              <label className="flex items-center gap-2 sm:col-span-3">
+              <label className="flex items-center gap-2 sm:col-span-2 lg:col-span-5">
                 <input
                   id={`angler-youth-${index}`}
                   type="checkbox"
@@ -677,7 +711,7 @@ export function RegisterForm({
                 <span className="text-sm">{YOUTH_CHECKBOX_LABEL}</span>
               </label>
               {angler.isYouth ? (
-                <p className="text-sm text-ink/60 sm:col-span-4">
+                <p className="text-sm text-ink/60 sm:col-span-2 lg:col-span-5">
                   {YOUTH_EMAIL_HELPER}
                 </p>
               ) : null}

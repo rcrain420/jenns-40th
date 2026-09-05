@@ -78,6 +78,7 @@ export async function GET() {
         phone: a.phone ?? "",
         email: a.email ?? "",
         isYouth: a.isYouth,
+        shirtSize: a.shirtSize ?? "",
       })),
       members: team.members.map((m) => ({
         id: m.user.id,
@@ -206,6 +207,7 @@ export async function PATCH(request: Request) {
             phone: a.phone ?? null,
             email: a.email ?? null,
             isYouth: a.isYouth === true,
+            shirtSize: a.shirtSize,
             sortOrder: index,
           })),
         },
@@ -227,6 +229,7 @@ export async function PATCH(request: Request) {
         phone: a.phone ?? "",
         email: a.email ?? "",
         isYouth: a.isYouth,
+        shirtSize: a.shirtSize ?? "",
       })),
     },
   });

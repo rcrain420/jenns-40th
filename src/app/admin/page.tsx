@@ -37,6 +37,7 @@ export default async function AdminPage() {
       fullName: a.fullName,
       email: a.email,
       isYouth: a.isYouth,
+      shirtSize: a.shirtSize,
     })),
     createdAt: t.createdAt.toISOString(),
   }));

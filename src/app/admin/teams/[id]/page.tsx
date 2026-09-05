@@ -51,6 +51,7 @@ export default async function AdminTeamDetailPage({ params }: Props) {
                 phone: a.phone ?? "",
                 email: a.email ?? "",
                 isYouth: a.isYouth,
+                shirtSize: a.shirtSize ?? "",
               })),
               sidePots: team.sidePots as SidePotId[],
             }}

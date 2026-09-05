@@ -24,6 +24,7 @@ export function teamsToCsv(teams: TeamWithAnglers[]): string {
     "anglerCount",
     "anglers",
     "youth",
+    "shirtSizes",
     "amountDueCents",
     "amountDue",
     "paymentStatus",
@@ -47,14 +48,20 @@ export function teamsToCsv(teams: TeamWithAnglers[]): string {
       t.anglers
         .map((a) => {
           const youth = a.isYouth ? " (youth)" : "";
+          const size = a.shirtSize ? ` [${a.shirtSize}]` : "";
           return a.email
-            ? `${a.fullName}${youth} <${a.email}>`
-            : `${a.fullName}${youth}`;
+            ? `${a.fullName}${youth}${size} <${a.email}>`
+            : `${a.fullName}${youth}${size}`;
         })
         .join("; "),
       t.anglers
         .filter((a) => a.isYouth)
         .map((a) => a.fullName)
+        .join("; "),
+      t.anglers
+        .map((a) =>
+          a.shirtSize ? `${a.fullName}: ${a.shirtSize}` : a.fullName,
+        )
         .join("; "),
       t.amountDueCents,
       (t.amountDueCents / 100).toFixed(2),
