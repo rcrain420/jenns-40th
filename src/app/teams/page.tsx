@@ -4,7 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
 import { EVENT } from "@/lib/config";
 import { prisma } from "@/lib/db";
-import { toDirectoryTeam } from "@/lib/teams-directory";
+import { toDirectoryTeam } from "@/lib/join-the-boat";
 
 export const dynamic = "force-dynamic";
 

@@ -1,5 +1,7 @@
 import { randomBytes } from "crypto";
-import { TEAM_INVITE_TTL_SECONDS } from "./team-invite-token";
+
+/** Same 90-day window as TEAM_INVITE_TTL_SECONDS. Leaf-safe for Node tests. */
+export const TEAM_INVITE_CODE_TTL_SECONDS = 60 * 60 * 24 * 90;
 
 /** 9 bytes → 12-char base64url. Unguessable; short enough to share. */
 export const TEAM_INVITE_CODE_BYTES = 9;
@@ -30,7 +32,7 @@ export function anglerInviteSharePath(
 }
 
 export function inviteCodeExpiresAt(now = new Date()): Date {
-  return new Date(now.getTime() + TEAM_INVITE_TTL_SECONDS * 1000);
+  return new Date(now.getTime() + TEAM_INVITE_CODE_TTL_SECONDS * 1000);
 }
 
 export function joinReturnPath(input: {
