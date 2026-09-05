@@ -1,5 +1,6 @@
 import { commentAuthorName } from "./authors";
 import { prisma } from "./db";
+import { notifyAnglersOfNewComment } from "./notify";
 import { findAnglerForUser, type PublicUser } from "./users";
 
 const MAX_BODY = 500;
@@ -80,6 +81,11 @@ export async function addCatchComment(input: {
       body,
     },
     select: commentSelect,
+  });
+
+  await notifyAnglersOfNewComment({
+    commentId: created.id,
+    catchId: input.catchId,
   });
 
   return { ok: true, comment: serializeComment(created) };
