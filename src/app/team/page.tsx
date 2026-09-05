@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { InviteLinkCopy } from "@/components/InviteLinkCopy";
+import {
+  BoatRosterHeading,
+  OfficialRosterByBoat,
+} from "@/components/OfficialRosterByBoat";
 import { PageShell } from "@/components/PageShell";
 import { TeamCaptainEditor } from "@/components/TeamCaptainEditor";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
@@ -18,6 +22,7 @@ import {
   INVITE_THE_BOAT_MEMBER_LINES,
   INVITE_THE_BOAT_REGISTRANT_LINES,
 } from "@/lib/team-invite-copy";
+import { groupOfficialRosterByBoat } from "@/lib/official-roster";
 import { teamInviteUrl } from "@/lib/team-invite";
 
 export const dynamic = "force-dynamic";
@@ -188,10 +193,18 @@ export default async function MyTeamPage({
           </section>
         ) : null}
 
-        <section>
-          <span className="section-banner">Official roster</span>
-          {isRegistrant ? (
-            <div className="mt-4">
+        {isRegistrant ? (
+          <section>
+            <span className="section-banner">Official roster</span>
+            <p className="mt-3 text-sm text-ink/65">
+              Paid names on {team.teamName}.{" "}
+              <Link href="/teams" className="font-semibold text-sea hover:underline">
+                See every boat on Teams
+              </Link>
+              .
+            </p>
+            <div className="mt-4 space-y-4">
+              <BoatRosterHeading boatName={team.teamName} isOwn />
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({
                   id: a.id,
@@ -210,21 +223,32 @@ export default async function MyTeamPage({
                 boatInviteLocked={inviteLocked}
               />
             </div>
-          ) : (
-            <ul className="mt-3 space-y-1 text-ink/80">
-              {team.anglers.map((a) => (
-                <li key={a.id}>
-                  {a.fullName}
-                  {a.isYouth ? " · youth" : ""}
-                </li>
-              ))}
+          </section>
+        ) : (
+          <OfficialRosterByBoat
+            boats={groupOfficialRosterByBoat([
+              {
+                id: team.id,
+                teamName: team.teamName,
+                isOwn: true,
+                anglers: team.anglers.map((a) => ({
+                  fullName: a.fullName,
+                  isYouth: a.isYouth,
+                })),
+              },
+            ])}
+            footer={
               <p className="mt-3 text-sm text-ink/60">
                 Only the person who registered can change paid names or send
-                invites.
+                invites. This list is {team.teamName} only.{" "}
+                <Link href="/teams" className="font-semibold text-sea hover:underline">
+                  See every boat on Teams
+                </Link>
+                .
               </p>
-            </ul>
-          )}
-        </section>
+            }
+          />
+        )}
       </div>
     </PageShell>
   );
