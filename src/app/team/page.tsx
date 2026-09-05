@@ -8,8 +8,10 @@ import { isRegistrationOpen } from "@/lib/config";
 import { firstName } from "@/lib/safe-path";
 import { prisma } from "@/lib/db";
 import {
+  BOAT_FULL_NOTE,
   boatRosterStatusLabel,
   buildBoatRoster,
+  isBoatInviteLocked,
 } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
 import {
@@ -84,8 +86,7 @@ export default async function MyTeamPage({
   const team = member.team;
   const isRegistrant = team.claimedByUserId === user.id;
   const canEdit = isRegistrant && isRegistrationOpen();
-  const inviteUrl = await teamInviteUrl(team.id);
-  const boatRoster = buildBoatRoster({
+  const boatRosterInput = {
     anglers: team.anglers.map((a) => ({
       fullName: a.fullName,
       email: a.email,
@@ -95,7 +96,10 @@ export default async function MyTeamPage({
       name: m.user.name,
       email: m.user.email,
     })),
-  });
+  };
+  const boatRoster = buildBoatRoster(boatRosterInput);
+  const inviteLocked = isBoatInviteLocked(boatRosterInput);
+  const inviteUrl = inviteLocked ? null : await teamInviteUrl(team.id);
   const registrantEmail =
     team.members.find((m) => m.user.id === team.claimedByUserId)?.user.email ??
     null;
@@ -115,23 +119,35 @@ export default async function MyTeamPage({
         ) : null}
         {unlocked === "1" ? (
           <p className="rounded-md bg-mist px-4 py-3 text-sm text-wave">
-            You’re signed in on this device. Invite teammates below.
+            You’re signed in on this device.
+            {inviteLocked
+              ? ` ${BOAT_FULL_NOTE}`
+              : " Invite teammates below."}
           </p>
         ) : null}
 
         <section>
           <span className="section-banner">Invite the boat</span>
-          <div className="mt-3 space-y-2 text-ink/75">
-            {(isRegistrant
-              ? INVITE_THE_BOAT_REGISTRANT_LINES
-              : INVITE_THE_BOAT_MEMBER_LINES
-            ).map((line) => (
-              <p key={line}>{line}</p>
-            ))}
-          </div>
-          <div className="mt-4">
-            <InviteLinkCopy url={inviteUrl} shareTitle={`Join ${team.teamName}`} />
-          </div>
+          {inviteLocked || !inviteUrl ? (
+            <p className="mt-3 text-ink/75">{BOAT_FULL_NOTE}</p>
+          ) : (
+            <>
+              <div className="mt-3 space-y-2 text-ink/75">
+                {(isRegistrant
+                  ? INVITE_THE_BOAT_REGISTRANT_LINES
+                  : INVITE_THE_BOAT_MEMBER_LINES
+                ).map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+              <div className="mt-4">
+                <InviteLinkCopy
+                  url={inviteUrl}
+                  shareTitle={`Join ${team.teamName}`}
+                />
+              </div>
+            </>
+          )}
         </section>
 
         <section>
@@ -191,6 +207,7 @@ export default async function MyTeamPage({
                 currentDueCents={team.amountDueCents}
                 canEditRoster={canEdit}
                 canInvite
+                boatInviteLocked={inviteLocked}
               />
             </div>
           ) : (

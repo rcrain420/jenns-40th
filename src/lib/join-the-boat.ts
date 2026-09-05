@@ -12,8 +12,16 @@
  * seats stay name-only / not emailed. Youth seats are parent-login
  * and never pending create-account.
  *
+ * Product contract 2026-09-05 (Aaron): four invited anglers lock the
+ * boat. Pending, youth, and name-only official seats count. Extra
+ * joiners from the share link count. Captain is not a seat. A pending
+ * adult may still finish join — that fills their existing seat.
+ *
  * Leaf module so Node tests can import it without extension rewriting.
+ * Invite cap matches config.MAX_ANGLERS (kept local — no config import).
  */
+const MAX_ANGLERS = 4;
+
 export const JOIN_THE_BOAT = {
   firstTap: "create-account",
   silentUserSession: false,
@@ -30,6 +38,18 @@ export type BoatRosterRow = {
   status: BoatRosterStatus;
 };
 
+export type BoatRosterInput = {
+  anglers: Array<{
+    fullName: string;
+    email?: string | null;
+    isYouth?: boolean | null;
+  }>;
+  members: Array<{ name: string; email: string }>;
+};
+
+export const BOAT_FULL_MESSAGE = `This boat is full (${MAX_ANGLERS}/${MAX_ANGLERS}).`;
+export const BOAT_FULL_NOTE = `Boat is full (${MAX_ANGLERS}/${MAX_ANGLERS}).`;
+
 export function joinTheBoatAuthMode(): "signup" {
   return JOIN_THE_BOAT.authMode;
 }
@@ -40,14 +60,7 @@ function normalizeEmail(email: string | null | undefined): string | null {
 }
 
 /** Derive the boat list from paid seats + accounts that finished join. */
-export function buildBoatRoster(input: {
-  anglers: Array<{
-    fullName: string;
-    email?: string | null;
-    isYouth?: boolean | null;
-  }>;
-  members: Array<{ name: string; email: string }>;
-}): BoatRosterRow[] {
+export function buildBoatRoster(input: BoatRosterInput): BoatRosterRow[] {
   const memberByEmail = new Map<string, { name: string; email: string }>();
   for (const member of input.members) {
     const email = normalizeEmail(member.email);
@@ -130,12 +143,8 @@ export function toDirectoryTeam(input: {
   id: string;
   teamName: string;
   ownTeamId?: string | null;
-  anglers: Array<{
-    fullName: string;
-    email?: string | null;
-    isYouth?: boolean | null;
-  }>;
-  members: Array<{ name: string; email: string }>;
+  anglers: BoatRosterInput["anglers"];
+  members: BoatRosterInput["members"];
 }): DirectoryTeam {
   const rows = buildBoatRoster({
     anglers: input.anglers,
@@ -151,4 +160,48 @@ export function toDirectoryTeam(input: {
       statusLabel: directoryStatusLabel(row.status),
     })),
   };
+}
+
+/** Seats that count toward the 4-angler invite cap, including Pending. */
+export function invitedAnglerCount(input: BoatRosterInput): number {
+  return buildBoatRoster(input).length;
+}
+
+export function isBoatInviteLocked(input: BoatRosterInput): boolean {
+  return invitedAnglerCount(input) >= MAX_ANGLERS;
+}
+
+/**
+ * True when this email already occupies an official adult seat.
+ * Youth emails do not count — joining would add a new On this boat row.
+ */
+export function joinFillsExistingSeat(
+  input: BoatRosterInput,
+  joinerEmail?: string | null,
+): boolean {
+  const email = normalizeEmail(joinerEmail);
+  if (!email) return false;
+  return input.anglers.some(
+    (angler) => !angler.isYouth && normalizeEmail(angler.email) === email,
+  );
+}
+
+export function canJoinBoat(
+  input: BoatRosterInput,
+  joinerEmail?: string | null,
+): boolean {
+  return joinFillsExistingSeat(input, joinerEmail) || !isBoatInviteLocked(input);
+}
+
+/** Reject roster growth past 4 without blocking saves on already-over boats. */
+export function rosterWouldExceedInviteCapacity(input: {
+  current: BoatRosterInput;
+  nextAnglers: BoatRosterInput["anglers"];
+}): boolean {
+  const currentCount = invitedAnglerCount(input.current);
+  const nextCount = invitedAnglerCount({
+    anglers: input.nextAnglers,
+    members: input.current.members,
+  });
+  return nextCount > MAX_ANGLERS && nextCount > currentCount;
 }

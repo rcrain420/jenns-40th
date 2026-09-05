@@ -2,9 +2,31 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { amountDueCents, isRegistrationOpen } from "@/lib/config";
 import { prisma } from "@/lib/db";
+import {
+  BOAT_FULL_MESSAGE,
+  isBoatInviteLocked,
+  rosterWouldExceedInviteCapacity,
+} from "@/lib/join-the-boat";
 import { emptyToNull } from "@/lib/registration";
 import { teamInviteUrl } from "@/lib/team-invite";
 import { teamContactSchema, teamRosterSchema } from "@/lib/validation";
+
+function boatRosterInput(team: {
+  anglers: Array<{
+    fullName: string;
+    email: string | null;
+    isYouth: boolean;
+  }>;
+  members: Array<{ user: { name: string; email: string } }>;
+}) {
+  return {
+    anglers: team.anglers,
+    members: team.members.map((member) => ({
+      name: member.user.name,
+      email: member.user.email,
+    })),
+  };
+}
 
 async function loadMemberTeam(userId: string) {
   const member = await prisma.teamMember.findUnique({
@@ -36,6 +58,7 @@ export async function GET() {
   }
 
   const isRegistrant = team.claimedByUserId === user.id;
+  const inviteLocked = isBoatInviteLocked(boatRosterInput(team));
   return NextResponse.json({
     team: {
       id: team.id,
@@ -63,7 +86,8 @@ export async function GET() {
         isRegistrant: m.user.id === team.claimedByUserId,
       })),
     },
-    inviteUrl: await teamInviteUrl(team.id),
+    inviteUrl: inviteLocked ? null : await teamInviteUrl(team.id),
+    inviteLocked,
     isRegistrant,
     canEditRoster: isRegistrant && isRegistrationOpen(),
   });
@@ -151,6 +175,19 @@ export async function PATCH(request: Request) {
   }
 
   const nextAnglers = parsed.data.anglers;
+  if (
+    rosterWouldExceedInviteCapacity({
+      current: boatRosterInput(team),
+      nextAnglers,
+    })
+  ) {
+    return NextResponse.json(
+      {
+        error: `${BOAT_FULL_MESSAGE} Remove someone before adding another angler.`,
+      },
+      { status: 409 },
+    );
+  }
   const nextDue = amountDueCents(nextAnglers, team.sidePots.length);
   const addedPaidSeats = nextDue > team.amountDueCents;
   const paymentStatus =

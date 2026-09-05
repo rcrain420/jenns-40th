@@ -10,6 +10,7 @@ import {
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
 import { prisma } from "@/lib/db";
+import { isBoatInviteLocked } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,14 @@ export default async function KidsPage() {
         where: { userId: user.id },
         include: {
           team: {
-            include: { anglers: { orderBy: { sortOrder: "asc" } } },
+            include: {
+              anglers: { orderBy: { sortOrder: "asc" } },
+              members: {
+                include: {
+                  user: { select: { name: true, email: true } },
+                },
+              },
+            },
           },
         },
       })
@@ -34,6 +42,15 @@ export default async function KidsPage() {
   const team = member?.team ?? null;
   const isRegistrant = Boolean(team && team.claimedByUserId === user?.id);
   const canEdit = isRegistrant && isRegistrationOpen();
+  const inviteLocked = team
+    ? isBoatInviteLocked({
+        anglers: team.anglers,
+        members: team.members.map((m) => ({
+          name: m.user.name,
+          email: m.user.email,
+        })),
+      })
+    : false;
 
   return (
     <PageShell
@@ -127,6 +144,7 @@ export default async function KidsPage() {
                 currentDueCents={team.amountDueCents}
                 canEditRoster={canEdit}
                 canInvite
+                boatInviteLocked={inviteLocked}
                 defaultNewIsYouth
               />
             </div>
