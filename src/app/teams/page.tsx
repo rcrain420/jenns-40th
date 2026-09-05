@@ -59,6 +59,8 @@ export default async function TeamsDirectoryPage() {
     select: {
       id: true,
       teamName: true,
+      captainName: true,
+      captainEmail: true,
       anglers: {
         orderBy: { sortOrder: "asc" },
         select: { fullName: true, email: true, isYouth: true },
@@ -80,6 +82,10 @@ export default async function TeamsDirectoryPage() {
         name: m.user.name,
         email: m.user.email,
       })),
+      captain: {
+        name: team.captainName,
+        email: team.captainEmail,
+      },
     }),
   );
   const otherCount = directory.filter((team) => !team.isOwn).length;

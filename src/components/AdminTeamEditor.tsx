@@ -30,6 +30,7 @@ type Props = {
     boatType: BoatType;
     captainName: string;
     captainPhone: string;
+    captainEmail: string;
     contactName: string;
     contactPhone: string;
     contactEmail: string;
@@ -59,6 +60,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   );
   const [captainName, setCaptainName] = useState(initial?.captainName ?? "");
   const [captainPhone, setCaptainPhone] = useState(initial?.captainPhone ?? "");
+  const [captainEmail, setCaptainEmail] = useState(initial?.captainEmail ?? "");
   const [contactName, setContactName] = useState(initial?.contactName ?? "");
   const [contactPhone, setContactPhone] = useState(initial?.contactPhone ?? "");
   const [contactEmail, setContactEmail] = useState(initial?.contactEmail ?? "");
@@ -93,6 +95,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
       boatType,
       captainName,
       captainPhone,
+      captainEmail,
       contactName,
       contactPhone,
       contactEmail,
@@ -204,6 +207,15 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
               onChange={(e) => setCaptainPhone(e.target.value)}
             />
           </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass}>Captain email (optional)</label>
+            <input
+              className={inputClass}
+              type="email"
+              value={captainEmail}
+              onChange={(e) => setCaptainEmail(e.target.value)}
+            />
+          </div>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -230,6 +242,15 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
               className={inputClass}
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass}>Captain email (optional)</label>
+            <input
+              className={inputClass}
+              type="email"
+              value={captainEmail}
+              onChange={(e) => setCaptainEmail(e.target.value)}
             />
           </div>
         </div>

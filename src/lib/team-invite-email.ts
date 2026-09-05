@@ -1,3 +1,4 @@
+import { captainInviteEmailCopy } from "./captain-invite-email-copy";
 import { EVENT } from "./config";
 import { sendEmail, type EmailDelivery } from "./email";
 import { publicAbsoluteUrl } from "./safe-path";
@@ -57,6 +58,60 @@ export async function sendTeamInviteEmail(
   input: TeamInviteEmailInput,
 ): Promise<EmailDelivery & { inviteUrl: string }> {
   const message = await buildTeamInviteEmail(input);
+  const delivery = await sendEmail({
+    to: message.to,
+    subject: message.subject,
+    text: message.text,
+    html: message.html,
+  });
+  return { ...delivery, inviteUrl: message.inviteUrl };
+}
+
+export type CaptainInviteEmailInput = {
+  teamId: string;
+  teamName: string;
+  captainName: string;
+  to: string;
+};
+
+export async function buildCaptainInviteEmail(
+  input: CaptainInviteEmailInput,
+): Promise<{
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+  inviteUrl: string;
+}> {
+  const inviteUrl = await anglerInviteUrl(
+    input.teamId,
+    input.to,
+    input.captainName,
+  );
+  const copy = captainInviteEmailCopy({
+    captainName: input.captainName,
+    teamName: input.teamName,
+    inviteUrl,
+    eventName: EVENT.name,
+    shortName: EVENT.shortName,
+    dateLabel: EVENT.dateLabel,
+    venue: EVENT.venue,
+    footerScript: EVENT.footerScript,
+  });
+
+  return {
+    to: input.to.trim().toLowerCase(),
+    subject: copy.subject,
+    text: copy.text,
+    html: copy.html,
+    inviteUrl,
+  };
+}
+
+export async function sendCaptainInviteEmail(
+  input: CaptainInviteEmailInput,
+): Promise<EmailDelivery & { inviteUrl: string }> {
+  const message = await buildCaptainInviteEmail(input);
   const delivery = await sendEmail({
     to: message.to,
     subject: message.subject,

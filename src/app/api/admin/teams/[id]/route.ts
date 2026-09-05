@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { amountDueCents } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { emptyToNull } from "@/lib/registration";
@@ -72,6 +73,10 @@ export async function PATCH(request: Request, { params }: Params) {
 
   const input = parsed.data;
   const guided = input.boatType === "GUIDED";
+  const previous = await prisma.team.findUnique({
+    where: { id },
+    select: { captainEmail: true },
+  });
 
   const team = await prisma.$transaction(async (tx) => {
     await tx.angler.deleteMany({ where: { teamId: id } });
@@ -80,8 +85,9 @@ export async function PATCH(request: Request, { params }: Params) {
       data: {
         teamName: input.teamName,
         boatType: input.boatType,
-        captainName: guided ? emptyToNull(input.captainName) : null,
-        captainPhone: guided ? emptyToNull(input.captainPhone) : null,
+        captainName: emptyToNull(input.captainName),
+        captainPhone: emptyToNull(input.captainPhone),
+        captainEmail: emptyToNull(input.captainEmail),
         contactName: guided ? null : emptyToNull(input.contactName),
         contactPhone: guided ? null : emptyToNull(input.contactPhone),
         contactEmail: guided ? null : emptyToNull(input.contactEmail),
@@ -105,6 +111,21 @@ export async function PATCH(request: Request, { params }: Params) {
       include: { anglers: { orderBy: { sortOrder: "asc" } } },
     });
   });
+
+  const prevEmail = previous?.captainEmail?.trim().toLowerCase() ?? "";
+  const nextEmail = team.captainEmail?.trim().toLowerCase() ?? "";
+  if (nextEmail && nextEmail !== prevEmail) {
+    try {
+      await sendCaptainJoinInvite({
+        teamId: team.id,
+        teamName: team.teamName,
+        captainName: team.captainName,
+        captainEmail: team.captainEmail,
+      });
+    } catch (error) {
+      console.error("[admin] captain invite failed", error);
+    }
+  }
 
   return NextResponse.json({ team });
 }

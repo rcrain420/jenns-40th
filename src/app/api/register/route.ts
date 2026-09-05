@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendJoinEmailsForRegisteredAnglers } from "@/lib/angler-join-invites";
+import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { getCurrentUser } from "@/lib/auth";
 import { paidEntrySeatCount } from "@/lib/config";
 import {
@@ -84,6 +85,22 @@ export async function POST(request: Request) {
     anglers: result.team.anglers,
   });
 
+  let captainInviteSent = false;
+  try {
+    const captainInvite = await sendCaptainJoinInvite({
+      teamId: result.team.id,
+      teamName: result.team.teamName,
+      captainName: result.team.captainName,
+      captainEmail: result.team.captainEmail,
+    });
+    captainInviteSent = captainInvite.ok && captainInvite.sent;
+    if (!captainInvite.ok && captainInvite.status !== 409) {
+      console.error("[register] captain invite failed", captainInvite.error);
+    }
+  } catch (error) {
+    console.error("[register] captain invite failed", error);
+  }
+
   return NextResponse.json({
     team: {
       id: result.team.id,
@@ -95,5 +112,6 @@ export async function POST(request: Request) {
     confirmationEmailSent,
     joinEmailsAttempted: joinInvites.attempted,
     joinEmailsSent: joinInvites.sent,
+    captainInviteSent,
   });
 }

@@ -14,6 +14,7 @@ type Props = {
   signedIn: boolean;
   initialEmail?: string;
   initialName?: string;
+  joiningAsCaptain?: boolean;
 };
 
 export function JoinTeamPanel({
@@ -23,6 +24,7 @@ export function JoinTeamPanel({
   signedIn,
   initialEmail = "",
   initialName = "",
+  joiningAsCaptain = false,
 }: Props) {
   const router = useRouter();
   const next = joinReturnPath({
@@ -73,9 +75,12 @@ export function JoinTeamPanel({
         <p className="text-ink/75">
           Create an account to hop on <strong>{teamName}</strong>. Use
           Google or Facebook, or set a password for this email. After that
-          you are on the boat and can use the Livewell. Joining does not
-          make you the captain or add you to the paid roster. Later visits
-          can use the same Google, Facebook, or password sign-in.
+          you are on the boat and can use the Livewell.{" "}
+          {joiningAsCaptain
+            ? "You’re joining as captain — same viewing access as an angler, not a $75 seat."
+            : "Joining does not make you the captain or add you to the paid roster."}{" "}
+          Later visits can use the same Google, Facebook, or password
+          sign-in.
         </p>
         <AuthForm
           mode={joinTheBoatAuthMode()}

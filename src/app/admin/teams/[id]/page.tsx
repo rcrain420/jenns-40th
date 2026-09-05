@@ -39,6 +39,7 @@ export default async function AdminTeamDetailPage({ params }: Props) {
               boatType: team.boatType as "GUIDED" | "NON_GUIDED",
               captainName: team.captainName ?? "",
               captainPhone: team.captainPhone ?? "",
+              captainEmail: team.captainEmail ?? "",
               contactName: team.contactName ?? "",
               contactPhone: team.contactPhone ?? "",
               contactEmail: team.contactEmail ?? "",

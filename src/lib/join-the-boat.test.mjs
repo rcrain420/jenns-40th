@@ -12,11 +12,15 @@ const {
   boatRosterStatusLabel,
   buildBoatRoster,
   canJoinBoat,
+  countsTowardInviteLock,
   directoryStatusLabel,
   invitedAnglerCount,
   isBoatContactNotAngler,
+  isCaptainRosterStatus,
   isListedAsAdultAngler,
+  isOfficialAnglerSeat,
   isBoatInviteLocked,
+  joinFillsCaptainSeat,
   joinFillsExistingSeat,
   joinTheBoatAuthMode,
   rosterWouldExceedInviteCapacity,
@@ -227,9 +231,95 @@ describe("boat invite lock at four invited anglers", () => {
         { fullName: "Pat", email: "pat@example.com" },
       ],
       members: [{ name: "Aaron", email: "aaron@example.com" }],
+      captain: { name: "Capt. Ron", email: "ron@example.com" },
     };
     assert.equal(invitedAnglerCount(input), 2);
     assert.equal(isBoatInviteLocked(input), false);
+    assert.equal(canJoinBoat(input, "ron@example.com"), true);
+    assert.equal(joinFillsCaptainSeat(input.captain, "ron@example.com"), true);
+  });
+
+  it("lets a pending captain join a full boat without filling a fishing seat", () => {
+    const input = {
+      anglers: [
+        { fullName: "Matt Johnson", email: "matt@example.com" },
+        { fullName: "Pratt Kramer", email: "pratt@example.com" },
+        { fullName: "Mike Wright", email: "mike@example.com" },
+        { fullName: "Aaron Crain", email: "aaron@example.com" },
+      ],
+      members: [
+        { name: "Matt Johnson", email: "matt@example.com" },
+        { name: "Aaron Crain", email: "aaron@example.com" },
+      ],
+      captain: { name: "Capt. Ron", email: "ron@example.com" },
+    };
+    const rows = buildBoatRoster(input);
+    assert.equal(invitedAnglerCount(input), 4);
+    assert.equal(isBoatInviteLocked(input), true);
+    assert.equal(canJoinBoat(input, "fifth@example.com"), false);
+    assert.equal(canJoinBoat(input, "ron@example.com"), true);
+    assert.deepEqual(
+      rows.filter((row) => isCaptainRosterStatus(row.status)).map((row) => ({
+        name: row.name,
+        status: row.status,
+      })),
+      [{ name: "Capt. Ron", status: "captain-pending" }],
+    );
+    assert.equal(isOfficialAnglerSeat("captain-pending"), false);
+    assert.equal(countsTowardInviteLock("captain-pending"), false);
+    assert.equal(boatRosterStatusLabel("captain-pending"), "Captain · Pending");
+
+    const afterJoin = buildBoatRoster({
+      ...input,
+      members: [
+        ...input.members,
+        { name: "Ron", email: "ron@example.com" },
+      ],
+    });
+    assert.equal(
+      invitedAnglerCount({
+        ...input,
+        members: [
+          ...input.members,
+          { name: "Ron", email: "ron@example.com" },
+        ],
+      }),
+      4,
+    );
+    assert.deepEqual(
+      afterJoin
+        .filter((row) => isCaptainRosterStatus(row.status))
+        .map((row) => row.status),
+      ["captain-joined"],
+    );
+    assert.equal(boatRosterStatusLabel("captain-joined"), "Captain · Joined");
+    assert.equal(
+      afterJoin.some((row) => row.status === "boat-account" && row.email === "ron@example.com"),
+      false,
+    );
+  });
+
+  it("keeps a captain who is also an adult angler as a paid seat", () => {
+    const input = {
+      anglers: [
+        { fullName: "Capt. Ron", email: "ron@example.com" },
+        { fullName: "Aaron", email: "aaron@example.com" },
+      ],
+      members: [{ name: "Ron", email: "ron@example.com" }],
+      captain: { name: "Capt. Ron", email: "ron@example.com" },
+    };
+    const rows = buildBoatRoster(input);
+    assert.deepEqual(
+      rows.map((row) => ({ name: row.name, status: row.status })),
+      [
+        { name: "Capt. Ron", status: "joined" },
+        { name: "Aaron", status: "pending" },
+        { name: "Capt. Ron", status: "captain-joined" },
+      ],
+    );
+    assert.equal(invitedAnglerCount(input), 2);
+    assert.equal(isOfficialAnglerSeat("joined"), true);
+    assert.equal(isOfficialAnglerSeat("captain-joined"), false);
   });
 
   it("rejects adding a fifth official seat when extra joiners already fill the boat", () => {
@@ -344,6 +434,49 @@ describe("teams directory", () => {
     assert.equal(directoryStatusLabel("pending"), "Angler · Pending");
     assert.equal(directoryStatusLabel("boat-account"), "Boat account");
     assert.equal(directoryStatusLabel("youth"), "Youth · parent login");
+    assert.equal(directoryStatusLabel("captain-joined"), "Captain · Joined");
+    assert.equal(directoryStatusLabel("captain-pending"), "Captain · Pending");
+    assert.equal(directoryStatusLabel("captain"), "Captain");
+  });
+
+  it("lists a captain as not a pot seat and never leaks the email", () => {
+    const team = toDirectoryTeam({
+      id: "team_captain",
+      teamName: "Guided Bay",
+      anglers: [
+        { fullName: "Aaron", email: "aaron@example.com" },
+        { fullName: "Pat", email: "pat@example.com" },
+      ],
+      members: [{ name: "Aaron", email: "aaron@example.com" }],
+      captain: { name: "Capt. Ron", email: "ron@example.com" },
+    });
+
+    assert.deepEqual(
+      team.anglers.map((row) => ({
+        name: row.name,
+        label: row.statusLabel,
+        isAnglerSeat: row.isAnglerSeat,
+      })),
+      [
+        {
+          name: "Aaron",
+          label: "Angler · Joined",
+          isAnglerSeat: true,
+        },
+        {
+          name: "Pat",
+          label: "Angler · Pending",
+          isAnglerSeat: true,
+        },
+        {
+          name: "Capt. Ron",
+          label: "Captain · Pending",
+          isAnglerSeat: false,
+        },
+      ],
+    );
+    const blob = JSON.stringify(team);
+    assert.equal(blob.includes("@"), false);
   });
 
   it("keeps a parent who joined the boat off the paid Angler list", () => {

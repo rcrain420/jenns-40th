@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { prisma } from "@/lib/db";
 import { teamCreateData } from "@/lib/registration";
 import { registrationSchema } from "@/lib/validation";
@@ -31,6 +32,7 @@ export async function GET(request: Request) {
     const haystack = [
       t.teamName,
       t.captainName,
+      t.captainEmail,
       t.contactName,
       t.registrantEmail,
       ...t.anglers.map((a) => a.fullName),
@@ -74,6 +76,19 @@ export async function POST(request: Request) {
     data: teamCreateData(parsed.data),
     include: { anglers: { orderBy: { sortOrder: "asc" } } },
   });
+
+  if (team.captainEmail) {
+    try {
+      await sendCaptainJoinInvite({
+        teamId: team.id,
+        teamName: team.teamName,
+        captainName: team.captainName,
+        captainEmail: team.captainEmail,
+      });
+    } catch (error) {
+      console.error("[admin] captain invite failed", error);
+    }
+  }
 
   return NextResponse.json({ team });
 }

@@ -11,6 +11,8 @@ type Props = {
   boatType: BoatType;
   captainName: string;
   captainPhone: string;
+  captainEmail: string;
+  captainStatus?: "captain" | "captain-joined" | "captain-pending" | null;
   contactName: string;
   contactPhone: string;
   contactEmail: string;
@@ -20,6 +22,8 @@ export function TeamCaptainEditor({
   boatType: initialBoatType,
   captainName: initialCaptainName,
   captainPhone: initialCaptainPhone,
+  captainEmail: initialCaptainEmail,
+  captainStatus = null,
   contactName: initialContactName,
   contactPhone: initialContactPhone,
   contactEmail: initialContactEmail,
@@ -28,12 +32,13 @@ export function TeamCaptainEditor({
   const [boatType, setBoatType] = useState<BoatType>(initialBoatType);
   const [captainName, setCaptainName] = useState(initialCaptainName);
   const [captainPhone, setCaptainPhone] = useState(initialCaptainPhone);
+  const [captainEmail, setCaptainEmail] = useState(initialCaptainEmail);
   const [contactName, setContactName] = useState(initialContactName);
   const [contactPhone, setContactPhone] = useState(initialContactPhone);
   const [contactEmail, setContactEmail] = useState(initialContactEmail);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved] = useState<string | null>(null);
 
   const inputClass =
     "mt-1.5 w-full border border-wave/20 bg-paper px-3 py-2.5 text-ink outline-none ring-sun/30 focus:ring-2";
@@ -44,7 +49,7 @@ export function TeamCaptainEditor({
     e.preventDefault();
     setSaving(true);
     setError(null);
-    setSaved(false);
+    setSaved(null);
     try {
       const res = await fetch("/api/team", {
         method: "PATCH",
@@ -53,17 +58,28 @@ export function TeamCaptainEditor({
           boatType,
           captainName,
           captainPhone,
+          captainEmail,
           contactName,
           contactPhone,
           contactEmail,
         }),
       });
-      const data = (await res.json()) as { error?: string };
+      const data = (await res.json()) as {
+        error?: string;
+        inviteSent?: boolean;
+        inviteError?: string;
+      };
       if (!res.ok) {
         setError(data.error ?? "Could not save captain");
         return;
       }
-      setSaved(true);
+      if (data.inviteError) {
+        setSaved("Captain saved. Could not send invite — save again to retry.");
+      } else if (data.inviteSent) {
+        setSaved("Captain saved. Invite sent.");
+      } else {
+        setSaved("Captain and contact saved.");
+      }
       router.refresh();
     } catch {
       setError("Network error — try again");
@@ -72,9 +88,21 @@ export function TeamCaptainEditor({
     }
   }
 
+  const statusLabel =
+    captainStatus === "captain-joined"
+      ? "Captain · Joined"
+      : captainStatus === "captain-pending"
+        ? "Captain · Pending"
+        : null;
+
   return (
     <form onSubmit={onSave} className="space-y-4">
       <p className="text-sm text-ink/65">{CAPTAIN_CONTACT_ADULT_NOTE}</p>
+      <p className="text-sm text-ink/65">
+        Add a captain email to invite them. They can sign in and see what
+        anglers see. That does not add $75 unless they are also an adult
+        angler.
+      </p>
       <fieldset>
         <legend className={labelClass}>Boat type</legend>
         <div className="mt-2 flex flex-wrap gap-4">
@@ -99,37 +127,54 @@ export function TeamCaptainEditor({
         </div>
       </fieldset>
 
-      {boatType === "GUIDED" ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className={labelClass} htmlFor="team-captain-name">
-              Captain name (optional)
-            </label>
-            <input
-              id="team-captain-name"
-              className={inputClass}
-              value={captainName}
-              onChange={(e) => setCaptainName(e.target.value)}
-              placeholder="Add anytime"
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="team-captain-phone">
-              Captain phone (optional)
-            </label>
-            <input
-              id="team-captain-phone"
-              type="tel"
-              inputMode="numeric"
-              className={inputClass}
-              value={captainPhone}
-              maxLength={14}
-              onChange={(e) => setCaptainPhone(formatPhoneInput(e.target.value))}
-              placeholder="(361) 555-1234"
-            />
-          </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className={labelClass} htmlFor="team-captain-name">
+            Captain name (optional)
+          </label>
+          <input
+            id="team-captain-name"
+            className={inputClass}
+            value={captainName}
+            onChange={(e) => setCaptainName(e.target.value)}
+            placeholder="Add anytime"
+          />
         </div>
-      ) : (
+        <div>
+          <label className={labelClass} htmlFor="team-captain-phone">
+            Captain phone (optional)
+          </label>
+          <input
+            id="team-captain-phone"
+            type="tel"
+            inputMode="numeric"
+            className={inputClass}
+            value={captainPhone}
+            maxLength={14}
+            onChange={(e) => setCaptainPhone(formatPhoneInput(e.target.value))}
+            placeholder="(361) 555-1234"
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={labelClass} htmlFor="team-captain-email">
+            Captain email (optional)
+          </label>
+          <input
+            id="team-captain-email"
+            type="email"
+            autoComplete="email"
+            className={inputClass}
+            value={captainEmail}
+            onChange={(e) => setCaptainEmail(e.target.value)}
+            placeholder="Invites them to sign in"
+          />
+          {statusLabel ? (
+            <p className="mt-1.5 text-sm text-ink/55">{statusLabel}</p>
+          ) : null}
+        </div>
+      </div>
+
+      {boatType === "NON_GUIDED" ? (
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className={labelClass} htmlFor="team-contact-name">
@@ -171,7 +216,7 @@ export function TeamCaptainEditor({
             />
           </div>
         </div>
-      )}
+      ) : null}
 
       {error ? (
         <p className="text-sm text-alert" role="alert">
@@ -180,7 +225,7 @@ export function TeamCaptainEditor({
       ) : null}
       {saved ? (
         <p className="text-sm text-sea" role="status">
-          Captain and contact saved.
+          {saved}
         </p>
       ) : null}
 

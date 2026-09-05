@@ -117,6 +117,8 @@ export async function joinTeam(userId: string, teamId: string) {
       select: {
         id: true,
         teamName: true,
+        captainName: true,
+        captainEmail: true,
         anglers: {
           select: { fullName: true, email: true, isYouth: true },
           orderBy: { sortOrder: "asc" },
@@ -151,6 +153,10 @@ export async function joinTeam(userId: string, teamId: string) {
       name: member.user.name,
       email: member.user.email,
     })),
+    captain: {
+      name: team.captainName,
+      email: team.captainEmail,
+    },
   };
   if (!canJoinBoat(roster, user?.email)) {
     return {

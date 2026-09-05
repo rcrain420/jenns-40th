@@ -21,6 +21,7 @@ import {
 } from "@/lib/join-the-boat";
 import { formatUsd, formatUsdWhole } from "@/lib/money";
 import {
+  INVITE_THE_BOAT_CAPTAIN_LINES,
   INVITE_THE_BOAT_MEMBER_LINES,
   INVITE_THE_BOAT_REGISTRANT_LINES,
 } from "@/lib/team-invite-copy";
@@ -103,6 +104,10 @@ export default async function MyTeamPage({
       name: m.user.name,
       email: m.user.email,
     })),
+    captain: {
+      name: team.captainName,
+      email: team.captainEmail,
+    },
   };
   const boatRoster = buildBoatRoster(boatRosterInput);
   const inviteLocked = isBoatInviteLocked(boatRosterInput);
@@ -111,6 +116,14 @@ export default async function MyTeamPage({
     team.members.find((m) => m.user.id === team.claimedByUserId)?.user.email ??
     null;
   const adultSeatCount = team.anglers.filter((a) => a.isYouth !== true).length;
+  const viewerEmail = user.email.trim().toLowerCase();
+  const isCaptain =
+    team.captainEmail?.trim().toLowerCase() === viewerEmail;
+  const captainRow = boatRoster.find((row) =>
+    row.status === "captain" ||
+    row.status === "captain-joined" ||
+    row.status === "captain-pending",
+  );
   const showBoatContactNudge =
     isRegistrant &&
     isBoatContactNotAngler(boatRosterInput.anglers, {
@@ -154,7 +167,9 @@ export default async function MyTeamPage({
               <div className="mt-3 space-y-2 text-ink/75">
                 {(isRegistrant
                   ? INVITE_THE_BOAT_REGISTRANT_LINES
-                  : INVITE_THE_BOAT_MEMBER_LINES
+                  : isCaptain
+                    ? INVITE_THE_BOAT_CAPTAIN_LINES
+                    : INVITE_THE_BOAT_MEMBER_LINES
                 ).map((line) => (
                   <p key={line}>{line}</p>
                 ))}
@@ -199,6 +214,14 @@ export default async function MyTeamPage({
                 boatType={team.boatType === "GUIDED" ? "GUIDED" : "NON_GUIDED"}
                 captainName={team.captainName ?? ""}
                 captainPhone={team.captainPhone ?? ""}
+                captainEmail={team.captainEmail ?? ""}
+                captainStatus={
+                  captainRow?.status === "captain" ||
+                  captainRow?.status === "captain-joined" ||
+                  captainRow?.status === "captain-pending"
+                    ? captainRow.status
+                    : null
+                }
                 contactName={team.contactName ?? ""}
                 contactPhone={team.contactPhone ?? ""}
                 contactEmail={team.contactEmail ?? ""}

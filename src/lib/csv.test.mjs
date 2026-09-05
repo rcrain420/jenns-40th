@@ -11,6 +11,7 @@ describe("CSV youth column", () => {
         boatType: "NON_GUIDED",
         captainName: null,
         captainPhone: null,
+        captainEmail: null,
         contactName: "Aaron",
         contactPhone: "3615551234",
         contactEmail: "aaron@example.com",

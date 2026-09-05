@@ -56,7 +56,9 @@ function BoatRosterRows({ boat }: { boat: OfficialRosterBoat }) {
   const extras = boat.anglers.filter((row) => !isOfficialRosterSeat(row));
   const adultAnglerCount = officialRosterAdultSeatCount(boat.anglers);
   const potCents = adultAnglerCount * FEE_PER_ANGLER_CENTS;
-  const extraLine = alsoOnThisBoatLine(extras.map((row) => row.name));
+  const extraLine = alsoOnThisBoatLine(
+    extras.map((row) => officialRosterAnglerLine(row)),
+  );
 
   if (boat.anglers.length === 0) {
     return (
