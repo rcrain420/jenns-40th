@@ -28,7 +28,7 @@ import {
   SUCCESS_VENMO_NOTE,
 } from "@/lib/register-success-copy";
 import { publicAbsoluteUrl } from "@/lib/safe-path";
-import { issueTeamInviteToken, teamInvitePath } from "@/lib/team-invite";
+import { teamInviteUrl } from "@/lib/team-invite";
 
 export const dynamic = "force-dynamic";
 
@@ -62,8 +62,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     amountCents: team.amountDueCents,
     note: venmoNote,
   });
-  const { token: inviteToken } = issueTeamInviteToken({ teamId: team.id });
-  const inviteUrl = publicAbsoluteUrl(teamInvitePath(inviteToken));
+  const inviteUrl = await teamInviteUrl(team.id);
   const { token: unlockToken } = issueEventUnlockToken({
     teamId: team.id,
     email: team.registrantEmail,
@@ -125,11 +124,12 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
                 Invite teammates
               </h3>
               <p className="mt-2 text-sm text-ink/65">
-                Shared backup for name-only adult seats. Anglers with an
-                email already get Join the boat — except youth seats, who do
-                not get a create-account invite. You can also send Invite
-                from My team. Kids must be registered by a parent. Joining
-                does not add them to the paid roster.
+                Shared backup for name-only adult seats — they still create
+                an account from this link. Anglers with an email already get
+                Join the boat — except youth seats, who do not get a
+                create-account invite. You can also send Invite from My team.
+                Kids must be registered by a parent. Joining does not add
+                them to the paid roster.
               </p>
               <div className="mt-3">
                 <InviteLinkCopy url={inviteUrl} />

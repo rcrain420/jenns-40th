@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { oauthErrorMessage } from "@/lib/oauth-errors";
 import { afterAuthPath, userHasRegisteredTeam } from "@/lib/register-logged-in";
 import { safeNextPath } from "@/lib/safe-path";
+import { isJoinNextPath } from "@/lib/signup-confirm";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function LoginPage({
       // stay on login — they are signed in but not admin
     } else if (
       !user.emailVerified &&
-      !next.startsWith("/join") &&
+      !isJoinNextPath(next) &&
       !next.startsWith("/team") &&
       !next.startsWith("/register")
     ) {
@@ -65,7 +66,7 @@ export default async function LoginPage({
           : registerTeam
             ? "Log in, create an account, or continue with Google — then you’ll land back on team registration."
             : openMyTeam
-              ? "Use this email — Google, Facebook, or a password — to get on the boat you registered. Roster and Livewell, no PIN."
+              ? "Use this email — Google, Facebook, or a password — to get on the boat you registered."
               : "Same account for the Livewell, comments, and (if you’re an organizer) the admin console."
       }
     >

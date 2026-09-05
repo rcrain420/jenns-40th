@@ -19,7 +19,7 @@ describe("team invite email", () => {
 
   it("puts a working join magic link in the body and stays off payment", () => {
     const inviteUrl =
-      "https://officialishfishingtournament.com/join?token=test-token&email=acrain.ccg%2Bcaptain%40gmail.com";
+      "https://officialishfishingtournament.com/j/AbCdEfGhIjKl?email=acrain.ccg%2Bcaptain%40gmail.com";
     const message = teamInviteEmailCopy({
       anglerName: "Aaron Crain",
       teamName: "Pretty Pier Pressure",
@@ -35,13 +35,13 @@ describe("team invite email", () => {
     assert.ok(message.html.includes(inviteUrl.replaceAll("&", "&amp;")));
     assert.ok(message.html.includes("Join the boat"));
     assert.ok(message.text.includes("Pretty Pier Pressure added you as an angler"));
-    assert.ok(message.text.includes("event PIN"));
-    assert.ok(message.text.includes("Adults without email can stay name-only"));
+    assert.equal(/event PIN/i.test(message.text), false);
+    assert.equal(/\bPIN\b/.test(message.text), false);
+    assert.ok(message.text.includes("create an account"));
     assert.equal(/walk-?ups?/i.test(message.text), false);
     assert.equal(/walk-?ups?/i.test(message.html), false);
     assert.ok(message.text.includes("Kids must be registered"));
     assert.ok(message.text.includes("Livewell"));
-    assert.ok(message.text.includes("no PIN or second unlock"));
     assert.equal(/venmo/i.test(message.text), false);
     assert.equal(/venmo/i.test(message.html), false);
     assert.equal(/\$/.test(message.text), false);

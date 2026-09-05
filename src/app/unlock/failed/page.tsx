@@ -15,27 +15,34 @@ export default async function UnlockFailedPage({
   return (
     <PageShell
       narrow
-      eyebrow="Livewell"
-      title={missing ? "Unlock link needed" : "That link didn't take"}
+      eyebrow="My team"
+      title={missing ? "Link needed" : "That link didn't take"}
       description={
         missing
-          ? "Use the unlock link on your registration success page — it works even if the confirmation email never arrived."
-          : "This unlock link is expired or not valid anymore. Copy a fresh one from the registration success page."
+          ? "Use the Open my team link on your registration success page — it works even if the confirmation email never arrived."
+          : "This link is expired or not valid anymore. Copy a fresh one from the registration success page, or sign in."
       }
-      backHref="/catches"
-      backLabel="← Back to the Livewell"
+      backHref="/login?next=/team"
+      backLabel="← Sign in"
     >
       <div className="space-y-5 text-ink/80">
         <p>
-          Lost the email or signing up at Friday&apos;s captain&apos;s meeting?
-          The event PIN still unlocks catch logging, comments, and AI team
-          names.
+          Team access and the Livewell need an account. Sign in or create one.
         </p>
         <p>
-          <Link href="/catches" className="font-semibold text-sea hover:underline">
-            Head to the Livewell
-          </Link>{" "}
-          and enter the PIN there.
+          <Link
+            href="/login?next=/team"
+            className="font-semibold text-sea hover:underline"
+          >
+            Sign in
+          </Link>
+          {" · "}
+          <Link
+            href="/login?mode=signup&next=/team"
+            className="font-semibold text-sea hover:underline"
+          >
+            Create an account
+          </Link>
         </p>
       </div>
     </PageShell>

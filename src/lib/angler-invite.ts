@@ -49,7 +49,7 @@ export async function inviteAnglerOnTeam(opts: {
     return {
       ok: false as const,
       error:
-        "Add an email to send an invite. Name-only seats stay on the shared link or PIN.",
+        "Add an email to send an invite. Name-only seats use the shared link to create an account.",
       status: 400,
     };
   }

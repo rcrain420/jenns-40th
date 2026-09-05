@@ -24,8 +24,17 @@ describe("signup confirm-account mail", () => {
       }),
       false,
     );
+    assert.equal(
+      shouldSendSignupConfirmEmail({
+        emailVerified: false,
+        next: "/j/AbCdEfGhIjKl",
+      }),
+      false,
+    );
     assert.equal(isJoinNextPath("/join?token=abc"), true);
     assert.equal(isJoinNextPath("/join"), true);
+    assert.equal(isJoinNextPath("/j/AbCdEfGhIjKl"), true);
+    assert.equal(isJoinNextPath("/join/AbCdEfGhIjKl"), true);
   });
 
   it("still sends for a standalone signup that is not joining", () => {

@@ -13,10 +13,14 @@ describe("shareable invite URLs", () => {
 
   it("resolves a relative path against the page origin", () => {
     assert.equal(
+      resolveShareUrl("/j/AbCdEfGhIjKl", "https://officialishfishingtournament.com"),
+      "https://officialishfishingtournament.com/j/AbCdEfGhIjKl",
+    );
+    assert.equal(isUsableShareUrl("/j/AbCdEfGhIjKl"), false);
+    assert.equal(
       resolveShareUrl("/join?token=abc", "https://officialishfishingtournament.com"),
       "https://officialishfishingtournament.com/join?token=abc",
     );
-    assert.equal(isUsableShareUrl("/join?token=abc"), false);
   });
 
   it("builds a public absolute URL from a path", () => {

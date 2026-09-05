@@ -15,5 +15,10 @@ export function shouldSendSignupConfirmEmail(input: {
 export function isJoinNextPath(next?: string | null): boolean {
   if (!next) return false;
   const path = next.split("?")[0].split("#")[0];
-  return path === "/join" || path.startsWith("/join/");
+  return (
+    path === "/join" ||
+    path.startsWith("/join/") ||
+    path === "/j" ||
+    path.startsWith("/j/")
+  );
 }
