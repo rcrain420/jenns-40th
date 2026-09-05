@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { OfficialRosterByBoat } from "@/components/OfficialRosterByBoat";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
 import { EVENT } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { toDirectoryTeam } from "@/lib/join-the-boat";
+import { groupOfficialRosterByBoat } from "@/lib/official-roster";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `Teams · ${EVENT.shortName}`,
-  description: "Registered boats and the names on each roster.",
+  description: "Official roster grouped by boat.",
 };
 
 export default async function TeamsDirectoryPage() {
@@ -34,7 +36,7 @@ export default async function TeamsDirectoryPage() {
           >
             create an account
           </Link>{" "}
-          to see the roster of boats.
+          to see the official roster grouped by boat.
         </p>
       </PageShell>
     );
@@ -76,63 +78,36 @@ export default async function TeamsDirectoryPage() {
   );
   const otherCount = directory.filter((team) => !team.isOwn).length;
 
+  const boats = groupOfficialRosterByBoat(
+    directory.map((team) => ({
+      id: team.id,
+      teamName: team.teamName,
+      isOwn: team.isOwn,
+      anglers: team.anglers.map((row) => ({
+        fullName: row.name,
+        statusLabel: row.statusLabel,
+      })),
+    })),
+  );
+
   return (
     <PageShell
       title="Teams"
-      description="Every registered boat and the names on their roster."
+      description="Official roster — each boat, then the anglers on it."
     >
-      <div className="space-y-8">
-        {directory.length === 0 ? (
-          <p className="text-ink/70">No boats have registered yet.</p>
+      <div className="space-y-6">
+        {directory.length === 0 ? null : otherCount === 0 ? (
+          <p className="text-ink/70">No other boats have registered yet.</p>
         ) : (
-          <>
-            {otherCount === 0 ? (
-              <p className="text-ink/70">No other boats have registered yet.</p>
-            ) : (
-              <p className="text-ink/65">
-                {directory.length} {directory.length === 1 ? "boat" : "boats"}{" "}
-                on the list.
-              </p>
-            )}
-            <ul className="space-y-5">
-              {directory.map((team) => (
-                <li
-                  key={team.id}
-                  className={`border px-4 py-4 md:px-5 ${
-                    team.isOwn
-                      ? "border-wave bg-mist/50"
-                      : "border-wave/15 bg-paper"
-                  }`}
-                >
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h2 className="font-display text-xl uppercase text-wave">
-                      {team.teamName}
-                    </h2>
-                    {team.isOwn ? (
-                      <span className="font-label text-[0.72rem] tracking-[0.12em] text-wave/70">
-                        Your boat
-                      </span>
-                    ) : null}
-                  </div>
-                  {team.anglers.length === 0 ? (
-                    <p className="mt-3 text-sm text-ink/60">
-                      No names on the roster yet.
-                    </p>
-                  ) : (
-                    <ul className="mt-3 space-y-1 text-ink/80">
-                      {team.anglers.map((row, index) => (
-                        <li key={`${team.id}:${index}:${row.name}`}>
-                          {row.name}
-                          {row.statusLabel ? ` · ${row.statusLabel}` : ""}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </>
+          <p className="text-ink/65">
+            {directory.length} {directory.length === 1 ? "boat" : "boats"} on
+            the list.
+          </p>
         )}
+        <OfficialRosterByBoat
+          boats={boats}
+          emptyListLabel="No boats have registered yet."
+        />
       </div>
     </PageShell>
   );
