@@ -59,8 +59,8 @@ export default async function CatchesPage() {
             Log catches to keep teams engaged, buzzing, and laughing all day.
           </p>
           <p className="mt-3 text-sm text-ink/60">
-            Watch the notification bell up top when somebody drops a photo.
-            Tap a fish to leave a comment.
+            Watch the notification bell up top when somebody drops a photo
+            or leaves a comment. Tap a fish to leave a comment.
           </p>
         </aside>
 

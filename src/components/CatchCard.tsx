@@ -40,13 +40,24 @@ type Props = {
 
 export function CatchCard({ fish, anglerName, viewer }: Props) {
   const [open, setOpen] = useState(false);
+  const commentIds = fish.comments.map((c) => c.id).join("\0");
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.location.hash === `#catch-${fish.id}`) {
-      setOpen(true);
+    function syncFromHash() {
+      const hash = window.location.hash;
+      if (hash === `#catch-${fish.id}`) {
+        setOpen(true);
+        return;
+      }
+      const ids = commentIds ? commentIds.split("\0") : [];
+      if (ids.some((id) => hash === `#comment-${id}`)) {
+        setOpen(true);
+      }
     }
-  }, [fish.id]);
+    syncFromHash();
+    window.addEventListener("hashchange", syncFromHash);
+    return () => window.removeEventListener("hashchange", syncFromHash);
+  }, [fish.id, commentIds]);
 
   return (
     <li id={`catch-${fish.id}`} className="group scroll-mt-24">

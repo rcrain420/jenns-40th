@@ -72,7 +72,7 @@ export function CatchComments({ catchId, viewer, initialComments }: Props) {
       ) : (
         <ul className="max-h-48 space-y-2.5 overflow-y-auto pr-1">
           {comments.map((c) => (
-            <li key={c.id} className="text-sm">
+            <li id={`comment-${c.id}`} key={c.id} className="scroll-mt-24 text-sm">
               <p className="font-semibold text-wave">{c.authorName}</p>
               <p className="text-ink/80">{c.body}</p>
               <p className="text-xs text-ink/40">

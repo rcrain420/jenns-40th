@@ -5,7 +5,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 type AppNotification = {
   id: string;
-  type: "catch";
+  type: "catch" | "comment";
   title: string;
   body: string;
   href: string;
@@ -48,7 +48,9 @@ export function NotificationBell({
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch("/api/notifications?limit=25");
+      const res = await fetch("/api/notifications?limit=25", {
+        credentials: "same-origin",
+      });
       if (!res.ok) return;
       const data = (await res.json()) as { notifications?: AppNotification[] };
       setItems(data.notifications ?? []);
@@ -105,8 +107,8 @@ export function NotificationBell({
         }`}
         aria-label={
           unread > 0
-            ? `Catch alerts, ${unread} unread`
-            : "Catch alerts"
+            ? `Livewell alerts, ${unread} unread`
+            : "Livewell alerts"
         }
         aria-expanded={open}
         aria-controls={panelId}
@@ -123,12 +125,12 @@ export function NotificationBell({
         <div
           id={panelId}
           role="region"
-          aria-label="Catch alerts"
+          aria-label="Livewell alerts"
           className="absolute right-0 top-[calc(100%+0.5rem)] z-40 w-[min(22rem,calc(100vw-2rem))] overflow-hidden border border-wave/15 bg-paper text-ink shadow-[0_18px_40px_rgba(26,36,48,0.18)]"
         >
           <div className="border-b border-wave/10 bg-mist/60 px-3 py-2.5">
             <p className="font-display text-xs uppercase tracking-[0.14em] text-wave">
-              Catch alerts
+              Livewell alerts
             </p>
             <p className="mt-1 text-xs text-ink/60">
               Fun fleet buzz — AI guesses don&apos;t count at weigh-in.
@@ -137,7 +139,7 @@ export function NotificationBell({
 
           {items.length === 0 ? (
             <p className="px-3 py-6 text-sm text-ink/55">
-              No catches yet. First photo on the board rings the bell.
+              No alerts yet. A new catch or comment rings the bell.
             </p>
           ) : (
             <ul className="max-h-80 overflow-y-auto">
