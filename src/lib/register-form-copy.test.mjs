@@ -5,8 +5,12 @@ import { anglersSectionHelp } from "./register-form-copy.ts";
 
 describe("anglersSectionHelp", () => {
   it("keeps the roster, youth, invite, and captain rules without the essay", () => {
-    const text = anglersSectionHelp();
     const fee = FEE_PER_ANGLER_CENTS / 100;
+    const text = anglersSectionHelp({
+      minAnglers: MIN_ANGLERS,
+      maxAnglers: MAX_ANGLERS,
+      feeDollars: fee,
+    });
 
     assert.match(text, new RegExp(`${MIN_ANGLERS}–${MAX_ANGLERS}`));
     assert.match(text, /kids included/);

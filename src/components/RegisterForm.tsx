@@ -567,7 +567,13 @@ export function RegisterForm({
             <h3 className="font-display text-xl text-wave">
               Anglers <span className="text-alert">*</span>
             </h3>
-            <p className="text-sm text-ink/65">{anglersSectionHelp()}</p>
+            <p className="text-sm text-ink/65">
+              {anglersSectionHelp({
+                minAnglers: MIN_ANGLERS,
+                maxAnglers: MAX_ANGLERS,
+                feeDollars: FEE_PER_ANGLER_CENTS / 100,
+              })}
+            </p>
           </div>
           <button
             type="button"
