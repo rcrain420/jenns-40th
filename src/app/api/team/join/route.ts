@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { grantSiteAccessAfterJoin } from "@/lib/join-access";
-import { joinTeam, verifyTeamInviteToken } from "@/lib/team-invite";
+import { joinTeam, resolveJoinInvite } from "@/lib/team-invite";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -10,14 +10,16 @@ export async function POST(request: Request) {
   }
 
   let token = "";
+  let code = "";
   try {
-    const body = (await request.json()) as { token?: unknown };
+    const body = (await request.json()) as { token?: unknown; code?: unknown };
     token = typeof body.token === "string" ? body.token : "";
+    code = typeof body.code === "string" ? body.code : "";
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const verified = verifyTeamInviteToken(token);
+  const verified = await resolveJoinInvite({ token, code });
   if (!verified.ok) {
     return NextResponse.json(
       {

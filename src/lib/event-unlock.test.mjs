@@ -3,12 +3,9 @@ import assert from "node:assert/strict";
 import { describe, it, before } from "node:test";
 
 process.env.SESSION_SECRET ??= "test-session-secret-at-least-32-chars!!";
-process.env.EVENT_PIN ??= "2468";
 
 const {
   EVENT_UNLOCK_PURPOSE,
-  checkEventPin,
-  evaluateEventPin,
   evaluateEventUnlockToken,
   eventUnlockPath,
   issueEventUnlockToken,
@@ -21,7 +18,6 @@ const EMAIL = "Ada@Example.com";
 describe("event unlock tokens", () => {
   before(() => {
     process.env.SESSION_SECRET = "test-session-secret-at-least-32-chars!!";
-    process.env.EVENT_PIN = "2468";
   });
 
   it("issues an unguessable signed token bound to the registration email", () => {
@@ -39,7 +35,7 @@ describe("event unlock tokens", () => {
     assert.equal(verified.email, "ada@example.com");
   });
 
-  it("unlocks from a valid token (same grant as a correct PIN)", () => {
+  it("unlocks from a valid token", () => {
     const { token } = issueEventUnlockToken({
       teamId: TEAM_ID,
       email: EMAIL,
@@ -93,6 +89,7 @@ describe("event unlock tokens", () => {
     );
     assert.equal(evaluated.ok, false);
     assert.match(evaluated.error, /expired/i);
+    assert.equal(/\bPIN\b/i.test(evaluated.error), false);
   });
 
   it("does not treat a different purpose as an event unlock", () => {
@@ -116,20 +113,6 @@ describe("event unlock tokens", () => {
       ok: false,
       reason: "invalid",
     });
-  });
-});
-
-describe("event PIN fallback", () => {
-  it("still unlocks with the correct PIN", () => {
-    assert.equal(checkEventPin("2468"), true);
-    assert.deepEqual(evaluateEventPin("2468"), { ok: true, via: "pin" });
-  });
-
-  it("rejects a wrong PIN", () => {
-    assert.equal(checkEventPin("0000"), false);
-    const result = evaluateEventPin("0000");
-    assert.equal(result.ok, false);
-    assert.equal(result.status, 401);
   });
 });
 

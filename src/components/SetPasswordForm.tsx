@@ -58,8 +58,7 @@ export function SetPasswordForm({ email, initialName = "" }: Props) {
     return (
       <p className="text-ink/75">
         Account saved for <strong>{email}</strong>. You&apos;re on the boat
-        list now. Join the boat or the unlock link on this page opens the
-        Livewell — no extra email confirm.
+        list now. Sign in anytime to open My team and the Livewell.
       </p>
     );
   }
@@ -69,8 +68,7 @@ export function SetPasswordForm({ email, initialName = "" }: Props) {
       <p className="text-ink/75">
         Set a password for <strong>{email}</strong> so you — the person who
         registered — appear on the boat list. This is not the captain&apos;s
-        login. Join the boat or the unlock link on this page opens the
-        Livewell.
+        login. After you save, sign in to open My team and the Livewell.
       </p>
       <div>
         <label htmlFor="creator-name" className="block text-sm font-semibold text-wave">

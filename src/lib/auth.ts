@@ -1,15 +1,9 @@
 import { timingSafeEqual } from "crypto";
 import { getIronSession, SessionOptions } from "iron-session";
 import { cookies } from "next/headers";
-import {
-  checkEventPin,
-  isEventPinConfigured,
-  normalizeUnlockEmail,
-} from "./event-unlock-token";
+import { normalizeUnlockEmail } from "./event-unlock-token";
 import type { RegistrantClaim } from "./open-my-team-access";
 import { getUserById, toPublicUser, type PublicUser } from "./users";
-
-export { checkEventPin, isEventPinConfigured };
 
 export type AdminSession = {
   isAdmin: boolean;
@@ -187,22 +181,6 @@ export async function clearRegistrantClaim() {
   if (!session.registrantClaim) return;
   delete session.registrantClaim;
   await session.save();
-}
-
-export async function requireEventUnlock() {
-  const session = await getEventSession();
-  if (session.unlocked) {
-    return session;
-  }
-  if (!isEventPinConfigured()) {
-    // Local/dev convenience: no PIN configured → allow. Production stays locked
-    // until a magic-link or PIN unlock sets the event session.
-    if (process.env.NODE_ENV === "production") {
-      return null;
-    }
-    return { unlocked: true };
-  }
-  return null;
 }
 
 export function checkAdminPassword(password: string): boolean {

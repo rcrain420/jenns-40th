@@ -535,7 +535,7 @@ export function RegisterForm({
           Your email <span className="text-alert">*</span>
         </label>
         <p className="mt-1 text-sm text-ink/65">
-          For your account and the unlock link
+          For your account
           {boatType === "NON_GUIDED"
             ? ", and as the primary contact email"
             : ""}
@@ -569,9 +569,10 @@ export function RegisterForm({
               {MIN_ANGLERS}–{MAX_ANGLERS} fishing anglers, including kids.
               Name and whether they are 17 or under are required. Email is
               optional — {YOUTH_EMAIL_HELPER} Adults without email can stay
-              name-only and still join with the shared invite link or the
-              event PIN. That is not the kids path. If you add an email on an
-              adult seat, they get a Join the boat email. Youth seats do not
+              name-only on the roster and still join by creating an account
+              from the shared invite link. That is not the kids path. If you
+              add an email on an adult seat, they get a Join the boat email.
+              Youth seats do not
               get a create-account invite and do not add $
               {FEE_PER_ANGLER_CENTS / 100} to the bill. The captain is not an
               angler slot and must be 18+ if you add one — now or later from

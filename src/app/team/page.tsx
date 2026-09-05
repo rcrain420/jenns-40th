@@ -12,6 +12,10 @@ import {
   buildBoatRoster,
 } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
+import {
+  INVITE_THE_BOAT_MEMBER_LINES,
+  INVITE_THE_BOAT_REGISTRANT_LINES,
+} from "@/lib/team-invite-copy";
 import { teamInviteUrl } from "@/lib/team-invite";
 
 export const dynamic = "force-dynamic";
@@ -80,7 +84,7 @@ export default async function MyTeamPage({
   const team = member.team;
   const isRegistrant = team.claimedByUserId === user.id;
   const canEdit = isRegistrant && isRegistrationOpen();
-  const inviteUrl = teamInviteUrl(team.id);
+  const inviteUrl = await teamInviteUrl(team.id);
   const boatRoster = buildBoatRoster({
     anglers: team.anglers.map((a) => ({
       fullName: a.fullName,
@@ -105,24 +109,26 @@ export default async function MyTeamPage({
       <div className="space-y-10">
         {joined === "1" ? (
           <p className="rounded-md bg-mist px-4 py-3 text-sm text-wave">
-            You’re on {team.teamName}. The Livewell is unlocked here — you can
-            post without a PIN or a second unlock.
+            You’re on {team.teamName}. You can post on the Livewell from this
+            account.
           </p>
         ) : null}
         {unlocked === "1" ? (
           <p className="rounded-md bg-mist px-4 py-3 text-sm text-wave">
-            You’re signed in on this device. The Livewell is unlocked here — no
-            PIN needed. Invite teammates below.
+            You’re signed in on this device. Invite teammates below.
           </p>
         ) : null}
 
         <section>
           <span className="section-banner">Invite the boat</span>
-          <p className="mt-3 text-ink/75">
-            {isRegistrant
-              ? "You registered this boat, so you invite teammates. Add a captain anytime if you have one — they must be 18+ and might never log in. Adding an email on an adult seat (here via Invite, or at register) sends Join the boat. Youth seats do not get a create-account invite — parent login is the login — and they do not add $75 to the bill. After adults join they can see the team and post on the Livewell — no PIN or second unlock. Adults without email can stay name-only on the PIN / shared-link path. That is not the kids path. Joining does not add them to the paid roster — add fishing names below if they’re in the boat."
-              : "You’re on this boat. After you joined, the Livewell is unlocked here — no PIN or extra email confirm. Joining did not make you the captain or add you to the paid roster."}
-          </p>
+          <div className="mt-3 space-y-2 text-ink/75">
+            {(isRegistrant
+              ? INVITE_THE_BOAT_REGISTRANT_LINES
+              : INVITE_THE_BOAT_MEMBER_LINES
+            ).map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
           <div className="mt-4">
             <InviteLinkCopy url={inviteUrl} shareTitle={`Join ${team.teamName}`} />
           </div>

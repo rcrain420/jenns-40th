@@ -18,6 +18,7 @@ const NAV = [
   { href: "/pots", label: "Pot Total" },
   { href: "/guides", label: "Guides" },
   { href: "/catches", label: "Livewell" },
+  { href: "/teams", label: "Teams" },
 ] as const;
 
 export function SiteHeader({

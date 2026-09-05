@@ -63,7 +63,7 @@ export async function GET() {
         isRegistrant: m.user.id === team.claimedByUserId,
       })),
     },
-    inviteUrl: teamInviteUrl(team.id),
+    inviteUrl: await teamInviteUrl(team.id),
     isRegistrant,
     canEditRoster: isRegistrant && isRegistrationOpen(),
   });

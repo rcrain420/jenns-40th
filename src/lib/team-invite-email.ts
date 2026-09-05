@@ -1,19 +1,17 @@
 import { EVENT } from "./config";
 import { sendEmail, type EmailDelivery } from "./email";
-import { getAppUrl } from "./safe-path";
-import { anglerInvitePath, issueTeamInviteToken } from "./team-invite-token";
+import { publicAbsoluteUrl } from "./safe-path";
+import { anglerInviteSharePath } from "./team-invite-code";
+import { ensureTeamInviteCode } from "./team-invite";
 import { teamInviteEmailCopy } from "./team-invite-email-copy";
 
-export function anglerInviteUrl(
+export async function anglerInviteUrl(
   teamId: string,
   email: string,
   name?: string,
-): string {
-  const { token } = issueTeamInviteToken({ teamId });
-  return new URL(
-    anglerInvitePath(token, email, name),
-    `${getAppUrl()}/`,
-  ).toString();
+): Promise<string> {
+  const { code } = await ensureTeamInviteCode(teamId);
+  return publicAbsoluteUrl(anglerInviteSharePath(code, email, name));
 }
 
 export type TeamInviteEmailInput = {
@@ -23,14 +21,14 @@ export type TeamInviteEmailInput = {
   to: string;
 };
 
-export function buildTeamInviteEmail(input: TeamInviteEmailInput): {
+export async function buildTeamInviteEmail(input: TeamInviteEmailInput): Promise<{
   to: string;
   subject: string;
   text: string;
   html: string;
   inviteUrl: string;
-} {
-  const inviteUrl = anglerInviteUrl(
+}> {
+  const inviteUrl = await anglerInviteUrl(
     input.teamId,
     input.to,
     input.anglerName,
@@ -58,7 +56,7 @@ export function buildTeamInviteEmail(input: TeamInviteEmailInput): {
 export async function sendTeamInviteEmail(
   input: TeamInviteEmailInput,
 ): Promise<EmailDelivery & { inviteUrl: string }> {
-  const message = buildTeamInviteEmail(input);
+  const message = await buildTeamInviteEmail(input);
   const delivery = await sendEmail({
     to: message.to,
     subject: message.subject,

@@ -114,10 +114,10 @@ export function AuthForm({
       if (data.devConfirmUrl) setDevConfirmUrl(data.devConfirmUrl);
       if (mode === "signup" && data.confirmationEmailSent === false) {
         setNotice(
-          next.startsWith("/join")
-            ? "Account created. Finish joining — that unlocks the Livewell on this device."
+          next.startsWith("/join") || next.startsWith("/j/")
+            ? "Account created. Finish joining — that opens the Livewell on this device."
             : next.startsWith("/team")
-              ? "Account created. You’re on this boat — roster and Livewell, no PIN."
+              ? "Account created. You’re on this boat — roster and Livewell."
               : next.startsWith("/register")
                 ? "Account created. You can still register your team — confirm later to post catches."
                 : "Account created. We could not send the confirmation email — you can still join a team. Confirm later to post catches.",

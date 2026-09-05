@@ -146,41 +146,8 @@ export function verifyEventUnlockToken(
 }
 
 export type EventUnlockResult =
-  | { ok: true; via: "pin" | "link" }
+  | { ok: true; via: "link" }
   | { ok: false; error: string; status: number };
-
-export function isEventPinConfigured(): boolean {
-  return Boolean(process.env.EVENT_PIN);
-}
-
-export function checkEventPin(pin: string): boolean {
-  const expected = process.env.EVENT_PIN;
-  if (!expected) {
-    return false;
-  }
-  return safeEqual(pin, expected);
-}
-
-export function evaluateEventPin(pin: string): EventUnlockResult {
-  if (!isEventPinConfigured()) {
-    return {
-      ok: false,
-      error: "Event access is not configured yet. Try again shortly.",
-      status: 503,
-    };
-  }
-
-  const trimmed = pin.trim();
-  if (!trimmed) {
-    return { ok: false, error: "PIN is required", status: 400 };
-  }
-
-  if (!checkEventPin(trimmed)) {
-    return { ok: false, error: "Incorrect PIN", status: 401 };
-  }
-
-  return { ok: true, via: "pin" };
-}
 
 export function evaluateEventUnlockToken(
   token: string,
@@ -197,7 +164,7 @@ export function evaluateEventUnlockToken(
       ok: false,
       error:
         verified.reason === "expired"
-          ? "This unlock link has expired. Use the event PIN from the captain's meeting."
+          ? "This link has expired. Sign in or create an account to open My team."
           : "This unlock link is not valid.",
       status: 401,
     };
@@ -208,19 +175,5 @@ export function evaluateEventUnlockToken(
     via: "link",
     teamId: verified.teamId,
     email: verified.email,
-  };
-}
-
-export function readEventUnlockInput(body: unknown): {
-  pin: string;
-  token: string;
-} {
-  if (!body || typeof body !== "object") {
-    return { pin: "", token: "" };
-  }
-  const record = body as { pin?: unknown; token?: unknown };
-  return {
-    pin: typeof record.pin === "string" ? record.pin : "",
-    token: typeof record.token === "string" ? record.token : "",
   };
 }

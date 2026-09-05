@@ -10,6 +10,7 @@ const {
   TEAM_INVITE_PURPOSE,
 } = await import("./team-invite-token.ts");
 const { publicAbsoluteUrl } = await import("./safe-path.ts");
+const { teamInviteSharePath } = await import("./team-invite-code.ts");
 
 const TEAM_ID = "team_pretty_pier";
 
@@ -31,15 +32,18 @@ describe("team invite tokens", () => {
     assert.equal(path.includes("http"), false);
   });
 
-  it("turns a join path into an absolute URL for copy and share", () => {
+  it("keeps the long token path for leftover /join?token= links", () => {
+    const { token } = issueTeamInviteToken({ teamId: TEAM_ID });
+    assert.equal(verifyTeamInviteToken(token).ok, true);
+    assert.equal(teamInvitePath(token).includes(token), true);
+  });
+
+  it("turns a short join path into an absolute URL for copy and share", () => {
     const prev = process.env.NEXT_PUBLIC_APP_URL;
     process.env.NEXT_PUBLIC_APP_URL = "https://officialishfishingtournament.com";
-    const { token } = issueTeamInviteToken({ teamId: TEAM_ID });
-    const url = publicAbsoluteUrl(teamInvitePath(token));
-    assert.equal(
-      url.startsWith("https://officialishfishingtournament.com/join?token="),
-      true,
-    );
+    const url = publicAbsoluteUrl(teamInviteSharePath("AbCdEfGhIjKl"));
+    assert.equal(url, "https://officialishfishingtournament.com/j/AbCdEfGhIjKl");
+    assert.equal(url.includes("token="), false);
     if (prev === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
     else process.env.NEXT_PUBLIC_APP_URL = prev;
   });

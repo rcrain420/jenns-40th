@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { AuthForm } from "./AuthForm";
 import { notifyAuthChanged } from "@/lib/auth-client";
 import { joinTheBoatAuthMode } from "@/lib/join-the-boat";
+import { joinReturnPath } from "@/lib/team-invite-code";
 
 type Props = {
-  token: string;
+  token?: string;
+  code?: string;
   teamName: string;
   signedIn: boolean;
   initialEmail?: string;
@@ -15,14 +17,20 @@ type Props = {
 };
 
 export function JoinTeamPanel({
-  token,
+  token = "",
+  code = "",
   teamName,
   signedIn,
   initialEmail = "",
   initialName = "",
 }: Props) {
   const router = useRouter();
-  const next = `/join?token=${encodeURIComponent(token)}`;
+  const next = joinReturnPath({
+    token,
+    code,
+    email: initialEmail,
+    name: initialName,
+  });
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(signedIn);
 
@@ -34,7 +42,7 @@ export function JoinTeamPanel({
         const res = await fetch("/api/team/join", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify({ token, code }),
         });
         const data = (await res.json()) as { error?: string; teamName?: string };
         if (cancelled) return;
@@ -57,7 +65,7 @@ export function JoinTeamPanel({
     return () => {
       cancelled = true;
     };
-  }, [signedIn, token, router]);
+  }, [signedIn, token, code, router]);
 
   if (!signedIn) {
     return (
@@ -65,10 +73,9 @@ export function JoinTeamPanel({
         <p className="text-ink/75">
           Create an account to hop on <strong>{teamName}</strong>. Use
           Google or Facebook, or set a password for this email. After that
-          you are on the boat and the Livewell is unlocked here. No PIN, no
-          second unlock. Joining does not make you the captain or add you to
-          the paid roster. Later visits can use the same Google, Facebook,
-          or password sign-in.
+          you are on the boat and can use the Livewell. Joining does not
+          make you the captain or add you to the paid roster. Later visits
+          can use the same Google, Facebook, or password sign-in.
         </p>
         <AuthForm
           mode={joinTheBoatAuthMode()}

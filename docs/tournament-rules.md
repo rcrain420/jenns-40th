@@ -208,7 +208,7 @@ The youth angler must personally hook the fish and land it. Adults may help with
 
 Youth anglers are roster seats for the kids pot and stringer rules. They do not pay the $75 adult entry and do not grow the main tournament pot. Their fish still count on the team stringer, and they still count toward paid team side pots when the team has entered those pots.
 
-A parent or guardian may use their own email for the child. The child does not get a tournament account. Parent login is the login. Adults without email may stay name-only; that is not the kids path.
+A parent or guardian may use their own email for the child. The child does not get a tournament account. Parent login is the login. Adults without email may stay name-only on the roster; they still create an account from the invite link. That is not the kids path.
 
 ### Birthday Trash Fish Prize
 

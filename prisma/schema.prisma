@@ -82,6 +82,19 @@ model Team {
   updatedAt        DateTime @updatedAt
   anglers          Angler[]
   members          TeamMember[]
+  inviteCodes      TeamInviteCode[]
+}
+
+/// Unguessable share code for /j/<code>. Long JWTs stay valid on /join?token=.
+model TeamInviteCode {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  code      String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([teamId])
 }
 
 model TeamMember {

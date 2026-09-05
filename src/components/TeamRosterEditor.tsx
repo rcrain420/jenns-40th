@@ -219,8 +219,9 @@ export function TeamRosterEditor({
           Email is optional. {YOUTH_EMAIL_HELPER} Invite on an adult seat
           sends Join the boat. Youth seats do not get a create-account invite
           — parent login is the login — and they do not add to the $75 entry
-          total. Adults without email can stay name-only on the PIN /
-          shared-link path. That is not the kids path.
+          total. Adults without email stay name-only on the roster and join
+          by creating an account from the invite link. That is not the kids
+          path.
           {canEditRoster
             ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. Use + Add angler to add a seat — the add form stays hidden until you click it.`
             : " Registration is closed, so names stay as they are — you can still add an email and resend Invite on adult seats."}

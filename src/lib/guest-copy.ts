@@ -18,10 +18,6 @@ export const GUEST_AI_NO_IMAGE_NOTE =
 export const GUEST_AI_PROVIDER_ERROR_NOTE =
   "AI guess unavailable right now. Size left blank — not a real estimate.";
 
-/** Guest-facing copy when the shared event PIN is missing on the server. */
-export const GUEST_EVENT_PIN_UNAVAILABLE =
-  "Catch logging isn't available right now. Try again later, or find a host.";
-
 /** Registration succeeded but the confirmation email did not go out. */
 export const GUEST_REGISTRATION_EMAIL_FAILED =
   "We could not send the confirmation email. Use the unlock and invite links on this page — they work without mail.";

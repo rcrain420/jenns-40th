@@ -61,7 +61,8 @@ describe("register / Invite join emails", () => {
 
     assert.ok(message.html.includes("Join the boat"));
     assert.ok(message.text.includes("Livewell"));
-    assert.ok(message.text.includes("no PIN or second unlock"));
+    assert.equal(/\bPIN\b/.test(message.text), false);
+    assert.ok(message.text.includes("create an account"));
     assert.equal(/venmo/i.test(message.text), false);
 
     const params = new URLSearchParams(path.slice(path.indexOf("?") + 1));

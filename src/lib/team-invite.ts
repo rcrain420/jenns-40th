@@ -1,7 +1,13 @@
 import { MAX_ANGLERS } from "./config";
 import { prisma } from "./db";
-import { getAppUrl } from "./safe-path";
-import { issueTeamInviteToken, verifyTeamInviteToken } from "./team-invite-token";
+import { publicAbsoluteUrl } from "./safe-path";
+import {
+  generateInviteCode,
+  inviteCodeExpiresAt,
+  isInviteCodeFormat,
+  teamInviteSharePath,
+} from "./team-invite-code";
+import { verifyTeamInviteToken } from "./team-invite-token";
 
 export {
   TEAM_INVITE_PURPOSE,
@@ -10,12 +16,85 @@ export {
   teamInvitePath,
   verifyTeamInviteToken,
 } from "./team-invite-token";
+export {
+  anglerInviteSharePath,
+  teamInviteSharePath,
+} from "./team-invite-code";
 
-export function teamInviteUrl(teamId: string): string {
-  const { token } = issueTeamInviteToken({ teamId });
-  const url = new URL("/join", `${getAppUrl()}/`);
-  url.searchParams.set("token", token);
-  return url.toString();
+const CODE_ATTEMPTS = 8;
+
+export async function ensureTeamInviteCode(teamId: string): Promise<{
+  code: string;
+  expiresAt: Date;
+}> {
+  const now = new Date();
+  const existing = await prisma.teamInviteCode.findFirst({
+    where: { teamId, expiresAt: { gt: now } },
+    orderBy: { createdAt: "desc" },
+  });
+  if (existing) {
+    return { code: existing.code, expiresAt: existing.expiresAt };
+  }
+
+  let lastError: unknown;
+  for (let attempt = 0; attempt < CODE_ATTEMPTS; attempt += 1) {
+    const code = generateInviteCode();
+    try {
+      const created = await prisma.teamInviteCode.create({
+        data: {
+          teamId,
+          code,
+          expiresAt: inviteCodeExpiresAt(now),
+        },
+      });
+      return { code: created.code, expiresAt: created.expiresAt };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Could not create an invite code");
+}
+
+export async function resolveTeamInviteCode(
+  code: string,
+  now = new Date(),
+): Promise<
+  { ok: true; teamId: string } | { ok: false; reason: "invalid" | "expired" }
+> {
+  const trimmed = code.trim();
+  if (!isInviteCodeFormat(trimmed)) {
+    return { ok: false, reason: "invalid" };
+  }
+  const row = await prisma.teamInviteCode.findUnique({
+    where: { code: trimmed },
+    select: { teamId: true, expiresAt: true },
+  });
+  if (!row) return { ok: false, reason: "invalid" };
+  if (row.expiresAt.getTime() <= now.getTime()) {
+    return { ok: false, reason: "expired" };
+  }
+  return { ok: true, teamId: row.teamId };
+}
+
+export async function resolveJoinInvite(input: {
+  token?: string;
+  code?: string;
+  now?: Date;
+}): Promise<
+  { ok: true; teamId: string } | { ok: false; reason: "invalid" | "expired" }
+> {
+  const token = input.token?.trim() ?? "";
+  if (token) return verifyTeamInviteToken(token, input.now);
+  const code = input.code?.trim() ?? "";
+  if (code) return resolveTeamInviteCode(code, input.now);
+  return { ok: false, reason: "invalid" };
+}
+
+export async function teamInviteUrl(teamId: string): Promise<string> {
+  const { code } = await ensureTeamInviteCode(teamId);
+  return publicAbsoluteUrl(teamInviteSharePath(code));
 }
 
 export async function ensureTeamMember(userId: string, teamId: string) {

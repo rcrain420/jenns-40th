@@ -143,9 +143,9 @@ export function CatchLogger({
         <h2 className="font-display text-2xl text-wave">Post your catch</h2>
         <p className="text-ink/70">
           This page does not sign you in by itself. Use Join the boat from an
-          invite email, or create an account here. After you join a boat you
-          can post — no PIN, no second unlock, no extra email confirm.
-          Name-only seats still use the shared invite link or the event PIN.
+          invite, or create an account here. After you join a boat you can
+          post. Name-only adult seats still create an account from the shared
+          invite link.
         </p>
         <AuthForm next="/catches" compact onSuccess={() => router.refresh()} />
       </div>
