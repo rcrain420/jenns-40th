@@ -296,7 +296,7 @@ function AccountMenu({
             onClick={() => setOpen(false)}
             className={itemClass}
           >
-            My team
+            Your boat
           </Link>
           {session.isAdmin ? (
             <Link
@@ -317,7 +317,7 @@ function AccountMenu({
             }}
             className={`${itemClass} border-t border-wave/10 text-ink/70`}
           >
-            Log out
+            Log off
           </button>
         </div>
       ) : null}
