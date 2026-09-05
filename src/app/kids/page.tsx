@@ -49,6 +49,10 @@ export default async function KidsPage() {
           name: m.user.name,
           email: m.user.email,
         })),
+        captain: {
+          name: team.captainName,
+          email: team.captainEmail,
+        },
       })
     : false;
 

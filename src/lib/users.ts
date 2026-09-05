@@ -122,6 +122,22 @@ export async function claimTeamForUser(userId: string, email: string) {
   return claimed;
 }
 
+/** Invited captain email: attach the account to that boat on sign-in. */
+export async function claimTeamIfCaptain(userId: string, email: string) {
+  const existing = await prisma.teamMember.findUnique({ where: { userId } });
+  if (existing) return existing;
+
+  const team = await prisma.team.findFirst({
+    where: { captainEmail: { equals: email, mode: "insensitive" } },
+    select: { id: true },
+  });
+  if (!team) return null;
+
+  const member = await ensureTeamMember(userId, team.id);
+  await markEmailVerified(userId);
+  return member;
+}
+
 export async function findTeamAnglersForUser(userId: string) {
   const member = await prisma.teamMember.findUnique({
     where: { userId },
@@ -250,6 +266,7 @@ export async function signupUser(input: {
   });
 
   await claimTeamForUser(user.id, email);
+  await claimTeamIfCaptain(user.id, email);
   await applyOpenMyTeamClaim(user.id, email, input.registrantClaim);
   const refreshed = (await getUserById(user.id)) ?? user;
   const publicUser = toPublicUser(refreshed);
@@ -321,6 +338,7 @@ export async function loginUser(input: {
 
   await promoteAdminIfNeeded(user.id, user.email);
   await claimTeamForUser(user.id, user.email);
+  await claimTeamIfCaptain(user.id, user.email);
   await applyOpenMyTeamClaim(user.id, user.email, input.registrantClaim);
   const refreshed = (await getUserById(user.id)) ?? user;
   return { ok: true, user: toPublicUser(refreshed) };
@@ -414,6 +432,7 @@ export async function loginWithOAuth(input: {
   }
   await promoteAdminIfNeeded(userId, email);
   await claimTeamForUser(userId, email);
+  await claimTeamIfCaptain(userId, email);
   await applyOpenMyTeamClaim(userId, email, input.registrantClaim);
   const refreshed = await getUserById(userId);
   if (!refreshed) {
@@ -452,6 +471,7 @@ export async function confirmEmailToken(
   ]);
   await promoteAdminIfNeeded(row.userId, row.user.email);
   await claimTeamForUser(row.userId, row.user.email);
+  await claimTeamIfCaptain(row.userId, row.user.email);
   const refreshed = await getUserById(row.userId);
   if (!refreshed) {
     return { ok: false, error: "Account not found", status: 404 };
@@ -573,6 +593,7 @@ export async function resetPasswordWithToken(opts: {
   ]);
   await promoteAdminIfNeeded(row.userId, row.user.email);
   await claimTeamForUser(row.userId, row.user.email);
+  await claimTeamIfCaptain(row.userId, row.user.email);
   const refreshed = await getUserById(row.userId);
   if (!refreshed) {
     return { ok: false, error: "Account not found", status: 404 };

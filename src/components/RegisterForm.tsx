@@ -58,6 +58,7 @@ const FIELD_ORDER = [
   "boatType",
   "captainName",
   "captainPhone",
+  "captainEmail",
   "contactName",
   "contactPhone",
   "registrantEmail",
@@ -86,6 +87,7 @@ export function RegisterForm({
   const [boatType, setBoatType] = useState<BoatType | "">(initialBoatType ?? "");
   const [captainName, setCaptainName] = useState(initialCaptainName);
   const [captainPhone, setCaptainPhone] = useState("");
+  const [captainEmail, setCaptainEmail] = useState("");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [registrantEmail, setRegistrantEmail] = useState(viewer?.email ?? "");
@@ -189,6 +191,9 @@ export function RegisterForm({
     if (!registrantEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registrantEmail.trim())) {
       next.registrantEmail = ["Valid email required"];
     }
+    if (captainEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(captainEmail.trim())) {
+      next.captainEmail = ["Valid email required"];
+    }
     const named = anglers.filter((a) => a.fullName.trim());
     if (named.length < MIN_ANGLERS) {
       next.anglers = [`At least ${MIN_ANGLERS} anglers required`];
@@ -254,6 +259,7 @@ export function RegisterForm({
           boatType,
           captainName,
           captainPhone,
+          captainEmail,
           contactName,
           contactPhone,
           contactEmail: boatType === "NON_GUIDED" ? registrantEmail : "",
@@ -421,7 +427,7 @@ export function RegisterForm({
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {(
             [
-              ["GUIDED", "Guided", "Captain name and phone are optional — add now or later"],
+              ["GUIDED", "Guided", "Captain name, phone, and email are optional — add now or later"],
               [
                 "NON_GUIDED",
                 "Non-guided",
@@ -458,7 +464,8 @@ export function RegisterForm({
       {boatType === "GUIDED" ? (
         <div className="space-y-3">
           <p className="text-sm text-ink/65">
-            Captain is optional. They do not need an account. {CAPTAIN_CONTACT_ADULT_NOTE}{" "}
+            Captain is optional. An email invites them to sign in — not a $75
+            seat. {CAPTAIN_CONTACT_ADULT_NOTE}{" "}
             Still looking?{" "}
             <Link href="/guides" className="font-semibold text-sea hover:underline">
               Search Rockport fishing guides
@@ -503,6 +510,25 @@ export function RegisterForm({
                 }
               />
               {err("captainPhone")}
+            </div>
+            <div className="sm:col-span-2">
+              <label className={labelClass} htmlFor="captainEmail">
+                Captain email (optional)
+              </label>
+              <input
+                id="captainEmail"
+                type="email"
+                autoComplete="email"
+                className={inputClass}
+                value={captainEmail}
+                onChange={(e) => setCaptainEmail(e.target.value)}
+                placeholder="Invites them to sign in"
+                aria-invalid={Boolean(fieldErrors.captainEmail?.length)}
+                aria-describedby={
+                  fieldErrors.captainEmail?.length ? "captainEmail-error" : undefined
+                }
+              />
+              {err("captainEmail")}
             </div>
           </div>
         </div>

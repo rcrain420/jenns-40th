@@ -16,8 +16,10 @@
  *
  * Product contract 2026-09-05 (Aaron): four invited anglers lock the
  * boat. Pending, youth, and name-only official seats count. Extra
- * joiners from the share link count. Captain is not a seat. A pending
- * adult may still finish join — that fills their existing seat.
+ * joiners from the share link count. Captain is not a seat — even after
+ * they join with a captain email. A pending adult may still finish join
+ * — that fills their existing seat. A pending captain may finish join
+ * on a full boat the same way.
  *
  * Leaf module so Node tests can import it without extension rewriting.
  * Invite cap matches config.MAX_ANGLERS (kept local — no config import).
@@ -37,12 +39,20 @@ export type BoatRosterStatus =
   | "pending"
   | "name-only"
   | "youth"
-  | "boat-account";
+  | "boat-account"
+  | "captain"
+  | "captain-joined"
+  | "captain-pending";
 
 export type BoatRosterRow = {
   name: string;
   email: string | null;
   status: BoatRosterStatus;
+};
+
+export type BoatCaptain = {
+  name?: string | null;
+  email?: string | null;
 };
 
 export type BoatRosterInput = {
@@ -52,6 +62,7 @@ export type BoatRosterInput = {
     isYouth?: boolean | null;
   }>;
   members: Array<{ name: string; email: string }>;
+  captain?: BoatCaptain | null;
 };
 
 export const BOAT_FULL_MESSAGE = `This boat is full (${MAX_ANGLERS}/${MAX_ANGLERS}).`;
@@ -66,6 +77,30 @@ function normalizeEmail(email: string | null | undefined): string | null {
   return trimmed.includes("@") ? trimmed : null;
 }
 
+export function isCaptainRosterStatus(status: BoatRosterStatus): boolean {
+  return (
+    status === "captain" ||
+    status === "captain-joined" ||
+    status === "captain-pending"
+  );
+}
+
+/** Seats and extra joiners lock the boat. Captain never does. */
+export function countsTowardInviteLock(status: BoatRosterStatus): boolean {
+  return !isCaptainRosterStatus(status);
+}
+
+function captainDisplayName(
+  captain: BoatCaptain | null | undefined,
+  member?: { name: string } | null,
+): string {
+  const named = captain?.name?.trim();
+  if (named) return named;
+  const memberName = member?.name?.trim();
+  if (memberName) return memberName;
+  return "Captain";
+}
+
 /** Derive the boat list from paid seats + accounts that finished join. */
 export function buildBoatRoster(input: BoatRosterInput): BoatRosterRow[] {
   const memberByEmail = new Map<string, { name: string; email: string }>();
@@ -76,6 +111,7 @@ export function buildBoatRoster(input: BoatRosterInput): BoatRosterRow[] {
 
   const used = new Set<string>();
   const rows: BoatRosterRow[] = [];
+  const captainEmail = normalizeEmail(input.captain?.email);
 
   for (const angler of input.anglers) {
     const email = normalizeEmail(angler.email);
@@ -106,10 +142,26 @@ export function buildBoatRoster(input: BoatRosterInput): BoatRosterRow[] {
   for (const member of input.members) {
     const email = normalizeEmail(member.email);
     if (!email || used.has(email)) continue;
+    if (captainEmail && email === captainEmail) continue;
     rows.push({
       name: member.name,
       email,
       status: "boat-account",
+    });
+  }
+
+  const hasCaptain =
+    Boolean(input.captain?.name?.trim()) || Boolean(captainEmail);
+  if (hasCaptain) {
+    const member = captainEmail ? memberByEmail.get(captainEmail) : undefined;
+    rows.push({
+      name: captainDisplayName(input.captain, member),
+      email: captainEmail,
+      status: !captainEmail
+        ? "captain"
+        : member
+          ? "captain-joined"
+          : "captain-pending",
     });
   }
 
@@ -121,12 +173,15 @@ export function boatRosterStatusLabel(status: BoatRosterStatus): string {
   if (status === "pending") return "Angler · Pending";
   if (status === "youth") return "Youth · parent login";
   if (status === "boat-account") return "Boat account";
+  if (status === "captain-joined") return "Captain · Joined";
+  if (status === "captain-pending") return "Captain · Pending";
+  if (status === "captain") return "Captain";
   return "Name-only · not emailed";
 }
 
-/** Paid fishing seats, including youth. Boat-only accounts are not seats. */
+/** Paid fishing seats, including youth. Boat-only accounts and captains are not seats. */
 export function isOfficialAnglerSeat(status: BoatRosterStatus): boolean {
-  return status !== "boat-account";
+  return status !== "boat-account" && !isCaptainRosterStatus(status);
 }
 
 export type DirectoryAngler = {
@@ -156,7 +211,8 @@ export function directoryStatusLabel(
     status === "joined" ||
     status === "pending" ||
     status === "youth" ||
-    status === "boat-account"
+    status === "boat-account" ||
+    isCaptainRosterStatus(status)
   ) {
     return boatRosterStatusLabel(status);
   }
@@ -202,10 +258,12 @@ export function toDirectoryTeam(input: {
   ownTeamId?: string | null;
   anglers: BoatRosterInput["anglers"];
   members: BoatRosterInput["members"];
+  captain?: BoatCaptain | null;
 }): DirectoryTeam {
   const rows = buildBoatRoster({
     anglers: input.anglers,
     members: input.members,
+    captain: input.captain,
   });
   return {
     id: input.id,
@@ -223,7 +281,9 @@ export function toDirectoryTeam(input: {
 
 /** Seats that count toward the 4-angler invite cap, including Pending. */
 export function invitedAnglerCount(input: BoatRosterInput): number {
-  return buildBoatRoster(input).length;
+  return buildBoatRoster(input).filter((row) =>
+    countsTowardInviteLock(row.status),
+  ).length;
 }
 
 export function isBoatInviteLocked(input: BoatRosterInput): boolean {
@@ -245,11 +305,25 @@ export function joinFillsExistingSeat(
   );
 }
 
+/** True when this email is the invited captain — not a fishing seat. */
+export function joinFillsCaptainSeat(
+  captain: BoatCaptain | null | undefined,
+  joinerEmail?: string | null,
+): boolean {
+  const email = normalizeEmail(joinerEmail);
+  const invited = normalizeEmail(captain?.email);
+  return Boolean(email && invited && email === invited);
+}
+
 export function canJoinBoat(
   input: BoatRosterInput,
   joinerEmail?: string | null,
 ): boolean {
-  return joinFillsExistingSeat(input, joinerEmail) || !isBoatInviteLocked(input);
+  return (
+    joinFillsExistingSeat(input, joinerEmail) ||
+    joinFillsCaptainSeat(input.captain, joinerEmail) ||
+    !isBoatInviteLocked(input)
+  );
 }
 
 /** Reject roster growth past 4 without blocking saves on already-over boats. */

@@ -74,6 +74,10 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
       name: member.user.name,
       email: member.user.email,
     })),
+    captain: {
+      name: team.captainName,
+      email: team.captainEmail,
+    },
   });
   const inviteUrl = inviteLocked ? null : await teamInviteUrl(team.id);
   const { token: unlockToken } = issueEventUnlockToken({
@@ -127,8 +131,8 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           </p>
           <p className="mt-3 text-ink/75">
             You registered this team. That does not make you the captain — add
-            a captain anytime on My team if you have one, and invite teammates.
-            Captains might never log in.
+            a captain email anytime on My team to invite them. Captain login is
+            not a $75 angler seat.
           </p>
           <p className="mt-3 text-ink/75">{SUCCESS_CREATOR_ACCESS_NOTE}</p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
@@ -265,9 +269,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               Create your account
             </h2>
             <p className="mt-3 text-ink/75">
-              Until you set a password, you are missing from the boat list. A
-              captain does not need an account — add them anytime on My team
-              and send invites.
+              Until you set a password, you are missing from the boat list. Add
+              a captain email anytime on My team to invite them — that is not a
+              $75 angler seat.
             </p>
             <div className="mt-4">
               <SetPasswordForm email={team.registrantEmail} />
@@ -292,8 +296,8 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <div className="flex justify-between gap-4">
                 <dt className="text-ink/60">Captain</dt>
                 <dd className="text-right">
-                  {team.captainName
-                    ? `${team.captainName}${team.captainPhone ? ` · ${team.captainPhone}` : ""}`
+                  {team.captainName || team.captainEmail
+                    ? `${team.captainName || "Captain"}${team.captainEmail ? ` · invited` : ""}${team.captainPhone ? ` · ${team.captainPhone}` : ""}`
                     : "Not added yet — add anytime on My team"}
                 </dd>
               </div>

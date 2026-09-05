@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { amountDueCents } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { emptyToNull } from "@/lib/registration";
@@ -80,8 +81,9 @@ export async function PATCH(request: Request, { params }: Params) {
       data: {
         teamName: input.teamName,
         boatType: input.boatType,
-        captainName: guided ? emptyToNull(input.captainName) : null,
-        captainPhone: guided ? emptyToNull(input.captainPhone) : null,
+        captainName: emptyToNull(input.captainName),
+        captainPhone: emptyToNull(input.captainPhone),
+        captainEmail: emptyToNull(input.captainEmail),
         contactName: guided ? null : emptyToNull(input.contactName),
         contactPhone: guided ? null : emptyToNull(input.contactPhone),
         contactEmail: guided ? null : emptyToNull(input.contactEmail),
@@ -105,6 +107,19 @@ export async function PATCH(request: Request, { params }: Params) {
       include: { anglers: { orderBy: { sortOrder: "asc" } } },
     });
   });
+
+  if (team.captainEmail) {
+    try {
+      await sendCaptainJoinInvite({
+        teamId: team.id,
+        teamName: team.teamName,
+        captainName: team.captainName,
+        captainEmail: team.captainEmail,
+      });
+    } catch (error) {
+      console.error("[admin] captain invite failed", error);
+    }
+  }
 
   return NextResponse.json({ team });
 }

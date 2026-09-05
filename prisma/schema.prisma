@@ -65,6 +65,8 @@ model Team {
   boatType         String
   captainName      String?
   captainPhone     String?
+  /// Optional. Invites the captain to sign in. Not an Angler seat.
+  captainEmail     String?
   contactName      String?
   contactPhone     String?
   contactEmail     String?
@@ -83,6 +85,8 @@ model Team {
   anglers          Angler[]
   members          TeamMember[]
   inviteCodes      TeamInviteCode[]
+
+  @@index([captainEmail])
 }
 
 /// Unguessable share code for /j/<code>. Long JWTs stay valid on /join?token=.

@@ -175,4 +175,39 @@ describe("official roster grouped by boat", () => {
       "Also on this boat: Jarah (not an angler seat)",
     );
   });
+
+  it("does not add a captain row to the pot", () => {
+    const boats = groupOfficialRosterByBoat([
+      {
+        id: "boat_guided",
+        teamName: "Guided Bay",
+        anglers: [
+          {
+            fullName: "Aaron",
+            statusLabel: "Angler · Joined",
+          },
+          {
+            fullName: "Capt. Ron",
+            statusLabel: "Captain · Pending",
+            isAnglerSeat: false,
+          },
+        ],
+      },
+    ]);
+    const rows = boats[0].anglers;
+    assert.equal(officialRosterPotCents(rows[1], FEE_PER_ANGLER_CENTS), 0);
+    assert.equal(
+      officialRosterPotAmountLabel(rows[1], FEE_PER_ANGLER_CENTS, formatUsdWhole),
+      "—",
+    );
+    assert.equal(officialRosterAdultSeatCount(rows), 1);
+    assert.equal(
+      alsoOnThisBoatLine(
+        rows
+          .filter((row) => row.isAnglerSeat === false)
+          .map((row) => officialRosterAnglerLine(row)),
+      ),
+      "Also on this boat: Capt. Ron · Captain · Pending (not an angler seat)",
+    );
+  });
 });

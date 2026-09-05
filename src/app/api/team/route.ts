@@ -8,6 +8,7 @@ import {
   rosterWouldExceedInviteCapacity,
 } from "@/lib/join-the-boat";
 import { emptyToNull } from "@/lib/registration";
+import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { teamInviteUrl } from "@/lib/team-invite";
 import { teamContactSchema, teamRosterSchema } from "@/lib/validation";
 
@@ -18,6 +19,8 @@ function boatRosterInput(team: {
     isYouth: boolean;
   }>;
   members: Array<{ user: { name: string; email: string } }>;
+  captainName?: string | null;
+  captainEmail?: string | null;
 }) {
   return {
     anglers: team.anglers,
@@ -25,6 +28,10 @@ function boatRosterInput(team: {
       name: member.user.name,
       email: member.user.email,
     })),
+    captain: {
+      name: team.captainName,
+      email: team.captainEmail,
+    },
   };
 }
 
@@ -69,6 +76,7 @@ export async function GET() {
       boatType: team.boatType,
       captainName: team.captainName ?? "",
       captainPhone: team.captainPhone ?? "",
+      captainEmail: team.captainEmail ?? "",
       contactName: team.contactName ?? "",
       contactPhone: team.contactPhone ?? "",
       contactEmail: team.contactEmail ?? "",
@@ -130,17 +138,26 @@ export async function PATCH(request: Request) {
     const input = contactParsed.data;
     const boatType = input.boatType ?? team.boatType;
     const guided = boatType === "GUIDED";
+    const nextCaptainEmail = emptyToNull(input.captainEmail);
     const updatedContact = await prisma.team.update({
       where: { id: team.id },
       data: {
         boatType,
-        captainName: guided ? emptyToNull(input.captainName) : null,
-        captainPhone: guided ? emptyToNull(input.captainPhone) : null,
+        captainName: emptyToNull(input.captainName),
+        captainPhone: emptyToNull(input.captainPhone),
+        captainEmail: nextCaptainEmail,
         contactName: guided ? null : emptyToNull(input.contactName),
         contactPhone: guided ? null : emptyToNull(input.contactPhone),
         contactEmail: guided ? null : emptyToNull(input.contactEmail),
       },
       include: { anglers: { orderBy: { sortOrder: "asc" } } },
+    });
+
+    const invite = await sendCaptainJoinInvite({
+      teamId: updatedContact.id,
+      teamName: updatedContact.teamName,
+      captainName: updatedContact.captainName,
+      captainEmail: updatedContact.captainEmail,
     });
 
     return NextResponse.json({
@@ -150,10 +167,13 @@ export async function PATCH(request: Request) {
         boatType: updatedContact.boatType,
         captainName: updatedContact.captainName ?? "",
         captainPhone: updatedContact.captainPhone ?? "",
+        captainEmail: updatedContact.captainEmail ?? "",
         contactName: updatedContact.contactName ?? "",
         contactPhone: updatedContact.contactPhone ?? "",
         contactEmail: updatedContact.contactEmail ?? "",
       },
+      inviteSent: invite.ok && invite.sent,
+      inviteError: invite.ok ? undefined : invite.error,
     });
   }
 

@@ -42,6 +42,8 @@ export async function JoinInviteView({
     where: { id: verified.teamId },
     select: {
       teamName: true,
+      captainName: true,
+      captainEmail: true,
       anglers: {
         select: { fullName: true, email: true, isYouth: true },
         orderBy: { sortOrder: "asc" },
@@ -74,7 +76,17 @@ export async function JoinInviteView({
       name: member.user.name,
       email: member.user.email,
     })),
+    captain: {
+      name: team.captainName,
+      email: team.captainEmail,
+    },
   };
+  const joiningAsCaptain = Boolean(
+    (email || viewer?.email) &&
+      team.captainEmail &&
+      (email || viewer?.email || "").trim().toLowerCase() ===
+        team.captainEmail.trim().toLowerCase(),
+  );
   // Signed-out visitors may still be a pending invitee; joinTeam decides
   // after they create an account. Only block a signed-in extra person here.
   if (
@@ -101,9 +113,13 @@ export async function JoinInviteView({
       narrow
       title={`Join ${team.teamName}`}
       description={
-        viewer
-          ? "This puts your account on the boat. Joining does not make you the captain or add you to the paid roster — the person who registered can add a captain anytime and send invites."
-          : "Create an account with Google, Facebook, or email to hop on this boat. You do not need a password first if you use Google or Facebook. Joining does not make you the captain or add you to the paid roster."
+        joiningAsCaptain
+          ? viewer
+            ? "This puts your account on the boat as captain. You will see the same pages as the anglers. Captain login is not a $75 angler seat."
+            : "Create an account with Google or email to hop on this boat as captain. You do not need a password first if you use Google. Captain login is not a $75 angler seat."
+          : viewer
+            ? "This puts your account on the boat. Joining does not make you the captain or add you to the paid roster — the person who registered can add a captain anytime and send invites."
+            : "Create an account with Google, Facebook, or email to hop on this boat. You do not need a password first if you use Google or Facebook. Joining does not make you the captain or add you to the paid roster."
       }
     >
       <JoinTeamPanel
@@ -113,6 +129,7 @@ export async function JoinInviteView({
         signedIn={Boolean(viewer)}
         initialEmail={email}
         initialName={name}
+        joiningAsCaptain={joiningAsCaptain}
       />
     </PageShell>
   );

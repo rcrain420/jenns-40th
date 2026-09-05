@@ -45,8 +45,9 @@ export function teamCreateData(input: RegistrationInput) {
   return {
     teamName: input.teamName,
     boatType: input.boatType,
-    captainName: guided ? emptyToNull(input.captainName) : null,
-    captainPhone: guided ? emptyToNull(input.captainPhone) : null,
+    captainName: emptyToNull(input.captainName),
+    captainPhone: emptyToNull(input.captainPhone),
+    captainEmail: emptyToNull(input.captainEmail),
     contactName: guided ? null : emptyToNull(input.contactName),
     contactPhone: guided ? null : emptyToNull(input.contactPhone),
     contactEmail: guided ? null : emptyToNull(input.contactEmail),
