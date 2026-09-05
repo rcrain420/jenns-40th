@@ -3,16 +3,20 @@ import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
-import { EVENT, FEE_PER_ANGLER_CENTS, isRegistrationOpen } from "@/lib/config";
+import {
+  EVENT,
+  FEE_PER_ANGLER_CENTS,
+  isRegistrationOpen,
+  YOUTH_TOURNAMENT,
+} from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { formatUsd } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: `Rowan & Rider · ${EVENT.shortName}`,
-  description:
-    "Kids pot for Rowan and Rider — full roster seats, parent login, host-funded biggest fish.",
+  title: `${YOUTH_TOURNAMENT.name} · ${EVENT.shortName}`,
+  description: `${YOUTH_TOURNAMENT.tagline} Register a youth angler as a roster seat — parent login, host-funded biggest fish.`,
 };
 
 export default async function KidsPage() {
@@ -33,14 +37,14 @@ export default async function KidsPage() {
 
   return (
     <PageShell
-      title="Rowan & Rider"
-      description="This weekend is theirs too. Register a youth angler as a roster seat — the kids pot is host-funded, biggest qualifying fish."
+      title={YOUTH_TOURNAMENT.name}
+      description={YOUTH_TOURNAMENT.tagline}
     >
       <article className="space-y-10">
         <section>
           <span className="section-banner">Celebration</span>
           <h2 className="mt-4 font-display text-2xl uppercase text-wave">
-            Rowan and Rider
+            This weekend is theirs too
           </h2>
           <p className="mt-3 text-ink/80">
             Jenn&apos;s birthday bash is a family tournament. Rowan and Rider
@@ -48,8 +52,9 @@ export default async function KidsPage() {
             separate kids account. They fish on a real boat, on a real roster.
           </p>
           <p className="mt-3 text-ink/80">
-            The kids pot is their own lane on the scale: heaviest qualifying
-            fish by a registered youth angler, prize from Jenn and Aaron.
+            The {YOUTH_TOURNAMENT.name} is their own lane on the scale:
+            heaviest qualifying fish by a registered youth angler, prize from
+            Jenn and Aaron.
           </p>
         </section>
 
@@ -57,10 +62,10 @@ export default async function KidsPage() {
           <span className="section-banner">How kids fish</span>
           <ul className="mt-4 list-disc space-y-3 pl-5 text-ink/80">
             <li>
-              A youth angler is a roster seat for the kids pot and stringer
-              rules — same 2–4 cap, same “only registered anglers&apos; fish
-              count.” They do not add {formatUsd(FEE_PER_ANGLER_CENTS)} to
-              the team bill.
+              A youth angler is a roster seat for the {YOUTH_TOURNAMENT.name}{" "}
+              and stringer rules — same 2–4 cap, same “only registered
+              anglers&apos; fish count.” They do not add{" "}
+              {formatUsd(FEE_PER_ANGLER_CENTS)} to the team bill.
             </li>
             <li>
               A parent or legal guardian registers them. Kids can use a
@@ -68,9 +73,9 @@ export default async function KidsPage() {
               login is the login.
             </li>
             <li>
-              The kids pot is biggest qualifying fish, host-funded, $0 to
-              enter. Official winner is the Weighmaster at weigh-in — not the
-              AI Livewell guess.
+              The {YOUTH_TOURNAMENT.name} is biggest qualifying fish,
+              host-funded, $0 to enter. Official winner is the Weighmaster at
+              weigh-in — not the AI Livewell guess.
             </li>
             <li>
               Youth fish still count on the team stringer and on paid team
@@ -83,7 +88,7 @@ export default async function KidsPage() {
               href="/rules#kids-pot"
               className="font-semibold text-sea underline-offset-4 hover:underline"
             >
-              Kids pot rules →
+              {YOUTH_TOURNAMENT.name} rules →
             </Link>
           </p>
         </section>

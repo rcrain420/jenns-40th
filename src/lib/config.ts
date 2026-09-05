@@ -50,11 +50,17 @@ export const SIDE_POT_IDS = PAID_SIDE_POTS.map((p) => p.id) as [
   ...SidePotId[],
 ];
 
+/** Host-funded youth tournament. Name and tagline for titles and intros. */
+export const YOUTH_TOURNAMENT = {
+  name: "RowRide Youth Angler Tournament",
+  tagline: "Little Anglers. Big Fish. Bigger Bragging Rights.",
+} as const;
+
 /** Host-funded prizes. Listed at $0. Never stored on Team.sidePots. */
 export const HOST_FUNDED_POTS = [
   {
     id: "kids",
-    name: "Kids pot (Rowan & Rider)",
+    name: YOUTH_TOURNAMENT.name,
     buyInCents: 0,
     buyInLabel: "Free",
     href: "/kids",

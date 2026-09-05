@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { PageShell } from "@/components/PageShell";
-import { EVENT } from "@/lib/config";
+import { EVENT, YOUTH_TOURNAMENT } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: `Tournament rules · ${EVENT.shortName}`,
@@ -493,15 +493,17 @@ export default function RulesPage() {
           </div>
 
           <div id="kids-pot" className="scroll-mt-28 space-y-3">
-            <Subhead>Kids pot (Rowan &amp; Rider)</Subhead>
+            <Subhead>{YOUTH_TOURNAMENT.name}</Subhead>
+            <p className="font-semibold text-wave">{YOUTH_TOURNAMENT.tagline}</p>
             <p>
-              There is no entry fee for the kids pot. It is host-funded, like
-              the Birthday Trash Fish prize, and does not come from paid
-              side-pot money.
+              There is no entry fee for the {YOUTH_TOURNAMENT.name}. It is
+              host-funded, like the Birthday Trash Fish prize, and does not
+              come from paid side-pot money.
             </p>
             <p>
-              The kids pot is open to registered youth anglers — anglers 17 or
-              younger whom a parent or legal guardian has registered on a team.
+              The {YOUTH_TOURNAMENT.name} is open to registered youth anglers
+              — anglers 17 or younger whom a parent or legal guardian has
+              registered on a team.
             </p>
             <p>
               The heaviest qualifying fish caught by a registered youth angler
@@ -509,20 +511,20 @@ export default function RulesPage() {
             </p>
             <p>
               A qualifying fish must be legal, caught during tournament hours,
-              presented whole and accepted by the Weighmaster. Official
-              kids-pot results come from weigh-in, not from AI Livewell
-              estimates.
+              presented whole and accepted by the Weighmaster. Official{" "}
+              {YOUTH_TOURNAMENT.name} results come from weigh-in, not from AI
+              Livewell estimates.
             </p>
             <p>
               The youth angler must personally hook the fish and land it.
               Adults may help with safety. The child needs to do the fishing.
             </p>
             <p>
-              Youth anglers are roster seats for the kids pot and stringer
-              rules. They do not pay the $75 adult entry and do not grow the
-              main tournament pot. Their fish still count on the team
-              stringer, and they still count toward paid team side pots when
-              the team has entered those pots.
+              Youth anglers are roster seats for the {YOUTH_TOURNAMENT.name}{" "}
+              and stringer rules. They do not pay the $75 adult entry and do
+              not grow the main tournament pot. Their fish still count on the
+              team stringer, and they still count toward paid team side pots
+              when the team has entered those pots.
             </p>
             <p>
               A parent or guardian may use their own email for the child. The
@@ -535,7 +537,7 @@ export default function RulesPage() {
                 href="/kids"
                 className="font-semibold text-sea underline-offset-4 hover:underline"
               >
-                Rowan &amp; Rider kids page →
+                {YOUTH_TOURNAMENT.name} →
               </Link>
             </p>
           </div>
@@ -724,7 +726,7 @@ export default function RulesPage() {
             href="/kids"
             className="font-display text-sm uppercase tracking-[0.14em] text-sea underline-offset-4 hover:underline"
           >
-            Rowan &amp; Rider kids pot →
+            {YOUTH_TOURNAMENT.name} →
           </Link>
           <Link
             href="/register"

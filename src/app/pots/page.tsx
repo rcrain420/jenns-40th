@@ -6,6 +6,7 @@ import {
   HOST_FUNDED_POTS,
   MAIN_POT_SPLITS,
   SIDE_POT_BUY_IN_CENTS,
+  YOUTH_TOURNAMENT,
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 import { getCurrentUser } from "@/lib/auth";
@@ -88,7 +89,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by Jenn
                   and Aaron
                   {pot.id === "kids"
-                    ? ", for the heaviest qualifying fish by a registered youth angler. Youth do not pay the $75 adult entry."
+                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Youth do not pay the $75 adult entry.`
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>
@@ -97,7 +98,7 @@ export default async function PotsPage() {
                         href={pot.href}
                         className="text-sun underline-offset-2 hover:underline"
                       >
-                        Kids page →
+                        {YOUTH_TOURNAMENT.name} →
                       </Link>
                     </>
                   ) : null}

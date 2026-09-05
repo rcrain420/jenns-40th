@@ -9,6 +9,7 @@ import {
   MIN_ANGLERS,
   PAID_SIDE_POTS,
   SIDE_POT_BUY_IN_CENTS,
+  YOUTH_TOURNAMENT,
   paidEntrySeatCount,
   type SidePotId,
 } from "@/lib/config";
@@ -592,9 +593,9 @@ export function RegisterForm({
         {emphasizeYouth ? (
           <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
             Registering a youth angler? Check <strong>17 or under</strong> on
-            their seat. They take a roster spot for the kids pot and stringer
-            rules, and do not add ${FEE_PER_ANGLER_CENTS / 100} to the team
-            bill. {YOUTH_EMAIL_HELPER}
+            their seat. They take a roster spot for the {YOUTH_TOURNAMENT.name}{" "}
+            and stringer rules, and do not add ${FEE_PER_ANGLER_CENTS / 100} to
+            the team bill. {YOUTH_EMAIL_HELPER}
           </p>
         ) : null}
         <div className="mt-4 space-y-4">
