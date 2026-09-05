@@ -1,3 +1,6 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import type { PublicUser } from "@/lib/users";
 import { CatchCard, type CatchCardFish } from "./CatchCard";
 
@@ -15,7 +18,19 @@ export function CatchGrid({
   anglers: CatchGridAngler[];
   viewer: PublicUser | null;
 }) {
-  if (anglers.length === 0) {
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
+  const visibleAnglers = useMemo(
+    () =>
+      anglers
+        .map((angler) => ({
+          ...angler,
+          catches: angler.catches.filter((fish) => !removedIds.includes(fish.id)),
+        }))
+        .filter((angler) => angler.catches.length > 0),
+    [anglers, removedIds],
+  );
+
+  if (visibleAnglers.length === 0) {
     return (
       <p className="mt-4 text-ink/60">
         No catches logged yet. Snap a photo above to start the board.
@@ -25,7 +40,7 @@ export function CatchGrid({
 
   return (
     <div className="mt-8 space-y-12">
-      {anglers.map((angler, index) => (
+      {visibleAnglers.map((angler, index) => (
         <section
           key={angler.id}
           className={index === 0 ? "animate-rise" : "animate-rise-delay"}
@@ -52,6 +67,9 @@ export function CatchGrid({
                 fish={fish}
                 anglerName={angler.fullName}
                 viewer={viewer}
+                onDeleted={(id) =>
+                  setRemovedIds((ids) => (ids.includes(id) ? ids : [...ids, id]))
+                }
               />
             ))}
           </ul>

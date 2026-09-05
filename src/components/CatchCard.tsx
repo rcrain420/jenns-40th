@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   CatchComments,
@@ -36,10 +37,15 @@ type Props = {
   fish: CatchCardFish;
   anglerName: string;
   viewer: PublicUser | null;
+  onDeleted?: (id: string) => void;
 };
 
-export function CatchCard({ fish, anglerName, viewer }: Props) {
+export function CatchCard({ fish, anglerName, viewer, onDeleted }: Props) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [removed, setRemoved] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const commentIds = fish.comments.map((c) => c.id).join("\0");
 
   useEffect(() => {
@@ -58,6 +64,35 @@ export function CatchCard({ fish, anglerName, viewer }: Props) {
     window.addEventListener("hashchange", syncFromHash);
     return () => window.removeEventListener("hashchange", syncFromHash);
   }, [fish.id, commentIds]);
+
+  async function onDelete() {
+    if (
+      !confirm(
+        "Delete this Livewell post? Comments on it will be removed too.",
+      )
+    ) {
+      return;
+    }
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/catches/${fish.id}`, { method: "DELETE" });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setDeleteError(data.error ?? "Could not delete post");
+        return;
+      }
+      setRemoved(true);
+      onDeleted?.(fish.id);
+      router.refresh();
+    } catch {
+      setDeleteError("Network error — try again");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  if (removed) return null;
 
   return (
     <li id={`catch-${fish.id}`} className="group scroll-mt-24">
@@ -96,6 +131,24 @@ export function CatchCard({ fish, anglerName, viewer }: Props) {
           </p>
         </div>
       </button>
+
+      {viewer?.isAdmin ? (
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={onDelete}
+            disabled={deleting}
+            className="min-h-11 rounded-md px-3 py-1.5 text-sm font-semibold text-alert hover:bg-alert/10 disabled:opacity-60"
+          >
+            {deleting ? "Deleting…" : "Delete post"}
+          </button>
+          {deleteError ? (
+            <p className="mt-1 text-xs text-alert" role="alert">
+              {deleteError}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       {open && (
         <CatchComments

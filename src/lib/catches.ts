@@ -295,3 +295,26 @@ export async function createCatchFromUpload(
     return { ok: false, error: "Could not save catch", status: 500 };
   }
 }
+
+export type DeleteCatchResult =
+  | { ok: true }
+  | { ok: false; error: string; status: number };
+
+/** Deletes a Livewell post. Comments cascade via Prisma; alerts are derived. */
+export async function deleteCatchById(id: string): Promise<DeleteCatchResult> {
+  try {
+    const existing = await prisma.fishCatch.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { ok: false, error: "Catch not found", status: 404 };
+    }
+
+    await prisma.fishCatch.delete({ where: { id } });
+    return { ok: true };
+  } catch (err) {
+    console.error("Failed to delete catch", err);
+    return { ok: false, error: "Could not delete catch", status: 500 };
+  }
+}
