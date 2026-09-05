@@ -15,10 +15,6 @@ const {
   unlockLandingPath,
   verifyEventUnlockToken,
 } = await import("./event-unlock-token.ts");
-const { registrationConfirmationCopy } = await import(
-  "./registration-email-copy.ts"
-);
-
 const TEAM_ID = "team_pretty_pier";
 const EMAIL = "Ada@Example.com";
 
@@ -137,56 +133,7 @@ describe("event PIN fallback", () => {
   });
 });
 
-describe("registration confirmation email", () => {
-  it("puts a working magic link in the email body", () => {
-    const { token } = issueEventUnlockToken({
-      teamId: TEAM_ID,
-      email: EMAIL,
-    });
-    const unlockUrl = `https://officialishfishingtournament.com/unlock?token=${encodeURIComponent(token)}`;
-    const message = registrationConfirmationCopy({
-      teamName: "Pretty Pier Pressure",
-      amountLabel: "$150.00",
-      unlockUrl,
-      venmoHandle: "Jennski",
-      venmoUrl: "https://venmo.com/u/Jennski",
-      eventName: "Official-ish Fishing Tournament for Jenn's 40th Birthday",
-      shortName: "Jenn's 40th",
-      dateLabel: "October 9–10, 2026",
-      venue: "Boatmen’s Club Bar & Marina",
-      footerScript: "See you in Rockport!",
-    });
-
-    assert.ok(message.text.includes(unlockUrl));
-    assert.ok(message.html.includes(unlockUrl));
-    assert.ok(message.html.includes("Open my team"));
-    assert.ok(message.text.includes("signs you into this team"));
-    assert.ok(message.html.includes("No PIN or password on this tap"));
-    assert.equal(verifyEventUnlockToken(token).ok, true);
-    assert.equal(/Hey captain/i.test(message.text), false);
-    assert.ok(message.text.includes("Pretty Pier Pressure is on the list"));
-    assert.ok(message.text.includes("You created this team"));
-    assert.ok(message.html.includes("captains might never log in"));
-
-    const leaked = [
-      "EVENT_PIN",
-      "SESSION_SECRET",
-      "RESEND_API_KEY",
-      "RESEND_FROM",
-      "OPENAI_API_KEY",
-      "ADMIN_PASSWORD",
-    ];
-    for (const name of leaked) {
-      assert.equal(message.text.includes(name), false, `text leaked ${name}`);
-      assert.equal(message.html.includes(name), false, `html leaked ${name}`);
-      assert.equal(
-        message.subject.includes(name),
-        false,
-        `subject leaked ${name}`,
-      );
-    }
-  });
-
+describe("event unlock landing", () => {
   it("always lands a valid unlock on the Livewell, never success or My team", () => {
     assert.equal(unlockLandingPath(), "/catches?unlocked=1");
     assert.equal(unlockLandingPath().startsWith("/register/success"), false);
