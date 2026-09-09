@@ -234,8 +234,7 @@ export default async function HomePage() {
             ))}
           </ul>
           <p className="mt-4 text-[0.95rem] text-wave/70 md:text-base">
-            Paid pots via Venmo at Friday&apos;s captain&apos;s meeting. Catfish
-            is free — every team is already in. The{" "}
+            Catfish is free — every team is already in. The{" "}
             <Link href="/kids" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name}
             </Link>{" "}
