@@ -3,7 +3,7 @@ import Link from "next/link";
 import { OfficialRosterByBoat } from "@/components/OfficialRosterByBoat";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
-import { BOAT_ENTRY_CENTS, EVENT } from "@/lib/config";
+import { BOAT_ENTRY_CENTS, EVENT, isBoatEntry, isYouthLandEntry } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { toDirectoryTeam } from "@/lib/join-the-boat";
 import { formatUsdWhole } from "@/lib/money";
@@ -58,6 +58,7 @@ export default async function TeamsDirectoryPage() {
     select: {
       id: true,
       teamName: true,
+      entryKind: true,
       captainName: true,
       captainEmail: true,
       anglers: {
@@ -75,6 +76,7 @@ export default async function TeamsDirectoryPage() {
     toDirectoryTeam({
       id: team.id,
       teamName: team.teamName,
+      entryKind: team.entryKind,
       ownTeamId,
       anglers: team.anglers,
       members: team.members.map((m) => ({
@@ -87,13 +89,32 @@ export default async function TeamsDirectoryPage() {
       },
     }),
   );
-  const otherCount = directory.filter((team) => !team.isOwn).length;
+  const boatDirectory = directory.filter((team) => isBoatEntry(team.entryKind));
+  const landDirectory = directory.filter((team) =>
+    isYouthLandEntry(team.entryKind),
+  );
+  const otherCount = boatDirectory.filter((team) => !team.isOwn).length;
 
   const boats = groupOfficialRosterByBoat(
-    directory.map((team) => ({
+    boatDirectory.map((team) => ({
       id: team.id,
       teamName: team.teamName,
       isOwn: team.isOwn,
+      entryKind: team.entryKind,
+      anglers: team.anglers.map((row) => ({
+        fullName: row.name,
+        isYouth: row.isYouth,
+        statusLabel: row.statusLabel,
+        isAnglerSeat: row.isAnglerSeat,
+      })),
+    })),
+  );
+  const landEntries = groupOfficialRosterByBoat(
+    landDirectory.map((team) => ({
+      id: team.id,
+      teamName: team.teamName,
+      isOwn: team.isOwn,
+      entryKind: team.entryKind,
       anglers: team.anglers.map((row) => ({
         fullName: row.name,
         isYouth: row.isYouth,
@@ -103,26 +124,26 @@ export default async function TeamsDirectoryPage() {
     })),
   );
   const pageSummary =
-    directory.length === 0
+    boatDirectory.length === 0
       ? null
       : officialRosterPotSummary({
-          boatCount: directory.length,
-          potCents: directory.length * BOAT_ENTRY_CENTS,
+          boatCount: boatDirectory.length,
+          potCents: boatDirectory.length * BOAT_ENTRY_CENTS,
           format: formatUsdWhole,
         });
 
   return (
     <PageShell
       title="Teams"
-      description="Official fishing roster — each boat grows the main pot by $300. Youth count toward the four-angler cap and do not compete in the main stringer. Boat accounts who joined but are not fishing are not seats."
+      description="Official fishing roster — each boat grows the main pot by $300. Youth do not take an adult seat and do not compete in the main stringer. Land-only RowRide entries are listed separately. Boat accounts who joined but are not fishing are not seats."
     >
       <div className="space-y-6">
-        {directory.length === 0 ? null : otherCount === 0 ? (
+        {boatDirectory.length === 0 ? null : otherCount === 0 ? (
           <p className="text-ink/70">No other boats have registered yet.</p>
         ) : (
           <p className="text-ink/65">
-            {directory.length} {directory.length === 1 ? "boat" : "boats"} on
-            the list
+            {boatDirectory.length}{" "}
+            {boatDirectory.length === 1 ? "boat" : "boats"} on the list
             {pageSummary ? ` · ${pageSummary}` : ""}.
           </p>
         )}
@@ -130,6 +151,13 @@ export default async function TeamsDirectoryPage() {
           boats={boats}
           emptyListLabel="No boats have registered yet."
         />
+        {landEntries.length > 0 ? (
+          <OfficialRosterByBoat
+            boats={landEntries}
+            banner="RowRide land entries"
+            emptyListLabel="No land-only RowRide entries yet."
+          />
+        ) : null}
       </div>
     </PageShell>
   );

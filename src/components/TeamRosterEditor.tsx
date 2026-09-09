@@ -3,11 +3,18 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  amountDueCents,
+  amountDueForEntry,
+  ENTRY_KIND,
   MAX_ANGLERS,
   MIN_ANGLERS,
   SIDE_POT_BUY_IN_CENTS,
+  isYouthLandEntry,
 } from "@/lib/config";
+import {
+  adultSeatCount,
+  canAddAdultSeat,
+  canAddYouthSeat,
+} from "@/lib/roster-capacity";
 import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
 import {
@@ -36,9 +43,10 @@ type Props = {
   currentDueCents: number;
   canEditRoster: boolean;
   canInvite: boolean;
-  /** True at 4 invited anglers — hide + Add angler, not per-seat Invite. */
+  /** True at 4 invited adult anglers — hide + Add adult, not youth or Invite. */
   boatInviteLocked?: boolean;
   defaultNewIsYouth?: boolean;
+  entryKind?: string;
 };
 
 const emptyAngler = (isYouth = false): RosterAnglerDraft => ({
@@ -60,6 +68,7 @@ export function TeamRosterEditor({
   canInvite,
   boatInviteLocked = false,
   defaultNewIsYouth = false,
+  entryKind = ENTRY_KIND.BOAT,
 }: Props) {
   const router = useRouter();
   const [anglers, setAnglers] = useState<RosterAnglerDraft[]>(initialAnglers);
@@ -73,10 +82,18 @@ export function TeamRosterEditor({
   const [saved, setSaved] = useState(false);
   const [inviteNote, setInviteNote] = useState<string | null>(null);
 
+  const landOnly = isYouthLandEntry(entryKind);
   const nextDue = useMemo(
-    () => amountDueCents(sidePotCount),
-    [sidePotCount],
+    () =>
+      amountDueForEntry({
+        entryKind,
+        sidePotCount: landOnly ? 0 : sidePotCount,
+      }),
+    [entryKind, landOnly, sidePotCount],
   );
+  const canAddAdult =
+    canEditRoster && !landOnly && canAddAdultSeat(anglers) && !boatInviteLocked;
+  const canAddYouth = canEditRoster && canAddYouthSeat(anglers);
   const extraDue = nextDue - currentDueCents;
 
   function patchAngler(index: number, next: Partial<RosterAnglerDraft>) {
@@ -85,12 +102,9 @@ export function TeamRosterEditor({
     );
   }
 
-  const canAddSeat =
-    canEditRoster && anglers.length < MAX_ANGLERS && !boatInviteLocked;
-
-  function addAngler() {
-    if (!canAddSeat) return;
-    setAnglers((prev) => [...prev, emptyAngler(defaultNewIsYouth)]);
+  function addAngler(isYouth = defaultNewIsYouth) {
+    if (isYouth ? !canAddYouth : !canAddAdult) return;
+    setAnglers((prev) => [...prev, emptyAngler(isYouth || landOnly)]);
     setAddingCount((count) => count + 1);
     setSaved(false);
     setInviteNote(null);
@@ -98,8 +112,18 @@ export function TeamRosterEditor({
 
   function removeAngler(index: number) {
     const row = anglers[index];
-    if (row?.id && anglers.filter((a) => a.id).length <= MIN_ANGLERS) {
-      setError(`Keep at least ${MIN_ANGLERS} fishing anglers on the roster.`);
+    const saved = anglers.filter((a) => a.id);
+    if (row?.id && landOnly && saved.length <= 1) {
+      setError("Keep at least one youth angler on this RowRide entry.");
+      return;
+    }
+    if (
+      row?.id &&
+      !landOnly &&
+      !row.isYouth &&
+      adultSeatCount(saved.filter((a) => a.id !== row.id)) < MIN_ANGLERS
+    ) {
+      setError(`Keep at least ${MIN_ANGLERS} adult angler on the boat.`);
       return;
     }
     setAnglers((prev) => prev.filter((_, i) => i !== index));
@@ -232,34 +256,46 @@ export function TeamRosterEditor({
     <form onSubmit={onSave} className="space-y-4">
       <div className="flex items-end justify-between gap-4">
         <p className="text-sm text-ink/65">
-          Email is optional. {YOUTH_EMAIL_HELPER} Invite on an adult seat
-          sends Join the boat. Youth seats do not get a create-account invite
-          — parent login is the login — and they do not change the $300 boat
-          entry. Youth fish do not count on the main stringer; they do count
-          on paid team side pots and RowRide. Adults without email stay
-          name-only on the roster and join by creating an account from the
-          invite link. That is not the kids path.
+          Email is optional. {YOUTH_EMAIL_HELPER}{" "}
+          {landOnly
+            ? "This is a land-only RowRide entry — no boat fee and no team side pots. Parent login is the login."
+            : "Invite on an adult seat sends Join the boat. Youth do not take one of the 1–4 adult seats, do not get a create-account invite, and do not change the $300 boat entry. Youth fish do not count on the main stringer; they may count on paid team side pots and RowRide."}{" "}
+          {!landOnly
+            ? "Adults without email stay name-only and join from the invite link. That is not the kids path."
+            : null}
           {canEditRoster
-            ? boatInviteLocked
-              ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. This boat is full — remove a seat to add someone else.`
-              : ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. Use + Add angler to add a seat — the add form stays hidden until you click it.`
+            ? landOnly
+              ? " Use + Add youth to add another kid."
+              : boatInviteLocked
+                ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. This boat is full of adults — you can still add a youth tag-along.`
+                : ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. Kids do not take one of those seats.`
             : " Registration is closed, so names stay as they are — you can still add an email and resend Invite on adult seats."}
         </p>
-        {canAddSeat ? (
-          <button
-            type="button"
-            onClick={addAngler}
-            className="shrink-0 text-sm font-semibold text-sea"
-          >
-            + Add angler
-          </button>
-        ) : null}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {canAddAdult ? (
+            <button
+              type="button"
+              onClick={() => addAngler(false)}
+              className="text-sm font-semibold text-sea"
+            >
+              + Add adult
+            </button>
+          ) : null}
+          {canAddYouth ? (
+            <button
+              type="button"
+              onClick={() => addAngler(true)}
+              className="text-sm font-semibold text-sea"
+            >
+              + Add youth
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {anglers.length === 0 ? (
         <p className="text-sm text-ink/60">
-          No extra seats yet. Click + Add angler to add someone to the fishing
-          roster.
+          No extra seats yet. Add an adult fishing seat or a youth tag-along.
         </p>
       ) : null}
 

@@ -9,7 +9,7 @@ import { TeamCaptainEditor } from "@/components/TeamCaptainEditor";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
 import { boatContactNotAnglerNudge } from "@/lib/boat-contact-copy";
-import { BOAT_ENTRY_CENTS, isRegistrationOpen } from "@/lib/config";
+import { BOAT_ENTRY_CENTS, isRegistrationOpen, isYouthLandEntry } from "@/lib/config";
 import { getRegistrationAvailability } from "@/lib/registration";
 import { publicRegistrationClosedCopy } from "@/lib/registration-policy";
 import { firstName } from "@/lib/safe-path";
@@ -74,7 +74,7 @@ export default async function MyTeamPage({
 
   if (!member) {
     const availability = await getRegistrationAvailability();
-    if (!availability.isOpen) {
+    if (!availability.openByDate) {
       const closed = publicRegistrationClosedCopy(availability);
       return (
         <PageShell
@@ -99,6 +99,31 @@ export default async function MyTeamPage({
       );
     }
 
+    if (!availability.isOpen) {
+      const closed = publicRegistrationClosedCopy(availability);
+      return (
+        <PageShell
+          narrow
+          title="My team"
+          description={`Hi ${firstName(user.name)} — you’re not on a boat yet.`}
+        >
+          <p className="text-ink/70">{closed.body}</p>
+          <p className="mt-4 text-ink/70">
+            Land-only RowRide is still open — it does not use a boat slot.
+          </p>
+          <p className="mt-4 flex flex-wrap gap-4">
+            <Link href="/register/youth" className="font-semibold text-sea hover:underline">
+              Enter RowRide from land
+            </Link>
+          </p>
+          <p className="mt-4 text-ink/70">
+            If you&apos;re joining an existing boat, ask them for their invite
+            link. Captains might never log in.
+          </p>
+        </PageShell>
+      );
+    }
+
     return (
       <PageShell
         narrow
@@ -106,13 +131,15 @@ export default async function MyTeamPage({
         description={`Hi ${firstName(user.name)} — you’re not on a boat yet.`}
       >
         <p className="text-ink/70">
-          Register a team — invite teammates, and add a captain anytime if you
-          have one — or ask the person who registered for their invite link.
-          Captains might never log in.
+          Register a boat — invite teammates, and add a captain anytime if you
+          have one — or enter kids for RowRide from land with no boat.
         </p>
-        <p className="mt-4">
+        <p className="mt-4 flex flex-wrap gap-4">
           <Link href="/register" className="font-semibold text-sea hover:underline">
-            Register a team
+            Register a boat
+          </Link>
+          <Link href="/register/youth" className="font-semibold text-sea hover:underline">
+            Enter RowRide from land
           </Link>
         </p>
       </PageShell>
@@ -163,7 +190,11 @@ export default async function MyTeamPage({
     <PageShell
       narrow
       title={team.teamName}
-      description={`${formatUsd(team.amountDueCents)} due · ${rosterCount} ${rosterCount === 1 ? "angler" : "anglers"} on the official roster`}
+      description={
+        isYouthLandEntry(team.entryKind)
+          ? `Land-only RowRide · $0 · ${rosterCount} youth ${rosterCount === 1 ? "angler" : "anglers"}`
+          : `${formatUsd(team.amountDueCents)} due · ${rosterCount} ${rosterCount === 1 ? "angler" : "anglers"} on the official roster`
+      }
     >
       <div className="space-y-10">
         {joined === "1" ? (
@@ -285,8 +316,9 @@ export default async function MyTeamPage({
                 }
                 currentDueCents={team.amountDueCents}
                 canEditRoster={canEdit}
-                canInvite
+                canInvite={!isYouthLandEntry(team.entryKind)}
                 boatInviteLocked={inviteLocked}
+                entryKind={team.entryKind}
               />
             </div>
           </section>
@@ -297,6 +329,7 @@ export default async function MyTeamPage({
                 id: team.id,
                 teamName: team.teamName,
                 isOwn: true,
+                entryKind: team.entryKind,
                 anglers: team.anglers.map((a) => ({
                   fullName: a.fullName,
                   isYouth: a.isYouth,

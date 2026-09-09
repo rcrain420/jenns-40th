@@ -2,6 +2,7 @@ import {
   MAIN_POT_SPLITS,
   PAID_SIDE_POTS,
   SIDE_POT_BUY_IN_CENTS,
+  isBoatEntry,
   mainPotCentsForTeams,
   type SidePotId,
 } from "./config";
@@ -31,13 +32,18 @@ export type PotTotals = {
 export async function getPotTotals(): Promise<PotTotals> {
   const teams = await prisma.team.findMany({
     select: {
+      entryKind: true,
       sidePots: true,
       anglers: { select: { isYouth: true } },
     },
   });
 
-  const teamCount = teams.length;
-  const anglerCount = teams.reduce((sum, t) => sum + t.anglers.length, 0);
+  const boatTeams = teams.filter((team) => isBoatEntry(team.entryKind));
+  const teamCount = boatTeams.length;
+  const anglerCount = boatTeams.reduce(
+    (sum, t) => sum + t.anglers.filter((a) => a.isYouth !== true).length,
+    0,
+  );
   const mainPotCents = mainPotCentsForTeams(teamCount);
 
   const payouts = MAIN_POT_SPLITS.map((split) => ({
@@ -47,7 +53,7 @@ export async function getPotTotals(): Promise<PotTotals> {
   }));
 
   const sidePots = PAID_SIDE_POTS.map((pot) => {
-    const entrantCount = teams.filter((t) =>
+    const entrantCount = boatTeams.filter((t) =>
       t.sidePots.includes(pot.id),
     ).length;
     return {

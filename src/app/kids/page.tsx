@@ -8,6 +8,7 @@ import {
   BOAT_ENTRY_CENTS,
   EVENT,
   isRegistrationOpen,
+  isYouthLandEntry,
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
 import { prisma } from "@/lib/db";
@@ -20,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `${YOUTH_TOURNAMENT.name} · ${EVENT.shortName}`,
-  description: `${YOUTH_TOURNAMENT.tagline} Register a youth angler as a roster seat — parent login, host-funded biggest fish.`,
+  description: `${YOUTH_TOURNAMENT.tagline} Free youth tournament — fish from land or tag along on a boat. Host-funded biggest fish.`,
 };
 
 export default async function KidsPage() {
@@ -48,6 +49,7 @@ export default async function KidsPage() {
   const team = member?.team ?? null;
   const isRegistrant = Boolean(team && team.claimedByUserId === user?.id);
   const canEdit = isRegistrant && isRegistrationOpen();
+  const landOnly = team ? isYouthLandEntry(team.entryKind) : false;
   const inviteLocked = team
     ? isBoatInviteLocked({
         anglers: team.anglers,
@@ -76,12 +78,14 @@ export default async function KidsPage() {
           <p className="mt-3 text-ink/80">
             Jenn&apos;s birthday bash is a family tournament. Rowan and Rider
             are part of this weekend too — not a side note, and not a
-            separate kids account. They fish on a real boat, on a real roster.
+            separate kids account. Kids may fish from land, or optionally tag
+            along with adults on a registered boat.
           </p>
           <p className="mt-3 text-ink/80">
-            The {YOUTH_TOURNAMENT.name} is their own lane on the scale:
+            The {YOUTH_TOURNAMENT.name} is their own free lane on the scale:
             heaviest qualifying fish by a registered youth angler, prize from
-            Jenn and Aaron.
+            Jenn and Aaron. Official winner is the Weighmaster — not Livewell
+            AI.
           </p>
         </section>
 
@@ -89,24 +93,32 @@ export default async function KidsPage() {
           <span className="section-banner">How kids fish</span>
           <ul className="mt-4 list-disc space-y-3 pl-5 text-ink/80">
             <li>
-              A youth angler is a roster seat for the {YOUTH_TOURNAMENT.name}{" "}
-              — same 1–4 cap. They do not change the{" "}
-              {formatUsd(BOAT_ENTRY_CENTS)} boat entry.
+              RowRide is a separate free tournament. There is no entry fee.
+              Biggest / heaviest qualifying fish wins at weigh-in.
+            </li>
+            <li>
+              Kids do not compete in the adult main stringer or main pot.
+            </li>
+            <li>
+              Kids are not required to be on a boat. Land-only entries are
+              RowRide-only — no team side pots.
+            </li>
+            <li>
+              Kids may optionally tag along on a registered adult boat. They
+              do not take one of that boat&apos;s 1–4 adult fishing seats and
+              do not change the {formatUsd(BOAT_ENTRY_CENTS)} boat entry.
+              Example: 3 adults + 1 kid is still {formatUsd(BOAT_ENTRY_CENTS)}.
+            </li>
+            <li>
+              If a kid is attached to a boat that entered paid side pots,
+              their fish may count on those team side pots.
             </li>
             <li>
               A parent or legal guardian registers them. Kids can use a
               parent&apos;s email. They do not need their own account. Parent
               login is the login.
             </li>
-            <li>
-              The {YOUTH_TOURNAMENT.name} is biggest qualifying fish,
-              host-funded, $0 to enter. Official winner is the Weighmaster at
-              weigh-in — not the AI Livewell guess.
-            </li>
-            <li>
-              {YOUTH_COMPETITION_POLICY} Kids do not change the boat entry, so
-              they do not grow the main pot beyond that boat fee.
-            </li>
+            <li>{YOUTH_COMPETITION_POLICY}</li>
           </ul>
           <p className="mt-4">
             <Link
@@ -120,7 +132,7 @@ export default async function KidsPage() {
 
         <section>
           <span className="section-banner">Entry</span>
-          {!availability.isOpen && !team ? (
+          {!availability.openByDate && !team ? (
             <div className="mt-4">
               <RegistrationClosedNotice
                 openByDate={availability.openByDate}
@@ -130,20 +142,27 @@ export default async function KidsPage() {
           ) : !user ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
-                Register the team and mark each youth angler as 17 or under.
-                Same form — the youth fields will be emphasized.
+                {availability.isOpen
+                  ? "Sign in, then enter from land with no boat, or register a boat and add kids as tag-alongs."
+                  : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
               </p>
-              <Link href="/register?youth=1" className="btn-bay btn-bay-red">
-                Register a youth angler
-              </Link>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/register/youth" className="btn-bay btn-bay-red">
+                  Enter from land
+                </Link>
+                {availability.isOpen ? (
+                  <Link href="/register?youth=1" className="btn-bay btn-bay-navy">
+                    Register a boat + kids
+                  </Link>
+                ) : null}
+              </div>
             </div>
           ) : team && isRegistrant ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
-                Add youth anglers to {team.teamName} here. Same roster save as
-                My team. Kids count toward the four-angler cap and do not
-                change the $300 boat entry. They do not compete in the main
-                stringer; they do count on paid team side pots and RowRide.
+                {landOnly
+                  ? `Add youth anglers to ${team.teamName} here. This is a land-only RowRide entry — $0, no boat seats, no team side pots.`
+                  : `Add youth anglers to ${team.teamName} here. Kids do not take one of the 1–4 adult seats and do not change the $300 boat entry. They do not compete in the main stringer; they may count on paid team side pots and RowRide.`}
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({
@@ -160,28 +179,39 @@ export default async function KidsPage() {
                 }
                 currentDueCents={team.amountDueCents}
                 canEditRoster={canEdit}
-                canInvite
+                canInvite={!landOnly}
                 boatInviteLocked={inviteLocked}
                 defaultNewIsYouth
+                entryKind={team.entryKind}
               />
             </div>
           ) : team ? (
             <p className="mt-4 text-ink/80">
               You&apos;re on {team.teamName}. Ask the person who registered
-              the boat to add youth anglers from{" "}
+              to add youth anglers from{" "}
               <Link href="/team" className="font-semibold text-sea hover:underline">
                 My team
               </Link>
               .
             </p>
           ) : (
-            <p className="mt-4 text-ink/80">
-              You&apos;re signed in. Open{" "}
-              <Link href="/team" className="font-semibold text-sea hover:underline">
-                My team
-              </Link>{" "}
-              to add youth anglers once you&apos;re on a boat.
-            </p>
+            <div className="mt-4 space-y-4">
+              <p className="text-ink/80">
+                {availability.isOpen
+                  ? "You're signed in and not on a boat. Enter kids from land, or register a boat and add them as tag-alongs."
+                  : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/register/youth" className="btn-bay btn-bay-red">
+                  Enter from land
+                </Link>
+                {availability.isOpen ? (
+                  <Link href="/register?youth=1" className="btn-bay btn-bay-navy">
+                    Register a boat + kids
+                  </Link>
+                ) : null}
+              </div>
+            </div>
           )}
         </section>
       </article>

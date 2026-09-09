@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Team" ADD COLUMN "entryKind" TEXT NOT NULL DEFAULT 'BOAT';

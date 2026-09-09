@@ -8,6 +8,7 @@ describe("CSV youth column", () => {
       {
         id: "team_1",
         teamName: "Bay Kids",
+        entryKind: "BOAT",
         boatType: "NON_GUIDED",
         captainName: null,
         captainPhone: null,

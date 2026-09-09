@@ -7,6 +7,7 @@ export type RebillTeamSnapshot = {
   paymentStatus: string;
   sidePotCount: number;
   anglerCount: number;
+  entryKind?: string | null;
 };
 
 export type RebillPlan = {
@@ -29,6 +30,7 @@ export function planBoatEntryRebill(
 ): RebillPlan[] {
   const plans: RebillPlan[] = [];
   for (const team of teams) {
+    if (team.entryKind === "YOUTH_LAND") continue;
     const nextDueCents = amountDueCents(team.sidePotCount);
     if (team.amountDueCents === nextDueCents) continue;
     plans.push({

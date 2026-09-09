@@ -55,14 +55,18 @@ export function registerApiAllowsCreate(input: RegisterGateInput): boolean {
   return registerPageView(input) === "form";
 }
 
-const REGISTER_NEXT_KEYS = ["boat", "captain", "youth"] as const;
+const REGISTER_NEXT_KEYS = ["boat", "captain", "youth", "land"] as const;
 
-/** Keep youth / guide prefill on the OAuth and email `next` round-trip. */
+/** Keep youth / guide / land prefill on the OAuth and email `next` round-trip. */
 export function registerContinuePath(
   params: { [key: string]: string | string[] | undefined } = {},
 ): string {
+  const land = Array.isArray(params.land) ? params.land[0] : params.land;
+  if (land === "1" || land === "true") return "/register/youth";
+
   const search = new URLSearchParams();
   for (const key of REGISTER_NEXT_KEYS) {
+    if (key === "land") continue;
     const raw = params[key];
     const value = (Array.isArray(raw) ? raw[0] : raw)?.trim();
     if (value) search.set(key, value);

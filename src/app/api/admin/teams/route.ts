@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { sendCaptainJoinInvite } from "@/lib/captain-invite";
+import { ENTRY_KIND } from "@/lib/config";
 import { prisma } from "@/lib/db";
-import { teamCreateData } from "@/lib/registration";
-import { registrationSchema } from "@/lib/validation";
+import { teamCreateData, youthLandCreateData } from "@/lib/registration";
+import {
+  registrationSchema,
+  youthLandRegistrationSchema,
+} from "@/lib/validation";
 
 export async function GET(request: Request) {
   const session = await requireAdmin();
@@ -61,23 +65,54 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const parsed = registrationSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      {
-        error: "Validation failed",
-        fieldErrors: parsed.error.flatten().fieldErrors,
-      },
-      { status: 400 },
-    );
-  }
+  const payload =
+    typeof body === "object" && body !== null ? { ...body } : {};
+  const wantsLand =
+    "entryKind" in payload &&
+    (payload as { entryKind?: string }).entryKind === ENTRY_KIND.YOUTH_LAND;
 
   // Exception path: do not call isRegistrationOpen or getRegistrationAvailability.
-  // Admins may add a team after the Oct 1 cutoff and after the 25-boat soft cap.
-  const team = await prisma.team.create({
-    data: teamCreateData(parsed.data),
-    include: { anglers: { orderBy: { sortOrder: "asc" } } },
-  });
+  // Admins may add a boat or land-only RowRide entry after the Oct 1 cutoff
+  // and after the 25-boat soft cap.
+  let team;
+  if (wantsLand) {
+    const parsed = youthLandRegistrationSchema.safeParse({
+      ...payload,
+      licenseConfirmed: true,
+    });
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          fieldErrors: parsed.error.flatten().fieldErrors,
+        },
+        { status: 400 },
+      );
+    }
+    team = await prisma.team.create({
+      data: youthLandCreateData(parsed.data),
+      include: { anglers: { orderBy: { sortOrder: "asc" } } },
+    });
+  } else {
+    const parsed = registrationSchema.safeParse({
+      ...payload,
+      licenseConfirmed:
+        (payload as { licenseConfirmed?: boolean }).licenseConfirmed ?? true,
+    });
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          fieldErrors: parsed.error.flatten().fieldErrors,
+        },
+        { status: 400 },
+      );
+    }
+    team = await prisma.team.create({
+      data: teamCreateData(parsed.data),
+      include: { anglers: { orderBy: { sortOrder: "asc" } } },
+    });
+  }
 
   if (team.captainEmail) {
     try {

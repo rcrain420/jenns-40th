@@ -24,12 +24,22 @@ const COPY_SURFACES = [
   "src/components/CatchLogger.tsx",
   "src/components/TeamRosterEditor.tsx",
   "src/lib/register-form-copy.ts",
+  "src/lib/roster-capacity.ts",
+  "src/components/YouthLandRegisterForm.tsx",
+  "src/app/register/youth/page.tsx",
 ];
 
 const LEFTOVER_MAIN_STRINGER = [
   /still count on the team stringer/i,
   /youth fish still count/i,
   /their fish still count on the team stringer/i,
+];
+
+const LEFTOVER_BOAT_REQUIRED = [
+  /they fish on a real boat/i,
+  /count toward that cap as roster seats/i,
+  /count toward the (one-to-four|1–4|four-angler)/i,
+  /same 1–4 cap/i,
 ];
 
 describe("youth main-stringer eligibility", () => {
@@ -59,6 +69,9 @@ describe("youth main-stringer eligibility", () => {
     assert.match(YOUTH_MAIN_STRINGER_RULE, /main pot/i);
     assert.match(YOUTH_COMPETITION_POLICY, /paid team side pots/i);
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide Youth Angler Tournament/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /do not take one/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /fish from land/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /RowRide-only/i);
     for (const pattern of LEFTOVER_MAIN_STRINGER) {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
     }
@@ -70,6 +83,19 @@ describe("youth main-stringer leftover copy", () => {
     for (const relative of COPY_SURFACES) {
       const text = readFileSync(join(ROOT, relative), "utf8");
       for (const pattern of LEFTOVER_MAIN_STRINGER) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
+
+  it("does not require youth to occupy a boat roster seat", () => {
+    for (const relative of COPY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of LEFTOVER_BOAT_REQUIRED) {
         assert.equal(
           pattern.test(text),
           false,

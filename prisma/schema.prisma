@@ -61,7 +61,9 @@ model EmailToken {
 model Team {
   id               String   @id @default(cuid())
   teamName         String
-  /// GUIDED | NON_GUIDED
+  /// BOAT | YOUTH_LAND — land-only RowRide entries are not a paid boat.
+  entryKind        String   @default("BOAT")
+  /// GUIDED | NON_GUIDED. Unused for YOUTH_LAND (stored as NON_GUIDED).
   boatType         String
   captainName      String?
   captainPhone     String?
@@ -120,7 +122,7 @@ model Angler {
   phone     String?
   /// Optional. Name-only seats stay on the PIN / shared-link path.
   email     String?
-  /// 17 or under. Roster seat for the kids pot; no $75 entry. No child User account.
+  /// 17 or under. RowRide youth — does not consume a 1–4 adult boat seat.
   isYouth   Boolean        @default(false)
   /// XS–3XL merch size. Required on register / roster save for named anglers.
   shirtSize String?

@@ -164,7 +164,7 @@ export default async function HomePage() {
       {/* Facts strip */}
       <section className="mx-auto max-w-6xl px-5 md:px-11">
         <div className="grid grid-cols-2 border-y-[3px] border-double border-wave md:grid-cols-5">
-          <FactCell value={String(MAX_ANGLERS)} label="Anglers per team" />
+          <FactCell value={String(MAX_ANGLERS)} label="Adults per boat" />
           <FactCell value="1" label="Boat per team" />
           <FactCell
             value={feeLabel}
@@ -240,9 +240,11 @@ export default async function HomePage() {
               {YOUTH_TOURNAMENT.name}
             </Link>{" "}
             is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Heaviest
-            qualifying fish by a registered youth angler. Youth are out of
-            the main stringer and main pot, welcome on paid team side pots,
-            and do not change the $300 boat entry.{" "}
+            qualifying fish by a registered youth angler. Kids may fish from
+            land or tag along on a boat without taking an adult seat. Youth
+            are out of the main stringer and main pot. Attached to a boat
+            that entered paid side pots, their fish may count there.
+            Land-only kids are RowRide-only.{" "}
             <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
             </Link>

@@ -11,8 +11,13 @@ import {
   SIDE_POT_BUY_IN_CENTS,
   YOUTH_TOURNAMENT,
   paidEntrySeatCount,
+  youthAnglerCount,
   type SidePotId,
 } from "@/lib/config";
+import {
+  canAddAdultSeat,
+  canAddYouthSeat,
+} from "@/lib/roster-capacity";
 import { boatContactNotAnglerNudge } from "@/lib/boat-contact-copy";
 import { isBoatContactNotAngler } from "@/lib/join-the-boat";
 import { formatUsd, formatUsdWhole } from "@/lib/money";
@@ -99,9 +104,9 @@ export function RegisterForm({
   const [notes, setNotes] = useState("");
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
   const [youthGuardianAttested, setYouthGuardianAttested] = useState(false);
-  const [anglers, setAnglers] = useState<AnglerDraft[]>([
-    emptyAngler(emphasizeYouth),
-  ]);
+  const [anglers, setAnglers] = useState<AnglerDraft[]>(
+    emphasizeYouth ? [emptyAngler(false), emptyAngler(true)] : [emptyAngler()],
+  );
   const [sidePots, setSidePots] = useState<SidePotId[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -112,7 +117,9 @@ export function RegisterForm({
   const [suggestError, setSuggestError] = useState<string | null>(null);
 
   const paidSeats = paidEntrySeatCount(anglers);
-  const youthSeats = anglers.length - paidSeats;
+  const youthSeats = youthAnglerCount(anglers);
+  const canAddAdult = canAddAdultSeat(anglers);
+  const canAddYouth = canAddYouthSeat(anglers);
   const showBoatContactNudge = isBoatContactNotAngler(
     anglers.map((a) => ({
       fullName: a.fullName,
@@ -176,13 +183,18 @@ export function RegisterForm({
     );
   }
 
-  function addAngler() {
-    if (anglers.length >= MAX_ANGLERS) return;
-    setAnglers((prev) => [...prev, emptyAngler()]);
+  function addAdult() {
+    if (!canAddAdultSeat(anglers)) return;
+    setAnglers((prev) => [...prev, emptyAngler(false)]);
+  }
+
+  function addYouth() {
+    if (!canAddYouthSeat(anglers)) return;
+    setAnglers((prev) => [...prev, emptyAngler(true)]);
   }
 
   function removeAngler(index: number) {
-    if (anglers.length <= MIN_ANGLERS) return;
+    if (anglers.length <= 1) return;
     setAnglers((prev) => prev.filter((_, i) => i !== index));
   }
 
@@ -198,9 +210,16 @@ export function RegisterForm({
     if (captainEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(captainEmail.trim())) {
       next.captainEmail = ["Valid email required"];
     }
-    const named = anglers.filter((a) => a.fullName.trim());
-    if (named.length < MIN_ANGLERS) {
-      next.anglers = [`At least ${MIN_ANGLERS} anglers required`];
+    const namedAdults = anglers.filter(
+      (a) => a.fullName.trim() && !a.isYouth,
+    );
+    if (namedAdults.length < MIN_ANGLERS) {
+      next.anglers = [
+        `Boat teams need at least ${MIN_ANGLERS} adult angler. Kids do not fill that seat.`,
+      ];
+    }
+    if (namedAdults.length > MAX_ANGLERS) {
+      next.anglers = [`At most ${MAX_ANGLERS} adult anglers on a boat.`];
     }
     anglers.forEach((a, index) => {
       if (a.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email.trim())) {
@@ -634,14 +653,24 @@ export function RegisterForm({
               })}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={addAngler}
-            disabled={anglers.length >= MAX_ANGLERS}
-            className="text-sm font-semibold text-sea disabled:opacity-40"
-          >
-            + Add angler
-          </button>
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <button
+              type="button"
+              onClick={addAdult}
+              disabled={!canAddAdult}
+              className="text-sm font-semibold text-sea disabled:opacity-40"
+            >
+              + Add adult
+            </button>
+            <button
+              type="button"
+              onClick={addYouth}
+              disabled={!canAddYouth}
+              className="text-sm font-semibold text-sea disabled:opacity-40"
+            >
+              + Add youth
+            </button>
+          </div>
         </div>
         {showBoatContactNudge ? (
           <p className="mt-3 rounded-md border border-wave/15 bg-mist/60 px-3 py-2 text-sm text-wave">
@@ -650,12 +679,16 @@ export function RegisterForm({
         ) : null}
         {emphasizeYouth ? (
           <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
-            Registering a youth angler? Check <strong>17 or under</strong> on
-            their seat. They take a roster spot for the {YOUTH_TOURNAMENT.name}{" "}
-            — same 1–4 cap — and do not change the $
-            {BOAT_ENTRY_CENTS / 100} boat entry. They do not compete in the
-            main stringer or main pot. They are welcome on paid team side
-            pots. {YOUTH_EMAIL_HELPER}
+            Registering a youth angler? Check <strong>17 or under</strong>.
+            They do not take one of this boat&apos;s {MIN_ANGLERS}–{MAX_ANGLERS}{" "}
+            adult seats and do not change the ${BOAT_ENTRY_CENTS / 100} boat
+            entry. Kids may also enter the {YOUTH_TOURNAMENT.name} from land
+            with no boat. They do not compete in the main stringer or main pot.
+            If this boat enters paid side pots, their fish may count there.{" "}
+            {YOUTH_EMAIL_HELPER}{" "}
+            <Link href="/register/youth" className="font-semibold text-sea hover:underline">
+              Enter from land instead →
+            </Link>
           </p>
         ) : null}
         <div className="mt-4 space-y-4">
@@ -745,7 +778,7 @@ export function RegisterForm({
                 <button
                   type="button"
                   onClick={() => removeAngler(index)}
-                  disabled={anglers.length <= MIN_ANGLERS}
+                  disabled={anglers.length <= 1}
                   className="pb-2.5 text-sm text-alert disabled:opacity-30"
                 >
                   Remove
@@ -888,7 +921,7 @@ export function RegisterForm({
                 } on the roster`
               : ""}
             {youthSeats > 0
-              ? ` (${youthSeats} youth — roster only)`
+              ? ` (${youthSeats} youth — not an adult seat)`
               : ""}
             {sidePots.length > 0
               ? ` + ${sidePots.length} side pot${

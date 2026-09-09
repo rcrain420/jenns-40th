@@ -2,8 +2,8 @@
  * Recalc Team.amountDueCents to $300 + $50 × sidePotCount.
  *
  * Rebill policy:
- * - Teams with fewer than 4 roster seats (including youth) are set to the
- *   new boat formula.
+ * - Teams with fewer than 4 adult roster seats are set to the
+ *   new boat formula. Youth do not count. Land-only RowRide entries are skipped.
  * - Teams already at $300 + side pots (typical 4-adult boats) are skipped
  *   — recalc is idempotent.
  * - A 4-seat boat billed under old per-adult math (youth discount) is
@@ -34,6 +34,7 @@ async function main() {
       teamName: true,
       amountDueCents: true,
       paymentStatus: true,
+      entryKind: true,
       sidePots: true,
       _count: { select: { anglers: true } },
     },
@@ -48,6 +49,7 @@ async function main() {
       paymentStatus: team.paymentStatus,
       sidePotCount: team.sidePots.length,
       anglerCount: team._count.anglers,
+      entryKind: team.entryKind,
     })),
   );
 

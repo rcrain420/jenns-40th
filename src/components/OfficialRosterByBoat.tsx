@@ -6,6 +6,7 @@ import {
   isOfficialRosterSeat,
   officialRosterAnglerLine,
   officialRosterBoatPotCents,
+  officialRosterLandSummary,
   officialRosterPotAmountLabel,
   officialRosterPotSummary,
   type OfficialRosterBoat,
@@ -14,9 +15,11 @@ import {
 export function BoatRosterHeading({
   boatName,
   isOwn = false,
+  ownLabel = "Your boat",
 }: {
   boatName: string;
   isOwn?: boolean;
+  ownLabel?: string;
 }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-2 bg-wave px-3 py-2 text-paper">
@@ -25,7 +28,7 @@ export function BoatRosterHeading({
       </h3>
       {isOwn ? (
         <span className="font-label text-[0.7rem] tracking-[0.12em] text-paper/75">
-          Your boat
+          {ownLabel}
         </span>
       ) : null}
     </header>
@@ -35,15 +38,17 @@ export function BoatRosterHeading({
 export function BoatRosterFrame({
   boatName,
   isOwn = false,
+  ownLabel = "Your boat",
   children,
 }: {
   boatName: string;
   isOwn?: boolean;
+  ownLabel?: string;
   children: ReactNode;
 }) {
   return (
     <div>
-      <BoatRosterHeading boatName={boatName} isOwn={isOwn} />
+      <BoatRosterHeading boatName={boatName} isOwn={isOwn} ownLabel={ownLabel} />
       <div className="border border-t-0 border-wave/15 bg-paper px-4 py-3">
         {children}
       </div>
@@ -54,7 +59,12 @@ export function BoatRosterFrame({
 function BoatRosterRows({ boat }: { boat: OfficialRosterBoat }) {
   const seats = boat.anglers.filter(isOfficialRosterSeat);
   const extras = boat.anglers.filter((row) => !isOfficialRosterSeat(row));
-  const potCents = officialRosterBoatPotCents(boat.anglers, BOAT_ENTRY_CENTS);
+  const potCents = officialRosterBoatPotCents(
+    boat.anglers,
+    BOAT_ENTRY_CENTS,
+    boat.entryKind,
+  );
+  const isLand = boat.entryKind === "YOUTH_LAND";
   const extraLine = alsoOnThisBoatLine(
     extras.map((row) => officialRosterAnglerLine(row)),
   );
@@ -68,7 +78,11 @@ function BoatRosterRows({ boat }: { boat: OfficialRosterBoat }) {
   return (
     <div className="space-y-3">
       {seats.length === 0 ? (
-        <p className="text-sm text-ink/60">No angler seats on this boat yet.</p>
+        <p className="text-sm text-ink/60">
+          {isLand
+            ? "No youth anglers on this RowRide entry yet."
+            : "No angler seats on this boat yet."}
+        </p>
       ) : (
         <ul className="space-y-1.5 text-ink/80">
           {seats.map((row, index) => (
@@ -85,11 +99,13 @@ function BoatRosterRows({ boat }: { boat: OfficialRosterBoat }) {
         </ul>
       )}
       <p className="font-label text-[0.7rem] tracking-[0.08em] text-ink/50">
-        {officialRosterPotSummary({
-          boatCount: 1,
-          potCents,
-          format: formatUsdWhole,
-        })}
+        {isLand
+          ? officialRosterLandSummary()
+          : officialRosterPotSummary({
+              boatCount: 1,
+              potCents,
+              format: formatUsdWhole,
+            })}
       </p>
       {extraLine ? (
         <p className="text-sm text-ink/50">{extraLine}</p>
@@ -123,6 +139,9 @@ export function OfficialRosterByBoat({
               key={boat.id}
               boatName={boat.boatName}
               isOwn={boat.isOwn}
+              ownLabel={
+                boat.entryKind === "YOUTH_LAND" ? "Your RowRide entry" : "Your boat"
+              }
             >
               <BoatRosterRows boat={boat} />
             </BoatRosterFrame>

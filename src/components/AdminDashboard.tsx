@@ -9,6 +9,7 @@ export type AdminTeamRow = {
   id: string;
   teamName: string;
   boatType: string;
+  entryKind?: string;
   paymentStatus: string;
   amountDueCents: number;
   registrantEmail: string;
@@ -175,7 +176,11 @@ export function AdminDashboard({ teams, stats }: Props) {
                   <p className="text-xs text-ink/50">{team.registrantEmail}</p>
                 </td>
                 <td className="px-4 py-3">
-                  {team.boatType === "GUIDED" ? "Guided" : "Non-guided"}
+                  {team.entryKind === "YOUTH_LAND"
+                    ? "Land / RowRide"
+                    : team.boatType === "GUIDED"
+                      ? "Guided"
+                      : "Non-guided"}
                 </td>
                 <td className="px-4 py-3">
                   {team.anglers.length}
