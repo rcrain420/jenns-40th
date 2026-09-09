@@ -307,7 +307,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
             )}
             <button
               type="button"
-              disabled={!canAddYouthSeat(anglers)}
+              disabled={!canAddYouthSeat(anglers, entryKind)}
               onClick={() =>
                 setAnglers((a) => [...a, { ...emptyAngler(), isYouth: true }])
               }

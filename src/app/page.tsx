@@ -241,9 +241,9 @@ export default async function HomePage() {
             </Link>{" "}
             is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Heaviest
             qualifying fish by a registered youth angler. Kids may fish from
-            land or tag along on a boat without taking an adult seat. Youth
-            are out of the main stringer and main pot. Attached to a boat
-            that entered paid side pots, their fish may count there.
+            land or join a registered boat (they count toward that boat&apos;s
+            4). Youth are out of the main stringer and main pot. Attached to
+            a boat that entered paid side pots, their fish may count there.
             Land-only kids are RowRide-only.{" "}
             <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →

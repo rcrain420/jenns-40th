@@ -32,7 +32,7 @@ Late adds after the cutoff happen only if the organizers approve the exception a
 
 3. A captain is optional. Add one when you register or anytime later on My team. If you name a captain or DIY primary contact, they must be 18 or older. This is the person we will contact when somebody forgets what time weigh-in closes.
 
-4. Boat teams may have one to four registered adult anglers. Youth anglers do not take one of those adult seats. Entry is $300 per boat for the adult/main tournament boat, not for kids. Example: three adults and one kid is still $300.
+4. Boat teams may have one to four registered anglers, including youth. A main-tournament boat needs at least one adult. Entry is $300 per boat and does not change when kids are on the roster. Example: three adults and one kid is still $300 — the boat is full.
 
 5. Only registered anglers may catch fish entered for official weigh-in. Youth anglers (17 or under) do not participate in the main tournament stringer or main pot competition. They are welcome on paid team side pots and have their own host-funded RowRide Youth Angler Tournament.
 
@@ -215,7 +215,7 @@ Little Anglers. Big Fish. Bigger Bragging Rights.
 
 There is no entry fee for the RowRide Youth Angler Tournament. It is host-funded, like the Birthday Trash Fish prize, and does not come from paid side-pot money.
 
-The RowRide Youth Angler Tournament is open to registered youth anglers — anglers 17 or younger whom a parent or legal guardian has registered. Kids may fish from land with no boat, or optionally tag along with adults on a registered boat.
+The RowRide Youth Angler Tournament is open to registered youth anglers — anglers 17 or younger whom a parent or legal guardian has registered. Kids may fish from land with no boat, or optionally join a registered boat roster.
 
 The heaviest qualifying fish caught by a registered youth angler wins.
 
@@ -223,7 +223,7 @@ A qualifying fish must be legal, caught during tournament hours, presented whole
 
 The youth angler must personally hook the fish and land it. Adults may help with safety. The child needs to do the fishing.
 
-Youth anglers do not take one of a boat’s one-to-four adult fishing seats. They do not change the $300 boat entry and do not grow the main tournament pot beyond that boat fee. They do not participate in the main tournament stringer or main pot competition. If a youth angler is attached to a boat that entered paid side pots, their fish may count on those team side pots. Land-only kids with no boat are RowRide-only.
+Youth on a boat count toward that boat’s one-to-four roster. They do not change the $300 boat entry and do not grow the main tournament pot beyond that boat fee. They do not participate in the main tournament stringer or main pot competition. If a youth angler is attached to a boat that entered paid side pots, their fish may count on those team side pots. Land-only kids with no boat are RowRide-only.
 
 A parent or guardian may use their own email for the child. The child does not get a tournament account. Parent login is the login. Adults without email may stay name-only on the roster; they still create an account from the invite link. That is not the kids path.
 

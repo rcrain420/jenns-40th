@@ -15,6 +15,7 @@ import {
   type SidePotId,
 } from "@/lib/config";
 import {
+  boatRosterCapacityIssue,
   canAddAdultSeat,
   canAddYouthSeat,
 } from "@/lib/roster-capacity";
@@ -210,16 +211,10 @@ export function RegisterForm({
     if (captainEmail.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(captainEmail.trim())) {
       next.captainEmail = ["Valid email required"];
     }
-    const namedAdults = anglers.filter(
-      (a) => a.fullName.trim() && !a.isYouth,
-    );
-    if (namedAdults.length < MIN_ANGLERS) {
-      next.anglers = [
-        `Boat teams need at least ${MIN_ANGLERS} adult angler. Kids do not fill that seat.`,
-      ];
-    }
-    if (namedAdults.length > MAX_ANGLERS) {
-      next.anglers = [`At most ${MAX_ANGLERS} adult anglers on a boat.`];
+    const named = anglers.filter((a) => a.fullName.trim());
+    const rosterIssue = boatRosterCapacityIssue(named);
+    if (rosterIssue) {
+      next.anglers = [rosterIssue];
     }
     anglers.forEach((a, index) => {
       if (a.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email.trim())) {
@@ -680,8 +675,8 @@ export function RegisterForm({
         {emphasizeYouth ? (
           <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
             Registering a youth angler? Check <strong>17 or under</strong>.
-            They do not take one of this boat&apos;s {MIN_ANGLERS}–{MAX_ANGLERS}{" "}
-            adult seats and do not change the ${BOAT_ENTRY_CENTS / 100} boat
+            They count toward this boat&apos;s {MIN_ANGLERS}–{MAX_ANGLERS}{" "}
+            roster and do not change the ${BOAT_ENTRY_CENTS / 100} boat
             entry. Kids may also enter the {YOUTH_TOURNAMENT.name} from land
             with no boat. They do not compete in the main stringer or main pot.
             If this boat enters paid side pots, their fish may count there.{" "}
@@ -921,7 +916,7 @@ export function RegisterForm({
                 } on the roster`
               : ""}
             {youthSeats > 0
-              ? ` (${youthSeats} youth — not an adult seat)`
+              ? ` (${youthSeats} youth)`
               : ""}
             {sidePots.length > 0
               ? ` + ${sidePots.length} side pot${
