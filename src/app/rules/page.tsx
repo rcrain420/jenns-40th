@@ -544,8 +544,8 @@ export default function RulesPage() {
             <p className="font-semibold text-wave">{YOUTH_TOURNAMENT.tagline}</p>
             <p>
               There is no entry fee for the {YOUTH_TOURNAMENT.name}. It is
-              host-funded, like the Birthday Trash Fish prize, and does not
-              come from paid side-pot money. The prize is provided by
+              host-funded, like the Heaviest Saltwater Catfish prize, and does
+              not come from paid side-pot money. The prize is provided by
               Tournament Host.
             </p>
             <p>
@@ -594,9 +594,8 @@ export default function RulesPage() {
           </div>
 
           <div className="space-y-3">
-            <Subhead>Birthday Trash Fish Prize</Subhead>
-            <p className="font-semibold text-wave">Heaviest Saltwater Catfish</p>
-            <p>There is no entry fee for the Birthday Trash Fish category.</p>
+            <Subhead>Heaviest Saltwater Catfish</Subhead>
+            <p>There is no entry fee for this category.</p>
             <p>
               The heaviest legal <strong>gafftopsail catfish or hardhead catfish</strong>{" "}
               wins.
@@ -611,8 +610,8 @@ export default function RulesPage() {
               paid side-pot money.
             </p>
             <p>
-              A team does not have to enter any paid side pots to compete for the
-              Birthday Trash Fish prize.
+              A team does not have to enter any paid side pots to compete for
+              this prize.
             </p>
           </div>
         </Section>

@@ -213,7 +213,7 @@ If two fish have the same number of spots, the heavier fish wins. If they also w
 
 Little Anglers. Big Fish. Bigger Bragging Rights.
 
-There is no entry fee for the RowRide Youth Angler Tournament. It is host-funded, like the Birthday Trash Fish prize, and does not come from paid side-pot money. The prize is provided by Tournament Host.
+There is no entry fee for the RowRide Youth Angler Tournament. It is host-funded, like the Heaviest Saltwater Catfish prize, and does not come from paid side-pot money. The prize is provided by Tournament Host.
 
 The RowRide Youth Angler Tournament is open to registered youth anglers — anglers 17 or younger whom a parent or legal guardian has registered. Kids may fish from land with no boat, or optionally join a registered boat roster.
 
@@ -227,11 +227,9 @@ Youth on a boat count toward that boat’s one-to-four roster. They do not chang
 
 A parent or guardian may use their own email for the child. The child does not get a tournament account. Parent login is the login. Adults without email may stay name-only on the roster; they still create an account from the invite link. That is not the kids path.
 
-### Birthday Trash Fish Prize
+### Heaviest Saltwater Catfish
 
-#### Heaviest Saltwater Catfish
-
-There is no entry fee for the Birthday Trash Fish category.
+There is no entry fee for this category.
 
 The heaviest legal **gafftopsail catfish or hardhead catfish** wins.
 
@@ -241,7 +239,7 @@ The fish must comply with current Texas Parks and Wildlife Department regulation
 
 The prize will be provided by Jenn and Aaron and will not come from paid side-pot money.
 
-A team does not have to enter any paid side pots to compete for the Birthday Trash Fish prize.
+A team does not have to enter any paid side pots to compete for this prize.
 
 ## 12. Bring Us a Real Fish
 
