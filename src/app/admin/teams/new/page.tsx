@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminTeamEditor } from "@/components/AdminTeamEditor";
 import { getCurrentUser } from "@/lib/auth";
+import { ADMIN_EXCEPTION_NOTE } from "@/lib/registration-policy";
 
 export default async function AdminNewTeamPage() {
   const user = await getCurrentUser();
@@ -14,9 +15,7 @@ export default async function AdminNewTeamPage() {
           ← All teams
         </Link>
         <h1 className="mt-4 font-display text-3xl text-wave">Add team</h1>
-        <p className="mt-2 text-ink/65">
-          Admins can add teams even after public registration closes.
-        </p>
+        <p className="mt-2 text-ink/65">{ADMIN_EXCEPTION_NOTE}</p>
         <div className="mt-8 rounded-xl bg-white p-6 shadow-sm">
           <AdminTeamEditor mode="create" />
         </div>

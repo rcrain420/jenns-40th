@@ -12,6 +12,10 @@ import { formatUsd } from "@/lib/money";
 import { getCurrentUser } from "@/lib/auth";
 import { getPotTotals } from "@/lib/pots";
 import { getRegistrationAvailability } from "@/lib/registration";
+import {
+  REGISTRATION_CLOSED_SHORT,
+  publicRegistrationDeadlineNote,
+} from "@/lib/registration-policy";
 
 export const dynamic = "force-dynamic";
 
@@ -109,22 +113,29 @@ export default async function PotsPage() {
               </li>
             ))}
           </ul>
-          <div className="mt-6 flex flex-wrap items-center gap-4">
-            {availability.isOpen ? (
-              <Link href="/register" className="btn-bay btn-bay-red">
-                Register your team
+          <div className="mt-6 space-y-3">
+            <div className="flex flex-wrap items-center gap-4">
+              {availability.isOpen ? (
+                <Link href="/register" className="btn-bay btn-bay-red">
+                  Register your team
+                </Link>
+              ) : (
+                <span className="btn-bay border-2 border-wave/30 text-wave/50">
+                  {REGISTRATION_CLOSED_SHORT}
+                </span>
+              )}
+              <Link
+                href="/rules#side-pots"
+                className="text-sun underline-offset-2 hover:underline"
+              >
+                Full side pot rules →
               </Link>
-            ) : (
-              <span className="btn-bay border-2 border-wave/30 text-wave/50">
-                Registration closed
-              </span>
-            )}
-            <Link
-              href="/rules#side-pots"
-              className="text-sun underline-offset-2 hover:underline"
-            >
-              Full side pot rules →
-            </Link>
+            </div>
+            {!availability.isOpen ? (
+              <p className="text-[0.95rem] text-wave/70 md:text-base">
+                {publicRegistrationDeadlineNote(false)}
+              </p>
+            ) : null}
           </div>
         </div>
       </section>

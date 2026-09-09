@@ -8,12 +8,23 @@
 **Fishing Hours:** Sunrise to 2:00 p.m.
 **Weigh-In Hours:** 12:00 p.m. to 2:00 p.m.
 **Captain’s Meeting:** Friday, October 9, 2026, at 7:00 p.m. at Boatmen’s Club Bar & Marina
+**Registration deadline:** Thursday, October 1, 2026 (end of day, America/Chicago). No walk-up, day-of, or marina registration.
 
 The goal is simple: catch fish, celebrate Jenn, talk a little trash and have a great time.
 
 We want this tournament to be competitive, fair and fun. Please read the rules so nobody has to argue over a redfish while Jenn is trying to enjoy her birthday.
 
-## 1. Who Can Fish?
+## 1. Register by October 1
+
+Every boat must be registered online by the end of the day on **October 1, 2026** (America/Chicago).
+
+There is no walk-up, day-of, or marina registration. Showing up at Boatmen’s Club Bar & Marina on Friday or Saturday without a registered team does not get you in the tournament.
+
+Public registration also closes if the field fills (soft cap of 25 teams) before that date.
+
+Late adds after the cutoff happen only if the organizers approve the exception and enter the team themselves. There is no public waitlist or request-an-exception form. Do not plan on talking your way onto a boat at the dock.
+
+## 2. Who Can Fish?
 
 1. All anglers must be officially registered before fishing begins. No surprise substitutes, mysterious cousins or last-minute ringers.
 
@@ -27,7 +38,7 @@ We want this tournament to be competitive, fair and fun. Please read the rules s
 
 6. Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.
 
-## 2. Guided and DIY Teams
+## 3. Guided and DIY Teams
 
 Both guided and non-guided teams are welcome.
 
@@ -45,7 +56,7 @@ Non-guided teams may not receive professional guiding services during official t
 
 Guided and non-guided teams will compete together unless separate divisions are announced before the tournament.
 
-## 3. Captain’s Meeting
+## 4. Captain’s Meeting
 
 At least one representative from every team must attend the captain’s meeting:
 
@@ -60,7 +71,7 @@ Once the captain’s meeting closes, the paid side pots are closed. No side-pot 
 
 Any weather updates, boundary clarifications, rule changes or additional instructions announced at the captain’s meeting become part of the official rules.
 
-## 4. Keep It Legal
+## 5. Keep It Legal
 
 All participants must follow current Texas Parks and Wildlife Department regulations and all applicable federal, state and local laws.
 
@@ -74,7 +85,7 @@ Nothing in these rules gives anyone permission to break the law.
 
 Basically, make sure your fish, your license and your boat are legal before bringing any of them near the weigh-in.
 
-## 5. How You Can Catch Them
+## 6. How You Can Catch Them
 
 1. Tournament fish must be caught using a conventional rod, reel, line and hook.
 
@@ -88,7 +99,7 @@ Basically, make sure your fish, your license and your boat are legal before brin
 
 6. Tournament fish must be hooked during official fishing hours.
 
-## 6. Boats, Wade Fishing and Fishing Areas
+## 7. Boats, Wade Fishing and Fishing Areas
 
 1. Fishing is allowed only in public waters that tournament participants may legally access.
 
@@ -104,7 +115,7 @@ Basically, make sure your fish, your license and your boat are legal before brin
 
 7. Any fishing boundaries or restricted areas will be announced at the captain’s meeting.
 
-## 7. Safety First—Seriously
+## 8. Safety First—Seriously
 
 Every participant is responsible for evaluating the weather, water conditions and personal ability before deciding whether to fish.
 
@@ -123,7 +134,7 @@ No fish, prize, side pot, fishing spot or bragging right is worth someone gettin
 
 Be smart. Come back safely.
 
-## 8. Catch Your Own Fish
+## 9. Catch Your Own Fish
 
 1. Every fish entered must have been caught by a registered member of the team submitting it.
 
@@ -137,7 +148,7 @@ Be smart. Come back safely.
 
 Your fish must be your fish. This is not a seafood exchange program.
 
-## 9. The Main Stringer
+## 10. The Main Stringer
 
 The main tournament winner will be determined by the heaviest legal stringer consisting of up to:
 
@@ -154,7 +165,7 @@ All fish must comply with the Texas Parks and Wildlife Department size, bag and 
 
 A fish entered in a paid side pot or bonus category may also be included in the main stringer, provided it is otherwise eligible and was caught by a registered adult angler.
 
-## 10. Side Pots and Bonus Categories
+## 11. Side Pots and Bonus Categories
 
 There will be three optional paid side pots.
 
@@ -232,7 +243,7 @@ The prize will be provided by Jenn and Aaron and will not come from paid side-po
 
 A team does not have to enter any paid side pots to compete for the Birthday Trash Fish prize.
 
-## 11. Bring Us a Real Fish
+## 12. Bring Us a Real Fish
 
 1. All fish must be fresh, unfrozen and caught during official tournament hours.
 
@@ -248,7 +259,7 @@ A team does not have to enter any paid side pots to compete for the Birthday Tra
 
 Do not stuff anything inside a fish that did not arrive there naturally. We cannot believe this rule needs to exist, but fishing tournaments have taught us otherwise.
 
-## 12. Choose Your Fish Before Weigh-In
+## 13. Choose Your Fish Before Weigh-In
 
 Teams are responsible for measuring and selecting their fish before presenting them for official weigh-in.
 
@@ -260,7 +271,7 @@ A fish that is disqualified after being presented to the Weighmaster may not be 
 
 Measure twice. Choose carefully. Then approach the scale with confidence.
 
-## 13. Official Measuring and Weighing
+## 14. Official Measuring and Weighing
 
 1. Fish will be measured using the tournament’s official measuring board.
 
@@ -274,7 +285,7 @@ Measure twice. Choose carefully. Then approach the scale with confidence.
 
 The official scale is the official scale. Your bathroom scale, fish-grip scale and uncle’s estimate do not overrule it.
 
-## 14. The Very Important 2:00 p.m. Deadline
+## 15. The Very Important 2:00 p.m. Deadline
 
 The official weigh-in will take place at Boatmen’s Club Bar & Marina.
 
@@ -296,7 +307,7 @@ Telephone calls, text messages, photographs, traffic, boat trouble or evidence t
 
 There will be **no exceptions** to the 2:00 p.m. weigh-in deadline.
 
-## 15. Breaking a Tie
+## 16. Breaking a Tie
 
 Unless a category has its own tie-breaking rule, a tie in weight will be awarded to the team whose qualifying fish or stringer was officially weighed first.
 
@@ -304,7 +315,7 @@ The specific tie-breaking rules listed under each paid side pot will control for
 
 Another good reason not to wait until the final minute.
 
-## 16. Don’t Be That Team
+## 17. Don’t Be That Team
 
 Everyone must behave safely, honestly and respectfully.
 
@@ -314,7 +325,7 @@ Competitive banter is welcome. Actual hostility is not.
 
 This is a birthday tournament. Fish hard, laugh often and remember that everyone still has to hang out together afterward.
 
-## 17. Pictures or It Didn’t Happen
+## 18. Pictures or It Didn’t Happen
 
 Tournament officials may request photographs or video showing a fish, angler, boat or catch when reasonably necessary to verify compliance with the rules.
 
@@ -322,7 +333,7 @@ Please smile—even if your fish is small.
 
 Pictures, updates and competitive banter are welcome and may be uploaded through the tournament app.
 
-## 18. The Final Word
+## 19. The Final Word
 
 The Weighmaster has final authority over:
 

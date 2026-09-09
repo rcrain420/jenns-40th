@@ -8,7 +8,7 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 - Teams of 1–4 anglers; guided (optional captain) or non-guided (optional primary contact)
 - $300 flat per boat; youth roster seats do not change the boat entry; side pots $50 per team, per pot; Venmo payment link + QR (`public/venmo-qr.png`)
 - Fishing license confirmation checkbox
-- Soft cap of 25 teams; public registration closes Oct 1, 2026
+- Soft cap of 25 teams; public registration closes end of day Oct 1, 2026 (America/Chicago). No walk-ups, day-of, or marina registration. Admins may add a late exception after the cutoff or soft cap.
 - Signed-in Teams directory of registered boats and roster names
 - Catch log: anglers photograph fish; AI estimates breed (Redfish, Trout, Black drum, Hardhead catfish, Gafftop, or Unknown), length, and weight; board grouped by angler
 - Catch alerts: in-app notification bell + optional browser notifications on `/catches`

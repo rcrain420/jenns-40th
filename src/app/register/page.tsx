@@ -14,6 +14,7 @@ import {
   userHasRegisteredTeam,
 } from "@/lib/register-logged-in";
 import { getRegistrationAvailability } from "@/lib/registration";
+import { publicRegistrationClosedCopy } from "@/lib/registration-policy";
 
 export const dynamic = "force-dynamic";
 
@@ -53,21 +54,6 @@ export default async function RegisterPage({
     hasTeam,
   });
 
-  if (view === "auth") {
-    return (
-      <PageShell
-        narrow
-        title={REGISTER_AUTH.title}
-        description={REGISTER_AUTH.body}
-      >
-        <AuthForm
-          mode={registerAuthMode()}
-          next={registerContinuePath(params)}
-        />
-      </PageShell>
-    );
-  }
-
   if (view === "already-registered") {
     return (
       <PageShell
@@ -87,8 +73,39 @@ export default async function RegisterPage({
     );
   }
 
-  const welcomeName = firstName(viewer?.name ?? "");
   const availability = await getRegistrationAvailability();
+  if (!availability.isOpen) {
+    const closed = publicRegistrationClosedCopy(availability);
+    return (
+      <PageShell narrow title={closed.title} description={closed.body}>
+        <p>
+          <Link
+            href="/rules#registration-deadline"
+            className="font-semibold text-sea hover:underline"
+          >
+            Registration deadline in the rules →
+          </Link>
+        </p>
+      </PageShell>
+    );
+  }
+
+  if (view === "auth") {
+    return (
+      <PageShell
+        narrow
+        title={REGISTER_AUTH.title}
+        description={REGISTER_AUTH.body}
+      >
+        <AuthForm
+          mode={registerAuthMode()}
+          next={registerContinuePath(params)}
+        />
+      </PageShell>
+    );
+  }
+
+  const welcomeName = firstName(viewer?.name ?? "");
 
   return (
     <PageShell
@@ -108,6 +125,8 @@ export default async function RegisterPage({
     >
       <RegisterForm
         registrationOpen={availability.isOpen}
+        openByDate={availability.openByDate}
+        openByCapacity={availability.openByCapacity}
         initialBoatType={initialBoatType}
         initialCaptainName={initialCaptainName}
         viewer={viewer}
