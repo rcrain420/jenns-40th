@@ -72,6 +72,8 @@ export async function POST(request: Request) {
     );
   }
 
+  // Exception path: do not call isRegistrationOpen or getRegistrationAvailability.
+  // Admins may add a team after the Oct 1 cutoff and after the 25-boat soft cap.
   const team = await prisma.team.create({
     data: teamCreateData(parsed.data),
     include: { anglers: { orderBy: { sortOrder: "asc" } } },

@@ -5,6 +5,7 @@ import {
   isRegistrationOpen,
 } from "./config";
 import { normalizeUnlockEmail } from "./event-unlock-token";
+import { publicCreateBlockedReason } from "./registration-policy";
 import { ensureTeamMember } from "./team-invite";
 import type { RegistrationInput } from "./validation";
 
@@ -68,11 +69,9 @@ export async function createTeamRegistration(
   actor?: { userId: string; email: string } | null,
 ) {
   const availability = await getRegistrationAvailability();
-  if (!availability.isOpen) {
-    const reason = !availability.openByDate
-      ? "Registration closed on October 1, 2026."
-      : "Registration is full.";
-    return { ok: false as const, error: reason, status: 403 };
+  const blocked = publicCreateBlockedReason(availability);
+  if (blocked) {
+    return { ok: false as const, error: blocked, status: 403 };
   }
 
   const actorEmail = actor?.email.trim().toLowerCase() ?? "";

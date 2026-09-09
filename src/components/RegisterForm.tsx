@@ -18,6 +18,7 @@ import { isBoatContactNotAngler } from "@/lib/join-the-boat";
 import { formatUsd, formatUsdWhole } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
 import { anglersSectionHelp } from "@/lib/register-form-copy";
+import { publicRegistrationClosedCopy } from "@/lib/registration-policy";
 import type { PublicUser } from "@/lib/users";
 import {
   CAPTAIN_CONTACT_ADULT_NOTE,
@@ -69,6 +70,8 @@ const FIELD_ORDER = [
 
 type RegisterFormProps = {
   registrationOpen: boolean;
+  openByDate?: boolean;
+  openByCapacity?: boolean;
   initialBoatType?: BoatType;
   initialCaptainName?: string;
   viewer?: PublicUser | null;
@@ -77,6 +80,8 @@ type RegisterFormProps = {
 
 export function RegisterForm({
   registrationOpen,
+  openByDate = false,
+  openByCapacity = true,
   initialBoatType,
   initialCaptainName = "",
   viewer = null,
@@ -291,14 +296,20 @@ export function RegisterForm({
   }
 
   if (!registrationOpen) {
+    const closed = publicRegistrationClosedCopy({ openByDate, openByCapacity });
     return (
       <div className="border border-dashed border-wave/30 bg-mist/70 px-6 py-10 text-center">
         <h2 className="font-display text-2xl uppercase text-wave">
-          Registration closed
+          {closed.title}
         </h2>
-        <p className="mt-3 text-ink/70">
-          Public registration ended October 1, 2026, or the tournament is at
-          capacity. Contact the organizers if you need help.
+        <p className="mt-3 text-ink/70">{closed.body}</p>
+        <p className="mt-4">
+          <Link
+            href="/rules#registration-deadline"
+            className="font-semibold text-sea underline-offset-4 hover:underline"
+          >
+            Registration deadline in the rules →
+          </Link>
         </p>
       </div>
     );

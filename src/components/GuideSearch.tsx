@@ -30,7 +30,11 @@ function registerHref(captain: string) {
   return `/register?${params.toString()}`;
 }
 
-export function GuideSearch() {
+export function GuideSearch({
+  registrationOpen = true,
+}: {
+  registrationOpen?: boolean;
+}) {
   const [query, setQuery] = useState("");
   const [style, setStyle] = useState<TripStyle | "all">("all");
   const [minGuests, setMinGuests] = useState(0);
@@ -209,12 +213,14 @@ export function GuideSearch() {
                         Website
                       </a>
                     ) : null}
-                    <Link
-                      href={registerHref(guide.captain)}
-                      className="inline-flex items-center justify-center border-2 border-wave bg-transparent px-4 py-2.5 font-display text-xs font-semibold uppercase tracking-[0.12em] text-wave transition hover:bg-wave hover:text-paper"
-                    >
-                      Use for registration
-                    </Link>
+                    {registrationOpen ? (
+                      <Link
+                        href={registerHref(guide.captain)}
+                        className="inline-flex items-center justify-center border-2 border-wave bg-transparent px-4 py-2.5 font-display text-xs font-semibold uppercase tracking-[0.12em] text-wave transition hover:bg-wave hover:text-paper"
+                      >
+                        Use for registration
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
               </li>
@@ -228,8 +234,11 @@ export function GuideSearch() {
           Browse more captains
         </h2>
         <p className="mt-2 max-w-2xl text-ink/70">
-          Confirm {EVENT.dateLabel} availability and boat capacity before you
-          register as a guided team. Marketplaces below list additional captains.
+          Confirm {EVENT.dateLabel} availability and boat capacity
+          {registrationOpen
+            ? " before you register as a guided team."
+            : ". Public registration is closed — no walk-ups at the marina."}{" "}
+          Marketplaces below list additional captains.
         </p>
         <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
           {MARKETPLACE_LINKS.map((link) => (

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
+import { RegistrationClosedNotice } from "@/components/RegistrationClosedNotice";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
 import {
@@ -12,6 +13,7 @@ import {
 import { prisma } from "@/lib/db";
 import { isBoatInviteLocked } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
+import { getRegistrationAvailability } from "@/lib/registration";
 import { YOUTH_COMPETITION_POLICY } from "@/lib/youth";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +24,10 @@ export const metadata: Metadata = {
 };
 
 export default async function KidsPage() {
-  const user = await getCurrentUser();
+  const [user, availability] = await Promise.all([
+    getCurrentUser(),
+    getRegistrationAvailability(),
+  ]);
   const member = user
     ? await prisma.teamMember.findUnique({
         where: { userId: user.id },
@@ -115,7 +120,14 @@ export default async function KidsPage() {
 
         <section>
           <span className="section-banner">Entry</span>
-          {!user ? (
+          {!availability.isOpen && !team ? (
+            <div className="mt-4">
+              <RegistrationClosedNotice
+                openByDate={availability.openByDate}
+                openByCapacity={availability.openByCapacity}
+              />
+            </div>
+          ) : !user ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 Register the team and mark each youth angler as 17 or under.

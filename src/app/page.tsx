@@ -16,6 +16,10 @@ import {
 } from "@/lib/config";
 import { getPotTotals } from "@/lib/pots";
 import { getRegistrationAvailability } from "@/lib/registration";
+import {
+  REGISTRATION_CLOSED_SHORT,
+  publicRegistrationDeadlineNote,
+} from "@/lib/registration-policy";
 
 export const dynamic = "force-dynamic";
 
@@ -93,10 +97,13 @@ export default async function HomePage() {
             </Link>
           ) : (
             <span className="btn-bay w-full border-2 border-paper/40 text-center text-paper/70 md:hidden">
-              Registration closed
+              {REGISTRATION_CLOSED_SHORT}
             </span>
           )}
         </div>
+        <p className="mx-auto mt-4 max-w-6xl text-center text-sm text-paper/85 md:text-left">
+          {publicRegistrationDeadlineNote(availability.isOpen)}
+        </p>
       </section>
 
       {/* Schedule */}
@@ -198,9 +205,14 @@ export default async function HomePage() {
               Register your team
             </Link>
           ) : (
-            <span className="btn-bay mt-1 self-start border-2 border-wave/30 text-wave/50">
-              Registration closed
-            </span>
+            <div className="mt-1 space-y-2">
+              <span className="btn-bay inline-flex border-2 border-wave/30 text-wave/50">
+                {REGISTRATION_CLOSED_SHORT}
+              </span>
+              <p className="text-[0.95rem] leading-relaxed text-wave/70 md:text-base">
+                {publicRegistrationDeadlineNote(false)}
+              </p>
+            </div>
           )}
         </div>
 

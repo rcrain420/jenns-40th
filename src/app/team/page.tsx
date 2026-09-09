@@ -10,6 +10,8 @@ import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
 import { boatContactNotAnglerNudge } from "@/lib/boat-contact-copy";
 import { BOAT_ENTRY_CENTS, isRegistrationOpen } from "@/lib/config";
+import { getRegistrationAvailability } from "@/lib/registration";
+import { publicRegistrationClosedCopy } from "@/lib/registration-policy";
 import { firstName } from "@/lib/safe-path";
 import { prisma } from "@/lib/db";
 import {
@@ -71,6 +73,32 @@ export default async function MyTeamPage({
   });
 
   if (!member) {
+    const availability = await getRegistrationAvailability();
+    if (!availability.isOpen) {
+      const closed = publicRegistrationClosedCopy(availability);
+      return (
+        <PageShell
+          narrow
+          title="My team"
+          description={`Hi ${firstName(user.name)} — you’re not on a boat yet.`}
+        >
+          <p className="text-ink/70">{closed.body}</p>
+          <p className="mt-4 text-ink/70">
+            If you&apos;re joining an existing boat, ask them for their invite
+            link. Captains might never log in.
+          </p>
+          <p className="mt-4">
+            <Link
+              href="/rules#registration-deadline"
+              className="font-semibold text-sea hover:underline"
+            >
+              Registration deadline in the rules →
+            </Link>
+          </p>
+        </PageShell>
+      );
+    }
+
     return (
       <PageShell
         narrow

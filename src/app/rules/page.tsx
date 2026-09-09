@@ -10,48 +10,49 @@ export const metadata: Metadata = {
 };
 
 const TOC = [
-  { id: "who-can-fish", number: 1, title: "Who Can Fish?" },
-  { id: "guided-and-diy", number: 2, title: "Guided and DIY Teams" },
-  { id: "captains-meeting", number: 3, title: "Captain’s Meeting" },
-  { id: "keep-it-legal", number: 4, title: "Keep It Legal" },
-  { id: "how-you-can-catch-them", number: 5, title: "How You Can Catch Them" },
+  { id: "registration-deadline", number: 1, title: "Register by October 1" },
+  { id: "who-can-fish", number: 2, title: "Who Can Fish?" },
+  { id: "guided-and-diy", number: 3, title: "Guided and DIY Teams" },
+  { id: "captains-meeting", number: 4, title: "Captain’s Meeting" },
+  { id: "keep-it-legal", number: 5, title: "Keep It Legal" },
+  { id: "how-you-can-catch-them", number: 6, title: "How You Can Catch Them" },
   {
     id: "boats-wade-fishing",
-    number: 6,
+    number: 7,
     title: "Boats, Wade Fishing and Fishing Areas",
   },
-  { id: "safety-first", number: 7, title: "Safety First—Seriously" },
-  { id: "catch-your-own-fish", number: 8, title: "Catch Your Own Fish" },
-  { id: "main-stringer", number: 9, title: "The Main Stringer" },
+  { id: "safety-first", number: 8, title: "Safety First—Seriously" },
+  { id: "catch-your-own-fish", number: 9, title: "Catch Your Own Fish" },
+  { id: "main-stringer", number: 10, title: "The Main Stringer" },
   {
     id: "side-pots",
-    number: 10,
+    number: 11,
     title: "Side Pots and Bonus Categories",
   },
-  { id: "bring-us-a-real-fish", number: 11, title: "Bring Us a Real Fish" },
+  { id: "bring-us-a-real-fish", number: 12, title: "Bring Us a Real Fish" },
   {
     id: "choose-your-fish",
-    number: 12,
+    number: 13,
     title: "Choose Your Fish Before Weigh-In",
   },
   {
     id: "official-measuring",
-    number: 13,
+    number: 14,
     title: "Official Measuring and Weighing",
   },
   {
     id: "two-pm-deadline",
-    number: 14,
+    number: 15,
     title: "The Very Important 2:00 p.m. Deadline",
   },
-  { id: "breaking-a-tie", number: 15, title: "Breaking a Tie" },
-  { id: "dont-be-that-team", number: 16, title: "Don’t Be That Team" },
+  { id: "breaking-a-tie", number: 16, title: "Breaking a Tie" },
+  { id: "dont-be-that-team", number: 17, title: "Don’t Be That Team" },
   {
     id: "pictures",
-    number: 17,
+    number: 18,
     title: "Pictures or It Didn’t Happen",
   },
-  { id: "final-word", number: 18, title: "The Final Word" },
+  { id: "final-word", number: 19, title: "The Final Word" },
 ] as const;
 
 function Section({
@@ -162,6 +163,15 @@ export default function RulesPage() {
                 Friday, October 9, 2026, at 7:00 p.m. at {EVENT.venue}
               </dd>
             </div>
+            <div>
+              <dt className="font-semibold uppercase tracking-[0.1em] text-wave/60">
+                Registration deadline
+              </dt>
+              <dd className="mt-1">
+                October 1, 2026 (end of day, America/Chicago). No walk-ups at
+                the marina or on tournament weekend.
+              </dd>
+            </div>
           </dl>
 
           <p>
@@ -201,7 +211,29 @@ export default function RulesPage() {
           </nav>
         </header>
 
-        <Section id="who-can-fish" number={1} title="Who Can Fish?">
+        <Section id="registration-deadline" number={1} title="Register by October 1">
+          <p>
+            Every boat must be registered online by the end of the day on{" "}
+            <strong>October 1, 2026</strong> (America/Chicago).
+          </p>
+          <p>
+            There is no walk-up, day-of, or marina registration. Showing up at{" "}
+            {EVENT.venue} on Friday or Saturday without a registered team does
+            not get you in the tournament.
+          </p>
+          <p>
+            Public registration also closes if the field fills (soft cap of 25
+            teams) before that date.
+          </p>
+          <p>
+            Late adds after the cutoff happen only if the organizers approve the
+            exception and enter the team themselves. There is no public waitlist
+            or request-an-exception form. Do not plan on talking your way onto a
+            boat at the dock.
+          </p>
+        </Section>
+
+        <Section id="who-can-fish" number={2} title="Who Can Fish?">
           <RuleList
             items={[
               "All anglers must be officially registered before fishing begins. No surprise substitutes, mysterious cousins or last-minute ringers.",
@@ -214,7 +246,7 @@ export default function RulesPage() {
           />
         </Section>
 
-        <Section id="guided-and-diy" number={2} title="Guided and DIY Teams">
+        <Section id="guided-and-diy" number={3} title="Guided and DIY Teams">
           <p>Both guided and non-guided teams are welcome.</p>
           <Subhead>Guided Teams</Subhead>
           <p>
@@ -240,7 +272,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="captains-meeting" number={3} title="Captain’s Meeting">
+        <Section id="captains-meeting" number={4} title="Captain’s Meeting">
           <p>At least one representative from every team must attend the captain&apos;s meeting:</p>
           <div className="border border-wave/15 bg-mist/60 px-4 py-4">
             <p className="font-accent text-2xl leading-none text-sun md:text-3xl">
@@ -272,7 +304,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="keep-it-legal" number={4} title="Keep It Legal">
+        <Section id="keep-it-legal" number={5} title="Keep It Legal">
           <p>
             All participants must follow current Texas Parks and Wildlife
             Department regulations and all applicable federal, state and local
@@ -301,7 +333,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="how-you-can-catch-them" number={5} title="How You Can Catch Them">
+        <Section id="how-you-can-catch-them" number={6} title="How You Can Catch Them">
           <RuleList
             items={[
               "Tournament fish must be caught using a conventional rod, reel, line and hook.",
@@ -314,7 +346,7 @@ export default function RulesPage() {
           />
         </Section>
 
-        <Section id="boats-wade-fishing" number={6} title="Boats, Wade Fishing and Fishing Areas">
+        <Section id="boats-wade-fishing" number={7} title="Boats, Wade Fishing and Fishing Areas">
           <RuleList
             items={[
               "Fishing is allowed only in public waters that tournament participants may legally access.",
@@ -328,7 +360,7 @@ export default function RulesPage() {
           />
         </Section>
 
-        <Section id="safety-first" number={7} title="Safety First—Seriously">
+        <Section id="safety-first" number={8} title="Safety First—Seriously">
           <p>
             Every participant is responsible for evaluating the weather, water
             conditions and personal ability before deciding whether to fish.
@@ -363,7 +395,7 @@ export default function RulesPage() {
           <p>Be smart. Come back safely.</p>
         </Section>
 
-        <Section id="catch-your-own-fish" number={8} title="Catch Your Own Fish">
+        <Section id="catch-your-own-fish" number={9} title="Catch Your Own Fish">
           <RuleList
             items={[
               "Every fish entered must have been caught by a registered member of the team submitting it.",
@@ -378,7 +410,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="main-stringer" number={9} title="The Main Stringer">
+        <Section id="main-stringer" number={10} title="The Main Stringer">
           <p>
             The main tournament winner will be determined by the heaviest legal
             stringer consisting of up to:
@@ -410,7 +442,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="side-pots" number={10} title="Side Pots and Bonus Categories">
+        <Section id="side-pots" number={11} title="Side Pots and Bonus Categories">
           <p>There will be three optional paid side pots.</p>
           <p>
             Each paid side pot costs <strong>$50 per team, per category</strong>.
@@ -581,7 +613,7 @@ export default function RulesPage() {
           </div>
         </Section>
 
-        <Section id="bring-us-a-real-fish" number={11} title="Bring Us a Real Fish">
+        <Section id="bring-us-a-real-fish" number={12} title="Bring Us a Real Fish">
           <RuleList
             items={[
               "All fish must be fresh, unfrozen and caught during official tournament hours.",
@@ -599,7 +631,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="choose-your-fish" number={12} title="Choose Your Fish Before Weigh-In">
+        <Section id="choose-your-fish" number={13} title="Choose Your Fish Before Weigh-In">
           <p>
             Teams are responsible for measuring and selecting their fish before
             presenting them for official weigh-in.
@@ -623,7 +655,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="official-measuring" number={13} title="Official Measuring and Weighing">
+        <Section id="official-measuring" number={14} title="Official Measuring and Weighing">
           <RuleList
             items={[
               "Fish will be measured using the tournament's official measuring board.",
@@ -639,7 +671,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="two-pm-deadline" number={14} title="The Very Important 2:00 p.m. Deadline">
+        <Section id="two-pm-deadline" number={15} title="The Very Important 2:00 p.m. Deadline">
           <p>
             The official weigh-in will take place at {EVENT.venue}.
           </p>
@@ -677,7 +709,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="breaking-a-tie" number={15} title="Breaking a Tie">
+        <Section id="breaking-a-tie" number={16} title="Breaking a Tie">
           <p>
             Unless a category has its own tie-breaking rule, a tie in weight will
             be awarded to the team whose qualifying fish or stringer was
@@ -690,7 +722,7 @@ export default function RulesPage() {
           <p>Another good reason not to wait until the final minute.</p>
         </Section>
 
-        <Section id="dont-be-that-team" number={16} title="Don’t Be That Team">
+        <Section id="dont-be-that-team" number={17} title="Don’t Be That Team">
           <p>
             Everyone must behave safely, honestly and respectfully.
           </p>
@@ -708,7 +740,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="pictures" number={17} title="Pictures or It Didn’t Happen">
+        <Section id="pictures" number={18} title="Pictures or It Didn’t Happen">
           <p>
             Tournament officials may request photographs or video showing a fish,
             angler, boat or catch when reasonably necessary to verify compliance
@@ -721,7 +753,7 @@ export default function RulesPage() {
           </p>
         </Section>
 
-        <Section id="final-word" number={18} title="The Final Word">
+        <Section id="final-word" number={19} title="The Final Word">
           <p>The Weighmaster has final authority over:</p>
           <ul className="list-disc space-y-2 pl-5">
             <li>Fish identification;</li>
