@@ -239,11 +239,17 @@ export default async function HomePage() {
               {YOUTH_TOURNAMENT.name}
             </Link>{" "}
             is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Heaviest
-            qualifying fish by a registered youth angler. Kids may fish from
-            land or join a registered boat (they count toward that boat&apos;s
-            4). Youth are out of the main stringer and main pot. Attached to
-            a boat that entered paid side pots, their fish may count there.
-            Land-only kids are RowRide-only.{" "}
+            qualifying fish by a registered youth angler.
+          </p>
+          <p className="mt-3 text-[0.95rem] text-wave/70 md:text-base">
+            Youth anglers may join a tournament boat; however, most guides
+            prefer no more than four anglers on their boat, so please
+            communicate with your guide in advance. Youth anglers do not
+            participate in the main tournament pot or main stringer. They may,
+            however, choose to enter and pay for any of the available side
+            pots. Side-pot participation is separate from the main tournament
+            and does not depend on whether the youth angler is fishing from a
+            boat or from land.{" "}
             <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
             </Link>
