@@ -545,7 +545,8 @@ export default function RulesPage() {
             <p>
               There is no entry fee for the {YOUTH_TOURNAMENT.name}. It is
               host-funded, like the Birthday Trash Fish prize, and does not
-              come from paid side-pot money.
+              come from paid side-pot money. The prize is provided by
+              Tournament Host.
             </p>
             <p>
               The {YOUTH_TOURNAMENT.name} is open to registered youth anglers

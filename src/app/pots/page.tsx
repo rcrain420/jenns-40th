@@ -94,8 +94,8 @@ export default async function PotsPage() {
                 </span>
                 <span>
                   {pot.name} is {pot.buyInLabel.toLowerCase()}
-                  {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by Jenn
-                  and Aaron
+                  {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by{" "}
+                  {pot.id === "kids" ? "Tournament Host" : "Jenn and Aaron"}
                   {pot.id === "kids"
                     ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Kids may fish from land or join a registered boat (they count toward that boat’s 4). Youth are out of the main stringer and main pot. Attached to a paid team side pot, their fish may count there. Land-only kids are RowRide-only.`
                     : ", and every team is already in."}
