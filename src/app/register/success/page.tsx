@@ -108,7 +108,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           </span>{" "}
           ({landOnly ? "land-only RowRide" : "boat entry"}
           {youthSeats > 0
-            ? ` · ${youthSeats} youth (not an adult seat)`
+            ? ` · ${team.anglers.length} angler${
+                team.anglers.length === 1 ? "" : "s"
+              } (${youthSeats} youth)`
             : paidSeats > 0
               ? ` · ${paidSeats} angler${paidSeats === 1 ? "" : "s"}`
               : ""}
@@ -137,7 +139,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           <p className="mt-3 text-ink/75">
             {landOnly
               ? "You registered a land-only RowRide entry. Kids are not on a boat and are not in team side pots. Parent login is the login."
-              : "You registered this team. That does not make you the captain — add a captain email anytime on My team to invite them. Captain login is not a paid angler seat. Youth on this boat do not take an adult seat."}
+              : "You registered this team. That does not make you the captain — add a captain email anytime on My team to invite them. Captain login is not a paid angler seat. Youth on this boat count toward the 4-angler roster."}
           </p>
           {landOnly ? null : (
             <p className="mt-3 text-ink/75">{SUCCESS_CREATOR_ACCESS_NOTE}</p>

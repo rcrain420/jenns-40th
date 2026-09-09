@@ -1,10 +1,10 @@
 /**
- * Adult boat seats vs youth (RowRide) seats.
+ * Boat roster seats vs land-only RowRide youth.
  * Leaf module so Node tests can import it without extension rewriting.
  * Numbers match config.MIN/MAX_ANGLERS and MAX_YOUTH_ANGLERS.
  */
 const MIN_ADULTS = 1;
-const MAX_ADULTS = 4;
+const MAX_BOAT_ANGLERS = 4;
 const MIN_YOUTH = 1;
 const MAX_YOUTH = 8;
 
@@ -20,9 +20,16 @@ export function youthSeatCount(
   return anglers.filter((angler) => angler.isYouth === true).length;
 }
 
+/** Named fishing anglers on a boat — adults and youth both count. */
+export function namedSeatCount(
+  anglers: Array<{ isYouth?: boolean | null }>,
+): number {
+  return anglers.length;
+}
+
 export const BOAT_ADULT_MIN_ERROR = `Boat teams need at least ${MIN_ADULTS} adult angler. Kids do not fill that seat — they may enter RowRide from land.`;
 
-export const BOAT_ADULT_MAX_ERROR = `At most ${MAX_ADULTS} adult anglers on a boat. Youth tag-alongs do not count toward that cap.`;
+export const BOAT_TOTAL_MAX_ERROR = `At most ${MAX_BOAT_ANGLERS} anglers on a boat, including youth.`;
 
 export const YOUTH_MAX_ERROR = `At most ${MAX_YOUTH} youth anglers on one entry.`;
 
@@ -36,8 +43,7 @@ export function boatRosterCapacityIssue(
 ): string | null {
   const adults = adultSeatCount(anglers);
   if (adults < MIN_ADULTS) return BOAT_ADULT_MIN_ERROR;
-  if (adults > MAX_ADULTS) return BOAT_ADULT_MAX_ERROR;
-  if (youthSeatCount(anglers) > MAX_YOUTH) return YOUTH_MAX_ERROR;
+  if (namedSeatCount(anglers) > MAX_BOAT_ANGLERS) return BOAT_TOTAL_MAX_ERROR;
   return null;
 }
 
@@ -55,11 +61,15 @@ export function youthLandRosterCapacityIssue(
 export function canAddAdultSeat(
   anglers: Array<{ isYouth?: boolean | null }>,
 ): boolean {
-  return adultSeatCount(anglers) < MAX_ADULTS;
+  return namedSeatCount(anglers) < MAX_BOAT_ANGLERS;
 }
 
 export function canAddYouthSeat(
   anglers: Array<{ isYouth?: boolean | null }>,
+  entryKind: string = "BOAT",
 ): boolean {
-  return youthSeatCount(anglers) < MAX_YOUTH;
+  if (entryKind === "YOUTH_LAND") {
+    return youthSeatCount(anglers) < MAX_YOUTH;
+  }
+  return namedSeatCount(anglers) < MAX_BOAT_ANGLERS;
 }

@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `${YOUTH_TOURNAMENT.name} · ${EVENT.shortName}`,
-  description: `${YOUTH_TOURNAMENT.tagline} Free youth tournament — fish from land or tag along on a boat. Host-funded biggest fish.`,
+  description: `${YOUTH_TOURNAMENT.tagline} Free youth tournament — fish from land or join a registered boat. Host-funded biggest fish.`,
 };
 
 export default async function KidsPage() {
@@ -78,8 +78,8 @@ export default async function KidsPage() {
           <p className="mt-3 text-ink/80">
             Jenn&apos;s birthday bash is a family tournament. Rowan and Rider
             are part of this weekend too — not a side note, and not a
-            separate kids account. Kids may fish from land, or optionally tag
-            along with adults on a registered boat.
+            separate kids account. Kids may fish from land, or optionally join
+            a registered boat roster.
           </p>
           <p className="mt-3 text-ink/80">
             The {YOUTH_TOURNAMENT.name} is their own free lane on the scale:
@@ -104,10 +104,10 @@ export default async function KidsPage() {
               RowRide-only — no team side pots.
             </li>
             <li>
-              Kids may optionally tag along on a registered adult boat. They
-              do not take one of that boat&apos;s 1–4 adult fishing seats and
-              do not change the {formatUsd(BOAT_ENTRY_CENTS)} boat entry.
-              Example: 3 adults + 1 kid is still {formatUsd(BOAT_ENTRY_CENTS)}.
+              Kids may optionally join a registered boat roster. They count
+              toward that boat&apos;s 1–4 anglers and do not change the{" "}
+              {formatUsd(BOAT_ENTRY_CENTS)} boat entry. Example: 3 adults + 1
+              kid is still {formatUsd(BOAT_ENTRY_CENTS)} — the boat is full.
             </li>
             <li>
               If a kid is attached to a boat that entered paid side pots,
@@ -143,7 +143,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "Sign in, then enter from land with no boat, or register a boat and add kids as tag-alongs."
+                  ? "Sign in, then enter from land with no boat, or register a boat and add kids on that roster (they count toward the 4)."
                   : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -162,7 +162,7 @@ export default async function KidsPage() {
               <p className="text-ink/80">
                 {landOnly
                   ? `Add youth anglers to ${team.teamName} here. This is a land-only RowRide entry — $0, no boat seats, no team side pots.`
-                  : `Add youth anglers to ${team.teamName} here. Kids do not take one of the 1–4 adult seats and do not change the $300 boat entry. They do not compete in the main stringer; they may count on paid team side pots and RowRide.`}
+                  : `Add youth anglers to ${team.teamName} here. Kids count toward the 1–4 roster and do not change the $300 boat entry. They do not compete in the main stringer; they may count on paid team side pots and RowRide.`}
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({
@@ -198,7 +198,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "You're signed in and not on a boat. Enter kids from land, or register a boat and add them as tag-alongs."
+                  ? "You're signed in and not on a boat. Enter kids from land, or register a boat and add them on that roster (they count toward the 4)."
                   : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">

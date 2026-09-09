@@ -86,17 +86,16 @@ describe("isYouth registration", () => {
     assert.equal(SIDE_POT_IDS.includes("kids"), false);
   });
 
-  it("keeps 3 adults + 1 youth as a $300 boat with a free adult seat left", () => {
-    assert.equal(
-      paidEntrySeatCount([
-        { isYouth: false },
-        { isYouth: false },
-        { isYouth: false },
-        { isYouth: true },
-      ]),
-      3,
-    );
+  it("keeps 3 adults + 1 youth as a $300 boat that is full", () => {
+    const roster = [
+      { isYouth: false },
+      { isYouth: false },
+      { isYouth: false },
+      { isYouth: true },
+    ];
+    assert.equal(paidEntrySeatCount(roster), 3);
     assert.equal(amountDueCents(0), 30000);
+    assert.equal(boatRosterCapacityIssue(roster), null);
   });
 
   it("allows a single fishing angler and keeps the boat fee flat", () => {
@@ -165,13 +164,25 @@ describe("boat vs land registration capacity", () => {
     );
   });
 
-  it("accepts 4 adults plus youth on a boat", () => {
-    assert.equal(
+  it("rejects 4 adults plus youth on a boat", () => {
+    assert.match(
       boatRosterCapacityIssue([
         { isYouth: false },
         { isYouth: false },
         { isYouth: false },
         { isYouth: false },
+        { isYouth: true },
+      ]) ?? "",
+      /including youth/i,
+    );
+  });
+
+  it("accepts 2 adults and 2 youth on a boat", () => {
+    assert.equal(
+      boatRosterCapacityIssue([
+        { isYouth: false },
+        { isYouth: false },
+        { isYouth: true },
         { isYouth: true },
       ]),
       null,
