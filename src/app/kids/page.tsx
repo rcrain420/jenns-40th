@@ -73,19 +73,28 @@ export default async function KidsPage() {
         <section>
           <span className="section-banner">Celebration</span>
           <h2 className="mt-4 font-display text-2xl uppercase text-wave">
-            This weekend is theirs too
+            RowRide Youth Anglers Tournament — Celebrating Rowan + Rider&apos;s
+            10th Birthday!
           </h2>
           <p className="mt-3 text-ink/80">
-            Jenn&apos;s birthday bash is a family tournament. Rowan and Rider
-            are part of this weekend too — not a side note, and not a
-            separate kids account. Kids may fish from land, or optionally join
-            a registered boat roster.
+            Jenn&apos;s Birthday Bash is a family tournament, and Rowan and
+            Rider are a big part of the weekend too. Even better, they share
+            their birthday weekend with Jenn — all three celebrate on October
+            12th!
           </p>
           <p className="mt-3 text-ink/80">
-            The {YOUTH_TOURNAMENT.name} is their own free lane on the scale:
-            heaviest qualifying fish by a registered youth angler, prize from
-            Tournament Host. Official winner is the Weighmaster — not Livewell
-            AI.
+            Kids may fish from land or by boat. Youth anglers may also join a
+            registered tournament boat if the captain or guide allows it.
+          </p>
+          <p className="mt-3 text-ink/80">
+            The RowRide Youth Anglers Tournament gives the kids their own
+            free competition at the scales. The registered youth angler with
+            the heaviest qualifying fish takes the prize, provided by the
+            Tournament Host.
+          </p>
+          <p className="mt-3 text-ink/80">
+            Just like the main tournament, the Weighmaster has the final say
+            on the official winner — not Livewell AI.
           </p>
         </section>
 
