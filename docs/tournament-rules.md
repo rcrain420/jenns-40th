@@ -213,7 +213,7 @@ If two fish have the same number of spots, the heavier fish wins. If they also w
 
 Little Anglers. Big Fish. Bigger Bragging Rights.
 
-There is no entry fee for the RowRide Youth Angler Tournament. It is host-funded, like the Birthday Trash Fish prize, and does not come from paid side-pot money.
+There is no entry fee for the RowRide Youth Angler Tournament. It is host-funded, like the Birthday Trash Fish prize, and does not come from paid side-pot money. The prize is provided by Tournament Host.
 
 The RowRide Youth Angler Tournament is open to registered youth anglers — anglers 17 or younger whom a parent or legal guardian has registered. Kids may fish from land with no boat, or optionally join a registered boat roster.
 

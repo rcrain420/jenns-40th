@@ -84,7 +84,7 @@ export default async function KidsPage() {
           <p className="mt-3 text-ink/80">
             The {YOUTH_TOURNAMENT.name} is their own free lane on the scale:
             heaviest qualifying fish by a registered youth angler, prize from
-            Jenn and Aaron. Official winner is the Weighmaster — not Livewell
+            Tournament Host. Official winner is the Weighmaster — not Livewell
             AI.
           </p>
         </section>
