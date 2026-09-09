@@ -1,6 +1,7 @@
 /** Public registration policy. Leaf-safe for Node tests. */
 
-import { MAX_TEAMS } from "./config";
+/** Display only — keep in sync with MAX_TEAMS in config. */
+const SOFT_CAP_TEAMS = 25;
 
 /** End of day October 1, 2026 (America/Chicago) — matches REGISTRATION_CLOSES_AT. */
 export const REGISTRATION_DEADLINE_LABEL = "October 1, 2026";
@@ -62,7 +63,7 @@ export function publicRegistrationClosedCopy(gates: PublicRegistrationGates): {
   }
   return {
     title: REGISTRATION_CLOSED_TITLE,
-    body: `The tournament is at capacity (${MAX_TEAMS} boats). ${NO_WALKUP_POLICY}`,
+    body: `The tournament is at capacity (${SOFT_CAP_TEAMS} boats). ${NO_WALKUP_POLICY}`,
   };
 }
 

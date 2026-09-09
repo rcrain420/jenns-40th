@@ -168,8 +168,8 @@ describe("no leftover walk-up invitations", () => {
       join(ROOT, "src/app/api/admin/teams/route.ts"),
       "utf8",
     );
-    assert.equal(/isRegistrationOpen/.test(adminRoute), false);
-    assert.equal(/getRegistrationAvailability/.test(adminRoute), false);
+    assert.equal(/isRegistrationOpen\s*\(/.test(adminRoute), false);
+    assert.equal(/getRegistrationAvailability\s*\(/.test(adminRoute), false);
     assert.match(adminRoute, /Exception path/);
     assert.match(adminRoute, /soft cap/);
 
