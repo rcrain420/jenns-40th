@@ -1,7 +1,17 @@
 import { z } from "zod";
 import { optionalAnglerEmailSchema } from "./angler-email";
 import { contactEmailIssue } from "./boat-contact";
-import { MAX_ANGLERS, MIN_ANGLERS, SIDE_POT_IDS } from "./config";
+import {
+  ENTRY_KIND,
+  MAX_YOUTH_ANGLERS,
+  MIN_ANGLERS,
+  MIN_YOUTH_ANGLERS,
+  SIDE_POT_IDS,
+} from "./config";
+import {
+  boatRosterCapacityIssue,
+  youthLandRosterCapacityIssue,
+} from "./roster-capacity";
 import { SHIRT_SIZE_REQUIRED_ERROR, SHIRT_SIZES } from "./shirt-size";
 import {
   LICENSE_CONFIRM_ERROR,
@@ -36,10 +46,7 @@ const teamFieldsSchema = z.object({
     .trim()
     .optional()
     .transform((v) => (v ? v : undefined)),
-  anglers: z
-    .array(anglerSchema)
-    .min(MIN_ANGLERS, `At least ${MIN_ANGLERS} anglers required`)
-    .max(MAX_ANGLERS, `At most ${MAX_ANGLERS} anglers allowed`),
+  anglers: z.array(anglerSchema).min(1, `At least ${MIN_ANGLERS} anglers required`),
   sidePots: z
     .array(z.enum(SIDE_POT_IDS))
     .default([])
@@ -76,23 +83,84 @@ function refineYouthAttestation(
   }
 }
 
+function refineBoatRosterCapacity(
+  data: { anglers: Array<{ isYouth?: boolean }>; entryKind?: string },
+  ctx: z.RefinementCtx,
+) {
+  if (data.entryKind === ENTRY_KIND.YOUTH_LAND) return;
+  const issue = boatRosterCapacityIssue(data.anglers);
+  if (issue) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["anglers"],
+      message: issue,
+    });
+  }
+}
+
+function refineYouthLandRoster(
+  data: { anglers: Array<{ isYouth?: boolean }> },
+  ctx: z.RefinementCtx,
+) {
+  const issue = youthLandRosterCapacityIssue(data.anglers);
+  if (issue) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["anglers"],
+      message: issue,
+    });
+  }
+}
+
 export const registrationSchema = teamFieldsSchema
   .extend({
     licenseConfirmed: z.literal(true, {
       error: LICENSE_CONFIRM_ERROR,
     }),
     youthGuardianAttested: z.boolean().optional(),
+    entryKind: z.literal(ENTRY_KIND.BOAT).optional().default(ENTRY_KIND.BOAT),
   })
   .superRefine(refineOptionalContactEmail)
-  .superRefine(refineYouthAttestation);
+  .superRefine(refineYouthAttestation)
+  .superRefine(refineBoatRosterCapacity);
+
+export const youthLandRegistrationSchema = z
+  .object({
+    teamName: z.string().trim().min(1, "A household or kids name is required"),
+    registrantEmail: z.string().trim().email("Valid email required"),
+    notes: z
+      .string()
+      .trim()
+      .optional()
+      .transform((v) => (v ? v : undefined)),
+    anglers: z
+      .array(anglerSchema)
+      .min(MIN_YOUTH_ANGLERS, `At least ${MIN_YOUTH_ANGLERS} youth angler required`)
+      .max(MAX_YOUTH_ANGLERS, `At most ${MAX_YOUTH_ANGLERS} youth anglers allowed`),
+    licenseConfirmed: z.literal(true, {
+      error: LICENSE_CONFIRM_ERROR,
+    }),
+    youthGuardianAttested: z.boolean().optional(),
+    entryKind: z.literal(ENTRY_KIND.YOUTH_LAND).optional(),
+  })
+  .superRefine(refineYouthAttestation)
+  .superRefine(refineYouthLandRoster);
 
 export const adminTeamUpdateSchema = teamFieldsSchema
   .extend({
     licenseConfirmed: z.boolean(),
     paymentStatus: z.enum(["UNPAID", "PAID"]),
     youthGuardianAttested: z.boolean().optional(),
+    entryKind: z.enum([ENTRY_KIND.BOAT, ENTRY_KIND.YOUTH_LAND]).optional(),
   })
-  .superRefine(refineOptionalContactEmail);
+  .superRefine(refineOptionalContactEmail)
+  .superRefine((data, ctx) => {
+    if (data.entryKind === ENTRY_KIND.YOUTH_LAND) {
+      refineYouthLandRoster(data, ctx);
+      return;
+    }
+    refineBoatRosterCapacity(data, ctx);
+  });
 
 export const teamContactSchema = z
   .object({
@@ -108,15 +176,23 @@ export const teamContactSchema = z
 
 export const teamRosterSchema = z
   .object({
-    anglers: z
-      .array(anglerSchema)
-      .min(MIN_ANGLERS, `At least ${MIN_ANGLERS} anglers required`)
-      .max(MAX_ANGLERS, `At most ${MAX_ANGLERS} anglers allowed`),
+    anglers: z.array(anglerSchema).min(1, `At least ${MIN_ANGLERS} anglers required`),
     youthGuardianAttested: z.boolean().optional(),
+    entryKind: z.enum([ENTRY_KIND.BOAT, ENTRY_KIND.YOUTH_LAND]).optional(),
   })
-  .superRefine(refineYouthAttestation);
+  .superRefine(refineYouthAttestation)
+  .superRefine((data, ctx) => {
+    if (data.entryKind === ENTRY_KIND.YOUTH_LAND) {
+      refineYouthLandRoster(data, ctx);
+      return;
+    }
+    refineBoatRosterCapacity(data, ctx);
+  });
 
 export type RegistrationInput = z.infer<typeof registrationSchema>;
+export type YouthLandRegistrationInput = z.infer<
+  typeof youthLandRegistrationSchema
+>;
 export type AdminTeamUpdateInput = z.infer<typeof adminTeamUpdateSchema>;
 export type TeamRosterInput = z.infer<typeof teamRosterSchema>;
 export type TeamContactInput = z.infer<typeof teamContactSchema>;

@@ -28,6 +28,7 @@ export default async function AdminPage() {
     id: t.id,
     teamName: t.teamName,
     boatType: t.boatType,
+    entryKind: t.entryKind,
     paymentStatus: t.paymentStatus,
     amountDueCents: t.amountDueCents,
     registrantEmail: t.registrantEmail,

@@ -85,6 +85,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     email: team.registrantEmail,
   });
   const unlockUrl = publicAbsoluteUrl(eventUnlockPath(unlockToken));
+  const landOnly = team.entryKind === "YOUTH_LAND";
   const paidSeats = team.anglers.filter((a) => !a.isYouth).length;
   const youthSeats = team.anglers.length - paidSeats;
   const mailNote =
@@ -105,9 +106,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           <span className="font-semibold text-coral">
             {formatUsd(team.amountDueCents)}
           </span>{" "}
-          (boat entry
+          ({landOnly ? "land-only RowRide" : "boat entry"}
           {youthSeats > 0
-            ? ` · ${youthSeats} youth on the roster`
+            ? ` · ${youthSeats} youth (not an adult seat)`
             : paidSeats > 0
               ? ` · ${paidSeats} angler${paidSeats === 1 ? "" : "s"}`
               : ""}
@@ -122,7 +123,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
     >
       <div className="space-y-8">
         <section className="border border-wave/15 bg-mist/60 px-5 py-5">
-          <span className="section-banner">Links for this boat</span>
+          <span className="section-banner">
+            {landOnly ? "Links for this entry" : "Links for this boat"}
+          </span>
           <p
             className={`mt-3 text-sm ${
               mail === "failed" ? "text-alert" : "text-ink/75"
@@ -132,12 +135,15 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             {mailNote}
           </p>
           <p className="mt-3 text-ink/75">
-            You registered this team. That does not make you the captain — add
-            a captain email anytime on My team to invite them. Captain login is
-            not a paid angler seat.
+            {landOnly
+              ? "You registered a land-only RowRide entry. Kids are not on a boat and are not in team side pots. Parent login is the login."
+              : "You registered this team. That does not make you the captain — add a captain email anytime on My team to invite them. Captain login is not a paid angler seat. Youth on this boat do not take an adult seat."}
           </p>
-          <p className="mt-3 text-ink/75">{SUCCESS_CREATOR_ACCESS_NOTE}</p>
+          {landOnly ? null : (
+            <p className="mt-3 text-ink/75">{SUCCESS_CREATOR_ACCESS_NOTE}</p>
+          )}
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
+            {landOnly ? null : (
             <div>
               <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
                 Invite teammates
@@ -160,6 +166,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
                 </>
               )}
             </div>
+            )}
             <div>
               <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
                 Open my team
@@ -176,6 +183,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           </div>
         </section>
 
+        {landOnly ? null : (
         <section>
           <span className="section-banner">{SUCCESS_VENMO_BANNER}</span>
           <p className="mt-3 text-ink/75">
@@ -264,6 +272,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             </a>
           </div>
         </section>
+        )}
 
         {showSetPassword ? (
           <section className="border-t border-dashed border-wave/25 pt-8">
@@ -291,8 +300,14 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <dd className="text-right">{EVENT.name}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-ink/60">Boat</dt>
-              <dd>{team.boatType === "GUIDED" ? "Guided" : "Non-guided"}</dd>
+              <dt className="text-ink/60">{landOnly ? "Entry" : "Boat"}</dt>
+              <dd>
+                {landOnly
+                  ? "Land-only RowRide"
+                  : team.boatType === "GUIDED"
+                    ? "Guided"
+                    : "Non-guided"}
+              </dd>
             </div>
             {team.boatType === "GUIDED" ? (
               <div className="flex justify-between gap-4">
@@ -329,7 +344,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-ink/60">Payment</dt>
-              <dd className="font-semibold text-alert">Unpaid</dd>
+              <dd className={landOnly ? "font-semibold text-sea" : "font-semibold text-alert"}>
+                {landOnly || team.paymentStatus === "PAID" ? "Paid" : "Unpaid"}
+              </dd>
             </div>
           </dl>
         </section>

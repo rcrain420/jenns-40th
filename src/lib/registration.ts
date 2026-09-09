@@ -1,16 +1,21 @@
 import { prisma } from "./db";
 import {
+  ENTRY_KIND,
   MAX_TEAMS,
   amountDueCents,
   isRegistrationOpen,
 } from "./config";
 import { normalizeUnlockEmail } from "./event-unlock-token";
-import { publicCreateBlockedReason } from "./registration-policy";
+import {
+  PUBLIC_REGISTRATION_DATE_CLOSED_ERROR,
+  publicCreateBlockedReason,
+} from "./registration-policy";
 import { ensureTeamMember } from "./team-invite";
-import type { RegistrationInput } from "./validation";
+import type { RegistrationInput, YouthLandRegistrationInput } from "./validation";
 
+/** Paid boat entries only — land-only RowRide does not consume a boat slot. */
 export async function getTeamCount(): Promise<number> {
-  return prisma.team.count();
+  return prisma.team.count({ where: { entryKind: ENTRY_KIND.BOAT } });
 }
 
 export async function getRegistrationAvailability() {
@@ -23,6 +28,7 @@ export async function getRegistrationAvailability() {
     openByDate,
     openByCapacity,
     isOpen: openByDate && openByCapacity,
+    isLandOpen: openByDate,
   };
 }
 
@@ -31,20 +37,32 @@ export function emptyToNull(value?: string | null): string | null {
   return trimmed ? trimmed : null;
 }
 
-export function teamCreateData(input: RegistrationInput) {
-  const anglers = input.anglers.map((a, index) => ({
+function anglerCreateRows(
+  anglers: Array<{
+    fullName: string;
+    phone?: string;
+    email?: string;
+    isYouth?: boolean;
+    shirtSize: string;
+  }>,
+  forceYouth = false,
+) {
+  return anglers.map((a, index) => ({
     fullName: a.fullName,
     phone: a.phone ?? null,
     email: a.email ?? null,
-    isYouth: a.isYouth === true,
+    isYouth: forceYouth || a.isYouth === true,
     shirtSize: a.shirtSize,
     sortOrder: index,
   }));
+}
 
+export function teamCreateData(input: RegistrationInput) {
   const guided = input.boatType === "GUIDED";
 
   return {
     teamName: input.teamName,
+    entryKind: ENTRY_KIND.BOAT,
     boatType: input.boatType,
     captainName: emptyToNull(input.captainName),
     captainPhone: emptyToNull(input.captainPhone),
@@ -59,7 +77,30 @@ export function teamCreateData(input: RegistrationInput) {
     sidePots: input.sidePots,
     amountDueCents: amountDueCents(input.sidePots.length),
     anglers: {
-      create: anglers,
+      create: anglerCreateRows(input.anglers),
+    },
+  };
+}
+
+export function youthLandCreateData(input: YouthLandRegistrationInput) {
+  return {
+    teamName: input.teamName,
+    entryKind: ENTRY_KIND.YOUTH_LAND,
+    boatType: "NON_GUIDED" as const,
+    captainName: null,
+    captainPhone: null,
+    captainEmail: null,
+    contactName: null,
+    contactPhone: null,
+    contactEmail: null,
+    registrantEmail: input.registrantEmail,
+    notes: input.notes ?? null,
+    licenseConfirmed: input.licenseConfirmed,
+    paymentStatus: "PAID" as const,
+    sidePots: [] as string[],
+    amountDueCents: 0,
+    anglers: {
+      create: anglerCreateRows(input.anglers, true),
     },
   };
 }
@@ -83,6 +124,42 @@ export async function createTeamRegistration(
   const team = await prisma.team.create({
     data: {
       ...teamCreateData(input),
+      ...(claimForActor && actor
+        ? { claimedByUserId: actor.userId }
+        : {}),
+    },
+    include: { anglers: { orderBy: { sortOrder: "asc" } } },
+  });
+
+  if (claimForActor && actor) {
+    await ensureTeamMember(actor.userId, team.id);
+  }
+
+  return { ok: true as const, team };
+}
+
+export async function createYouthLandRegistration(
+  input: YouthLandRegistrationInput,
+  actor?: { userId: string; email: string } | null,
+) {
+  const availability = await getRegistrationAvailability();
+  if (!availability.isLandOpen) {
+    return {
+      ok: false as const,
+      error: PUBLIC_REGISTRATION_DATE_CLOSED_ERROR,
+      status: 403,
+    };
+  }
+
+  const actorEmail = actor?.email.trim().toLowerCase() ?? "";
+  const claimForActor =
+    Boolean(actor) &&
+    actorEmail.length > 0 &&
+    actorEmail === input.registrantEmail.trim().toLowerCase();
+
+  const team = await prisma.team.create({
+    data: {
+      ...youthLandCreateData(input),
       ...(claimForActor && actor
         ? { claimedByUserId: actor.userId }
         : {}),

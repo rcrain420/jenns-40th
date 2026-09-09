@@ -30,8 +30,20 @@ export const EVENT = {
 export const REGISTRATION_CLOSES_AT = new Date("2026-10-02T05:00:00.000Z");
 
 export const MAX_TEAMS = 25;
+/** Adult main-tournament fishing seats on a paid boat. Youth do not count. */
 export const MIN_ANGLERS = 1;
 export const MAX_ANGLERS = 4;
+/** Youth on a boat or land-only RowRide entry. Separate from the 1–4 adult cap. */
+export const MIN_YOUTH_ANGLERS = 1;
+export const MAX_YOUTH_ANGLERS = 8;
+
+export const ENTRY_KIND = {
+  BOAT: "BOAT",
+  YOUTH_LAND: "YOUTH_LAND",
+} as const;
+
+export type EntryKind = (typeof ENTRY_KIND)[keyof typeof ENTRY_KIND];
+
 /** Flat boat entry — roster size and youth vs adult do not change this. */
 export const BOAT_ENTRY_CENTS = 30000;
 
@@ -161,11 +173,34 @@ export function getAppUrl(): string {
   return "https://officialishfishingtournament.com";
 }
 
+export function isBoatEntry(kind?: string | null): boolean {
+  return kind !== ENTRY_KIND.YOUTH_LAND;
+}
+
+export function isYouthLandEntry(kind?: string | null): boolean {
+  return kind === ENTRY_KIND.YOUTH_LAND;
+}
+
 /** Adult fishing seats. Billing is a flat boat fee — this is display/counts only. */
 export function paidEntrySeatCount(
   anglers: Array<{ isYouth?: boolean | null }>,
 ): number {
   return anglers.filter((angler) => angler.isYouth !== true).length;
+}
+
+export function youthAnglerCount(
+  anglers: Array<{ isYouth?: boolean | null }>,
+): number {
+  return anglers.filter((angler) => angler.isYouth === true).length;
+}
+
+/** $300 + side pots for boats; land-only RowRide is $0. */
+export function amountDueForEntry(input: {
+  entryKind?: string | null;
+  sidePotCount?: number;
+}): number {
+  if (isYouthLandEntry(input.entryKind)) return 0;
+  return amountDueCents(input.sidePotCount ?? 0);
 }
 
 export function isRegistrationOpen(now = new Date()): boolean {

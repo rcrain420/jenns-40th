@@ -31,10 +31,12 @@ const COPY_SURFACES = [
   "src/app/kids/page.tsx",
   "src/app/team/page.tsx",
   "src/app/guides/page.tsx",
+  "src/app/register/youth/page.tsx",
   "src/app/admin/teams/new/page.tsx",
   "src/app/api/admin/teams/route.ts",
   "src/components/RegisterForm.tsx",
   "src/components/RegistrationClosedNotice.tsx",
+  "src/components/YouthLandRegisterForm.tsx",
   "src/components/GuideSearch.tsx",
   "src/lib/registration.ts",
   "src/lib/registration-policy.ts",
@@ -178,5 +180,14 @@ describe("no leftover walk-up invitations", () => {
       "utf8",
     );
     assert.match(publicCreate, /publicCreateBlockedReason/);
+    assert.match(publicCreate, /isLandOpen/);
+    assert.match(publicCreate, /PUBLIC_REGISTRATION_DATE_CLOSED_ERROR/);
+    assert.equal(
+      /publicCreateBlockedReason\(availability\);\s*if \(blocked\)/.test(
+        publicCreate.slice(publicCreate.indexOf("createYouthLandRegistration")),
+      ),
+      false,
+      "land-only create must stay date-gated, not boat-capacity gated",
+    );
   });
 });

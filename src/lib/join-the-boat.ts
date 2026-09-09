@@ -14,12 +14,13 @@
  * Accounts that joined the boat but are not on the paid Angler roster
  * (parent / registrant / share-link) are Boat account — not a paid fishing seat.
  *
- * Product contract 2026-09-05 (Aaron): four invited anglers lock the
- * boat. Pending, youth, and name-only official seats count. Extra
- * joiners from the share link count. Captain is not a seat — even after
- * they join with a captain email. A pending adult may still finish join
- * — that fills their existing seat. A pending captain may finish join
- * on a full boat the same way.
+ * Product contract 2026-09-05 / 2026-09-09: four invited *adult*
+ * anglers lock the boat. Pending and name-only official adult seats
+ * count. Extra joiners from the share link count. Youth do not count —
+ * they do not consume a 1–4 adult fishing seat. Captain is not a seat —
+ * even after they join with a captain email. A pending adult may still
+ * finish join — that fills their existing seat. A pending captain may
+ * finish join on a full boat the same way.
  *
  * Leaf module so Node tests can import it without extension rewriting.
  * Invite cap matches config.MAX_ANGLERS (kept local — no config import).
@@ -85,9 +86,9 @@ export function isCaptainRosterStatus(status: BoatRosterStatus): boolean {
   );
 }
 
-/** Seats and extra joiners lock the boat. Captain never does. */
+/** Adult seats and extra joiners lock the boat. Youth and captains never do. */
 export function countsTowardInviteLock(status: BoatRosterStatus): boolean {
-  return !isCaptainRosterStatus(status);
+  return status !== "youth" && !isCaptainRosterStatus(status);
 }
 
 function captainDisplayName(
@@ -179,7 +180,11 @@ export function boatRosterStatusLabel(status: BoatRosterStatus): string {
   return "Name-only · not emailed";
 }
 
-/** Paid fishing seats, including youth. Boat-only accounts and captains are not seats. */
+/**
+ * Names that belong on the official fishing list.
+ * Youth are RowRide (and optional team side-pot) anglers, not adult seats.
+ * Boat-only accounts and captains are not seats.
+ */
 export function isOfficialAnglerSeat(status: BoatRosterStatus): boolean {
   return status !== "boat-account" && !isCaptainRosterStatus(status);
 }
@@ -196,6 +201,7 @@ export type DirectoryTeam = {
   id: string;
   teamName: string;
   isOwn: boolean;
+  entryKind: string;
   anglers: DirectoryAngler[];
 };
 
@@ -256,6 +262,7 @@ export function toDirectoryTeam(input: {
   id: string;
   teamName: string;
   ownTeamId?: string | null;
+  entryKind?: string | null;
   anglers: BoatRosterInput["anglers"];
   members: BoatRosterInput["members"];
   captain?: BoatCaptain | null;
@@ -269,6 +276,7 @@ export function toDirectoryTeam(input: {
     id: input.id,
     teamName: input.teamName,
     isOwn: Boolean(input.ownTeamId && input.id === input.ownTeamId),
+    entryKind: input.entryKind === "YOUTH_LAND" ? "YOUTH_LAND" : "BOAT",
     anglers: rows.map((row) => ({
       name: row.name,
       status: row.status,
@@ -279,7 +287,7 @@ export function toDirectoryTeam(input: {
   };
 }
 
-/** Seats that count toward the 4-angler invite cap, including Pending. */
+/** Adult seats that count toward the 4-angler invite cap, including Pending. Youth do not. */
 export function invitedAnglerCount(input: BoatRosterInput): number {
   return buildBoatRoster(input).filter((row) =>
     countsTowardInviteLock(row.status),

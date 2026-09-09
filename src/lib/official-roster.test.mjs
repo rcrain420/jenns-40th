@@ -8,6 +8,7 @@ import {
   officialRosterAdultSeatCount,
   officialRosterAnglerLine,
   officialRosterBoatPotCents,
+  officialRosterLandSummary,
   officialRosterPotAmountLabel,
   officialRosterPotCents,
   officialRosterPotSummary,
@@ -211,5 +212,22 @@ describe("official roster grouped by boat", () => {
       ),
       "Also on this boat: Capt. Ron · Captain · Pending (not an angler seat)",
     );
+  });
+
+  it("does not add land-only RowRide entries to the $300 boat pot", () => {
+    const boats = groupOfficialRosterByBoat([
+      {
+        id: "land_1",
+        teamName: "The Crain kids",
+        entryKind: "YOUTH_LAND",
+        anglers: [{ fullName: "Rowan", isYouth: true }],
+      },
+    ]);
+    assert.equal(boats[0].entryKind, "YOUTH_LAND");
+    assert.equal(
+      officialRosterBoatPotCents(boats[0].anglers, BOAT_ENTRY_CENTS, "YOUTH_LAND"),
+      0,
+    );
+    assert.equal(officialRosterLandSummary(), "RowRide · land · no boat fee");
   });
 });

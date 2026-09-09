@@ -15,6 +15,8 @@ export type OfficialRosterBoat = {
   id: string;
   boatName: string;
   isOwn?: boolean;
+  /** BOAT (default) or YOUTH_LAND */
+  entryKind?: string;
   anglers: OfficialRosterAngler[];
 };
 
@@ -40,12 +42,18 @@ export function officialRosterPotAmountLabel(row: OfficialRosterAngler): string 
   return "included";
 }
 
-/** Main-pot cents this boat adds: $300 if it has any fishing seat. */
+/** Main-pot cents this boat adds: $300 if it has an adult fishing seat. */
 export function officialRosterBoatPotCents(
   rows: OfficialRosterAngler[],
   boatEntryCents: number,
+  entryKind?: string | null,
 ): number {
-  return rows.some(isOfficialRosterSeat) ? boatEntryCents : 0;
+  if (entryKind === "YOUTH_LAND") return 0;
+  return officialRosterAdultSeatCount(rows) > 0 ? boatEntryCents : 0;
+}
+
+export function officialRosterLandSummary(): string {
+  return "RowRide · land · no boat fee";
 }
 
 export function officialRosterAdultSeatCount(
@@ -74,6 +82,7 @@ export function groupOfficialRosterByBoat(
     id: string;
     teamName: string;
     isOwn?: boolean;
+    entryKind?: string | null;
     anglers: Array<{
       fullName: string;
       isYouth?: boolean | null;
@@ -86,6 +95,7 @@ export function groupOfficialRosterByBoat(
     id: team.id,
     boatName: team.teamName,
     isOwn: team.isOwn === true,
+    entryKind: team.entryKind ?? "BOAT",
     anglers: team.anglers.map((angler) => ({
       name: angler.fullName,
       isYouth: angler.isYouth === true,

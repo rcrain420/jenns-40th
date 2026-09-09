@@ -14,6 +14,7 @@ export function teamsToCsv(teams: TeamWithAnglers[]): string {
   const headers = [
     "teamId",
     "teamName",
+    "entryKind",
     "boatType",
     "captainName",
     "captainPhone",
@@ -38,6 +39,7 @@ export function teamsToCsv(teams: TeamWithAnglers[]): string {
     [
       t.id,
       t.teamName,
+      t.entryKind,
       t.boatType,
       t.captainName,
       t.captainPhone,

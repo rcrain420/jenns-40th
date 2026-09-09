@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { amountDueCents, isRegistrationOpen } from "@/lib/config";
+import { amountDueForEntry, isRegistrationOpen } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import {
   BOAT_FULL_MESSAGE,
@@ -73,6 +73,7 @@ export async function GET() {
       paymentStatus: team.paymentStatus,
       amountDueCents: team.amountDueCents,
       sidePots: team.sidePots,
+      entryKind: team.entryKind,
       boatType: team.boatType,
       captainName: team.captainName ?? "",
       captainPhone: team.captainPhone ?? "",
@@ -184,7 +185,14 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const parsed = teamRosterSchema.safeParse(body);
+  if (typeof body !== "object" || body === null) {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const parsed = teamRosterSchema.safeParse({
+    ...body,
+    entryKind: team.entryKind,
+  });
   if (!parsed.success) {
     return NextResponse.json(
       {
@@ -197,6 +205,7 @@ export async function PATCH(request: Request) {
 
   const nextAnglers = parsed.data.anglers;
   if (
+    team.entryKind !== "YOUTH_LAND" &&
     rosterWouldExceedInviteCapacity({
       current: boatRosterInput(team),
       nextAnglers,
@@ -204,12 +213,15 @@ export async function PATCH(request: Request) {
   ) {
     return NextResponse.json(
       {
-        error: `${BOAT_FULL_MESSAGE} Remove someone before adding another angler.`,
+        error: `${BOAT_FULL_MESSAGE} Remove someone before adding another adult angler.`,
       },
       { status: 409 },
     );
   }
-  const nextDue = amountDueCents(team.sidePots.length);
+  const nextDue = amountDueForEntry({
+    entryKind: team.entryKind,
+    sidePotCount: team.sidePots.length,
+  });
 
   const updated = await prisma.$transaction(async (tx) => {
     await tx.angler.deleteMany({ where: { teamId: team.id } });

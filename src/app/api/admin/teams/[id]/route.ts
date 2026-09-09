@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { sendCaptainJoinInvite } from "@/lib/captain-invite";
-import { amountDueCents } from "@/lib/config";
+import { ENTRY_KIND, amountDueForEntry } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { emptyToNull } from "@/lib/registration";
 import { adminTeamUpdateSchema } from "@/lib/validation";
@@ -84,6 +84,7 @@ export async function PATCH(request: Request, { params }: Params) {
       where: { id },
       data: {
         teamName: input.teamName,
+        entryKind: input.entryKind ?? ENTRY_KIND.BOAT,
         boatType: input.boatType,
         captainName: emptyToNull(input.captainName),
         captainPhone: emptyToNull(input.captainPhone),
@@ -95,8 +96,15 @@ export async function PATCH(request: Request, { params }: Params) {
         notes: input.notes ?? null,
         licenseConfirmed: input.licenseConfirmed,
         paymentStatus: input.paymentStatus,
-        sidePots: input.sidePots,
-        amountDueCents: amountDueCents(input.sidePots.length),
+        sidePots:
+          input.entryKind === ENTRY_KIND.YOUTH_LAND ? [] : input.sidePots,
+        amountDueCents: amountDueForEntry({
+          entryKind: input.entryKind,
+          sidePotCount:
+            input.entryKind === ENTRY_KIND.YOUTH_LAND
+              ? 0
+              : input.sidePots.length,
+        }),
         anglers: {
           create: input.anglers.map((a, index) => ({
             fullName: a.fullName,

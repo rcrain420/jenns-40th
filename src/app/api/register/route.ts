@@ -2,14 +2,20 @@ import { NextResponse } from "next/server";
 import { sendJoinEmailsForRegisteredAnglers } from "@/lib/angler-join-invites";
 import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { getCurrentUser } from "@/lib/auth";
-import { paidEntrySeatCount } from "@/lib/config";
+import { ENTRY_KIND, paidEntrySeatCount } from "@/lib/config";
 import {
   registerApiAllowsCreate,
   userHasRegisteredTeam,
 } from "@/lib/register-logged-in";
-import { createTeamRegistration } from "@/lib/registration";
+import {
+  createTeamRegistration,
+  createYouthLandRegistration,
+} from "@/lib/registration";
 import { sendRegistrationConfirmation } from "@/lib/registration-email";
-import { registrationSchema } from "@/lib/validation";
+import {
+  registrationSchema,
+  youthLandRegistrationSchema,
+} from "@/lib/validation";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -39,23 +45,46 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const parsed = registrationSchema.safeParse(body);
-  if (!parsed.success) {
+  const actor = user ? { userId: user.id, email: user.email } : null;
+  const wantsLand =
+    typeof body === "object" &&
+    body !== null &&
+    "entryKind" in body &&
+    (body as { entryKind?: string }).entryKind === ENTRY_KIND.YOUTH_LAND;
+
+  const result = wantsLand
+    ? await (async () => {
+        const parsed = youthLandRegistrationSchema.safeParse(body);
+        if (!parsed.success) {
+          return {
+            ok: false as const,
+            error: "Validation failed",
+            status: 400,
+            fieldErrors: parsed.error.flatten().fieldErrors,
+          };
+        }
+        return createYouthLandRegistration(parsed.data, actor);
+      })()
+    : await (async () => {
+        const parsed = registrationSchema.safeParse(body);
+        if (!parsed.success) {
+          return {
+            ok: false as const,
+            error: "Validation failed",
+            status: 400,
+            fieldErrors: parsed.error.flatten().fieldErrors,
+          };
+        }
+        return createTeamRegistration(parsed.data, actor);
+      })();
+  if (!result.ok) {
     return NextResponse.json(
       {
-        error: "Validation failed",
-        fieldErrors: parsed.error.flatten().fieldErrors,
+        error: result.error,
+        ...("fieldErrors" in result ? { fieldErrors: result.fieldErrors } : {}),
       },
-      { status: 400 },
+      { status: result.status },
     );
-  }
-
-  const result = await createTeamRegistration(
-    parsed.data,
-    user ? { userId: user.id, email: user.email } : null,
-  );
-  if (!result.ok) {
-    return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
   let confirmationEmailSent = false;

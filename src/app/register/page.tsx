@@ -115,6 +115,12 @@ export default async function RegisterPage({
         <>
           Hi {welcomeName} — {REGISTER_WELCOME.body}{" "}
           <Link
+            href="/register/youth"
+            className="text-coral underline-offset-4 hover:underline"
+          >
+            Entering kids from land with no boat?
+          </Link>{" "}
+          <Link
             href="/guides"
             className="text-coral underline-offset-4 hover:underline"
           >

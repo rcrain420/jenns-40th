@@ -100,6 +100,7 @@ describe("logged-in /register gate", () => {
       registerContinuePath({ boat: "GUIDED", captain: "Tina" }),
       "/register?boat=GUIDED&captain=Tina",
     );
+    assert.equal(registerContinuePath({ land: "1" }), "/register/youth");
   });
 
   it("sends no-team auth landings away from the success dead-end", () => {

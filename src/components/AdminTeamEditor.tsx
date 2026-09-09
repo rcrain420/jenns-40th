@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  amountDueCents,
-  MAX_ANGLERS,
-  MIN_ANGLERS,
+  ENTRY_KIND,
   PAID_SIDE_POTS,
   SIDE_POT_BUY_IN_CENTS,
+  amountDueForEntry,
+  isYouthLandEntry,
+  type EntryKind,
   type SidePotId,
 } from "@/lib/config";
+import { canAddAdultSeat, canAddYouthSeat } from "@/lib/roster-capacity";
 import { formatUsd } from "@/lib/money";
 import { ShirtSizeSelect } from "./ShirtSizeSelect";
 
@@ -41,6 +43,7 @@ type Props = {
     anglers: AnglerDraft[];
     youthGuardianAttested?: boolean;
     sidePots: SidePotId[];
+    entryKind?: EntryKind;
   };
 };
 
@@ -55,6 +58,9 @@ const emptyAngler = (): AnglerDraft => ({
 export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   const router = useRouter();
   const [teamName, setTeamName] = useState(initial?.teamName ?? "");
+  const [entryKind, setEntryKind] = useState<EntryKind>(
+    initial?.entryKind ?? ENTRY_KIND.BOAT,
+  );
   const [boatType, setBoatType] = useState<BoatType>(
     initial?.boatType ?? "GUIDED",
   );
@@ -92,6 +98,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   function payload() {
     return {
       teamName,
+      entryKind,
       boatType,
       captainName,
       captainPhone,
@@ -162,6 +169,19 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
             onChange={(e) => setTeamName(e.target.value)}
             required
           />
+        </div>
+        <div>
+          <label className={labelClass}>Entry</label>
+          <select
+            className={inputClass}
+            value={entryKind}
+            onChange={(e) => setEntryKind(e.target.value as EntryKind)}
+          >
+            <option value={ENTRY_KIND.BOAT}>Boat (main tournament)</option>
+            <option value={ENTRY_KIND.YOUTH_LAND}>
+              Land-only RowRide youth
+            </option>
+          </select>
         </div>
         <div>
           <label className={labelClass}>Boat type</label>
@@ -269,15 +289,33 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-xl text-wave">Anglers</h3>
-          <button
-            type="button"
-            disabled={anglers.length >= MAX_ANGLERS}
-            onClick={() => setAnglers((a) => [...a, emptyAngler()])}
-            className="text-sm font-semibold text-sea disabled:opacity-40"
-          >
-            + Add
-          </button>
+          <h3 className="font-display text-xl text-wave">
+            {isYouthLandEntry(entryKind) ? "Youth anglers" : "Anglers"}
+          </h3>
+          <div className="flex gap-3">
+            {isYouthLandEntry(entryKind) ? null : (
+              <button
+                type="button"
+                disabled={!canAddAdultSeat(anglers)}
+                onClick={() =>
+                  setAnglers((a) => [...a, { ...emptyAngler(), isYouth: false }])
+                }
+                className="text-sm font-semibold text-sea disabled:opacity-40"
+              >
+                + Adult
+              </button>
+            )}
+            <button
+              type="button"
+              disabled={!canAddYouthSeat(anglers)}
+              onClick={() =>
+                setAnglers((a) => [...a, { ...emptyAngler(), isYouth: true }])
+              }
+              className="text-sm font-semibold text-sea disabled:opacity-40"
+            >
+              + Youth
+            </button>
+          </div>
         </div>
         {anglers.map((angler, index) => (
           <div key={index} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_7.5rem_1fr_1fr_auto]">
@@ -341,7 +379,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
             />
             <button
               type="button"
-              disabled={anglers.length <= MIN_ANGLERS}
+              disabled={anglers.length <= 1}
               onClick={() =>
                 setAnglers((prev) => prev.filter((_, i) => i !== index))
               }
@@ -390,7 +428,13 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
           ))}
         </div>
         <p className="text-sm text-ink/60">
-          Due: {formatUsd(amountDueCents(sidePots.length))}
+          Due:{" "}
+          {formatUsd(
+            amountDueForEntry({
+              entryKind,
+              sidePotCount: isYouthLandEntry(entryKind) ? 0 : sidePots.length,
+            }),
+          )}
         </p>
       </div>
 

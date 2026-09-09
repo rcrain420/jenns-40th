@@ -13,6 +13,8 @@ const {
 } = await import("./youth.ts");
 const {
   amountDueCents,
+  amountDueForEntry,
+  ENTRY_KIND,
   listedPots,
   MIN_ANGLERS,
   paidEntrySeatCount,
@@ -22,6 +24,10 @@ const {
   YOUTH_TOURNAMENT,
   getVenmoUrl,
 } = await import("./config.ts");
+const {
+  boatRosterCapacityIssue,
+  youthLandRosterCapacityIssue,
+} = await import("./roster-capacity.ts");
 const {
   CAPTAIN_REQUIRED_ON_CREATE,
   contactEmailIssue,
@@ -80,6 +86,19 @@ describe("isYouth registration", () => {
     assert.equal(SIDE_POT_IDS.includes("kids"), false);
   });
 
+  it("keeps 3 adults + 1 youth as a $300 boat with a free adult seat left", () => {
+    assert.equal(
+      paidEntrySeatCount([
+        { isYouth: false },
+        { isYouth: false },
+        { isYouth: false },
+        { isYouth: true },
+      ]),
+      3,
+    );
+    assert.equal(amountDueCents(0), 30000);
+  });
+
   it("allows a single fishing angler and keeps the boat fee flat", () => {
     assert.equal(MIN_ANGLERS, 1);
     assert.equal(amountDueCents(0), 30000);
@@ -130,6 +149,46 @@ describe("Venmo handle", () => {
     assert.equal(VENMO_USERNAME, "Jennski");
     assert.equal(VENMO_HANDLE, "Jennski");
     assert.equal(getVenmoUrl(), "https://venmo.com/u/Jennski");
+  });
+});
+
+describe("boat vs land registration capacity", () => {
+  it("accepts 3 adults and 1 youth on a boat", () => {
+    assert.equal(
+      boatRosterCapacityIssue([
+        { isYouth: false },
+        { isYouth: false },
+        { isYouth: false },
+        { isYouth: true },
+      ]),
+      null,
+    );
+  });
+
+  it("accepts 4 adults plus youth on a boat", () => {
+    assert.equal(
+      boatRosterCapacityIssue([
+        { isYouth: false },
+        { isYouth: false },
+        { isYouth: false },
+        { isYouth: false },
+        { isYouth: true },
+      ]),
+      null,
+    );
+  });
+
+  it("rejects a boat with only youth", () => {
+    assert.ok(boatRosterCapacityIssue([{ isYouth: true }]));
+  });
+
+  it("keeps land-only RowRide at $0 and youth-only", () => {
+    assert.equal(
+      youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]),
+      null,
+    );
+    assert.ok(youthLandRosterCapacityIssue([{ isYouth: false }]));
+    assert.equal(amountDueForEntry({ entryKind: ENTRY_KIND.YOUTH_LAND }), 0);
   });
 });
 

@@ -13,12 +13,14 @@ describe("anglersSectionHelp", () => {
     });
 
     assert.match(text, new RegExp(`${MIN_ANGLERS}–${MAX_ANGLERS}`));
-    assert.match(text, /kids included/);
-    assert.match(text, /one name/);
+    assert.match(text, /adult seats/);
+    assert.match(text, /kids do not take one/);
+    assert.match(text, /One adult name/);
     assert.match(text, /My team/);
     assert.match(text, /17-or-under/);
     assert.match(text, /shirt size/);
     assert.match(text, /email is optional/i);
+    assert.match(text, /from land/);
     assert.match(text, new RegExp(`\\$${fee} boat entry`));
     assert.match(text, /create-account invite/);
     assert.match(text, /parent/);
@@ -31,6 +33,7 @@ describe("anglersSectionHelp", () => {
 
     assert.equal(/that is not the kids path/i.test(text), false);
     assert.equal(/still count on the team stringer/i.test(text), false);
-    assert.ok(text.split(/\s+/).length <= 95, text);
+    assert.equal(/kids included/i.test(text), false);
+    assert.ok(text.split(/\s+/).length <= 110, text);
   });
 });

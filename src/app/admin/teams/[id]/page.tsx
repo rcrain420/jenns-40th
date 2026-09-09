@@ -36,6 +36,8 @@ export default async function AdminTeamDetailPage({ params }: Props) {
             teamId={team.id}
             initial={{
               teamName: team.teamName,
+              entryKind:
+                team.entryKind === "YOUTH_LAND" ? "YOUTH_LAND" : "BOAT",
               boatType: team.boatType as "GUIDED" | "NON_GUIDED",
               captainName: team.captainName ?? "",
               captainPhone: team.captainPhone ?? "",
