@@ -10,7 +10,7 @@ export function anglersSectionHelp({
   feeDollars: number;
 }): string {
   return (
-    `${minAnglers}–${maxAnglers} fishing anglers, kids included — one adult name locks the boat; add the rest later from My team. ` +
+    `${minAnglers}–${maxAnglers} fishing anglers, kids included — One adult name locks the boat; add the rest later from My team. ` +
     `Name, shirt size, and 17-or-under are required; email is optional. ` +
     `Youth count toward the ${maxAnglers} and do not change the $${feeDollars} boat entry — they skip the create-account invite; a parent’s email is fine. ` +
     `Kids may also enter RowRide from land with no boat. ` +
