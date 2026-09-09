@@ -189,7 +189,9 @@ export function CatchLogger({
           </legend>
           <p className="mt-1 text-sm text-ink/60">
             Credit the roster angler — including a youth angler. The board
-            shows their name, not the parent account.
+            shows their name, not the parent account. Youth-credited fish
+            count for Livewell, paid side pots, and RowRide — not the main
+            tournament stringer.
           </p>
           <div className="mt-3 space-y-2">
             {teamAnglers.map((angler) => (

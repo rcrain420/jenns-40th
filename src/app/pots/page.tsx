@@ -67,7 +67,8 @@ export default async function PotsPage() {
               <span>
                 Main tournament: {formatUsd(BOAT_ENTRY_CENTS)} per boat, all
                 of it in the pot — paid out {splitLabel}. Youth seats and
-                boat-only accounts do not change this boat fee.
+                boat-only accounts do not change this boat fee. Youth anglers
+                do not compete in the main stringer or main pot.
               </span>
             </li>
             <li className="flex gap-3">
@@ -76,7 +77,8 @@ export default async function PotsPage() {
               </span>
               <span>
                 Side pots: optional {formatUsd(SIDE_POT_BUY_IN_CENTS)} per
-                team, per pot. Each side pot is winner-take-all. Enter when you
+                team, per pot. Each side pot is winner-take-all. Youth anglers
+                are welcome when the team has entered. Enter when you
                 register or at Friday&apos;s captain&apos;s meeting.
               </span>
             </li>
@@ -90,7 +92,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by Jenn
                   and Aaron
                   {pot.id === "kids"
-                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Youth do not change the $300 boat entry.`
+                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Youth are out of the main stringer and main pot, welcome on paid team side pots, and do not change the $300 boat entry.`
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>

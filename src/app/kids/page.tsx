@@ -12,6 +12,7 @@ import {
 import { prisma } from "@/lib/db";
 import { isBoatInviteLocked } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
+import { YOUTH_COMPETITION_POLICY } from "@/lib/youth";
 
 export const dynamic = "force-dynamic";
 
@@ -84,8 +85,7 @@ export default async function KidsPage() {
           <ul className="mt-4 list-disc space-y-3 pl-5 text-ink/80">
             <li>
               A youth angler is a roster seat for the {YOUTH_TOURNAMENT.name}{" "}
-              and stringer rules — same 1–4 cap, same “only registered
-              anglers&apos; fish count.” They do not change the{" "}
+              — same 1–4 cap. They do not change the{" "}
               {formatUsd(BOAT_ENTRY_CENTS)} boat entry.
             </li>
             <li>
@@ -99,9 +99,8 @@ export default async function KidsPage() {
               weigh-in — not the AI Livewell guess.
             </li>
             <li>
-              Youth fish still count on the team stringer and on paid team
-              side pots. Kids do not change the boat entry, so they do not
-              grow the main pot beyond that boat fee.
+              {YOUTH_COMPETITION_POLICY} Kids do not change the boat entry, so
+              they do not grow the main pot beyond that boat fee.
             </li>
           </ul>
           <p className="mt-4">
@@ -131,7 +130,8 @@ export default async function KidsPage() {
               <p className="text-ink/80">
                 Add youth anglers to {team.teamName} here. Same roster save as
                 My team. Kids count toward the four-angler cap and do not
-                change the $300 boat entry.
+                change the $300 boat entry. They do not compete in the main
+                stringer; they do count on paid team side pots and RowRide.
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({

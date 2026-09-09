@@ -208,7 +208,7 @@ export default function RulesPage() {
               "Anglers 17 or younger must be registered by a parent or legal guardian. The guardian may use their own email for the child.",
               "A captain is optional. Add one when you register or anytime later on My team. If you name a captain or DIY primary contact, they must be 18 or older. This is the person we will contact when somebody forgets what time weigh-in closes.",
               "Teams may have one to four registered anglers. Youth anglers count toward that cap as roster seats. Entry is $300 per boat.",
-              "Only registered anglers may catch fish entered in the main tournament, paid side pots or bonus categories.",
+              "Only registered anglers may catch fish entered for official weigh-in. Youth anglers (17 or under) do not participate in the main tournament stringer or main pot competition. They are welcome on paid team side pots and have their own host-funded RowRide Youth Angler Tournament.",
               "Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.",
             ]}
           />
@@ -389,6 +389,12 @@ export default function RulesPage() {
           </ul>
           <p>Each team may submit only one main tournament stringer.</p>
           <p>
+            The main tournament stringer may include only fish caught by
+            registered adult (non-youth) anglers. Fish caught by youth anglers
+            do not count toward the team&apos;s main stringer or main pot
+            placement.
+          </p>
+          <p>
             A complete four-fish stringer is <strong>not required</strong>. Teams
             may weigh fewer than four fish, and placement will be determined by
             the greatest total qualifying weight.
@@ -399,7 +405,8 @@ export default function RulesPage() {
           </p>
           <p>
             A fish entered in a paid side pot or bonus category may also be
-            included in the main stringer, provided it is otherwise eligible.
+            included in the main stringer, provided it is otherwise eligible
+            and was caught by a registered adult angler.
           </p>
         </Section>
 
@@ -423,8 +430,14 @@ export default function RulesPage() {
             captain&apos;s meeting closes or on tournament day.
           </p>
           <p>
+            Registered youth anglers may catch fish for paid team side pots
+            when the team has entered those pots.
+          </p>
+          <p>
             Side-pot fish may also be included in the team&apos;s main tournament
-            stringer when otherwise eligible.
+            stringer when otherwise eligible and caught by a registered adult
+            angler. Fish caught by youth anglers may count toward paid team
+            side pots, but not the main stringer.
           </p>
 
           <div className="space-y-6 border border-wave/15 bg-mist/40 px-4 py-5 md:px-5">
@@ -520,11 +533,13 @@ export default function RulesPage() {
               Adults may help with safety. The child needs to do the fishing.
             </p>
             <p>
-              Youth anglers are roster seats for the {YOUTH_TOURNAMENT.name}{" "}
-              and stringer rules. They do not change the $300 boat entry and
-              do not grow the main tournament pot beyond that boat fee. Their
-              fish still count on the team stringer, and they still count
-              toward paid team side pots when the team has entered those pots.
+              Youth anglers are roster seats for the {YOUTH_TOURNAMENT.name}.
+              They count toward the one-to-four roster cap. They do not change
+              the $300 boat entry and do not grow the main tournament pot
+              beyond that boat fee. They do not participate in the main
+              tournament stringer or main pot competition. Their fish are
+              welcome on paid team side pots when the team has entered those
+              pots.
             </p>
             <p>
               A parent or guardian may use their own email for the child. The

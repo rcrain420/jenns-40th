@@ -641,8 +641,10 @@ export function RegisterForm({
           <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
             Registering a youth angler? Check <strong>17 or under</strong> on
             their seat. They take a roster spot for the {YOUTH_TOURNAMENT.name}{" "}
-            and stringer rules, and do not change the $
-            {BOAT_ENTRY_CENTS / 100} boat entry. {YOUTH_EMAIL_HELPER}
+            — same 1–4 cap — and do not change the $
+            {BOAT_ENTRY_CENTS / 100} boat entry. They do not compete in the
+            main stringer or main pot. They are welcome on paid team side
+            pots. {YOUTH_EMAIL_HELPER}
           </p>
         ) : null}
         <div className="mt-4 space-y-4">

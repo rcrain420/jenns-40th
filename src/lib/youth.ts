@@ -23,10 +23,43 @@ export const CAPTAIN_CONTACT_ADULT_NOTE =
 export const YOUTH_INVITE_SKIP_ERROR =
   "Youth anglers do not get a Join the boat / create-account invite. Parent login is the login.";
 
+/** Locked product rule: youth out of main stringer / main pot; in on side pots + RowRide. */
+export const YOUTH_MAIN_STRINGER_RULE =
+  "Youth anglers do not participate in the main tournament stringer or main pot competition.";
+
+export const YOUTH_SIDE_POT_RULE =
+  "They are welcome on paid team side pots when the team has entered those pots.";
+
+export const YOUTH_ROWRIDE_RULE =
+  "They still have their own host-funded RowRide Youth Angler Tournament — heaviest qualifying fish.";
+
+export const YOUTH_COMPETITION_POLICY = [
+  YOUTH_MAIN_STRINGER_RULE,
+  YOUTH_SIDE_POT_RULE,
+  YOUTH_ROWRIDE_RULE,
+].join(" ");
+
+export function isYouthAngler(angler: { isYouth?: boolean | null }): boolean {
+  return angler.isYouth === true;
+}
+
+/** Main tournament stringer / main pot: registered adult (non-youth) anglers only. */
+export function isMainStringerEligible(angler: {
+  isYouth?: boolean | null;
+}): boolean {
+  return !isYouthAngler(angler);
+}
+
+export function mainStringerEligibleAnglers<
+  T extends { isYouth?: boolean | null },
+>(anglers: T[]): T[] {
+  return anglers.filter(isMainStringerEligible);
+}
+
 export function hasYouthAngler(
   anglers: Array<{ isYouth?: boolean | null }>,
 ): boolean {
-  return anglers.some((angler) => angler.isYouth === true);
+  return anglers.some(isYouthAngler);
 }
 
 export function youthGuardianAttestationMissing(
