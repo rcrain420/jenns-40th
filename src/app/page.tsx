@@ -185,8 +185,10 @@ export default async function HomePage() {
           </p>
           <p className="text-[1.05rem] leading-relaxed md:text-[1.125rem]">
             Heaviest legal stringer wins — up to three redfish and one spotted
-            seatrout. A full four-fish stringer is not required. All fish must
-            meet Texas Parks &amp; Wildlife regulations.
+            seatrout. A full four-fish stringer is not required. Only fish
+            caught by registered adult (non-youth) anglers count on the main
+            stringer. All fish must meet Texas Parks &amp; Wildlife
+            regulations.
           </p>
           {availability.isOpen ? (
             <Link
@@ -226,8 +228,9 @@ export default async function HomePage() {
               {YOUTH_TOURNAMENT.name}
             </Link>{" "}
             is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Heaviest
-            qualifying fish by a registered youth angler. Youth do not change
-            the $300 boat entry.{" "}
+            qualifying fish by a registered youth angler. Youth are out of
+            the main stringer and main pot, welcome on paid team side pots,
+            and do not change the $300 boat entry.{" "}
             <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
             </Link>

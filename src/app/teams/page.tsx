@@ -114,7 +114,7 @@ export default async function TeamsDirectoryPage() {
   return (
     <PageShell
       title="Teams"
-      description="Official fishing roster — each boat grows the main pot by $300. Youth count toward the four-angler cap. Boat accounts who joined but are not fishing are not seats."
+      description="Official fishing roster — each boat grows the main pot by $300. Youth count toward the four-angler cap and do not compete in the main stringer. Boat accounts who joined but are not fishing are not seats."
     >
       <div className="space-y-6">
         {directory.length === 0 ? null : otherCount === 0 ? (

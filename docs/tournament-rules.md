@@ -23,7 +23,7 @@ We want this tournament to be competitive, fair and fun. Please read the rules s
 
 4. Teams may have one to four registered anglers. Youth anglers count toward that cap as roster seats. Entry is $300 per boat.
 
-5. Only registered anglers may catch fish entered in the main tournament, paid side pots or bonus categories.
+5. Only registered anglers may catch fish entered for official weigh-in. Youth anglers (17 or under) do not participate in the main tournament stringer or main pot competition. They are welcome on paid team side pots and have their own host-funded RowRide Youth Angler Tournament.
 
 6. Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.
 
@@ -146,11 +146,13 @@ The main tournament winner will be determined by the heaviest legal stringer con
 
 Each team may submit only one main tournament stringer.
 
+The main tournament stringer may include only fish caught by registered adult (non-youth) anglers. Fish caught by youth anglers do not count toward the team’s main stringer or main pot placement.
+
 A complete four-fish stringer is **not required**. Teams may weigh fewer than four fish, and placement will be determined by the greatest total qualifying weight.
 
 All fish must comply with the Texas Parks and Wildlife Department size, bag and possession limits in effect on tournament day.
 
-A fish entered in a paid side pot or bonus category may also be included in the main stringer, provided it is otherwise eligible.
+A fish entered in a paid side pot or bonus category may also be included in the main stringer, provided it is otherwise eligible and was caught by a registered adult angler.
 
 ## 10. Side Pots and Bonus Categories
 
@@ -164,7 +166,9 @@ All side-pot selections and payments must be completed through Venmo at the capt
 
 No side-pot entries or payments will be accepted after the captain’s meeting closes or on tournament day.
 
-Side-pot fish may also be included in the team’s main tournament stringer when otherwise eligible.
+Registered youth anglers may catch fish for paid team side pots when the team has entered those pots.
+
+Side-pot fish may also be included in the team’s main tournament stringer when otherwise eligible and caught by a registered adult angler. Fish caught by youth anglers may count toward paid team side pots, but not the main stringer.
 
 ### Paid Side Pot: Heaviest Spotted Seatrout
 
@@ -208,7 +212,7 @@ A qualifying fish must be legal, caught during tournament hours, presented whole
 
 The youth angler must personally hook the fish and land it. Adults may help with safety. The child needs to do the fishing.
 
-Youth anglers are roster seats for the RowRide Youth Angler Tournament and stringer rules. They do not change the $300 boat entry and do not grow the main tournament pot beyond that boat fee. Their fish still count on the team stringer, and they still count toward paid team side pots when the team has entered those pots.
+Youth anglers are roster seats for the RowRide Youth Angler Tournament. They count toward the one-to-four roster cap. They do not change the $300 boat entry and do not grow the main tournament pot beyond that boat fee. They do not participate in the main tournament stringer or main pot competition. Their fish are welcome on paid team side pots when the team has entered those pots.
 
 A parent or guardian may use their own email for the child. The child does not get a tournament account. Parent login is the login. Adults without email may stay name-only on the roster; they still create an account from the invite link. That is not the kids path.
 

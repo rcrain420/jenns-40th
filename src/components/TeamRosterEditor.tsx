@@ -235,9 +235,10 @@ export function TeamRosterEditor({
           Email is optional. {YOUTH_EMAIL_HELPER} Invite on an adult seat
           sends Join the boat. Youth seats do not get a create-account invite
           — parent login is the login — and they do not change the $300 boat
-          entry. Adults without email stay name-only on the roster and join
-          by creating an account from the invite link. That is not the kids
-          path.
+          entry. Youth fish do not count on the main stringer; they do count
+          on paid team side pots and RowRide. Adults without email stay
+          name-only on the roster and join by creating an account from the
+          invite link. That is not the kids path.
           {canEditRoster
             ? boatInviteLocked
               ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} fishing anglers, including kids. This boat is full — remove a seat to add someone else.`

@@ -13,7 +13,8 @@ export function anglersSectionHelp({
     `${minAnglers}–${maxAnglers} fishing anglers, kids included — one name locks the boat; add the rest later from My team. ` +
     `Name, shirt size, and 17-or-under are required; email is optional. ` +
     `Youth seats count toward the ${maxAnglers} and do not change the $${feeDollars} boat entry — they skip the create-account invite; a parent’s email is fine. ` +
-    `Adult emails get Join the boat; name-only adults can still join from the shared invite link after they create an account. ` +
+    `Youth fish are out of the main stringer, in on paid side pots and RowRide. ` +
+    `Adult emails get Join the boat; name-only adults join from the invite link. ` +
     `Captain is optional, not an angler slot, and 18+ if you add one.`
   );
 }

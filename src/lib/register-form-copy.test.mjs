@@ -26,8 +26,11 @@ describe("anglersSectionHelp", () => {
     assert.match(text, /invite link/);
     assert.match(text, /Captain is optional/);
     assert.match(text, /18\+/);
+    assert.match(text, /out of the main stringer/);
+    assert.match(text, /paid side pots and RowRide/);
 
     assert.equal(/that is not the kids path/i.test(text), false);
-    assert.ok(text.split(/\s+/).length <= 90, text);
+    assert.equal(/still count on the team stringer/i.test(text), false);
+    assert.ok(text.split(/\s+/).length <= 95, text);
   });
 });
