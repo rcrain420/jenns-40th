@@ -23,7 +23,7 @@ export const EVENT = {
   directionsUrl:
     "https://www.google.com/maps/search/?api=1&query=Boatmen%27s+Club+Bar+%26+Marina+140+Cove+Harbor+N+Rockport+TX+78382",
   mapEmbedUrl:
-    "https://www.openstreetmap.org/export/embed.html?bbox=-97.085%2C28.015%2C-97.045%2C28.045&layer=mapnik&marker=28.030%2C-97.065",
+    "https://www.openstreetmap.org/export/embed.html?bbox=-97.0954309%2C27.9771173%2C-97.0554309%2C28.0071173&layer=mapnik&marker=27.9921173%2C-97.0754309",
 } as const;
 
 /** Registration closes at end of day (America/Chicago) Oct 1, 2026 */
