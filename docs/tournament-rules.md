@@ -21,7 +21,7 @@ We want this tournament to be competitive, fair and fun. Please read the rules s
 
 3. A captain is optional. Add one when you register or anytime later on My team. If you name a captain or DIY primary contact, they must be 18 or older. This is the person we will contact when somebody forgets what time weigh-in closes.
 
-4. Teams may have up to four registered anglers. Youth anglers count toward that cap as roster seats. They do not pay the $75 adult entry.
+4. Teams may have one to four registered anglers. Youth anglers count toward that cap as roster seats. Entry is $300 per boat.
 
 5. Only registered anglers may catch fish entered in the main tournament, paid side pots or bonus categories.
 
@@ -208,7 +208,7 @@ A qualifying fish must be legal, caught during tournament hours, presented whole
 
 The youth angler must personally hook the fish and land it. Adults may help with safety. The child needs to do the fishing.
 
-Youth anglers are roster seats for the RowRide Youth Angler Tournament and stringer rules. They do not pay the $75 adult entry and do not grow the main tournament pot. Their fish still count on the team stringer, and they still count toward paid team side pots when the team has entered those pots.
+Youth anglers are roster seats for the RowRide Youth Angler Tournament and stringer rules. They do not change the $300 boat entry and do not grow the main tournament pot beyond that boat fee. Their fish still count on the team stringer, and they still count toward paid team side pots when the team has entered those pots.
 
 A parent or guardian may use their own email for the child. The child does not get a tournament account. Parent login is the login. Adults without email may stay name-only on the roster; they still create an account from the invite link. That is not the kids path.
 

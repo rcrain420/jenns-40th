@@ -19,7 +19,7 @@ export function captainInviteEmailCopy(
     `Hi ${first} — ${input.teamName} added you as captain.`,
     "",
     `You're invited to ${input.shortName} — ${input.dateLabel} at ${input.venue}.`,
-    "Tap the link to create an account or sign in with Google — that hops you on the boat. After you join you can see the Livewell, Teams, and My Team. Captain login is not a $75 angler seat.",
+    "Tap the link to create an account or sign in with Google — that hops you on the boat. After you join you can see the Livewell, Teams, and My Team. Captain login is not a paid angler seat.",
     input.inviteUrl,
     "",
     input.footerScript,
@@ -38,7 +38,7 @@ export function captainInviteEmailCopy(
             Hi ${escapeHtml(first)} — sign in to see the boat for ${escapeHtml(input.dateLabel)} at ${escapeHtml(input.venue)}.
           </p>
           <p style="margin:0 0 20px;line-height:1.5;">
-            One tap creates your account or continues with Google, puts you on the boat, and opens the Livewell. Captain login is not a $75 angler seat. Later visits can sign in the same way.
+            One tap creates your account or continues with Google, puts you on the boat, and opens the Livewell. Captain login is not a paid angler seat. Later visits can sign in the same way.
           </p>
           <p style="margin:0 0 24px;">
             <a href="${escapeHtml(input.inviteUrl)}" style="display:inline-block;background:#16354f;color:#f6ecd6;padding:12px 20px;text-decoration:none;font-family:Arial,sans-serif;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;">

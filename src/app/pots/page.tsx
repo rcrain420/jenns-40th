@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PotBoard } from "@/components/PotBoard";
 import { SiteHeader } from "@/components/SiteHeader";
 import {
-  FEE_PER_ANGLER_CENTS,
+  BOAT_ENTRY_CENTS,
   HOST_FUNDED_POTS,
   MAIN_POT_SPLITS,
   SIDE_POT_BUY_IN_CENTS,
@@ -43,7 +43,7 @@ export default async function PotsPage() {
             Pot Total
           </h1>
           <p className="animate-rise-delay mt-3 max-w-xl text-paper/85">
-            Every adult angler seat fee goes straight into the pot, and the
+            Every boat&apos;s $300 entry goes straight into the pot, and the
             pot grows as teams register. Here&apos;s where it stands right
             now.
           </p>
@@ -65,9 +65,9 @@ export default async function PotsPage() {
                 ★
               </span>
               <span>
-                Main tournament: {formatUsd(FEE_PER_ANGLER_CENTS)} per adult
-                angler seat, all of it in the pot — paid out {splitLabel}.
-                Youth seats and boat-only accounts do not add to this pot.
+                Main tournament: {formatUsd(BOAT_ENTRY_CENTS)} per boat, all
+                of it in the pot — paid out {splitLabel}. Youth seats and
+                boat-only accounts do not change this boat fee.
               </span>
             </li>
             <li className="flex gap-3">
@@ -90,7 +90,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by Jenn
                   and Aaron
                   {pot.id === "kids"
-                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Youth do not pay the $75 adult entry.`
+                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Youth do not change the $300 boat entry.`
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>

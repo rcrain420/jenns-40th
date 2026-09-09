@@ -77,7 +77,7 @@ export function JoinTeamPanel({
           Google or Facebook, or set a password for this email. After that
           you are on the boat and can use the Livewell.{" "}
           {joiningAsCaptain
-            ? "You’re joining as captain — same viewing access as an angler, not a $75 seat."
+            ? "You’re joining as captain — same viewing access as an angler, not a paid seat."
             : "Joining does not make you the captain or add you to the paid roster."}{" "}
           Later visits can use the same Google, Facebook, or password
           sign-in.

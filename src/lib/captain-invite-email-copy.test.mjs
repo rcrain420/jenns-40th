@@ -25,7 +25,7 @@ describe("captain invite email", () => {
     assert.ok(message.text.includes("create an account"));
     assert.ok(message.text.includes("Google"));
     assert.ok(message.text.includes("Livewell"));
-    assert.ok(message.text.includes("not a $75 angler seat"));
+    assert.ok(message.text.includes("not a paid angler seat"));
     assert.equal(/\bPIN\b/.test(message.text), false);
     assert.equal(/venmo/i.test(message.text), false);
     assert.equal(/added you as an angler/i.test(message.text), false);

@@ -17,9 +17,9 @@ describe("Invite the boat copy", () => {
     assert.match(registrant, /adult email/i);
     assert.match(registrant, /youth/i);
     assert.match(registrant, /captain email/i);
-    assert.match(registrant, /\$75/);
+    assert.match(registrant, /\$300 boat entry/);
     assert.match(INVITE_THE_BOAT_CAPTAIN_LINES.join(" "), /captain/i);
-    assert.match(INVITE_THE_BOAT_CAPTAIN_LINES.join(" "), /\$75/);
+    assert.match(INVITE_THE_BOAT_CAPTAIN_LINES.join(" "), /paid angler seat/);
     assert.equal(/\bPIN\b/i.test(registrant), false);
     assert.equal(/\bPIN\b/i.test(member), false);
     assert.equal(/18\+/.test(registrant), false);

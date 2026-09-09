@@ -8,7 +8,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { listBragBoardCatches } from "@/lib/catches";
 import {
   EVENT,
-  FEE_PER_ANGLER_CENTS,
+  BOAT_ENTRY_CENTS,
   listedPots,
   MAX_ANGLERS,
   remainingUntil,
@@ -37,8 +37,7 @@ export default async function HomePage() {
 
   const countdownTarget = new Date(EVENT.countdownTargetIso);
   const initialCountdown = remainingUntil(countdownTarget);
-  const feeLabel = `$${FEE_PER_ANGLER_CENTS / 100}`;
-  const teamFeeLabel = `$${((FEE_PER_ANGLER_CENTS * MAX_ANGLERS) / 100).toLocaleString("en-US")}`;
+  const feeLabel = `$${BOAT_ENTRY_CENTS / 100}`;
 
   return (
     <main className="flex-1 bg-paper text-wave">
@@ -162,7 +161,7 @@ export default async function HomePage() {
           <FactCell value="1" label="Boat per team" />
           <FactCell
             value={feeLabel}
-            label={`Per adult · ${teamFeeLabel} team`}
+            label="Per boat"
             accent
           />
           <FactCell value="GUIDED OR NOT" label="Both welcome" compact />
@@ -227,8 +226,8 @@ export default async function HomePage() {
               {YOUTH_TOURNAMENT.name}
             </Link>{" "}
             is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Heaviest
-            qualifying fish by a registered youth angler. Youth do not pay the
-            $75 adult entry.{" "}
+            qualifying fish by a registered youth angler. Youth do not change
+            the $300 boat entry.{" "}
             <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
             </Link>

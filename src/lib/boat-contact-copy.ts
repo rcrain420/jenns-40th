@@ -1,5 +1,5 @@
-/** Soft copy when the registrant is the boat contact, not a $75 seat. */
+/** Soft copy when the registrant is the boat contact, not a fishing seat. */
 
 export function boatContactNotAnglerNudge(feeLabel: string): string {
-  return `You’re the boat contact — add yourself as an angler if you’re fishing (${feeLabel}).`;
+  return `You’re the boat contact — add yourself as an angler if you’re fishing. That does not change the ${feeLabel} boat entry.`;
 }

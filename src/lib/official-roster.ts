@@ -28,24 +28,24 @@ export function officialRosterAnglerLine(row: OfficialRosterAngler): string {
   return row.name;
 }
 
-/** Main-pot cents for this row. Boat-only accounts and youth are $0. */
-export function officialRosterPotCents(
-  row: OfficialRosterAngler,
-  feeCents: number,
-): number {
-  if (!isOfficialRosterSeat(row) || row.isYouth) return 0;
-  return feeCents;
+/** Per-seat pot contribution is always $0 — entry is a flat boat fee. */
+export function officialRosterPotCents(row: OfficialRosterAngler): number {
+  void row;
+  return 0;
 }
 
-export function officialRosterPotAmountLabel(
-  row: OfficialRosterAngler,
-  feeCents: number,
-  format: (cents: number) => string,
-): string {
+export function officialRosterPotAmountLabel(row: OfficialRosterAngler): string {
   if (!isOfficialRosterSeat(row)) return "—";
-  const cents = officialRosterPotCents(row, feeCents);
-  if (row.isYouth) return `${format(cents)} · youth`;
-  return format(cents);
+  if (row.isYouth) return "included · youth";
+  return "included";
+}
+
+/** Main-pot cents this boat adds: $300 if it has any fishing seat. */
+export function officialRosterBoatPotCents(
+  rows: OfficialRosterAngler[],
+  boatEntryCents: number,
+): number {
+  return rows.some(isOfficialRosterSeat) ? boatEntryCents : 0;
 }
 
 export function officialRosterAdultSeatCount(
@@ -55,13 +55,12 @@ export function officialRosterAdultSeatCount(
 }
 
 export function officialRosterPotSummary(opts: {
-  adultAnglerCount: number;
+  boatCount: number;
   potCents: number;
   format: (cents: number) => string;
 }): string {
-  const seats =
-    opts.adultAnglerCount === 1 ? "adult angler" : "adult anglers";
-  return `${opts.adultAnglerCount} ${seats} · pot ${opts.format(opts.potCents)}`;
+  const noun = opts.boatCount === 1 ? "boat" : "boats";
+  return `${opts.boatCount} ${noun} · pot ${opts.format(opts.potCents)}`;
 }
 
 export function alsoOnThisBoatLine(names: string[]): string | null {

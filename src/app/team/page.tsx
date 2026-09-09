@@ -9,7 +9,7 @@ import { TeamCaptainEditor } from "@/components/TeamCaptainEditor";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
 import { boatContactNotAnglerNudge } from "@/lib/boat-contact-copy";
-import { FEE_PER_ANGLER_CENTS, isRegistrationOpen } from "@/lib/config";
+import { BOAT_ENTRY_CENTS, isRegistrationOpen } from "@/lib/config";
 import { firstName } from "@/lib/safe-path";
 import { prisma } from "@/lib/db";
 import {
@@ -115,7 +115,7 @@ export default async function MyTeamPage({
   const registrantEmail =
     team.members.find((m) => m.user.id === team.claimedByUserId)?.user.email ??
     null;
-  const adultSeatCount = team.anglers.filter((a) => a.isYouth !== true).length;
+  const rosterCount = team.anglers.length;
   const viewerEmail = user.email.trim().toLowerCase();
   const isCaptain =
     team.captainEmail?.trim().toLowerCase() === viewerEmail;
@@ -135,7 +135,7 @@ export default async function MyTeamPage({
     <PageShell
       narrow
       title={team.teamName}
-      description={`${formatUsd(team.amountDueCents)} due · ${adultSeatCount} adult angler ${adultSeatCount === 1 ? "seat" : "seats"} on the official roster`}
+      description={`${formatUsd(team.amountDueCents)} due · ${rosterCount} ${rosterCount === 1 ? "angler" : "anglers"} on the official roster`}
     >
       <div className="space-y-10">
         {joined === "1" ? (
@@ -154,7 +154,7 @@ export default async function MyTeamPage({
         ) : null}
         {showBoatContactNudge ? (
           <p className="rounded-md border border-wave/15 bg-mist/60 px-4 py-3 text-sm text-wave">
-            {boatContactNotAnglerNudge(formatUsdWhole(FEE_PER_ANGLER_CENTS))}
+            {boatContactNotAnglerNudge(formatUsdWhole(BOAT_ENTRY_CENTS))}
           </p>
         ) : null}
 

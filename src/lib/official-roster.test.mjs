@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { FEE_PER_ANGLER_CENTS } from "./config.ts";
+import { BOAT_ENTRY_CENTS } from "./config.ts";
 import { formatUsdWhole } from "./money.ts";
 import {
   alsoOnThisBoatLine,
   groupOfficialRosterByBoat,
   officialRosterAdultSeatCount,
   officialRosterAnglerLine,
+  officialRosterBoatPotCents,
   officialRosterPotAmountLabel,
   officialRosterPotCents,
   officialRosterPotSummary,
@@ -86,7 +87,7 @@ describe("official roster grouped by boat", () => {
     assert.equal(/unpaid/i.test(blob), false);
   });
 
-  it("shows per-row pot amounts and a boat summary that matches adult seats × fee", () => {
+  it("shows included seats and a boat summary that matches $300 per boat", () => {
     const boats = groupOfficialRosterByBoat([
       {
         id: "boat_jarah",
@@ -124,28 +125,28 @@ describe("official roster grouped by boat", () => {
     assert.deepEqual(
       rows.map((row) => ({
         line: officialRosterAnglerLine(row),
-        pot: officialRosterPotAmountLabel(row, FEE_PER_ANGLER_CENTS, format),
-        cents: officialRosterPotCents(row, FEE_PER_ANGLER_CENTS),
+        pot: officialRosterPotAmountLabel(row),
+        cents: officialRosterPotCents(row),
       })),
       [
         {
           line: "Aunt Pat · Angler · Joined",
-          pot: "$75",
-          cents: FEE_PER_ANGLER_CENTS,
+          pot: "included",
+          cents: 0,
         },
         {
           line: "Uncle Mike · Angler · Pending",
-          pot: "$75",
-          cents: FEE_PER_ANGLER_CENTS,
+          pot: "included",
+          cents: 0,
         },
         {
           line: "Kid One · Youth · parent login",
-          pot: "$0 · youth",
+          pot: "included · youth",
           cents: 0,
         },
         {
           line: "Kid Two · Youth · parent login",
-          pot: "$0 · youth",
+          pot: "included · youth",
           cents: 0,
         },
         {
@@ -157,16 +158,16 @@ describe("official roster grouped by boat", () => {
     );
 
     const adultAnglerCount = officialRosterAdultSeatCount(rows);
-    const potCents = adultAnglerCount * FEE_PER_ANGLER_CENTS;
+    const potCents = officialRosterBoatPotCents(rows, BOAT_ENTRY_CENTS);
     assert.equal(adultAnglerCount, 2);
-    assert.equal(potCents, 15000);
+    assert.equal(potCents, BOAT_ENTRY_CENTS);
     assert.equal(
       officialRosterPotSummary({
-        adultAnglerCount,
+        boatCount: 1,
         potCents,
         format,
       }),
-      "2 adult anglers · pot $150",
+      "1 boat · pot $300",
     );
     assert.equal(
       alsoOnThisBoatLine(
@@ -195,10 +196,11 @@ describe("official roster grouped by boat", () => {
       },
     ]);
     const rows = boats[0].anglers;
-    assert.equal(officialRosterPotCents(rows[1], FEE_PER_ANGLER_CENTS), 0);
+    assert.equal(officialRosterPotCents(rows[1]), 0);
+    assert.equal(officialRosterPotAmountLabel(rows[1]), "—");
     assert.equal(
-      officialRosterPotAmountLabel(rows[1], FEE_PER_ANGLER_CENTS, formatUsdWhole),
-      "—",
+      officialRosterBoatPotCents(rows, BOAT_ENTRY_CENTS),
+      BOAT_ENTRY_CENTS,
     );
     assert.equal(officialRosterAdultSeatCount(rows), 1);
     assert.equal(

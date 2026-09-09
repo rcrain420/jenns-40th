@@ -1,6 +1,6 @@
 import {
   EVENT,
-  FEE_PER_ANGLER_CENTS,
+  BOAT_ENTRY_CENTS,
   VENMO_HANDLE,
   getVenmoUrl,
 } from "./config";
@@ -46,7 +46,7 @@ export function buildRegistrationConfirmation(
     dateLabel: EVENT.dateLabel,
     venue: EVENT.venue,
     footerScript: EVENT.footerScript,
-    adultSeatFeeLabel: formatUsdWhole(FEE_PER_ANGLER_CENTS),
+    boatEntryFeeLabel: formatUsdWhole(BOAT_ENTRY_CENTS),
     paidSeatCount: input.paidSeatCount,
     youthSeatCount: input.youthSeatCount,
   });

@@ -14,6 +14,7 @@ const {
 const {
   amountDueCents,
   listedPots,
+  MIN_ANGLERS,
   paidEntrySeatCount,
   SIDE_POT_IDS,
   VENMO_HANDLE,
@@ -68,26 +69,21 @@ describe("isYouth registration", () => {
     );
   });
 
-  it("lets a youth seat stay email-optional and does not add $75", () => {
+  it("lets a youth seat stay email-optional and does not change the $300 boat entry", () => {
     const email = optionalAnglerEmailSchema.parse("");
     assert.equal(email, undefined);
     const parentEmail = optionalAnglerEmailSchema.parse("parent@example.com");
     assert.equal(parentEmail, "parent@example.com");
-    assert.equal(amountDueCents(2, 0), 15000);
-    assert.equal(amountDueCents(3, 1), 27500);
+    assert.equal(amountDueCents(0), 30000);
+    assert.equal(amountDueCents(1), 35000);
     assert.equal(paidEntrySeatCount([{ isYouth: false }, { isYouth: true }]), 1);
-    assert.equal(
-      amountDueCents([{ isYouth: false }, { isYouth: true }], 0),
-      7500,
-    );
-    assert.equal(
-      amountDueCents(
-        [{ isYouth: false }, { isYouth: false }, { isYouth: true }],
-        1,
-      ),
-      20000,
-    );
     assert.equal(SIDE_POT_IDS.includes("kids"), false);
+  });
+
+  it("allows a single fishing angler and keeps the boat fee flat", () => {
+    assert.equal(MIN_ANGLERS, 1);
+    assert.equal(amountDueCents(0), 30000);
+    assert.equal(amountDueCents(2), 40000);
   });
 });
 

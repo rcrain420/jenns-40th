@@ -207,7 +207,7 @@ export default function RulesPage() {
               "All anglers must be officially registered before fishing begins. No surprise substitutes, mysterious cousins or last-minute ringers.",
               "Anglers 17 or younger must be registered by a parent or legal guardian. The guardian may use their own email for the child.",
               "A captain is optional. Add one when you register or anytime later on My team. If you name a captain or DIY primary contact, they must be 18 or older. This is the person we will contact when somebody forgets what time weigh-in closes.",
-              "Teams may have up to four registered anglers. Youth anglers count toward that cap as roster seats. They do not pay the $75 adult entry.",
+              "Teams may have one to four registered anglers. Youth anglers count toward that cap as roster seats. Entry is $300 per boat.",
               "Only registered anglers may catch fish entered in the main tournament, paid side pots or bonus categories.",
               "Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.",
             ]}
@@ -521,10 +521,10 @@ export default function RulesPage() {
             </p>
             <p>
               Youth anglers are roster seats for the {YOUTH_TOURNAMENT.name}{" "}
-              and stringer rules. They do not pay the $75 adult entry and do
-              not grow the main tournament pot. Their fish still count on the
-              team stringer, and they still count toward paid team side pots
-              when the team has entered those pots.
+              and stringer rules. They do not change the $300 boat entry and
+              do not grow the main tournament pot beyond that boat fee. Their
+              fish still count on the team stringer, and they still count
+              toward paid team side pots when the team has entered those pots.
             </p>
             <p>
               A parent or guardian may use their own email for the child. The
