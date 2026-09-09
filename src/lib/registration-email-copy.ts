@@ -9,7 +9,7 @@ export type RegistrationConfirmationCopyInput = {
   dateLabel: string;
   venue: string;
   footerScript: string;
-  adultSeatFeeLabel: string;
+  boatEntryFeeLabel: string;
   paidSeatCount?: number;
   youthSeatCount?: number;
 };
@@ -75,21 +75,13 @@ export function registrationConfirmationCopy(
 
 export function amountDueLine(input: {
   amountLabel: string;
-  adultSeatFeeLabel: string;
+  boatEntryFeeLabel: string;
   paidSeatCount?: number;
   youthSeatCount?: number;
 }): string {
-  const kidsNote = `Kids are free; ${input.adultSeatFeeLabel} covers each adult seat.`;
-  if (input.paidSeatCount == null) {
-    return `Amount due: ${input.amountLabel}. ${kidsNote}`;
-  }
-  const adultWord = input.paidSeatCount === 1 ? "seat" : "seats";
-  const youthCount = input.youthSeatCount ?? 0;
-  const youthBit =
-    youthCount > 0
-      ? `; ${youthCount} youth ${youthCount === 1 ? "seat is" : "seats are"} free`
-      : "";
-  return `Amount due: ${input.amountLabel} (${input.paidSeatCount} adult ${adultWord}${youthBit}). ${kidsNote}`;
+  void input.paidSeatCount;
+  void input.youthSeatCount;
+  return `Amount due: ${input.amountLabel}. Entry is ${input.boatEntryFeeLabel} per boat. Kids do not change the boat total.`;
 }
 
 function escapeHtml(value: string): string {

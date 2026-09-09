@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --experimental-strip-types --test src/**/*.test.mjs",
+    "rebill:boat-entry": "node --experimental-strip-types scripts/rebill-boat-entry.mjs",
     "db:up": "docker compose up -d",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",

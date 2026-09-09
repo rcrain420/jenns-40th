@@ -100,8 +100,8 @@ export function TeamCaptainEditor({
       <p className="text-sm text-ink/65">{CAPTAIN_CONTACT_ADULT_NOTE}</p>
       <p className="text-sm text-ink/65">
         Add a captain email to invite them. They can sign in and see what
-        anglers see. That does not add $75 unless they are also an adult
-        angler.
+        anglers see. That does not add a paid seat unless they are also on
+        the fishing roster.
       </p>
       <fieldset>
         <legend className={labelClass}>Boat type</legend>

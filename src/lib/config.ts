@@ -30,9 +30,10 @@ export const EVENT = {
 export const REGISTRATION_CLOSES_AT = new Date("2026-10-02T05:00:00.000Z");
 
 export const MAX_TEAMS = 25;
-export const MIN_ANGLERS = 2;
+export const MIN_ANGLERS = 1;
 export const MAX_ANGLERS = 4;
-export const FEE_PER_ANGLER_CENTS = 7500;
+/** Flat boat entry — roster size and youth vs adult do not change this. */
+export const BOAT_ENTRY_CENTS = 30000;
 
 /** Optional paid side pots — $50 per team, per pot. */
 export const SIDE_POT_BUY_IN_CENTS = 5000;
@@ -160,7 +161,7 @@ export function getAppUrl(): string {
   return "https://officialishfishingtournament.com";
 }
 
-/** Paid adult seats only. Youth (`isYouth`) are roster seats, not $75 entries. */
+/** Adult fishing seats. Billing is a flat boat fee — this is display/counts only. */
 export function paidEntrySeatCount(
   anglers: Array<{ isYouth?: boolean | null }>,
 ): number {
@@ -171,17 +172,14 @@ export function isRegistrationOpen(now = new Date()): boolean {
   return now.getTime() < REGISTRATION_CLOSES_AT.getTime();
 }
 
-export function amountDueCents(
-  anglersOrPaidCount: Array<{ isYouth?: boolean | null }> | number,
-  sidePotCount = 0,
-): number {
-  const paidCount =
-    typeof anglersOrPaidCount === "number"
-      ? anglersOrPaidCount
-      : paidEntrySeatCount(anglersOrPaidCount);
-  return (
-    FEE_PER_ANGLER_CENTS * paidCount + SIDE_POT_BUY_IN_CENTS * sidePotCount
-  );
+/** $300 boat entry + $50 per side pot. Roster size does not change this. */
+export function amountDueCents(sidePotCount = 0): number {
+  return BOAT_ENTRY_CENTS + SIDE_POT_BUY_IN_CENTS * sidePotCount;
+}
+
+/** Main pot is boats × $300, not adult seats × $75. */
+export function mainPotCentsForTeams(teamCount: number): number {
+  return teamCount * BOAT_ENTRY_CENTS;
 }
 
 export function remainingUntil(

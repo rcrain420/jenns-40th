@@ -12,7 +12,7 @@
  * Angler · Pending. Name-only seats stay name-only / not emailed.
  * Youth seats are parent-login and never pending create-account.
  * Accounts that joined the boat but are not on the paid Angler roster
- * (parent / registrant / share-link) are Boat account — not a $75 seat.
+ * (parent / registrant / share-link) are Boat account — not a paid fishing seat.
  *
  * Product contract 2026-09-05 (Aaron): four invited anglers lock the
  * boat. Pending, youth, and name-only official seats count. Extra
@@ -201,7 +201,7 @@ export type DirectoryTeam = {
 
 /**
  * Teams official-roster labels. Adult seats say Angler so they do not
- * look like boat-only accounts. Name-only adults are still $75 seats.
+ * look like boat-only accounts. Name-only adults are still fishing seats.
  */
 export function directoryStatusLabel(
   status: BoatRosterStatus,

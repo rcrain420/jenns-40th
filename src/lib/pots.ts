@@ -1,8 +1,8 @@
 import {
-  FEE_PER_ANGLER_CENTS,
   MAIN_POT_SPLITS,
   PAID_SIDE_POTS,
   SIDE_POT_BUY_IN_CENTS,
+  mainPotCentsForTeams,
   type SidePotId,
 } from "./config";
 import { prisma } from "./db";
@@ -37,11 +37,8 @@ export async function getPotTotals(): Promise<PotTotals> {
   });
 
   const teamCount = teams.length;
-  const anglerCount = teams.reduce(
-    (sum, t) => sum + t.anglers.filter((a) => a.isYouth !== true).length,
-    0,
-  );
-  const mainPotCents = anglerCount * FEE_PER_ANGLER_CENTS;
+  const anglerCount = teams.reduce((sum, t) => sum + t.anglers.length, 0);
+  const mainPotCents = mainPotCentsForTeams(teamCount);
 
   const payouts = MAIN_POT_SPLITS.map((split) => ({
     place: split.place,

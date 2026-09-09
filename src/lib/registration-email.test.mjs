@@ -11,7 +11,7 @@ const VENMO_URL = "https://venmo.com/u/Jennski";
 function welcomeCopy(overrides = {}) {
   return registrationConfirmationCopy({
     teamName: "Pretty Pier Pressure",
-    amountLabel: "$150.00",
+    amountLabel: "$300.00",
     teamUrl: TEAM_URL,
     venmoHandle: "Jennski",
     venmoUrl: VENMO_URL,
@@ -20,7 +20,7 @@ function welcomeCopy(overrides = {}) {
     dateLabel: "October 9–10, 2026",
     venue: "Boatmen’s Club Bar & Marina",
     footerScript: "See you in Rockport!",
-    adultSeatFeeLabel: "$75",
+    boatEntryFeeLabel: "$300",
     paidSeatCount: 2,
     youthSeatCount: 1,
     ...overrides,
@@ -40,11 +40,9 @@ describe("registration welcome email", () => {
     assert.ok(message.text.includes("Boatmen’s Club Bar & Marina"));
     assert.ok(message.text.includes("Venmo Jennski for entry"));
     assert.ok(message.text.includes(VENMO_URL));
-    assert.ok(message.text.includes("$150.00"));
-    assert.ok(message.text.includes("2 adult seats"));
-    assert.ok(message.text.includes("1 youth seat is free"));
-    assert.ok(message.text.includes("Kids are free"));
-    assert.ok(message.text.includes("$75 covers each adult seat"));
+    assert.ok(message.text.includes("$300.00"));
+    assert.ok(message.text.includes("Entry is $300 per boat"));
+    assert.ok(message.text.includes("Kids do not change the boat total"));
     assert.ok(message.text.includes(TEAM_URL));
     assert.ok(message.text.includes("copy the share link"));
     assert.ok(message.html.includes(TEAM_URL));
@@ -77,14 +75,14 @@ describe("registration welcome email", () => {
     }
   });
 
-  it("still states kids are free when seat counts are omitted", () => {
+  it("states the flat boat entry when seat counts are omitted", () => {
     const line = amountDueLine({
-      amountLabel: "$75.00",
-      adultSeatFeeLabel: "$75",
+      amountLabel: "$300.00",
+      boatEntryFeeLabel: "$300",
     });
     assert.equal(
       line,
-      "Amount due: $75.00. Kids are free; $75 covers each adult seat.",
+      "Amount due: $300.00. Entry is $300 per boat. Kids do not change the boat total.",
     );
   });
 });

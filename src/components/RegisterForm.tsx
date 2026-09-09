@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  FEE_PER_ANGLER_CENTS,
+  BOAT_ENTRY_CENTS,
   MAX_ANGLERS,
   MIN_ANGLERS,
   PAID_SIDE_POTS,
@@ -95,7 +95,6 @@ export function RegisterForm({
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
   const [youthGuardianAttested, setYouthGuardianAttested] = useState(false);
   const [anglers, setAnglers] = useState<AnglerDraft[]>([
-    emptyAngler(),
     emptyAngler(emphasizeYouth),
   ]);
   const [sidePots, setSidePots] = useState<SidePotId[]>([]);
@@ -117,7 +116,7 @@ export function RegisterForm({
     })),
     { email: registrantEmail, name: viewer?.name },
   );
-  const entryCents = FEE_PER_ANGLER_CENTS * paidSeats;
+  const entryCents = BOAT_ENTRY_CENTS;
   const sidePotCents = SIDE_POT_BUY_IN_CENTS * sidePots.length;
   const total = useMemo(
     () => formatUsd(entryCents + sidePotCents),
@@ -464,7 +463,7 @@ export function RegisterForm({
       {boatType === "GUIDED" ? (
         <div className="space-y-3">
           <p className="text-sm text-ink/65">
-            Captain is optional. An email invites them to sign in — not a $75
+            Captain is optional. An email invites them to sign in — not a paid
             seat. {CAPTAIN_CONTACT_ADULT_NOTE}{" "}
             Still looking?{" "}
             <Link href="/guides" className="font-semibold text-sea hover:underline">
@@ -620,7 +619,7 @@ export function RegisterForm({
               {anglersSectionHelp({
                 minAnglers: MIN_ANGLERS,
                 maxAnglers: MAX_ANGLERS,
-                feeDollars: FEE_PER_ANGLER_CENTS / 100,
+                feeDollars: BOAT_ENTRY_CENTS / 100,
               })}
             </p>
           </div>
@@ -635,15 +634,15 @@ export function RegisterForm({
         </div>
         {showBoatContactNudge ? (
           <p className="mt-3 rounded-md border border-wave/15 bg-mist/60 px-3 py-2 text-sm text-wave">
-            {boatContactNotAnglerNudge(formatUsdWhole(FEE_PER_ANGLER_CENTS))}
+            {boatContactNotAnglerNudge(formatUsdWhole(BOAT_ENTRY_CENTS))}
           </p>
         ) : null}
         {emphasizeYouth ? (
           <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
             Registering a youth angler? Check <strong>17 or under</strong> on
             their seat. They take a roster spot for the {YOUTH_TOURNAMENT.name}{" "}
-            and stringer rules, and do not add ${FEE_PER_ANGLER_CENTS / 100} to
-            the team bill. {YOUTH_EMAIL_HELPER}
+            and stringer rules, and do not change the $
+            {BOAT_ENTRY_CENTS / 100} boat entry. {YOUTH_EMAIL_HELPER}
           </p>
         ) : null}
         <div className="mt-4 space-y-4">
@@ -869,10 +868,14 @@ export function RegisterForm({
         <p className="text-lg">
           Total due: <span className="font-semibold">{total}</span>
           <span className="block text-sm text-ink/60">
-            {formatUsd(FEE_PER_ANGLER_CENTS)} × {paidSeats} adult angler
-            {paidSeats === 1 ? " seat" : " seats"}
+            {formatUsd(BOAT_ENTRY_CENTS)} boat entry
+            {paidSeats + youthSeats > 0
+              ? ` · ${paidSeats + youthSeats} angler${
+                  paidSeats + youthSeats === 1 ? "" : "s"
+                } on the roster`
+              : ""}
             {youthSeats > 0
-              ? ` · ${youthSeats} youth (no entry fee)`
+              ? ` (${youthSeats} youth — roster only)`
               : ""}
             {sidePots.length > 0
               ? ` + ${sidePots.length} side pot${

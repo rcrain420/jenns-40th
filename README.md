@@ -5,8 +5,8 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 ## Features
 
 - Public landing page and team registration (AI team-name suggestions after sign-in)
-- Teams of 2–4 anglers; guided (optional captain) or non-guided (optional primary contact)
-- $75 per adult angler; youth roster seats do not add entry; Venmo payment link + QR (`public/venmo-qr.png`)
+- Teams of 1–4 anglers; guided (optional captain) or non-guided (optional primary contact)
+- $300 flat per boat; youth roster seats do not change the boat entry; side pots $50 per team, per pot; Venmo payment link + QR (`public/venmo-qr.png`)
 - Fishing license confirmation checkbox
 - Soft cap of 25 teams; public registration closes Oct 1, 2026
 - Signed-in Teams directory of registered boats and roster names
@@ -127,3 +127,5 @@ npm run db:up
 | `npm run db:migrate` | Run Prisma migrations (dev) |
 | `npm run db:up` | Start local Postgres (Docker) |
 | `npm test` | Token, invite-code, and auth unit tests |
+| `npm run rebill:boat-entry -- --dry-run` | Preview `Team.amountDueCents` recalc to $300 + $50 × side pots (does not change `paymentStatus`) |
+| `npm run rebill:boat-entry` | Apply that recalc against `DATABASE_URL` (Neon/prod or local) |

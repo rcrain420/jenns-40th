@@ -96,7 +96,7 @@ export async function PATCH(request: Request, { params }: Params) {
         licenseConfirmed: input.licenseConfirmed,
         paymentStatus: input.paymentStatus,
         sidePots: input.sidePots,
-        amountDueCents: amountDueCents(input.anglers, input.sidePots.length),
+        amountDueCents: amountDueCents(input.sidePots.length),
         anglers: {
           create: input.anglers.map((a, index) => ({
             fullName: a.fullName,

@@ -209,10 +209,7 @@ export async function PATCH(request: Request) {
       { status: 409 },
     );
   }
-  const nextDue = amountDueCents(nextAnglers, team.sidePots.length);
-  const addedPaidSeats = nextDue > team.amountDueCents;
-  const paymentStatus =
-    team.paymentStatus === "PAID" && addedPaidSeats ? "UNPAID" : team.paymentStatus;
+  const nextDue = amountDueCents(team.sidePots.length);
 
   const updated = await prisma.$transaction(async (tx) => {
     await tx.angler.deleteMany({ where: { teamId: team.id } });
@@ -220,7 +217,6 @@ export async function PATCH(request: Request) {
       where: { id: team.id },
       data: {
         amountDueCents: nextDue,
-        paymentStatus,
         anglers: {
           create: nextAnglers.map((a, index) => ({
             fullName: a.fullName,

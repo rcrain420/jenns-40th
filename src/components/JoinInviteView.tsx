@@ -115,8 +115,8 @@ export async function JoinInviteView({
       description={
         joiningAsCaptain
           ? viewer
-            ? "This puts your account on the boat as captain. You will see the same pages as the anglers. Captain login is not a $75 angler seat."
-            : "Create an account with Google or email to hop on this boat as captain. You do not need a password first if you use Google. Captain login is not a $75 angler seat."
+            ? "This puts your account on the boat as captain. You will see the same pages as the anglers. Captain login is not a paid angler seat."
+            : "Create an account with Google or email to hop on this boat as captain. You do not need a password first if you use Google. Captain login is not a paid angler seat."
           : viewer
             ? "This puts your account on the boat. Joining does not make you the captain or add you to the paid roster — the person who registered can add a captain anytime and send invites."
             : "Create an account with Google, Facebook, or email to hop on this boat. You do not need a password first if you use Google or Facebook. Joining does not make you the captain or add you to the paid roster."

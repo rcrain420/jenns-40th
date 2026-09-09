@@ -74,8 +74,8 @@ export function TeamRosterEditor({
   const [inviteNote, setInviteNote] = useState<string | null>(null);
 
   const nextDue = useMemo(
-    () => amountDueCents(anglers, sidePotCount),
-    [anglers, sidePotCount],
+    () => amountDueCents(sidePotCount),
+    [sidePotCount],
   );
   const extraDue = nextDue - currentDueCents;
 
@@ -234,8 +234,8 @@ export function TeamRosterEditor({
         <p className="text-sm text-ink/65">
           Email is optional. {YOUTH_EMAIL_HELPER} Invite on an adult seat
           sends Join the boat. Youth seats do not get a create-account invite
-          — parent login is the login — and they do not add to the $75 entry
-          total. Adults without email stay name-only on the roster and join
+          — parent login is the login — and they do not change the $300 boat
+          entry. Adults without email stay name-only on the roster and join
           by creating an account from the invite link. That is not the kids
           path.
           {canEditRoster
@@ -257,7 +257,7 @@ export function TeamRosterEditor({
 
       {anglers.length === 0 ? (
         <p className="text-sm text-ink/60">
-          No extra seats yet. Click + Add angler to add someone to the paid
+          No extra seats yet. Click + Add angler to add someone to the fishing
           roster.
         </p>
       ) : null}

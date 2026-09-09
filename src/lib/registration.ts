@@ -56,7 +56,7 @@ export function teamCreateData(input: RegistrationInput) {
     licenseConfirmed: input.licenseConfirmed,
     paymentStatus: "UNPAID" as const,
     sidePots: input.sidePots,
-    amountDueCents: amountDueCents(anglers, input.sidePots.length),
+    amountDueCents: amountDueCents(input.sidePots.length),
     anglers: {
       create: anglers,
     },

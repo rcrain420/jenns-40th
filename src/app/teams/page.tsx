@@ -3,13 +3,12 @@ import Link from "next/link";
 import { OfficialRosterByBoat } from "@/components/OfficialRosterByBoat";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
-import { EVENT, FEE_PER_ANGLER_CENTS } from "@/lib/config";
+import { BOAT_ENTRY_CENTS, EVENT } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { toDirectoryTeam } from "@/lib/join-the-boat";
 import { formatUsdWhole } from "@/lib/money";
 import {
   groupOfficialRosterByBoat,
-  officialRosterAdultSeatCount,
   officialRosterPotSummary,
 } from "@/lib/official-roster";
 
@@ -18,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: `Teams · ${EVENT.shortName}`,
   description:
-    "Official fishing roster grouped by boat. Main pot is adult angler seats × $75.",
+    "Official fishing roster grouped by boat. Main pot is boats × $300.",
 };
 
 export default async function TeamsDirectoryPage() {
@@ -103,22 +102,19 @@ export default async function TeamsDirectoryPage() {
       })),
     })),
   );
-  const adultAnglerCount = officialRosterAdultSeatCount(
-    boats.flatMap((boat) => boat.anglers),
-  );
   const pageSummary =
     directory.length === 0
       ? null
       : officialRosterPotSummary({
-          adultAnglerCount,
-          potCents: adultAnglerCount * FEE_PER_ANGLER_CENTS,
+          boatCount: directory.length,
+          potCents: directory.length * BOAT_ENTRY_CENTS,
           format: formatUsdWhole,
         });
 
   return (
     <PageShell
       title="Teams"
-      description="Official fishing roster — paid adult Angler seats grow the main pot ($75 each). Youth are $0. Boat accounts who joined but are not fishing are not seats."
+      description="Official fishing roster — each boat grows the main pot by $300. Youth count toward the four-angler cap. Boat accounts who joined but are not fishing are not seats."
     >
       <div className="space-y-6">
         {directory.length === 0 ? null : otherCount === 0 ? (

@@ -4,8 +4,8 @@ import { PageShell } from "@/components/PageShell";
 import { TeamRosterEditor } from "@/components/TeamRosterEditor";
 import { getCurrentUser } from "@/lib/auth";
 import {
+  BOAT_ENTRY_CENTS,
   EVENT,
-  FEE_PER_ANGLER_CENTS,
   isRegistrationOpen,
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
@@ -84,9 +84,9 @@ export default async function KidsPage() {
           <ul className="mt-4 list-disc space-y-3 pl-5 text-ink/80">
             <li>
               A youth angler is a roster seat for the {YOUTH_TOURNAMENT.name}{" "}
-              and stringer rules — same 2–4 cap, same “only registered
-              anglers&apos; fish count.” They do not add{" "}
-              {formatUsd(FEE_PER_ANGLER_CENTS)} to the team bill.
+              and stringer rules — same 1–4 cap, same “only registered
+              anglers&apos; fish count.” They do not change the{" "}
+              {formatUsd(BOAT_ENTRY_CENTS)} boat entry.
             </li>
             <li>
               A parent or legal guardian registers them. Kids can use a
@@ -100,8 +100,8 @@ export default async function KidsPage() {
             </li>
             <li>
               Youth fish still count on the team stringer and on paid team
-              side pots. Kids do not pay the adult entry, so they do not grow
-              the main pot.
+              side pots. Kids do not change the boat entry, so they do not
+              grow the main pot beyond that boat fee.
             </li>
           </ul>
           <p className="mt-4">
@@ -130,8 +130,8 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 Add youth anglers to {team.teamName} here. Same roster save as
-                My team. Kids count toward the four-angler cap, not the $75
-                adult entry.
+                My team. Kids count toward the four-angler cap and do not
+                change the $300 boat entry.
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({

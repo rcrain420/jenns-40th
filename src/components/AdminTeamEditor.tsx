@@ -77,7 +77,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   const [anglers, setAnglers] = useState<AnglerDraft[]>(
     initial?.anglers?.length
       ? initial.anglers
-      : [emptyAngler(), emptyAngler()],
+      : [emptyAngler()],
   );
   const [sidePots, setSidePots] = useState<SidePotId[]>(
     initial?.sidePots ?? [],
@@ -390,7 +390,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
           ))}
         </div>
         <p className="text-sm text-ink/60">
-          Due: {formatUsd(amountDueCents(anglers, sidePots.length))}
+          Due: {formatUsd(amountDueCents(sidePots.length))}
         </p>
       </div>
 

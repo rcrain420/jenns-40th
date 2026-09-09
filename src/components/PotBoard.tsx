@@ -1,5 +1,5 @@
 import {
-  FEE_PER_ANGLER_CENTS,
+  BOAT_ENTRY_CENTS,
   SIDE_POT_BUY_IN_CENTS,
 } from "@/lib/config";
 import { formatUsd, formatUsdWhole } from "@/lib/money";
@@ -19,10 +19,8 @@ export function PotBoard({ totals }: { totals: PotTotals }) {
           {formatUsdWhole(totals.mainPotCents)}
         </p>
         <p className="font-label text-[0.875rem] tracking-[0.1em] text-wave/70 md:text-base">
-          {totals.teamCount} team{totals.teamCount === 1 ? "" : "s"} ·{" "}
-          {totals.anglerCount} adult angler seat
-          {totals.anglerCount === 1 ? "" : "s"} ×{" "}
-          {formatUsd(FEE_PER_ANGLER_CENTS)}
+          {totals.teamCount} team{totals.teamCount === 1 ? "" : "s"} ×{" "}
+          {formatUsd(BOAT_ENTRY_CENTS)}
         </p>
         <div className="grid grid-cols-3 border-y-[3px] border-double border-wave">
           {totals.payouts.map((payout, index) => (

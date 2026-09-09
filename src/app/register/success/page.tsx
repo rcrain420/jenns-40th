@@ -105,10 +105,12 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           <span className="font-semibold text-coral">
             {formatUsd(team.amountDueCents)}
           </span>{" "}
-          ({paidSeats} adult{paidSeats === 1 ? "" : "s"}
+          (boat entry
           {youthSeats > 0
-            ? ` + ${youthSeats} youth (no entry fee)`
-            : ""}
+            ? ` · ${youthSeats} youth on the roster`
+            : paidSeats > 0
+              ? ` · ${paidSeats} angler${paidSeats === 1 ? "" : "s"}`
+              : ""}
           {team.sidePots.length > 0
             ? ` + ${team.sidePots.length} side pot${
                 team.sidePots.length > 1 ? "s" : ""
@@ -132,7 +134,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           <p className="mt-3 text-ink/75">
             You registered this team. That does not make you the captain — add
             a captain email anytime on My team to invite them. Captain login is
-            not a $75 angler seat.
+            not a paid angler seat.
           </p>
           <p className="mt-3 text-ink/75">{SUCCESS_CREATOR_ACCESS_NOTE}</p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
@@ -271,7 +273,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             <p className="mt-3 text-ink/75">
               Until you set a password, you are missing from the boat list. Add
               a captain email anytime on My team to invite them — that is not a
-              $75 angler seat.
+              paid angler seat.
             </p>
             <div className="mt-4">
               <SetPasswordForm email={team.registrantEmail} />

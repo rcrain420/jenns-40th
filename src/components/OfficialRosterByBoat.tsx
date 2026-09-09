@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
-import { FEE_PER_ANGLER_CENTS } from "@/lib/config";
+import { BOAT_ENTRY_CENTS } from "@/lib/config";
 import { formatUsdWhole } from "@/lib/money";
 import {
   alsoOnThisBoatLine,
   isOfficialRosterSeat,
-  officialRosterAdultSeatCount,
   officialRosterAnglerLine,
+  officialRosterBoatPotCents,
   officialRosterPotAmountLabel,
   officialRosterPotSummary,
   type OfficialRosterBoat,
@@ -54,8 +54,7 @@ export function BoatRosterFrame({
 function BoatRosterRows({ boat }: { boat: OfficialRosterBoat }) {
   const seats = boat.anglers.filter(isOfficialRosterSeat);
   const extras = boat.anglers.filter((row) => !isOfficialRosterSeat(row));
-  const adultAnglerCount = officialRosterAdultSeatCount(boat.anglers);
-  const potCents = adultAnglerCount * FEE_PER_ANGLER_CENTS;
+  const potCents = officialRosterBoatPotCents(boat.anglers, BOAT_ENTRY_CENTS);
   const extraLine = alsoOnThisBoatLine(
     extras.map((row) => officialRosterAnglerLine(row)),
   );
@@ -79,11 +78,7 @@ function BoatRosterRows({ boat }: { boat: OfficialRosterBoat }) {
             >
               <span className="min-w-0">{officialRosterAnglerLine(row)}</span>
               <span className="font-label shrink-0 text-[0.75rem] tracking-[0.08em] text-ink/55">
-                {officialRosterPotAmountLabel(
-                  row,
-                  FEE_PER_ANGLER_CENTS,
-                  formatUsdWhole,
-                )}
+                {officialRosterPotAmountLabel(row)}
               </span>
             </li>
           ))}
@@ -91,7 +86,7 @@ function BoatRosterRows({ boat }: { boat: OfficialRosterBoat }) {
       )}
       <p className="font-label text-[0.7rem] tracking-[0.08em] text-ink/50">
         {officialRosterPotSummary({
-          adultAnglerCount,
+          boatCount: 1,
           potCents,
           format: formatUsdWhole,
         })}
