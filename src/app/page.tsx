@@ -248,7 +248,7 @@ export default async function HomePage() {
             four anglers, so please communicate in advance. Youth anglers do
             not participate in the main tournament pot or main stringer, and
             they do not count on a boat team&apos;s paid side pots.{" "}
-            <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
+            <Link href="/kids#rules" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
             </Link>
           </p>

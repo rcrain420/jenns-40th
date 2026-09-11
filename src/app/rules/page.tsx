@@ -183,6 +183,16 @@ export default function RulesPage() {
             the rules so nobody has to argue over a redfish while Jenn is trying
             to enjoy her birthday.
           </p>
+          <p>
+            These are the adult boat tournament rules.{" "}
+            <Link
+              href="/kids#rules"
+              className="font-semibold text-sea underline-offset-4 hover:underline"
+            >
+              Kids / RowRide rules
+            </Link>{" "}
+            are separate.
+          </p>
 
           <nav
             aria-label="Rules table of contents"
@@ -237,13 +247,22 @@ export default function RulesPage() {
           <RuleList
             items={[
               "All anglers must be officially registered before fishing begins. No surprise substitutes, mysterious cousins or last-minute ringers.",
-              "Anglers 17 or younger must be registered by a parent or legal guardian. The guardian may use their own email for the child.",
               "A captain is optional. Add one when you register or anytime later on My team. If you name a captain or DIY primary contact, they must be 18 or older. This is the person we will contact when somebody forgets what time weigh-in closes.",
-              "Boat teams may have one to four registered adult anglers. Youth anglers do not take one of those adult seats and are not added to a boat roster. Kids register separately for RowRide from land. On event day they may fish from a boat if the captain or guide allows it — guides often prefer no more than four anglers, so communicate in advance. Entry is $300 per boat and does not change for kids. Example: three adults is still $300 — a fourth adult can still join.",
-              "Only registered anglers may catch fish entered for official weigh-in. Youth anglers (17 or under) do not participate in the main tournament stringer or main pot competition. They have their own host-funded RowRide Youth Angler Tournament. RowRide kids do not count on a boat team’s paid side pots.",
+              "Boat teams may have one to four registered adult anglers. Entry is $300 per boat. Kids are not added to a boat roster and do not change that fee. Example: three adults is still $300 — a fourth adult can still join.",
+              "Only registered adult anglers may catch fish entered for the main tournament stringer, main pot, or paid team side pots.",
               "Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.",
             ]}
           />
+          <p>
+            Youth anglers compete in a separate free tournament. See{" "}
+            <Link
+              href="/kids#rules"
+              className="font-semibold text-sea underline-offset-4 hover:underline"
+            >
+              Kids / RowRide rules
+            </Link>
+            .
+          </p>
         </Section>
 
         <Section id="guided-and-diy" number={3} title="Guided and DIY Teams">
@@ -350,7 +369,7 @@ export default function RulesPage() {
           <RuleList
             items={[
               "Fishing is allowed only in public waters that tournament participants may legally access.",
-              "Each boat team must fish from one boat during tournament hours. Team members may not split up and fish from multiple boats. Youth anglers in the RowRide Youth Angler Tournament may fish from land and are not required to be on a boat.",
+              "Each boat team must fish from one boat during tournament hours. Team members may not split up and fish from multiple boats.",
               "Wade fishing is allowed when the fishing area is accessed using the team's boat.",
               "Wade fishermen must remain within sight or normal communication distance of their team and boat. Do not disappear into the horizon and become a missing-person situation.",
               "Teams may not reserve, block, claim or prevent another team from fishing a public area.",
@@ -386,11 +405,6 @@ export default function RulesPage() {
             </li>
           </ul>
           <p>
-            When a youth angler is fishing from a boat, an adult should be on
-            the boat. Youth anglers may also fish from land and are not
-            required to be on a boat.
-          </p>
-          <p>
             No fish, prize, side pot, fishing spot or bragging right is worth
             someone getting hurt.
           </p>
@@ -424,9 +438,7 @@ export default function RulesPage() {
           <p>Each team may submit only one main tournament stringer.</p>
           <p>
             The main tournament stringer may include only fish caught by
-            registered adult (non-youth) anglers. Fish caught by youth anglers
-            do not count toward the team&apos;s main stringer or main pot
-            placement.
+            registered adult anglers.
           </p>
           <p>
             A complete four-fish stringer is <strong>not required</strong>. Teams
@@ -465,14 +477,12 @@ export default function RulesPage() {
           </p>
           <p>
             Registered adult anglers may catch fish for paid team side pots
-            when the team has entered those pots. RowRide kids are on their
-            own land entry and do not count on a boat team&apos;s side pots.
+            when the team has entered those pots.
           </p>
           <p>
             Side-pot fish may also be included in the team&apos;s main tournament
             stringer when otherwise eligible and caught by a registered adult
-            angler. Fish caught by youth anglers may count toward paid team
-            side pots, but not the main stringer.
+            angler.
           </p>
 
           <div className="space-y-6 border border-wave/15 bg-mist/40 px-4 py-5 md:px-5">
@@ -542,59 +552,16 @@ export default function RulesPage() {
 
           <div id="kids-pot" className="scroll-mt-28 space-y-3">
             <Subhead>{YOUTH_TOURNAMENT.name}</Subhead>
-            <p className="font-semibold text-wave">{YOUTH_TOURNAMENT.tagline}</p>
             <p>
-              There is no entry fee for the {YOUTH_TOURNAMENT.name}. It is
-              host-funded, like the Heaviest Saltwater Catfish prize, and does
-              not come from paid side-pot money. The prize is provided by
-              Tournament Host.
-            </p>
-            <p>
-              The {YOUTH_TOURNAMENT.name} is open to registered youth anglers
-              — anglers 17 or younger whom a parent or legal guardian has
-              registered on the separate RowRide form. Kids fish from land
-              with no boat. On event day they may still fish from a boat if
-              the captain or guide allows it — they are not added to a boat
-              roster.
-            </p>
-            <p>
-              The heaviest qualifying fish caught by a registered youth angler
-              wins.
-            </p>
-            <p>
-              A qualifying fish must be legal, caught during tournament hours,
-              presented whole and accepted by the Weighmaster. Official{" "}
-              {YOUTH_TOURNAMENT.name} results come from weigh-in, not from AI
-              Livewell estimates.
-            </p>
-            <p>
-              The youth angler must personally hook the fish and land it.
-              Adults may help with safety. The child needs to do the fishing.
-            </p>
-            <p>
-              Youth anglers do not take one of a boat&apos;s one-to-four adult
-              fishing seats. They register separately for RowRide and are not
-              added to a boat roster. On event day they may fish from a boat
-              if the captain or guide allows it — guides often prefer no more
-              than four anglers, so communicate in advance. They do not change
-              the $300 boat entry and do not grow the main tournament pot
-              beyond that boat fee. They do not participate in the main
-              tournament stringer or main pot competition. Land-only kids are
-              RowRide-only and do not count on a boat team&apos;s paid side
-              pots.
-            </p>
-            <p>
-              A parent or guardian may use their own email for the child. The
-              child does not get a tournament account. Parent login is the
-              login. Adults without email may stay name-only; that is not the
-              kids path.
+              RowRide is a separate free youth tournament. Its rules live on
+              the kids page — they are not part of these adult boat rules.
             </p>
             <p>
               <Link
-                href="/kids"
+                href="/kids#rules"
                 className="font-semibold text-sea underline-offset-4 hover:underline"
               >
-                {YOUTH_TOURNAMENT.name} →
+                Kids / RowRide rules →
               </Link>
             </p>
           </div>
@@ -779,10 +746,10 @@ export default function RulesPage() {
 
         <div className="flex flex-wrap gap-x-6 gap-y-3 border-t border-dashed border-wave/25 pt-8">
           <Link
-            href="/kids"
+            href="/kids#rules"
             className="font-display text-sm uppercase tracking-[0.14em] text-sea underline-offset-4 hover:underline"
           >
-            {YOUTH_TOURNAMENT.name} →
+            Kids / RowRide rules →
           </Link>
           <Link
             href="/register"

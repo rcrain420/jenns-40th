@@ -99,45 +99,143 @@ export default async function KidsPage() {
           </p>
         </section>
 
-        <section>
-          <span className="section-banner">How kids fish</span>
-          <ul className="mt-4 list-disc space-y-3 pl-5 text-ink/80">
+        <section id="rules" className="scroll-mt-28">
+          <span className="section-banner">Rules</span>
+          <h2 className="mt-4 font-display text-2xl uppercase text-wave">
+            Official-ish {YOUTH_TOURNAMENT.name} rules
+          </h2>
+          <p className="mt-3 text-ink/80">
+            These are the kids / RowRide rules. The adult boat tournament has
+            its own document.{" "}
+            <Link
+              href="/rules"
+              className="font-semibold text-sea underline-offset-4 hover:underline"
+            >
+              Main tournament rules →
+            </Link>
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            1. A separate free tournament
+          </h3>
+          <p className="mt-3 text-ink/80">
+            RowRide is a separate tournament from the adult boat tournament.
+            There is no entry fee. Biggest / heaviest qualifying fish wins at
+            weigh-in.
+          </p>
+          <p className="mt-3 text-ink/80">
+            The prize is host-funded by Tournament Host, like the Heaviest
+            Saltwater Catfish prize, and does not come from paid side-pot
+            money.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            2. Who can enter
+          </h3>
+          <p className="mt-3 text-ink/80">
+            Open to youth anglers — anglers 17 or younger whom a parent or
+            legal guardian has registered. Kids can use a parent&apos;s email.
+            They do not need their own account. Parent login is the login.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            3. How kids register
+          </h3>
+          <p className="mt-3 text-ink/80">
+            Kids register only on the RowRide form. They are not added to a
+            boat roster. Boat teams are adults only.
+          </p>
+          <p className="mt-3">
+            <Link href="/register/youth" className="btn-bay btn-bay-red">
+              Enter RowRide
+            </Link>
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            4. How kids fish
+          </h3>
+          <ul className="mt-3 list-disc space-y-3 pl-5 text-ink/80">
             <li>
-              RowRide is a separate free tournament. There is no entry fee.
-              Biggest / heaviest qualifying fish wins at weigh-in.
+              Kids fish from land. They are not required to be on a boat.
+              Land-only entries are RowRide-only — no boat seats and no team
+              side pots.
+            </li>
+            <li>
+              On event day they may still fish from a boat if the captain or
+              guide allows it — they are not added to that boat&apos;s roster.
+              Guides often prefer no more than four anglers, so communicate
+              in advance.
+            </li>
+            <li>
+              When a youth angler is fishing from a boat, an adult should be
+              on the boat.
+            </li>
+          </ul>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            5. What they compete for
+          </h3>
+          <p className="mt-3 text-ink/80">
+            The heaviest qualifying fish caught by a registered youth angler
+            wins. A qualifying fish must be legal, caught during tournament
+            hours, presented whole and accepted by the Weighmaster. Official
+            results come from weigh-in, not from AI Livewell estimates.
+          </p>
+          <p className="mt-3 text-ink/80">
+            The youth angler must personally hook the fish and land it.
+            Adults may help with safety. The child needs to do the fishing.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            6. What they do not compete in
+          </h3>
+          <ul className="mt-3 list-disc space-y-3 pl-5 text-ink/80">
+            <li>
+              Kids do not take one of a boat&apos;s 1–4 adult fishing seats
+              and do not change the {formatUsd(BOAT_ENTRY_CENTS)} boat entry.
             </li>
             <li>
               Kids do not compete in the adult main stringer or main pot.
             </li>
             <li>
-              Kids are not required to be on a boat. They register on the
-              separate RowRide form — land-only entries are RowRide-only, with
-              no boat seats and no team side pots.
-            </li>
-            <li>
-              Boat teams are adults only. Kids do not take one of a
-              boat&apos;s 1–4 adult fishing seats and do not change the{" "}
-              {formatUsd(BOAT_ENTRY_CENTS)} boat entry. On event day they may
-              fish from a boat if the captain or guide allows it — guides
-              often prefer no more than four anglers, so communicate in
-              advance.
-            </li>
-            <li>
               RowRide kids do not count on a boat team&apos;s paid side pots.
             </li>
-            <li>
-              A parent or legal guardian registers them. Kids can use a
-              parent&apos;s email. They do not need their own account. Parent
-              login is the login.
-            </li>
-            <li>{YOUTH_COMPETITION_POLICY}</li>
           </ul>
+          <p className="mt-3 text-ink/80">{YOUTH_COMPETITION_POLICY}</p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            7. Licenses
+          </h3>
+          <p className="mt-3 text-ink/80">
+            A Texas fishing license and saltwater endorsement are generally
+            required for 17-year-olds. Younger children generally do not need
+            a Texas fishing license. Check current Texas Parks and Wildlife
+            Department rules.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            8. Weigh-in
+          </h3>
+          <p className="mt-3 text-ink/80">
+            RowRide uses the same official scale, Weighmaster, and 2:00 p.m.
+            weigh-in deadline as the adult boat tournament. There are no
+            exceptions to that deadline.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            9. The final word
+          </h3>
+          <p className="mt-3 text-ink/80">
+            Everyone must behave safely, honestly and respectfully. The
+            Weighmaster has final authority over species, condition,
+            measurement, and official weight. All decisions are final.
+          </p>
           <p className="mt-4">
             <Link
-              href="/rules#kids-pot"
+              href="/rules"
               className="font-semibold text-sea underline-offset-4 hover:underline"
             >
-              {YOUTH_TOURNAMENT.name} rules →
+              Adult boat tournament rules →
             </Link>
           </p>
         </section>

@@ -15,6 +15,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const COPY_SURFACES = [
   "docs/tournament-rules.md",
+  "docs/rowride-rules.md",
   "src/app/kids/page.tsx",
   "src/app/rules/page.tsx",
   "src/app/page.tsx",
@@ -163,6 +164,48 @@ describe("youth main-stringer leftover copy", () => {
           `${relative} still matches ${pattern}`,
         );
       }
+    }
+  });
+});
+
+const MAIN_RULES_SURFACES = [
+  "docs/tournament-rules.md",
+  "src/app/rules/page.tsx",
+];
+
+const YOUTH_RULES_SURFACES = [
+  "docs/rowride-rules.md",
+  "src/app/kids/page.tsx",
+];
+
+const EMBEDDED_ROWRIDE_ON_MAIN = [
+  /must personally hook the fish/i,
+  /Little Anglers\. Big Fish/i,
+  /Parent login is the login/i,
+];
+
+describe("RowRide rules live on the kids page", () => {
+  it("does not embed the full youth rules in the adult boat document", () => {
+    for (const relative of MAIN_RULES_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of EMBEDDED_ROWRIDE_ON_MAIN) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still embeds ${pattern}`,
+        );
+      }
+      assert.match(text, /Kids \/ RowRide rules/);
+    }
+  });
+
+  it("keeps the official youth rules on /kids and docs/rowride-rules.md", () => {
+    for (const relative of YOUTH_RULES_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      assert.match(text, /must personally hook the fish/i);
+      assert.match(text, /Tournament Host/);
+      assert.match(text, /\/register\/youth/);
+      assert.match(text, /Main tournament rules|adult boat tournament rules/i);
     }
   });
 });

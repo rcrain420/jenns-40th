@@ -79,7 +79,7 @@ export const HOST_FUNDED_POTS = [
     name: YOUTH_TOURNAMENT.name,
     buyInCents: 0,
     buyInLabel: "Free",
-    href: "/kids",
+    href: "/kids#rules",
   },
   {
     id: "catfish",
