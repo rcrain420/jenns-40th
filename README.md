@@ -40,7 +40,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Create an account at [http://localhost:3000/login](http://localhost:3000/login). Confirmation emails need `RESEND_API_KEY`; in local dev the server also prints a confirm link.
 
-Sign up with `ADMIN_EMAIL` to get the admin console: [http://localhost:3000/admin](http://localhost:3000/admin)
+Sign up with an address in `ADMIN_EMAIL` (or `ADMIN_EMAILS`) to get the admin console: [http://localhost:3000/admin](http://localhost:3000/admin)
 
 `/register/success` still shows the teammate invite and Open my team (create-account) links, so those do not depend on mail.
 
@@ -51,7 +51,8 @@ Sign up with `ADMIN_EMAIL` to get the admin console: [http://localhost:3000/admi
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | Local Docker Postgres or Neon connection string |
-| `ADMIN_EMAIL` | Account email that is promoted to admin on signup/login |
+| `ADMIN_EMAIL` | Account email(s) promoted to admin on signup/login. Comma, semicolon, or whitespace-separated |
+| `ADMIN_EMAILS` | Optional extra admin emails, merged with `ADMIN_EMAIL` |
 | `SESSION_SECRET` | Cookie signing secret (32+ characters) |
 | `RESEND_API_KEY` | Sends account confirm/reset, registration welcome, and Join the boat emails |
 | `EMAIL_FROM` / `RESEND_FROM` | Optional From: header for Resend |
