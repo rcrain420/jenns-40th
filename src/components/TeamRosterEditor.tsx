@@ -261,7 +261,8 @@ export function TeamRosterEditor({
     <form onSubmit={onSave} className="space-y-4">
       <div className="flex items-end justify-between gap-4">
         <p className="text-sm text-ink/65">
-          Email is optional. {YOUTH_EMAIL_HELPER}{" "}
+          Email is optional.{" "}
+          {landOnly ? `${YOUTH_EMAIL_HELPER} ` : null}
           {landOnly
             ? "This is a land-only RowRide entry — no boat fee and no team side pots. Parent login is the login."
             : "Invite on an adult seat sends Join the boat. Boat teams are adults only — kids register separately for RowRide from land and are not added here. Adult seats do not change the $300 boat entry."}{" "}
