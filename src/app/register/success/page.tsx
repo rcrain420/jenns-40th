@@ -274,7 +274,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             </a>
           </div>
         </section>
-        )}
+        ) : null}
 
         {showSetPassword ? (
           <section className="border-t border-dashed border-wave/25 pt-8">
