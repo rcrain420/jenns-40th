@@ -247,7 +247,13 @@ export default async function HomePage() {
             on someone&apos;s boat, ask the captain or guide first — most
             guides prefer no more than four anglers. Youth anglers do not
             participate in the main tournament pot or main stringer, and they
-            do not count on a boat team&apos;s paid side pots.{" "}
+            do not count on a boat team&apos;s paid side pots. To enter a
+            paid side pot, kids buy in on their own{" "}
+            <Link href="/register/youth" className="text-sun underline-offset-2 hover:underline">
+              RowRide registration
+            </Link>{" "}
+            — $50 per pot. Being on a boat that entered those pots does not
+            count.{" "}
             <Link href="/kids#rules" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
             </Link>

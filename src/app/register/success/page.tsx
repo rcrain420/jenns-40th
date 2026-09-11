@@ -138,7 +138,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           </p>
           <p className="mt-3 text-ink/75">
             {landOnly
-              ? "You registered a RowRide entry. Kids may fish from land or by boat. They are not added to a $300 boat roster and are not in team side pots. Parent login is the login."
+              ? "You registered a RowRide entry. Kids may fish from land or by boat. They are not added to a $300 boat roster. Paid side pots they bought on this entry are their own — a kid does not count on a boat team’s pots. Parent login is the login."
               : "You registered this team. That does not make you the captain — add a captain email anytime on My team to invite them. Captain login is not a paid angler seat."}
           </p>
           {landOnly ? null : (
@@ -185,7 +185,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           </div>
         </section>
 
-        {landOnly ? null : (
+        {team.amountDueCents > 0 ? (
         <section>
           <span className="section-banner">{SUCCESS_VENMO_BANNER}</span>
           <p className="mt-3 text-ink/75">
@@ -348,14 +348,14 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <dt className="text-ink/60">Payment</dt>
               <dd
                 className={
-                  landOnly || team.paymentStatus === "PAID"
+                  team.paymentStatus === "PAID"
                     ? "font-semibold text-sea"
                     : team.paymentStatus === "PARTIAL"
                       ? "font-semibold text-wave"
                       : "font-semibold text-alert"
                 }
               >
-                {landOnly || team.paymentStatus === "PAID"
+                {team.paymentStatus === "PAID"
                   ? "Paid"
                   : team.paymentStatus === "PARTIAL"
                     ? `Partial · ${formatUsd(team.amountPaidCents)} of ${formatUsd(team.amountDueCents)}`

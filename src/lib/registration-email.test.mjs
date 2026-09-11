@@ -85,4 +85,16 @@ describe("registration welcome email", () => {
       "Amount due: $300.00. Entry is $300 per boat. Kids do not change the boat total.",
     );
   });
+
+  it("states free RowRide base plus optional $50 side pots", () => {
+    const line = amountDueLine({
+      amountLabel: "$50.00",
+      boatEntryFeeLabel: "$300",
+      entryKind: "YOUTH_LAND",
+    });
+    assert.equal(
+      line,
+      "Amount due: $50.00. RowRide base entry is free. Optional side pots are $50 each.",
+    );
+  });
 });

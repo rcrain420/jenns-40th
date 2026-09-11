@@ -2,6 +2,7 @@ import {
   MAIN_POT_SPLITS,
   PAID_SIDE_POTS,
   SIDE_POT_BUY_IN_CENTS,
+  countSidePotEntrants,
   isBoatEntry,
   mainPotCentsForTeams,
   type SidePotId,
@@ -53,9 +54,7 @@ export async function getPotTotals(): Promise<PotTotals> {
   }));
 
   const sidePots = PAID_SIDE_POTS.map((pot) => {
-    const entrantCount = boatTeams.filter((t) =>
-      t.sidePots.includes(pot.id),
-    ).length;
+    const entrantCount = countSidePotEntrants(teams, pot.id);
     return {
       id: pot.id,
       name: pot.name,

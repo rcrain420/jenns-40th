@@ -249,7 +249,7 @@ export default function RulesPage() {
               "All anglers must be officially registered before fishing begins. No surprise substitutes, mysterious cousins or last-minute ringers.",
               "A captain is optional. Add one when you register or anytime later on My team. If you name a captain or DIY primary contact, they must be 18 or older. This is the person we will contact when somebody forgets what time weigh-in closes.",
               "Boat teams may have one to four registered adult anglers. Entry is $300 per boat. Kids are not added to a boat roster and do not change that fee. Example: three adults is still $300 — a fourth adult can still join.",
-              "Only registered adult anglers may catch fish entered for the main tournament stringer, main pot, or paid team side pots.",
+              "Only registered adult anglers may catch fish entered for the main tournament stringer, main pot, or a boat team’s paid side pots. Youth fish never count on a boat team’s paid side pots. Kids who want those pots buy in on their own RowRide registration.",
               "Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.",
             ]}
           />
@@ -477,7 +477,9 @@ export default function RulesPage() {
           </p>
           <p>
             Registered adult anglers may catch fish for paid team side pots
-            when the team has entered those pots.
+            when the team has entered those pots. Youth fish never count on
+            a boat team&apos;s paid side pots. Kids who want those pots buy
+            in on their own RowRide registration.
           </p>
           <p>
             Side-pot fish may also be included in the team&apos;s main tournament
@@ -554,9 +556,11 @@ export default function RulesPage() {
             <Subhead>{YOUTH_TOURNAMENT.name}</Subhead>
             <p>
               RowRide is a separate free youth tournament. Register for
-              RowRide separately. Kids may fish from land or by boat. Its
-              rules live on the kids page — they are not part of these adult
-              boat rules.
+              RowRide separately. Kids may fish from land or by boat. Youth
+              fish never count on a boat team&apos;s paid side pots; kids
+              buy into those pots on their own RowRide entry. Its rules live
+              on the kids page — they are not part of these adult boat
+              rules.
             </p>
             <p>
               <Link

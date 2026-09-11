@@ -7,8 +7,13 @@ import {
   ENTRY_KIND,
   MAX_YOUTH_ANGLERS,
   MIN_YOUTH_ANGLERS,
+  PAID_SIDE_POTS,
+  SIDE_POT_BUY_IN_CENTS,
   YOUTH_TOURNAMENT,
+  amountDueForEntry,
+  type SidePotId,
 } from "@/lib/config";
+import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
 import { canAddYouthSeat } from "@/lib/roster-capacity";
 import type { PublicUser } from "@/lib/users";
@@ -57,9 +62,21 @@ export function YouthLandRegisterForm({
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
   const [youthGuardianAttested, setYouthGuardianAttested] = useState(false);
   const [kids, setKids] = useState<YouthDraft[]>([emptyYouth()]);
+  const [sidePots, setSidePots] = useState<SidePotId[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const dueCents = amountDueForEntry({
+    entryKind: ENTRY_KIND.YOUTH_LAND,
+    sidePotCount: sidePots.length,
+  });
+  const sidePotCents = SIDE_POT_BUY_IN_CENTS * sidePots.length;
+
+  function toggleSidePot(id: SidePotId) {
+    setSidePots((prev) =>
+      prev.includes(id) ? prev.filter((pot) => pot !== id) : [...prev, id],
+    );
+  }
 
   const canAdd = canAddYouthSeat(
     kids.map(() => ({ isYouth: true })),
@@ -128,6 +145,7 @@ export function YouthLandRegisterForm({
           notes,
           licenseConfirmed: true,
           youthGuardianAttested: true,
+          sidePots,
           anglers: kids
             .filter((kid) => kid.fullName.trim())
             .map((kid) => ({
@@ -185,9 +203,10 @@ export function YouthLandRegisterForm({
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-8">
       <p className="rounded-md border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
-        Free {YOUTH_TOURNAMENT.name} entry — no $300 boat fee and no team
-        side pots. Register for RowRide separately. Kids may fish from land
-        or by boat. They are not added to a boat roster.{" "}
+        Free {YOUTH_TOURNAMENT.name} base entry — no $300 boat fee. Optional
+        side pots are {formatUsd(SIDE_POT_BUY_IN_CENTS)} each on this form.
+        Kids may fish from land or by boat. They are not added to a boat
+        roster and do not count on a boat team&apos;s paid side pots.{" "}
         <Link href="/register" className="font-semibold text-sea hover:underline">
           Register an adults-only boat →
         </Link>
@@ -332,6 +351,47 @@ export function YouthLandRegisterForm({
       </div>
 
       <div>
+        <h3 className="font-display text-xl text-wave">
+          Optional side pots
+        </h3>
+        <p className="text-sm text-ink/65">
+          {formatUsd(SIDE_POT_BUY_IN_CENTS)} per pot — enter one, two, or all
+          three if you want those categories. A kid only counts in a paid
+          side pot when this RowRide entry buys it. Being on a registered
+          boat that entered those pots does not count.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {PAID_SIDE_POTS.map((pot) => {
+            const checked = sidePots.includes(pot.id);
+            return (
+              <label
+                key={pot.id}
+                className={`flex cursor-pointer items-start gap-3 border px-4 py-3 transition ${
+                  checked
+                    ? "border-sun bg-mist"
+                    : "border-wave/20 bg-paper hover:border-sea/50"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggleSidePot(pot.id)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-sea"
+                />
+                <span>
+                  <span className="block font-semibold">{pot.name}</span>
+                  <span className="mt-1 block text-sm text-ink/65">
+                    {formatUsd(SIDE_POT_BUY_IN_CENTS)} per entry
+                  </span>
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        {err("sidePots")}
+      </div>
+
+      <div>
         <label className={labelClass} htmlFor="notes">
           Notes (optional)
         </label>
@@ -373,9 +433,15 @@ export function YouthLandRegisterForm({
 
       <div className="flex flex-col gap-4 border-t border-[var(--line)] pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-lg">
-          Total due: <span className="font-semibold">$0</span>
+          Total due:{" "}
+          <span className="font-semibold">{formatUsd(dueCents)}</span>
           <span className="block text-sm text-ink/60">
-            Host-funded RowRide — no boat entry
+            Free RowRide base
+            {sidePots.length > 0
+              ? ` + ${sidePots.length} side pot${
+                  sidePots.length > 1 ? "s" : ""
+                } (${formatUsd(sidePotCents)}) · pay via Venmo after submit`
+              : ` — optional side pots are ${formatUsd(SIDE_POT_BUY_IN_CENTS)} each`}
           </span>
         </p>
         <button

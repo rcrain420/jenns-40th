@@ -82,9 +82,18 @@ export default async function PotsPage() {
               </span>
               <span>
                 Side pots: optional {formatUsd(SIDE_POT_BUY_IN_CENTS)} per
-                team, per pot. Each side pot is winner-take-all. Adult
-                anglers on a boat that entered may catch for that pot. Enter
-                when you register or at Friday&apos;s captain&apos;s meeting.
+                entry, per pot. Each side pot is winner-take-all. Adult
+                anglers on a boat that entered may catch for that pot. Youth
+                do not count on a boat team&apos;s side pots — they buy in
+                on their own{" "}
+                <Link
+                  href="/register/youth"
+                  className="text-sun underline-offset-2 hover:underline"
+                >
+                  RowRide registration
+                </Link>
+                . Enter when you register or at Friday&apos;s captain&apos;s
+                meeting.
               </span>
             </li>
             {HOST_FUNDED_POTS.map((pot) => (
@@ -97,7 +106,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by{" "}
                   {pot.id === "kids" ? "Tournament Host" : "Jenn and Aaron"}
                   {pot.id === "kids"
-                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster and do not take an adult seat. Youth are out of the main stringer and main pot and do not count on a boat team’s paid side pots.`
+                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster and do not take an adult seat. Youth are out of the main stringer and main pot and do not count on a boat team’s paid side pots. To enter a paid side pot, they buy in on their own RowRide entry — $50 per pot.`
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>
@@ -125,6 +134,12 @@ export default async function PotsPage() {
                   {REGISTRATION_CLOSED_SHORT}
                 </span>
               )}
+              <Link
+                href="/register/youth"
+                className="text-sun underline-offset-2 hover:underline"
+              >
+                Enter RowRide
+              </Link>
               <Link
                 href="/rules#side-pots"
                 className="text-sun underline-offset-2 hover:underline"

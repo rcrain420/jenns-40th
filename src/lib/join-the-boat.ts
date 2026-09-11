@@ -182,8 +182,8 @@ export function boatRosterStatusLabel(status: BoatRosterStatus): string {
 
 /**
  * Names that belong on the official fishing list.
- * Youth on a boat are extras (RowRide + optional team side pots), not
- * one of the 1–4 adult seats. Boat-only accounts and captains are not seats.
+ * Youth register on a separate RowRide entry and are not boat seats.
+ * Boat-only accounts and captains are not seats.
  */
 export function isOfficialAnglerSeat(status: BoatRosterStatus): boolean {
   return status !== "boat-account" && !isCaptainRosterStatus(status);

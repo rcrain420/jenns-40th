@@ -107,8 +107,7 @@ export async function PATCH(request: Request, { params }: Params) {
 
   const nextDueCents = amountDueForEntry({
     entryKind: input.entryKind,
-    sidePotCount:
-      input.entryKind === ENTRY_KIND.YOUTH_LAND ? 0 : input.sidePots.length,
+    sidePotCount: input.sidePots.length,
   });
 
   const team = await prisma.$transaction(async (tx) => {
@@ -132,8 +131,7 @@ export async function PATCH(request: Request, { params }: Params) {
           previous.amountPaidCents,
           nextDueCents,
         ),
-        sidePots:
-          input.entryKind === ENTRY_KIND.YOUTH_LAND ? [] : input.sidePots,
+        sidePots: input.sidePots,
         amountDueCents: nextDueCents,
         anglers: {
           create: input.anglers.map((a, index) => ({

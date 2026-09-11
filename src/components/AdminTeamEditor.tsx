@@ -103,7 +103,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
 
   const formDueCents = amountDueForEntry({
     entryKind,
-    sidePotCount: isYouthLandEntry(entryKind) ? 0 : sidePots.length,
+    sidePotCount: sidePots.length,
   });
   const createPaidCents = initial?.amountPaidCents ?? 0;
   const createStatus = derivePaymentStatus(createPaidCents, formDueCents);
@@ -437,7 +437,9 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
       <div className="space-y-2">
         <h3 className="font-display text-xl text-wave">Side pots</h3>
         <p className="text-sm text-ink/60">
-          {formatUsd(SIDE_POT_BUY_IN_CENTS)} per team, per pot.
+          {formatUsd(SIDE_POT_BUY_IN_CENTS)} per entry, per pot. RowRide
+          base stays $0; pots they choose add $50 each. Youth fish never
+          count on a boat team&apos;s pots.
         </p>
         <div className="grid gap-2 sm:grid-cols-3">
           {PAID_SIDE_POTS.map((pot) => (

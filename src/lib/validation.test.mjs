@@ -15,6 +15,7 @@ const {
   amountDueCents,
   amountDueForEntry,
   ENTRY_KIND,
+  rowRideDueCents,
   listedPots,
   MIN_ANGLERS,
   paidEntrySeatCount,
@@ -34,6 +35,7 @@ const {
   CAPTAIN_REQUIRED_ON_CREATE,
   contactEmailIssue,
 } = await import("./boat-contact.ts");
+const { derivePaymentStatus } = await import("./payments.ts");
 
 describe("optional angler email", () => {
   it("allows a blank seat and keeps a valid plus-alias", () => {
@@ -191,13 +193,23 @@ describe("boat vs land registration capacity", () => {
     assert.ok(boatRosterCapacityIssue([{ isYouth: true }]));
   });
 
-  it("keeps land-only RowRide at $0 and youth-only", () => {
+  it("keeps RowRide at $0 base plus $50 per optional side pot", () => {
     assert.equal(
       youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]),
       null,
     );
     assert.ok(youthLandRosterCapacityIssue([{ isYouth: false }]));
     assert.equal(amountDueForEntry({ entryKind: ENTRY_KIND.YOUTH_LAND }), 0);
+    assert.equal(rowRideDueCents(0), 0);
+    assert.equal(rowRideDueCents(2), 10000);
+    assert.equal(
+      amountDueForEntry({ entryKind: ENTRY_KIND.YOUTH_LAND, sidePotCount: 2 }),
+      10000,
+    );
+    assert.equal(
+      amountDueForEntry({ entryKind: ENTRY_KIND.BOAT, sidePotCount: 2 }),
+      amountDueCents(2),
+    );
   });
 });
 
@@ -216,6 +228,28 @@ describe("BOAT writes reject youth anglers", () => {
     assert.equal(
       youthLandRosterCapacityIssue([{ isYouth: true }]),
       null,
+    );
+  });
+});
+
+describe("RowRide registration side pots", () => {
+  it("is unpaid when a free RowRide base buys $50 pots", () => {
+    const due = amountDueForEntry({
+      entryKind: ENTRY_KIND.YOUTH_LAND,
+      sidePotCount: 2,
+    });
+    assert.equal(due, 10000);
+    assert.equal(derivePaymentStatus(0, due), "UNPAID");
+    assert.equal(derivePaymentStatus(10000, due), "PAID");
+  });
+
+  it("stays $0 and paid when no pots are chosen", () => {
+    assert.equal(
+      derivePaymentStatus(
+        0,
+        amountDueForEntry({ entryKind: ENTRY_KIND.YOUTH_LAND, sidePotCount: 0 }),
+      ),
+      "PAID",
     );
   });
 });
