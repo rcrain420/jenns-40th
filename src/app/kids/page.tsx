@@ -113,10 +113,13 @@ export default async function KidsPage() {
               RowRide-only — no team side pots.
             </li>
             <li>
-              Kids may optionally join a registered boat roster. They count
-              toward that boat&apos;s 1–4 anglers and do not change the{" "}
+              Kids may optionally join a registered boat roster if the
+              captain or guide allows it. They do not take one of that
+              boat&apos;s 1–4 adult fishing seats and do not change the{" "}
               {formatUsd(BOAT_ENTRY_CENTS)} boat entry. Example: 3 adults + 1
-              kid is still {formatUsd(BOAT_ENTRY_CENTS)} — the boat is full.
+              kid is still {formatUsd(BOAT_ENTRY_CENTS)} — a fourth adult can
+              still join. Guides often prefer no more than four anglers, so
+              communicate in advance.
             </li>
             <li>
               If a kid is attached to a boat that entered paid side pots,
@@ -152,7 +155,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "Sign in, then enter from land with no boat, or register a boat and add kids on that roster (they count toward the 4)."
+                  ? "Sign in, then enter from land with no boat, or register a boat and add kids if the captain or guide allows it."
                   : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -171,7 +174,7 @@ export default async function KidsPage() {
               <p className="text-ink/80">
                 {landOnly
                   ? `Add youth anglers to ${team.teamName} here. This is a land-only RowRide entry — $0, no boat seats, no team side pots.`
-                  : `Add youth anglers to ${team.teamName} here. Kids count toward the 1–4 roster and do not change the $300 boat entry. They do not compete in the main stringer; they may count on paid team side pots and RowRide.`}
+                  : `Add youth anglers to ${team.teamName} here. Kids do not take one of the 1–4 adult seats and do not change the $300 boat entry. They may join if the captain or guide allows it. They do not compete in the main stringer; they may count on paid team side pots and RowRide.`}
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({
@@ -207,7 +210,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "You're signed in and not on a boat. Enter kids from land, or register a boat and add them on that roster (they count toward the 4)."
+                  ? "You're signed in and not on a boat. Enter kids from land, or register a boat and add them if the captain or guide allows it."
                   : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">

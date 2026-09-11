@@ -193,7 +193,7 @@ describe("boat invite lock at four invited anglers", () => {
     assert.equal(BOAT_FULL_NOTE, "Boat is full (4/4).");
   });
 
-  it("counts youth toward the 4-angler invite lock", () => {
+  it("does not count youth toward the adult invite lock", () => {
     const input = {
       anglers: [
         { fullName: "Adult", email: "adult@example.com" },
@@ -203,14 +203,14 @@ describe("boat invite lock at four invited anglers", () => {
       ],
       members: [{ name: "Adult", email: "adult@example.com" }],
     };
-    assert.equal(invitedAnglerCount(input), 4);
-    assert.equal(isBoatInviteLocked(input), true);
+    assert.equal(invitedAnglerCount(input), 3);
+    assert.equal(isBoatInviteLocked(input), false);
     assert.equal(joinFillsExistingSeat(input, "parent@example.com"), false);
-    assert.equal(canJoinBoat(input, "parent@example.com"), false);
-    assert.equal(countsTowardInviteLock("youth"), true);
+    assert.equal(canJoinBoat(input, "parent@example.com"), true);
+    assert.equal(countsTowardInviteLock("youth"), false);
   });
 
-  it("locks at three adults and one youth — no fifth seat", () => {
+  it("stays open for a fourth adult when three adults and a youth are already on the boat", () => {
     const input = {
       anglers: [
         { fullName: "A", email: "a@example.com" },
@@ -220,24 +220,26 @@ describe("boat invite lock at four invited anglers", () => {
       ],
       members: [{ name: "A", email: "a@example.com" }],
     };
-    assert.equal(invitedAnglerCount(input), 4);
-    assert.equal(isBoatInviteLocked(input), true);
-    assert.equal(canJoinBoat(input, "fifth@example.com"), false);
+    assert.equal(invitedAnglerCount(input), 3);
+    assert.equal(isBoatInviteLocked(input), false);
+    assert.equal(canJoinBoat(input, "fourth@example.com"), true);
   });
 
-  it("locks at two adults and two youth", () => {
+  it("locks at four adults even when youth extras are already on the boat", () => {
     const input = {
       anglers: [
         { fullName: "A", email: "a@example.com" },
         { fullName: "B", email: "b@example.com" },
-        { fullName: "Kid One", email: "parent@example.com", isYouth: true },
-        { fullName: "Kid Two", email: null, isYouth: true },
+        { fullName: "C", email: "c@example.com" },
+        { fullName: "D", email: "d@example.com" },
+        { fullName: "Kid", email: "parent@example.com", isYouth: true },
       ],
       members: [{ name: "A", email: "a@example.com" }],
     };
     assert.equal(invitedAnglerCount(input), 4);
     assert.equal(isBoatInviteLocked(input), true);
     assert.equal(canJoinBoat(input, "fifth@example.com"), false);
+    assert.equal(countsTowardInviteLock("youth"), false);
   });
 
   it("counts share-link joiners who are not on the paid roster", () => {

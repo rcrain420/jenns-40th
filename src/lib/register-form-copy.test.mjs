@@ -13,8 +13,9 @@ describe("anglersSectionHelp", () => {
     });
 
     assert.match(text, new RegExp(`${MIN_ANGLERS}–${MAX_ANGLERS}`));
-    assert.match(text, /kids included/);
-    assert.match(text, /count toward/);
+    assert.match(text, /adult seats/);
+    assert.match(text, /kids do not take one/);
+    assert.match(text, /captain or guide/);
     assert.match(text, /One adult name/);
     assert.match(text, /My team/);
     assert.match(text, /17-or-under/);
@@ -33,8 +34,8 @@ describe("anglersSectionHelp", () => {
 
     assert.equal(/that is not the kids path/i.test(text), false);
     assert.equal(/still count on the team stringer/i.test(text), false);
-    assert.equal(/kids do not take one/i.test(text), false);
-    assert.equal(/adult seats/i.test(text), false);
-    assert.ok(text.split(/\s+/).length <= 120, text);
+    assert.equal(/kids included/i.test(text), false);
+    assert.equal(/count toward the/i.test(text), false);
+    assert.ok(text.split(/\s+/).length <= 130, text);
   });
 });

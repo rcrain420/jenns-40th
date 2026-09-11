@@ -18,7 +18,7 @@ export const LICENSE_CONFIRM_ERROR =
   "Confirm licenses for adults and 17-year-olds. Younger children generally do not need one.";
 
 export const CAPTAIN_CONTACT_ADULT_NOTE =
-  "If you add a guided captain or DIY primary contact, they must be 18 or older. Youth anglers are not the captain or boat contact. Kids may join a boat roster or enter RowRide from land. You can add a captain later on My team.";
+  "If you add a guided captain or DIY primary contact, they must be 18 or older. Youth anglers are not the captain or boat contact. Kids may join a boat if the captain or guide allows it, or enter RowRide from land. You can add a captain later on My team.";
 
 export const YOUTH_INVITE_SKIP_ERROR =
   "Youth anglers do not get a Join the boat / create-account invite. Parent login is the login.";
@@ -34,10 +34,10 @@ export const YOUTH_ROWRIDE_RULE =
   "They still have their own host-funded RowRide Youth Angler Tournament — heaviest qualifying fish, no entry fee.";
 
 export const YOUTH_BOAT_SEAT_RULE =
-  "A boat roster is 1–4 named anglers total, including youth. A main-tournament boat needs at least one adult. Youth do not change the $300 boat entry.";
+  "A boat’s 1–4 fishing seats are adults only. Youth do not take one of those seats and do not change the $300 boat entry. They may join a registered boat if the captain or guide allows it — guides often prefer no more than four anglers, so communicate in advance.";
 
 export const YOUTH_LAND_RULE =
-  "Kids are not required to be on a boat. They may fish from land, or optionally join a registered boat roster (those kids count toward that boat’s 4).";
+  "Kids are not required to be on a boat. They may fish from land, or optionally join a registered boat roster when the captain or guide allows it.";
 
 export const YOUTH_COMPETITION_POLICY = [
   YOUTH_MAIN_STRINGER_RULE,

@@ -43,7 +43,7 @@ type Props = {
   currentDueCents: number;
   canEditRoster: boolean;
   canInvite: boolean;
-  /** True at 4 invited anglers (adults + youth) — hide + Add adult and + Add youth. */
+  /** True at 4 invited adult anglers — hide + Add adult, not youth or Invite. */
   boatInviteLocked?: boolean;
   defaultNewIsYouth?: boolean;
   entryKind?: string;
@@ -97,7 +97,7 @@ export function TeamRosterEditor({
     canEditRoster &&
     (landOnly
       ? canAddYouthSeat(anglers, ENTRY_KIND.YOUTH_LAND)
-      : canAddYouthSeat(anglers) && !boatInviteLocked);
+      : canAddYouthSeat(anglers));
   const extraDue = nextDue - currentDueCents;
 
   function patchAngler(index: number, next: Partial<RosterAnglerDraft>) {
@@ -263,7 +263,7 @@ export function TeamRosterEditor({
           Email is optional. {YOUTH_EMAIL_HELPER}{" "}
           {landOnly
             ? "This is a land-only RowRide entry — no boat fee and no team side pots. Parent login is the login."
-            : "Invite on an adult seat sends Join the boat. Youth count toward the 1–4 roster, do not get a create-account invite, and do not change the $300 boat entry. Youth fish do not count on the main stringer; they may count on paid team side pots and RowRide."}{" "}
+            : "Invite on an adult seat sends Join the boat. Youth do not take one of the 1–4 adult seats, do not get a create-account invite, and do not change the $300 boat entry. They may join if the captain or guide allows it — guides often prefer no more than four anglers, so ask first. Youth fish do not count on the main stringer; they may count on paid team side pots and RowRide."}{" "}
           {!landOnly
             ? "Adults without email stay name-only and join from the invite link. That is not the kids path."
             : null}
@@ -271,8 +271,8 @@ export function TeamRosterEditor({
             ? landOnly
               ? " Use + Add youth to add another kid."
               : boatInviteLocked
-                ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} anglers including kids. This boat is full — remove a seat to add someone else.`
-                : ` ${MIN_ANGLERS}–${MAX_ANGLERS} anglers including kids. Use + Add adult or + Add youth — kids count toward the 4.`
+                ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. This boat is full of adults — you can still add a youth if the captain or guide allows it.`
+                : ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. Kids do not take one of those seats.`
             : " Registration is closed, so names stay as they are — you can still add an email and resend Invite on adult seats."}
         </p>
         <div className="flex shrink-0 flex-col items-end gap-1">
@@ -299,7 +299,7 @@ export function TeamRosterEditor({
 
       {anglers.length === 0 ? (
         <p className="text-sm text-ink/60">
-          No extra seats yet. Add an adult or a youth — both count toward the 4.
+          No extra seats yet. Add an adult fishing seat or a youth if the captain or guide allows it.
         </p>
       ) : null}
 

@@ -675,10 +675,12 @@ export function RegisterForm({
         {emphasizeYouth ? (
           <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
             Registering a youth angler? Check <strong>17 or under</strong>.
-            They count toward this boat&apos;s {MIN_ANGLERS}–{MAX_ANGLERS}{" "}
-            roster and do not change the ${BOAT_ENTRY_CENTS / 100} boat
-            entry. Kids may also enter the {YOUTH_TOURNAMENT.name} from land
-            with no boat. They do not compete in the main stringer or main pot.
+            They do not take one of this boat&apos;s {MIN_ANGLERS}–{MAX_ANGLERS}{" "}
+            adult seats and do not change the ${BOAT_ENTRY_CENTS / 100} boat
+            entry. They may join if the captain or guide allows it — guides
+            often prefer no more than four anglers, so ask first. Kids may
+            also enter the {YOUTH_TOURNAMENT.name} from land with no boat.
+            They do not compete in the main stringer or main pot.
             If this boat enters paid side pots, their fish may count there.{" "}
             {YOUTH_EMAIL_HELPER}{" "}
             <Link href="/register/youth" className="font-semibold text-sea hover:underline">

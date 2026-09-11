@@ -70,10 +70,10 @@ export default async function PotsPage() {
               </span>
               <span>
                 Main tournament: {formatUsd(BOAT_ENTRY_CENTS)} per boat, all
-                of it in the pot — paid out {splitLabel}. Youth count toward
-                the 4-angler boat roster and do not change this boat fee. Youth
-                anglers do not compete in the main stringer or main pot.
-                Land-only RowRide entries do not add to the main pot.
+                of it in the pot — paid out {splitLabel}. Youth do not take an
+                adult seat and do not change this boat fee. Youth anglers do
+                not compete in the main stringer or main pot. Land-only
+                RowRide entries do not add to the main pot.
               </span>
             </li>
             <li className="flex gap-3">
@@ -97,7 +97,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by{" "}
                   {pot.id === "kids" ? "Tournament Host" : "Jenn and Aaron"}
                   {pot.id === "kids"
-                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Kids may fish from land or join a registered boat (they count toward that boat’s 4). Youth are out of the main stringer and main pot. Attached to a paid team side pot, their fish may count there. Land-only kids are RowRide-only.`
+                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Kids may fish from land or join a registered boat if the captain or guide allows it — they do not take an adult seat. Youth are out of the main stringer and main pot. Attached to a paid team side pot, their fish may count there. Land-only kids are RowRide-only.`
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>
