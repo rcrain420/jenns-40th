@@ -7,6 +7,7 @@ import {
   isBoatInviteLocked,
   rosterWouldExceedInviteCapacity,
 } from "@/lib/join-the-boat";
+import { derivePaymentStatus } from "@/lib/payments";
 import { emptyToNull } from "@/lib/registration";
 import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { teamInviteUrl } from "@/lib/team-invite";
@@ -72,6 +73,7 @@ export async function GET() {
       teamName: team.teamName,
       paymentStatus: team.paymentStatus,
       amountDueCents: team.amountDueCents,
+      amountPaidCents: team.amountPaidCents,
       sidePots: team.sidePots,
       entryKind: team.entryKind,
       boatType: team.boatType,
@@ -229,6 +231,7 @@ export async function PATCH(request: Request) {
       where: { id: team.id },
       data: {
         amountDueCents: nextDue,
+        paymentStatus: derivePaymentStatus(team.amountPaidCents, nextDue),
         anglers: {
           create: nextAnglers.map((a, index) => ({
             fullName: a.fullName,
@@ -250,6 +253,7 @@ export async function PATCH(request: Request) {
       teamName: updated.teamName,
       paymentStatus: updated.paymentStatus,
       amountDueCents: updated.amountDueCents,
+      amountPaidCents: updated.amountPaidCents,
       sidePots: updated.sidePots,
       anglers: updated.anglers.map((a) => ({
         id: a.id,

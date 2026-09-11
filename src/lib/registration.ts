@@ -76,6 +76,7 @@ export function teamCreateData(input: RegistrationInput) {
     paymentStatus: "UNPAID" as const,
     sidePots: input.sidePots,
     amountDueCents: amountDueCents(input.sidePots.length),
+    amountPaidCents: 0,
     anglers: {
       create: anglerCreateRows(input.anglers),
     },
@@ -99,6 +100,7 @@ export function youthLandCreateData(input: YouthLandRegistrationInput) {
     paymentStatus: "PAID" as const,
     sidePots: [] as string[],
     amountDueCents: 0,
+    amountPaidCents: 0,
     anglers: {
       create: anglerCreateRows(input.anglers, true),
     },

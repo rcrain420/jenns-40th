@@ -17,7 +17,7 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 - Email + password accounts with confirmation; Google and Facebook sign-in when those env vars are set. Social accounts are verified immediately. Any confirmed user posts catches and comments as themselves
 - Registration welcome email (registrant only) confirms the team, Venmo **Jennski** for entry with the amount due, and links to My Team (`/team`) to invite/share crew. Join the boat emails to rostered anglers stay separate. Unlock + invite links remain on `/register/success` if mail fails.
 - Adding an angler email on register or Invite sends a Join the boat email. After they join they have full site access (team + Livewell post). Join is not captain and not the paid roster. Name-only adult seats create an account from the shared invite link. Youth seats stay parent-login. Everyone who uses the site signs in — there is no event PIN.
-- Admin console: dashboard, search/filter, edit/delete, mark paid, CSV export (admin role on a user account)
+- Admin console: dashboard, search/filter, edit/delete, payment ledger (partial or any-amount payments), mark fully paid (records the remaining balance), CSV export (admin role on a user account). Collected = sum of recorded `amountPaidCents` (includes overpayments). Outstanding = sum of `max(0, due − paid)`.
 
 ## Stack
 
@@ -128,5 +128,5 @@ npm run db:up
 | `npm run db:migrate` | Run Prisma migrations (dev) |
 | `npm run db:up` | Start local Postgres (Docker) |
 | `npm test` | Token, invite-code, and auth unit tests |
-| `npm run rebill:boat-entry -- --dry-run` | Preview `Team.amountDueCents` recalc to $300 + $50 × side pots (does not change `paymentStatus`) |
+| `npm run rebill:boat-entry -- --dry-run` | Preview `Team.amountDueCents` recalc to $300 + $50 × side pots (does not change the payment ledger) |
 | `npm run rebill:boat-entry` | Apply that recalc against `DATABASE_URL` (Neon/prod or local) |

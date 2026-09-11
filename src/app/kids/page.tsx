@@ -187,9 +187,14 @@ export default async function KidsPage() {
                 }))}
                 sidePotCount={team.sidePots.length}
                 paymentStatus={
-                  team.paymentStatus === "PAID" ? "PAID" : "UNPAID"
+                  team.paymentStatus === "PAID"
+                    ? "PAID"
+                    : team.paymentStatus === "PARTIAL"
+                      ? "PARTIAL"
+                      : "UNPAID"
                 }
                 currentDueCents={team.amountDueCents}
+                amountPaidCents={team.amountPaidCents}
                 canEditRoster={canEdit}
                 canInvite={!landOnly}
                 boatInviteLocked={inviteLocked}

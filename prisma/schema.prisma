@@ -28,6 +28,7 @@ model User {
   membership      TeamMember?
   catches         FishCatch[]
   comments        CatchComment[]
+  paymentsCreated Payment[]
 }
 
 model OAuthAccount {
@@ -75,11 +76,13 @@ model Team {
   registrantEmail  String
   notes            String?
   licenseConfirmed Boolean
-  /// UNPAID | PAID
+  /// UNPAID | PARTIAL | PAID — derived from amountPaidCents vs amountDueCents
   paymentStatus    String   @default("UNPAID")
   /// Paid side pot ids: trout | blackjack | spots
   sidePots         String[] @default([])
   amountDueCents   Int
+  /// Denormalized sum of Payment.amountCents; kept in sync on ledger writes.
+  amountPaidCents  Int      @default(0)
   claimedByUserId  String?  @unique
   claimedByUser    User?    @relation(fields: [claimedByUserId], references: [id], onDelete: SetNull)
   createdAt        DateTime @default(now())
@@ -87,8 +90,26 @@ model Team {
   anglers          Angler[]
   members          TeamMember[]
   inviteCodes      TeamInviteCode[]
+  payments         Payment[]
 
   @@index([captainEmail])
+}
+
+/// Per-boat payment ledger. Writes are MANUAL today; VENMO is reserved for later.
+model Payment {
+  id              String   @id @default(cuid())
+  teamId          String
+  team            Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  amountCents     Int
+  note            String?
+  /// MANUAL | VENMO
+  source          String   @default("MANUAL")
+  createdAt       DateTime @default(now())
+  createdByUserId String?
+  createdByUser   User?    @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([teamId])
+  @@index([createdByUserId])
 }
 
 /// Unguessable share code for /j/<code>. Long JWTs stay valid on /join?token=.

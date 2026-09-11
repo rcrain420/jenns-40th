@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatUsd } from "@/lib/money";
+import {
+  paymentStatusLabel,
+  remainingBalanceCents,
+} from "@/lib/payments";
 
 export type AdminTeamRow = {
   id: string;
@@ -12,6 +16,7 @@ export type AdminTeamRow = {
   entryKind?: string;
   paymentStatus: string;
   amountDueCents: number;
+  amountPaidCents: number;
   registrantEmail: string;
   captainName: string | null;
   contactName: string | null;
@@ -34,11 +39,18 @@ type Props = {
   };
 };
 
+function statusClass(status: string): string {
+  if (status === "PAID") return "bg-foam/30 text-wave";
+  if (status === "PARTIAL") return "bg-sun/15 text-sun";
+  return "bg-alert/15 text-alert";
+}
+
 export function AdminDashboard({ teams, stats }: Props) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [payment, setPayment] = useState("ALL");
   const [boatType, setBoatType] = useState("ALL");
+  const [markingId, setMarkingId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -68,14 +80,30 @@ export function AdminDashboard({ teams, stats }: Props) {
     router.refresh();
   }
 
-  async function togglePaid(team: AdminTeamRow) {
-    const next = team.paymentStatus === "PAID" ? "UNPAID" : "PAID";
-    const res = await fetch(`/api/admin/teams/${team.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ paymentStatus: next }),
-    });
-    if (res.ok) router.refresh();
+  async function markFullyPaid(team: AdminTeamRow) {
+    const remaining = remainingBalanceCents(
+      team.amountDueCents,
+      team.amountPaidCents,
+    );
+    if (remaining <= 0) return;
+    if (
+      !confirm(
+        `Record ${formatUsd(remaining)} as a manual payment for ${team.teamName}?`,
+      )
+    ) {
+      return;
+    }
+    setMarkingId(team.id);
+    try {
+      const res = await fetch(`/api/admin/teams/${team.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markFullyPaid: true }),
+      });
+      if (res.ok) router.refresh();
+    } finally {
+      setMarkingId(null);
+    }
   }
 
   return (
@@ -112,13 +140,23 @@ export function AdminDashboard({ teams, stats }: Props) {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          ["Teams", String(stats.teamCount)],
-          ["Anglers", String(stats.anglerCount)],
-          ["Collected", formatUsd(stats.collectedCents)],
-          ["Outstanding", formatUsd(stats.outstandingCents)],
-        ].map(([label, value]) => (
+          ["Teams", String(stats.teamCount), null],
+          ["Anglers", String(stats.anglerCount), null],
+          [
+            "Collected",
+            formatUsd(stats.collectedCents),
+            "Sum of recorded payments across boats, including overpayments",
+          ],
+          [
+            "Outstanding",
+            formatUsd(stats.outstandingCents),
+            "Sum of remaining balances (due minus paid, not below zero)",
+          ],
+        ].map(([label, value, title]) => (
           <div key={label} className="rounded-lg bg-mist px-4 py-5">
-            <p className="text-sm text-ink/60">{label}</p>
+            <p className="text-sm text-ink/60" title={title ?? undefined}>
+              {label}
+            </p>
             <p className="mt-1 font-display text-3xl text-wave">{value}</p>
           </div>
         ))}
@@ -138,6 +176,7 @@ export function AdminDashboard({ teams, stats }: Props) {
         >
           <option value="ALL">All payments</option>
           <option value="UNPAID">Unpaid</option>
+          <option value="PARTIAL">Partial</option>
           <option value="PAID">Paid</option>
         </select>
         <select
@@ -159,75 +198,93 @@ export function AdminDashboard({ teams, stats }: Props) {
               <th className="px-4 py-3 font-medium">Boat</th>
               <th className="px-4 py-3 font-medium">Anglers</th>
               <th className="px-4 py-3 font-medium">Due</th>
+              <th className="px-4 py-3 font-medium">Paid</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium" />
             </tr>
           </thead>
           <tbody>
-            {filtered.map((team) => (
-              <tr key={team.id} className="border-t border-[var(--line)]">
-                <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/teams/${team.id}`}
-                    className="font-semibold text-wave hover:underline"
-                  >
-                    {team.teamName}
-                  </Link>
-                  <p className="text-xs text-ink/50">{team.registrantEmail}</p>
-                </td>
-                <td className="px-4 py-3">
-                  {team.entryKind === "YOUTH_LAND"
-                    ? "Land / RowRide"
-                    : team.boatType === "GUIDED"
-                      ? "Guided"
-                      : "Non-guided"}
-                </td>
-                <td className="px-4 py-3">
-                  {team.anglers.length}
-                  {team.anglers.some((a) => a.isYouth) ? (
-                    <span className="ml-2 inline-block rounded-full bg-sun/20 px-2 py-0.5 text-[0.7rem] uppercase tracking-[0.08em] text-wave">
-                      {team.anglers.filter((a) => a.isYouth).length} youth
-                    </span>
-                  ) : null}
-                  {team.anglers.some((a) => a.shirtSize) ? (
-                    <p className="mt-1 text-xs text-ink/50">
-                      {team.anglers
-                        .map((a) => a.shirtSize)
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                  ) : null}
-                </td>
-                <td className="px-4 py-3">
-                  {formatUsd(team.amountDueCents)}
-                </td>
-                <td className="px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={() => togglePaid(team)}
-                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      team.paymentStatus === "PAID"
-                        ? "bg-foam/30 text-wave"
-                        : "bg-alert/15 text-alert"
-                    }`}
-                  >
-                    {team.paymentStatus === "PAID" ? "Paid" : "Unpaid"}
-                  </button>
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/admin/teams/${team.id}`}
-                    className="text-sea hover:underline"
-                  >
-                    Edit
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {filtered.map((team) => {
+              const remaining = remainingBalanceCents(
+                team.amountDueCents,
+                team.amountPaidCents,
+              );
+              return (
+                <tr key={team.id} className="border-t border-[var(--line)]">
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/admin/teams/${team.id}`}
+                      className="font-semibold text-wave hover:underline"
+                    >
+                      {team.teamName}
+                    </Link>
+                    <p className="text-xs text-ink/50">{team.registrantEmail}</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    {team.entryKind === "YOUTH_LAND"
+                      ? "Land / RowRide"
+                      : team.boatType === "GUIDED"
+                        ? "Guided"
+                        : "Non-guided"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {team.anglers.length}
+                    {team.anglers.some((a) => a.isYouth) ? (
+                      <span className="ml-2 inline-block rounded-full bg-sun/20 px-2 py-0.5 text-[0.7rem] uppercase tracking-[0.08em] text-wave">
+                        {team.anglers.filter((a) => a.isYouth).length} youth
+                      </span>
+                    ) : null}
+                    {team.anglers.some((a) => a.shirtSize) ? (
+                      <p className="mt-1 text-xs text-ink/50">
+                        {team.anglers
+                          .map((a) => a.shirtSize)
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3">
+                    {formatUsd(team.amountDueCents)}
+                  </td>
+                  <td className="px-4 py-3">
+                    {formatUsd(team.amountPaidCents)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col items-start gap-1.5">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(team.paymentStatus)}`}
+                      >
+                        {paymentStatusLabel(team.paymentStatus)}
+                      </span>
+                      {remaining > 0 ? (
+                        <button
+                          type="button"
+                          disabled={markingId === team.id}
+                          onClick={() => void markFullyPaid(team)}
+                          className="text-xs font-semibold text-sea hover:underline disabled:opacity-40"
+                        >
+                          {markingId === team.id
+                            ? "Recording…"
+                            : "Mark fully paid"}
+                        </button>
+                      ) : null}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Link
+                      href={`/admin/teams/${team.id}`}
+                      className="text-sea hover:underline"
+                    >
+                      Edit
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="px-4 py-10 text-center text-ink/50"
                 >
                   No teams match these filters.

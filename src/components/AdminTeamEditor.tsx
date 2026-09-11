@@ -13,6 +13,16 @@ import {
 } from "@/lib/config";
 import { canAddAdultSeat, canAddYouthSeat } from "@/lib/roster-capacity";
 import { formatUsd } from "@/lib/money";
+import {
+  derivePaymentStatus,
+  paymentBalanceCents,
+  paymentStatusLabel,
+  type PaymentStatus,
+} from "@/lib/payments";
+import {
+  AdminPaymentLedger,
+  type AdminPaymentRow,
+} from "./AdminPaymentLedger";
 import { ShirtSizeSelect } from "./ShirtSizeSelect";
 
 type AnglerDraft = {
@@ -39,7 +49,10 @@ type Props = {
     registrantEmail: string;
     notes: string;
     licenseConfirmed: boolean;
-    paymentStatus: "UNPAID" | "PAID";
+    paymentStatus?: PaymentStatus;
+    amountDueCents?: number;
+    amountPaidCents?: number;
+    payments?: AdminPaymentRow[];
     anglers: AnglerDraft[];
     youthGuardianAttested?: boolean;
     sidePots: SidePotId[];
@@ -77,9 +90,6 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   const [licenseConfirmed, setLicenseConfirmed] = useState(
     initial?.licenseConfirmed ?? true,
   );
-  const [paymentStatus, setPaymentStatus] = useState<"UNPAID" | "PAID">(
-    initial?.paymentStatus ?? "UNPAID",
-  );
   const [anglers, setAnglers] = useState<AnglerDraft[]>(
     initial?.anglers?.length
       ? initial.anglers
@@ -90,6 +100,13 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   );
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const formDueCents = amountDueForEntry({
+    entryKind,
+    sidePotCount: isYouthLandEntry(entryKind) ? 0 : sidePots.length,
+  });
+  const createPaidCents = initial?.amountPaidCents ?? 0;
+  const createStatus = derivePaymentStatus(createPaidCents, formDueCents);
 
   const inputClass =
     "mt-1.5 w-full rounded-md border border-[var(--line)] bg-white px-3 py-2.5 outline-none ring-foam/40 focus:ring-2";
@@ -109,7 +126,6 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
       registrantEmail,
       notes,
       licenseConfirmed,
-      paymentStatus,
       anglers,
       sidePots,
       youthGuardianAttested: anglers.some((a) => a.isYouth),
@@ -159,6 +175,18 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
   }
 
   return (
+    <div className="space-y-6">
+      {mode === "edit" && teamId ? (
+        <AdminPaymentLedger
+          teamId={teamId}
+          savedDueCents={initial?.amountDueCents ?? formDueCents}
+          formDueCents={formDueCents}
+          initialPaidCents={initial?.amountPaidCents ?? 0}
+          initialStatus={initial?.paymentStatus ?? createStatus}
+          initialPayments={initial?.payments ?? []}
+        />
+      ) : null}
+
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -192,19 +220,6 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
           >
             <option value="GUIDED">Guided</option>
             <option value="NON_GUIDED">Non-guided</option>
-          </select>
-        </div>
-        <div>
-          <label className={labelClass}>Payment status</label>
-          <select
-            className={inputClass}
-            value={paymentStatus}
-            onChange={(e) =>
-              setPaymentStatus(e.target.value as "UNPAID" | "PAID")
-            }
-          >
-            <option value="UNPAID">Unpaid</option>
-            <option value="PAID">Paid</option>
           </select>
         </div>
       </div>
@@ -427,15 +442,6 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
             </label>
           ))}
         </div>
-        <p className="text-sm text-ink/60">
-          Due:{" "}
-          {formatUsd(
-            amountDueForEntry({
-              entryKind,
-              sidePotCount: isYouthLandEntry(entryKind) ? 0 : sidePots.length,
-            }),
-          )}
-        </p>
       </div>
 
       <div>
@@ -478,5 +484,19 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
         )}
       </div>
     </form>
+
+      {mode === "create" ? (
+        <div className="space-y-2 rounded-lg border border-[var(--line)] bg-mist/40 p-4">
+          <h3 className="font-display text-xl text-wave">Payments</h3>
+          <p className="text-sm text-ink/65">
+            Due {formatUsd(formDueCents)} · Paid{" "}
+            {formatUsd(createPaidCents)} · Balance{" "}
+            {formatUsd(paymentBalanceCents(formDueCents, createPaidCents))} ·{" "}
+            {paymentStatusLabel(createStatus)}. Save the team, then record
+            payments on the edit page.
+          </p>
+        </div>
+      ) : null}
+    </div>
   );
 }
