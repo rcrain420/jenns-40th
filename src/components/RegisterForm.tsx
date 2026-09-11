@@ -642,7 +642,7 @@ export function RegisterForm({
         <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
           {YOUTH_SEPARATE_REGISTER}{" "}
           <Link href="/register/youth" className="font-semibold text-sea hover:underline">
-            Enter {YOUTH_TOURNAMENT.name} from land →
+            Enter {YOUTH_TOURNAMENT.name} →
           </Link>
         </p>
         <div className="mt-4 space-y-4">

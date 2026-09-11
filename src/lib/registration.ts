@@ -13,7 +13,7 @@ import {
 import { ensureTeamMember } from "./team-invite";
 import type { RegistrationInput, YouthLandRegistrationInput } from "./validation";
 
-/** Paid boat entries only — land-only RowRide does not consume a boat slot. */
+/** Paid boat entries only — a YOUTH_LAND / RowRide entry does not consume a boat slot. */
 export async function getTeamCount(): Promise<number> {
   return prisma.team.count({ where: { entryKind: ENTRY_KIND.BOAT } });
 }

@@ -228,6 +228,6 @@ describe("official roster grouped by boat", () => {
       officialRosterBoatPotCents(boats[0].anglers, BOAT_ENTRY_CENTS, "YOUTH_LAND"),
       0,
     );
-    assert.equal(officialRosterLandSummary(), "RowRide · land · no boat fee");
+    assert.equal(officialRosterLandSummary(), "RowRide · no boat fee");
   });
 });

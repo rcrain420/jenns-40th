@@ -3,7 +3,7 @@
  *
  * Rebill policy:
  * - Teams with fewer than 4 adult roster seats are set to the
- *   new boat formula. Youth do not count. Land-only RowRide entries are skipped.
+ *   new boat formula. Youth do not count. YOUTH_LAND / RowRide entries are skipped.
  * - Teams already at $300 + side pots (typical 4-adult boats) are skipped
  *   — recalc is idempotent.
  * - A 4-seat boat billed under old per-adult math (youth discount) is

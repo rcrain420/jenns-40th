@@ -185,9 +185,9 @@ export function YouthLandRegisterForm({
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-8">
       <p className="rounded-md border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
-        Free {YOUTH_TOURNAMENT.name} entry from land — no boat, no $300 fee,
-        no team side pots. Kids are not added to a boat roster. On event day
-        they may fish from a boat if the captain or guide allows it.{" "}
+        Free {YOUTH_TOURNAMENT.name} entry — no $300 boat fee and no team
+        side pots. Register for RowRide separately. Kids may fish from land
+        or by boat. They are not added to a boat roster.{" "}
         <Link href="/register" className="font-semibold text-sea hover:underline">
           Register an adults-only boat →
         </Link>

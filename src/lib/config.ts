@@ -34,8 +34,9 @@ export const MAX_TEAMS = 25;
 export const MIN_ANGLERS = 1;
 export const MAX_ANGLERS = 4;
 /**
- * Youth on a land-only RowRide entry (1–8). Separate from the 1–4 adult
+ * Youth on a YOUTH_LAND / RowRide entry (1–8). Separate from the 1–4 adult
  * boat cap. Boat teams are adults only — kids are not added to a boat roster.
+ * Kids may fish from land or by boat; the entry kind stays YOUTH_LAND.
  */
 export const MIN_YOUTH_ANGLERS = 1;
 export const MAX_YOUTH_ANGLERS = 8;
@@ -197,7 +198,7 @@ export function youthAnglerCount(
   return anglers.filter((angler) => angler.isYouth === true).length;
 }
 
-/** $300 + side pots for boats; land-only RowRide is $0. */
+/** $300 + side pots for boats; RowRide (YOUTH_LAND) is $0. */
 export function amountDueForEntry(input: {
   entryKind?: string | null;
   sidePotCount?: number;

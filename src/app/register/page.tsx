@@ -112,7 +112,7 @@ export default async function RegisterPage({
             href="/register/youth"
             className="text-coral underline-offset-4 hover:underline"
           >
-            Entering kids from land with no boat?
+            Registering kids for RowRide?
           </Link>{" "}
           <Link
             href="/guides"

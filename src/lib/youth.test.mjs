@@ -16,14 +16,18 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const COPY_SURFACES = [
   "docs/tournament-rules.md",
   "docs/rowride-rules.md",
+  "README.md",
   "src/app/kids/page.tsx",
   "src/app/rules/page.tsx",
   "src/app/page.tsx",
   "src/app/pots/page.tsx",
+  "src/app/team/page.tsx",
   "src/app/teams/page.tsx",
+  "src/app/register/page.tsx",
   "src/components/RegisterForm.tsx",
   "src/components/CatchLogger.tsx",
   "src/components/TeamRosterEditor.tsx",
+  "src/components/AdminTeamEditor.tsx",
   "src/lib/register-form-copy.ts",
   "src/lib/roster-capacity.ts",
   "src/lib/youth.ts",
@@ -52,6 +56,26 @@ const LEFTOVER_YOUTH_ON_BOAT_REGISTER = [
   /add kids if the captain/i,
   /add them if the captain or guide allows/i,
   /when kids are on the roster/i,
+];
+
+/** Fishing is land or boat — do not tell people kids may only fish from land. */
+const LEFTOVER_LAND_ONLY_FISHING = [
+  /Kids register separately for RowRide and fish from land/i,
+  /register kids from land with no boat/i,
+  /Entering kids from land with no boat/i,
+  /Kids fish from land\. They are not required/i,
+  /entry from land — no boat/i,
+  /Kids are not on a boat and/i,
+  /Enter from land/i,
+  /enter kids from land/i,
+  /Register from land/i,
+  /from land with no boat/i,
+  /Kids may only enter from land/i,
+  /Kids register from land/i,
+  /land-only kids/i,
+  /land-only RowRide/i,
+  /may only fish from land/i,
+  /fish from land only/i,
 ];
 
 /** PR #36 hard “kids count toward 4” — youth extras do not fill adult seats. */
@@ -99,8 +123,7 @@ describe("youth main-stringer eligibility", () => {
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide Youth Angler Tournament/i);
     assert.match(YOUTH_COMPETITION_POLICY, /do not take one/i);
     assert.match(YOUTH_COMPETITION_POLICY, /captain or guide/i);
-    assert.match(YOUTH_COMPETITION_POLICY, /fish from land/i);
-    assert.match(YOUTH_COMPETITION_POLICY, /RowRide-only/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /land or by boat/i);
     assert.match(YOUTH_COMPETITION_POLICY, /not added to a boat roster/i);
     for (const pattern of LEFTOVER_MAIN_STRINGER) {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
@@ -109,6 +132,9 @@ describe("youth main-stringer eligibility", () => {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
     }
     for (const pattern of LEFTOVER_YOUTH_ON_BOAT_REGISTER) {
+      assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
+    }
+    for (const pattern of LEFTOVER_LAND_ONLY_FISHING) {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
     }
   });
@@ -166,6 +192,19 @@ describe("youth main-stringer leftover copy", () => {
       }
     }
   });
+
+  it("does not say kids may only fish from land", () => {
+    for (const relative of COPY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of LEFTOVER_LAND_ONLY_FISHING) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
 });
 
 const MAIN_RULES_SURFACES = [
@@ -176,6 +215,18 @@ const MAIN_RULES_SURFACES = [
 const YOUTH_RULES_SURFACES = [
   "docs/rowride-rules.md",
   "src/app/kids/page.tsx",
+];
+
+const LAND_OR_BOAT_SURFACES = [
+  "docs/rowride-rules.md",
+  "docs/tournament-rules.md",
+  "src/app/kids/page.tsx",
+  "src/app/rules/page.tsx",
+  "src/app/register/youth/page.tsx",
+  "src/components/YouthLandRegisterForm.tsx",
+  "src/lib/youth.ts",
+  "src/app/page.tsx",
+  "src/app/pots/page.tsx",
 ];
 
 const EMBEDDED_ROWRIDE_ON_MAIN = [
@@ -205,7 +256,15 @@ describe("RowRide rules live on the kids page", () => {
       assert.match(text, /must personally hook the fish/i);
       assert.match(text, /Tournament Host/);
       assert.match(text, /\/register\/youth/);
+      assert.match(text, /land or by boat/i);
       assert.match(text, /Main tournament rules|adult boat tournament rules/i);
+    }
+  });
+
+  it("says kids may fish from land or by boat on public RowRide surfaces", () => {
+    for (const relative of LAND_OR_BOAT_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      assert.match(text, /land or by boat/i, `${relative} is missing land-or-boat`);
     }
   });
 });

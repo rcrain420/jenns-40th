@@ -1,12 +1,13 @@
 /**
- * Adult boat seats vs land-only RowRide youth.
+ * Adult boat seats vs RowRide youth (YOUTH_LAND entry).
  * Leaf module so Node tests can import it without extension rewriting.
  * Numbers match config.MIN/MAX_ANGLERS and MAX_YOUTH_ANGLERS.
  *
  * Enforced app cap: 1–4 adults on a BOAT team. New writes are
  * adults-only — youth register on a YOUTH_LAND entry. Leftover
  * youth rows on a boat still do not consume an adult seat.
- * Land-only RowRide allows 1–8 youth.
+ * A YOUTH_LAND / RowRide entry allows 1–8 youth. Kids may fish
+ * from land or by boat; the registration record stays YOUTH_LAND.
  */
 const MIN_ADULTS = 1;
 const MAX_ADULTS = 4;
@@ -32,19 +33,19 @@ export function namedSeatCount(
   return anglers.length;
 }
 
-export const BOAT_ADULT_MIN_ERROR = `Boat teams need at least ${MIN_ADULTS} adult angler. Kids do not fill that seat — they register separately for RowRide from land.`;
+export const BOAT_ADULT_MIN_ERROR = `Boat teams need at least ${MIN_ADULTS} adult angler. Kids do not fill that seat — they register separately for RowRide.`;
 
 export const BOAT_ADULT_MAX_ERROR = `At most ${MAX_ADULTS} adult anglers on a boat. Kids do not count toward that cap.`;
 
 export const BOAT_YOUTH_FORBIDDEN_ERROR =
-  "Boat teams are adults only. Register kids separately for RowRide from land.";
+  "Boat teams are adults only. Register kids separately for RowRide.";
 
 export const YOUTH_MAX_ERROR = `At most ${MAX_YOUTH} youth anglers on one entry.`;
 
 export const LAND_YOUTH_ONLY_ERROR =
-  "Land-only RowRide entries are youth only. Register a boat if adults are fishing the main tournament.";
+  "RowRide entries are youth only. Register a boat if adults are fishing the main tournament.";
 
-export const LAND_YOUTH_MIN_ERROR = `Add at least ${MIN_YOUTH} youth angler for a land-only RowRide entry.`;
+export const LAND_YOUTH_MIN_ERROR = `Add at least ${MIN_YOUTH} youth angler for a RowRide entry.`;
 
 /** Adult 1–4 math. Leftover youth rows on a boat do not fail this check. */
 export function boatRosterCapacityIssue(

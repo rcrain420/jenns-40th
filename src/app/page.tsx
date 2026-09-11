@@ -242,12 +242,12 @@ export default async function HomePage() {
             qualifying fish by a registered youth angler.
           </p>
           <p className="mt-3 text-[0.95rem] text-wave/70 md:text-base">
-            Kids register separately for RowRide from land — they are not
-            added to a boat roster. On event day they may fish from a boat if
-            the captain or guide allows it; most guides prefer no more than
-            four anglers, so please communicate in advance. Youth anglers do
-            not participate in the main tournament pot or main stringer, and
-            they do not count on a boat team&apos;s paid side pots.{" "}
+            Register for RowRide separately. Kids may fish from land or by
+            boat. They are not added to a $300 boat roster. If they tag along
+            on someone&apos;s boat, ask the captain or guide first — most
+            guides prefer no more than four anglers. Youth anglers do not
+            participate in the main tournament pot or main stringer, and they
+            do not count on a boat team&apos;s paid side pots.{" "}
             <Link href="/kids#rules" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
             </Link>

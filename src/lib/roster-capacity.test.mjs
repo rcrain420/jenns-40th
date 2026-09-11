@@ -59,7 +59,7 @@ describe("boat vs youth seat capacity", () => {
   it("rejects a boat with only youth", () => {
     const issue = boatRosterCapacityIssue([{ isYouth: true }]);
     assert.match(issue ?? "", /at least 1 adult/i);
-    assert.match(issue ?? "", /from land/i);
+    assert.match(issue ?? "", /RowRide/i);
     assert.equal(MIN_ANGLERS, 1);
   });
 

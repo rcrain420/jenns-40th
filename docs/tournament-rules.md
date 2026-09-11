@@ -211,7 +211,7 @@ If two fish have the same number of spots, the heavier fish wins. If they also w
 
 ### RowRide Youth Angler Tournament
 
-RowRide is a separate free youth tournament. Its rules live in `docs/rowride-rules.md` and on `/kids#rules` — they are not part of these adult boat rules.
+RowRide is a separate free youth tournament. Register for RowRide separately. Kids may fish from land or by boat. Its rules live in `docs/rowride-rules.md` and on `/kids#rules` — they are not part of these adult boat rules.
 
 ### Heaviest Saltwater Catfish
 

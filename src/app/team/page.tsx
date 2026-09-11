@@ -109,11 +109,12 @@ export default async function MyTeamPage({
         >
           <p className="text-ink/70">{closed.body}</p>
           <p className="mt-4 text-ink/70">
-            Land-only RowRide is still open — it does not use a boat slot.
+            RowRide signup is still open — it does not use a boat slot. Kids
+            may fish from land or by boat.
           </p>
           <p className="mt-4 flex flex-wrap gap-4">
             <Link href="/register/youth" className="font-semibold text-sea hover:underline">
-              Enter RowRide from land
+              Enter RowRide
             </Link>
           </p>
           <p className="mt-4 text-ink/70">
@@ -132,14 +133,15 @@ export default async function MyTeamPage({
       >
         <p className="text-ink/70">
           Register a boat — invite teammates, and add a captain anytime if you
-          have one — or enter kids for RowRide from land with no boat.
+          have one — or register kids separately for RowRide. Kids may fish
+          from land or by boat.
         </p>
         <p className="mt-4 flex flex-wrap gap-4">
           <Link href="/register" className="font-semibold text-sea hover:underline">
             Register a boat
           </Link>
           <Link href="/register/youth" className="font-semibold text-sea hover:underline">
-            Enter RowRide from land
+            Enter RowRide
           </Link>
         </p>
       </PageShell>
@@ -192,7 +194,7 @@ export default async function MyTeamPage({
       title={team.teamName}
       description={
         isYouthLandEntry(team.entryKind)
-          ? `Land-only RowRide · $0 · ${rosterCount} youth ${rosterCount === 1 ? "angler" : "anglers"}`
+          ? `RowRide · $0 · ${rosterCount} youth ${rosterCount === 1 ? "angler" : "anglers"}`
           : `${formatUsd(team.amountDueCents)} due · ${
               team.paymentStatus === "PAID"
                 ? "Paid"

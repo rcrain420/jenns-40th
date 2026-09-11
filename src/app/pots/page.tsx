@@ -72,8 +72,8 @@ export default async function PotsPage() {
                 Main tournament: {formatUsd(BOAT_ENTRY_CENTS)} per boat, all
                 of it in the pot — paid out {splitLabel}. Youth do not take an
                 adult seat and do not change this boat fee. Youth anglers do
-                not compete in the main stringer or main pot. Land-only
-                RowRide entries do not add to the main pot.
+                not compete in the main stringer or main pot. RowRide
+                entries do not add to the main pot.
               </span>
             </li>
             <li className="flex gap-3">
@@ -97,7 +97,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by{" "}
                   {pot.id === "kids" ? "Tournament Host" : "Jenn and Aaron"}
                   {pot.id === "kids"
-                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Kids register separately for RowRide from land — they are not added to a boat roster. On event day they may fish from a boat if the captain or guide allows it. They do not take an adult seat. Youth are out of the main stringer and main pot. Land-only kids are RowRide-only and do not count on a boat team’s paid side pots.`
+                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster and do not take an adult seat. Youth are out of the main stringer and main pot and do not count on a boat team’s paid side pots.`
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>

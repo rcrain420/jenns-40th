@@ -264,8 +264,8 @@ export function TeamRosterEditor({
           Email is optional.{" "}
           {landOnly ? `${YOUTH_EMAIL_HELPER} ` : null}
           {landOnly
-            ? "This is a land-only RowRide entry — no boat fee and no team side pots. Parent login is the login."
-            : "Invite on an adult seat sends Join the boat. Boat teams are adults only — kids register separately for RowRide from land and are not added here. Adult seats do not change the $300 boat entry."}{" "}
+            ? "This is a RowRide entry — no $300 boat fee and no team side pots. Kids may fish from land or by boat. Parent login is the login."
+            : "Invite on an adult seat sends Join the boat. Boat teams are adults only — kids register separately for RowRide and are not added here. They may fish from land or by boat. Adult seats do not change the $300 boat entry."}{" "}
           {!landOnly
             ? "Adults without email stay name-only and join from the invite link."
             : null}

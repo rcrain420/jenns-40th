@@ -553,8 +553,10 @@ export default function RulesPage() {
           <div id="kids-pot" className="scroll-mt-28 space-y-3">
             <Subhead>{YOUTH_TOURNAMENT.name}</Subhead>
             <p>
-              RowRide is a separate free youth tournament. Its rules live on
-              the kids page — they are not part of these adult boat rules.
+              RowRide is a separate free youth tournament. Register for
+              RowRide separately. Kids may fish from land or by boat. Its
+              rules live on the kids page — they are not part of these adult
+              boat rules.
             </p>
             <p>
               <Link

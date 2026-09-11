@@ -8,7 +8,7 @@
 **Headquarters and weigh-in:** Boatmen’s Club Bar & Marina, Rockport, Texas  
 **Fishing hours:** Sunrise to 2:00 p.m.  
 **Weigh-in hours:** 12:00 p.m. to 2:00 p.m.  
-**Registration:** Separate RowRide form at `/register/youth`. Same October 1, 2026 deadline (end of day, America/Chicago). Land-only entries do not use a boat slot.
+**Registration:** Separate RowRide form at `/register/youth`. Same October 1, 2026 deadline (end of day, America/Chicago). A RowRide entry does not use a $300 boat slot. Kids may fish from land or by boat.
 
 These are the kids / RowRide rules. Adult boat tournament rules are separate — see `docs/tournament-rules.md` and `/rules`.
 
@@ -34,9 +34,9 @@ Boat teams are adults only. Adults without email may stay name-only on a boat ro
 
 ## 4. How kids fish
 
-Kids fish from land. They are not required to be on a boat.
+Kids may fish from land or by boat. Registering for RowRide does not put them on a $300 boat roster.
 
-On event day they may still fish from a boat if the captain or guide allows it — they are not added to that boat’s roster. Guides often prefer no more than four anglers, so communicate in advance.
+If they tag along on someone’s boat, ask the captain or guide first — guides often prefer no more than four anglers. They are still not added to that boat’s roster.
 
 When a youth angler is fishing from a boat, an adult should be on the boat.
 
@@ -52,7 +52,7 @@ The youth angler must personally hook the fish and land it. Adults may help with
 
 Youth anglers do not take one of a boat’s one-to-four adult fishing seats. They do not change the $300 boat entry and do not grow the main tournament pot beyond that boat fee.
 
-They do not participate in the main tournament stringer or main pot competition. They do not count on a boat team’s paid side pots. Land-only kids are RowRide-only.
+They do not participate in the main tournament stringer or main pot competition. They do not count on a boat team’s paid side pots. A RowRide entry is RowRide-only.
 
 ## 7. Licenses
 

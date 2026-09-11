@@ -19,7 +19,7 @@ describe("anglersSectionHelp", () => {
     assert.match(text, /My team/);
     assert.match(text, /shirt size/);
     assert.match(text, /email is optional/i);
-    assert.match(text, /from land/);
+    assert.match(text, /land or by boat/);
     assert.match(text, /RowRide/);
     assert.match(text, /not added to this boat/);
     assert.match(text, new RegExp(`\\$${fee} boat entry`));

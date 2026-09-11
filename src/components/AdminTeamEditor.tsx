@@ -216,7 +216,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
           >
             <option value={ENTRY_KIND.BOAT}>Boat (main tournament)</option>
             <option value={ENTRY_KIND.YOUTH_LAND}>
-              Land-only RowRide youth
+              RowRide youth
             </option>
           </select>
         </div>

@@ -106,7 +106,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           <span className="font-semibold text-coral">
             {formatUsd(team.amountDueCents)}
           </span>{" "}
-          ({landOnly ? "land-only RowRide" : "boat entry"}
+          ({landOnly ? "RowRide entry" : "boat entry"}
           {youthSeats > 0
             ? ` · ${team.anglers.length} angler${
                 team.anglers.length === 1 ? "" : "s"
@@ -138,8 +138,8 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
           </p>
           <p className="mt-3 text-ink/75">
             {landOnly
-              ? "You registered a land-only RowRide entry. Kids are not on a boat and are not in team side pots. Parent login is the login."
-              : "You registered this team. That does not make you the captain — add a captain email anytime on My team to invite them. Captain login is not a paid angler seat. Youth on this boat do not take an adult seat."}
+              ? "You registered a RowRide entry. Kids may fish from land or by boat. They are not added to a $300 boat roster and are not in team side pots. Parent login is the login."
+              : "You registered this team. That does not make you the captain — add a captain email anytime on My team to invite them. Captain login is not a paid angler seat."}
           </p>
           {landOnly ? null : (
             <p className="mt-3 text-ink/75">{SUCCESS_CREATOR_ACCESS_NOTE}</p>
@@ -305,7 +305,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <dt className="text-ink/60">{landOnly ? "Entry" : "Boat"}</dt>
               <dd>
                 {landOnly
-                  ? "Land-only RowRide"
+                  ? "RowRide"
                   : team.boatType === "GUIDED"
                     ? "Guided"
                     : "Non-guided"}
