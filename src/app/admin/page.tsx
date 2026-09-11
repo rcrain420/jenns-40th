@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { AdminDashboard, type AdminTeamRow } from "@/components/AdminDashboard";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { adminPaymentStats } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +18,9 @@ export default async function AdminPage() {
   });
 
   const anglerCount = teams.reduce((sum, t) => sum + t.anglers.length, 0);
-  const collectedCents = teams
-    .filter((t) => t.paymentStatus === "PAID")
-    .reduce((sum, t) => sum + t.amountDueCents, 0);
-  const outstandingCents = teams
-    .filter((t) => t.paymentStatus === "UNPAID")
-    .reduce((sum, t) => sum + t.amountDueCents, 0);
+  // Collected = sum of amountPaidCents (actual ledger, including overpay).
+  // Outstanding = sum of max(0, due − paid).
+  const { collectedCents, outstandingCents } = adminPaymentStats(teams);
 
   const rows: AdminTeamRow[] = teams.map((t) => ({
     id: t.id,
@@ -31,6 +29,7 @@ export default async function AdminPage() {
     entryKind: t.entryKind,
     paymentStatus: t.paymentStatus,
     amountDueCents: t.amountDueCents,
+    amountPaidCents: t.amountPaidCents,
     registrantEmail: t.registrantEmail,
     captainName: t.captainName,
     contactName: t.contactName,

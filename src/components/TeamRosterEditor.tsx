@@ -39,8 +39,9 @@ export type RosterAnglerDraft = {
 type Props = {
   initialAnglers: RosterAnglerDraft[];
   sidePotCount: number;
-  paymentStatus: "UNPAID" | "PAID";
+  paymentStatus: "UNPAID" | "PARTIAL" | "PAID";
   currentDueCents: number;
+  amountPaidCents?: number;
   canEditRoster: boolean;
   canInvite: boolean;
   /** True at 4 invited adult anglers — hide + Add adult, not youth or Invite. */
@@ -64,6 +65,7 @@ export function TeamRosterEditor({
   sidePotCount,
   paymentStatus,
   currentDueCents,
+  amountPaidCents = 0,
   canEditRoster,
   canInvite,
   boatInviteLocked = false,
@@ -495,7 +497,9 @@ export function TeamRosterEditor({
             : ""}
           {paymentStatus === "PAID" && extraDue > 0
             ? ` — Venmo the extra ${formatUsd(extraDue)} after you save.`
-            : null}
+            : paymentStatus !== "PAID" && nextDue > amountPaidCents
+              ? ` — ${formatUsd(nextDue - amountPaidCents)} still due (${paymentStatus === "PARTIAL" ? "partial" : "unpaid"}).`
+              : null}
         </p>
       ) : null}
 

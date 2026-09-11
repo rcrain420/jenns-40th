@@ -22,6 +22,7 @@ describe("CSV youth column", () => {
         paymentStatus: "UNPAID",
         sidePots: [],
         amountDueCents: 7500,
+        amountPaidCents: 0,
         claimedByUserId: null,
         createdAt: new Date("2026-08-28T00:00:00.000Z"),
         updatedAt: new Date("2026-08-28T00:00:00.000Z"),
@@ -53,8 +54,10 @@ describe("CSV youth column", () => {
     const [header, row] = csv.split("\n");
     assert.match(header, /,youth,/);
     assert.match(header, /,shirtSizes,/);
+    assert.match(header, /,amountPaidCents,amountPaid,paymentStatus,/);
     assert.match(row, /Rowan \(youth\) \[XS\]/);
     assert.match(row, /Aaron: L; Rowan: XS/);
     assert.match(row, /,Rowan,/);
+    assert.match(row, /,7500,75.00,0,0.00,UNPAID,/);
   });
 });

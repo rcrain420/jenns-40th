@@ -8,7 +8,8 @@
  *   — recalc is idempotent.
  * - A 4-seat boat billed under old per-adult math (youth discount) is
  *   aligned to the same formula.
- * - paymentStatus is never changed.
+ * - The payment ledger is never changed. paymentStatus is re-derived
+ *   from existing amountPaidCents vs the new due.
  *
  * Usage (Neon/prod or local Docker):
  *   DATABASE_URL=... npm run rebill:boat-entry -- --dry-run
@@ -18,6 +19,7 @@
  * same DATABASE_URL as the Production env (pooled is fine for this update).
  */
 import { PrismaClient } from "@prisma/client";
+import { derivePaymentStatus } from "../src/lib/payments.ts";
 import { planBoatEntryRebill } from "../src/lib/rebill-boat-entry.ts";
 
 const dryRun = process.argv.includes("--dry-run");
@@ -33,6 +35,7 @@ async function main() {
       id: true,
       teamName: true,
       amountDueCents: true,
+      amountPaidCents: true,
       paymentStatus: true,
       entryKind: true,
       sidePots: true,
@@ -72,13 +75,20 @@ async function main() {
     return;
   }
 
+  const paidById = new Map(teams.map((team) => [team.id, team.amountPaidCents]));
   for (const plan of plans) {
+    const amountPaidCents = paidById.get(plan.id) ?? 0;
     await prisma.team.update({
       where: { id: plan.id },
-      data: { amountDueCents: plan.nextDueCents },
+      data: {
+        amountDueCents: plan.nextDueCents,
+        paymentStatus: derivePaymentStatus(amountPaidCents, plan.nextDueCents),
+      },
     });
   }
-  console.log(`Updated ${plans.length} team(s). paymentStatus left as-is.`);
+  console.log(
+    `Updated ${plans.length} team(s). Ledger unchanged; paymentStatus re-derived from paid vs new due.`,
+  );
 }
 
 main()

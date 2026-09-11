@@ -23,7 +23,8 @@ export type RebillPlan = {
 
 /**
  * Recalc plan for stored `Team.amountDueCents`.
- * Does not change paymentStatus. Idempotent when already on the new formula.
+ * Does not change the payment ledger. Apply re-derives paymentStatus
+ * from paid vs the new due. Idempotent when already on the new formula.
  */
 export function planBoatEntryRebill(
   teams: RebillTeamSnapshot[],

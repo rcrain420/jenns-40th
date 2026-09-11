@@ -146,10 +146,42 @@ export const youthLandRegistrationSchema = z
   .superRefine(refineYouthAttestation)
   .superRefine(refineYouthLandRoster);
 
+const paymentNoteSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .optional()
+  .transform((v) => (v ? v : undefined));
+
+export const adminPaymentCreateSchema = z.object({
+  amountCents: z
+    .number({ error: "Amount is required" })
+    .int()
+    .positive("Amount must be greater than zero"),
+  note: paymentNoteSchema,
+});
+
+export const adminPaymentUpdateSchema = z
+  .object({
+    amountCents: z
+      .number()
+      .int()
+      .positive("Amount must be greater than zero")
+      .optional(),
+    note: z.union([z.string().trim().max(500), z.null()]).optional(),
+  })
+  .refine(
+    (data) => data.amountCents !== undefined || data.note !== undefined,
+    { message: "Provide an amount or note" },
+  );
+
+export const adminMarkFullyPaidSchema = z.object({
+  markFullyPaid: z.literal(true),
+});
+
 export const adminTeamUpdateSchema = teamFieldsSchema
   .extend({
     licenseConfirmed: z.boolean(),
-    paymentStatus: z.enum(["UNPAID", "PAID"]),
     youthGuardianAttested: z.boolean().optional(),
     entryKind: z.enum([ENTRY_KIND.BOAT, ENTRY_KIND.YOUTH_LAND]).optional(),
   })
@@ -194,5 +226,7 @@ export type YouthLandRegistrationInput = z.infer<
   typeof youthLandRegistrationSchema
 >;
 export type AdminTeamUpdateInput = z.infer<typeof adminTeamUpdateSchema>;
+export type AdminPaymentCreateInput = z.infer<typeof adminPaymentCreateSchema>;
+export type AdminPaymentUpdateInput = z.infer<typeof adminPaymentUpdateSchema>;
 export type TeamRosterInput = z.infer<typeof teamRosterSchema>;
 export type TeamContactInput = z.infer<typeof teamContactSchema>;

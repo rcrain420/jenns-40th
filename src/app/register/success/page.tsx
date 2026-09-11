@@ -346,8 +346,20 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-ink/60">Payment</dt>
-              <dd className={landOnly ? "font-semibold text-sea" : "font-semibold text-alert"}>
-                {landOnly || team.paymentStatus === "PAID" ? "Paid" : "Unpaid"}
+              <dd
+                className={
+                  landOnly || team.paymentStatus === "PAID"
+                    ? "font-semibold text-sea"
+                    : team.paymentStatus === "PARTIAL"
+                      ? "font-semibold text-wave"
+                      : "font-semibold text-alert"
+                }
+              >
+                {landOnly || team.paymentStatus === "PAID"
+                  ? "Paid"
+                  : team.paymentStatus === "PARTIAL"
+                    ? `Partial · ${formatUsd(team.amountPaidCents)} of ${formatUsd(team.amountDueCents)}`
+                    : `Unpaid · ${formatUsd(team.amountDueCents)} due`}
               </dd>
             </div>
           </dl>

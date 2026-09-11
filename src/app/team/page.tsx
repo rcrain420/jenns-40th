@@ -193,7 +193,13 @@ export default async function MyTeamPage({
       description={
         isYouthLandEntry(team.entryKind)
           ? `Land-only RowRide · $0 · ${rosterCount} youth ${rosterCount === 1 ? "angler" : "anglers"}`
-          : `${formatUsd(team.amountDueCents)} due · ${rosterCount} ${rosterCount === 1 ? "angler" : "anglers"} on the official roster`
+          : `${formatUsd(team.amountDueCents)} due · ${
+              team.paymentStatus === "PAID"
+                ? "Paid"
+                : team.paymentStatus === "PARTIAL"
+                  ? `Partial · ${formatUsd(team.amountPaidCents)} paid`
+                  : "Unpaid"
+            } · ${rosterCount} ${rosterCount === 1 ? "angler" : "anglers"} on the official roster`
       }
     >
       <div className="space-y-10">
@@ -312,9 +318,14 @@ export default async function MyTeamPage({
                 }))}
                 sidePotCount={team.sidePots.length}
                 paymentStatus={
-                  team.paymentStatus === "PAID" ? "PAID" : "UNPAID"
+                  team.paymentStatus === "PAID"
+                    ? "PAID"
+                    : team.paymentStatus === "PARTIAL"
+                      ? "PARTIAL"
+                      : "UNPAID"
                 }
                 currentDueCents={team.amountDueCents}
+                amountPaidCents={team.amountPaidCents}
                 canEditRoster={canEdit}
                 canInvite={!isYouthLandEntry(team.entryKind)}
                 boatInviteLocked={inviteLocked}

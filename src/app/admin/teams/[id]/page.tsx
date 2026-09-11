@@ -4,6 +4,8 @@ import { AdminTeamEditor } from "@/components/AdminTeamEditor";
 import { getCurrentUser } from "@/lib/auth";
 import type { SidePotId } from "@/lib/config";
 import { prisma } from "@/lib/db";
+import { teamWithPaymentsInclude, toAdminPayment } from "@/lib/payment-ledger";
+import { isPaymentStatus } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +18,7 @@ export default async function AdminTeamDetailPage({ params }: Props) {
   const { id } = await params;
   const team = await prisma.team.findUnique({
     where: { id },
-    include: { anglers: { orderBy: { sortOrder: "asc" } } },
+    include: teamWithPaymentsInclude,
   });
 
   if (!team) notFound();
@@ -48,7 +50,12 @@ export default async function AdminTeamDetailPage({ params }: Props) {
               registrantEmail: team.registrantEmail,
               notes: team.notes ?? "",
               licenseConfirmed: team.licenseConfirmed,
-              paymentStatus: team.paymentStatus as "UNPAID" | "PAID",
+              paymentStatus: isPaymentStatus(team.paymentStatus)
+                ? team.paymentStatus
+                : "UNPAID",
+              amountDueCents: team.amountDueCents,
+              amountPaidCents: team.amountPaidCents,
+              payments: team.payments.map(toAdminPayment),
               anglers: team.anglers.map((a) => ({
                 fullName: a.fullName,
                 phone: a.phone ?? "",
