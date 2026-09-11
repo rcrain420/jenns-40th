@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "crypto";
+import { isAdminEmail } from "./admin-emails";
 import { sanitizeAvatarUrl } from "./avatar";
 import { prisma } from "./db";
 import { sendConfirmEmail, sendResetEmail } from "./email";
@@ -73,11 +74,6 @@ function createTokenSecret(): string {
 
 function hashToken(secret: string): string {
   return createHash("sha256").update(secret).digest("hex");
-}
-
-function isAdminEmail(email: string): boolean {
-  const expected = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  return Boolean(expected && email === expected);
 }
 
 export async function promoteAdminIfNeeded(userId: string, email: string) {
