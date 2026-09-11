@@ -242,15 +242,13 @@ export default async function HomePage() {
             qualifying fish by a registered youth angler.
           </p>
           <p className="mt-3 text-[0.95rem] text-wave/70 md:text-base">
-            Youth anglers may join a tournament boat; however, most guides
-            prefer no more than four anglers on their boat, so please
-            communicate with your guide in advance. Youth anglers do not
-            participate in the main tournament pot or main stringer. They may,
-            however, choose to enter and pay for any of the available side
-            pots. Side-pot participation is separate from the main tournament
-            and does not depend on whether the youth angler is fishing from a
-            boat or from land.{" "}
-            <Link href="/rules#kids-pot" className="text-sun underline-offset-2 hover:underline">
+            Register for RowRide separately. Kids may fish from land or by
+            boat. They are not added to a $300 boat roster. If they tag along
+            on someone&apos;s boat, ask the captain or guide first — most
+            guides prefer no more than four anglers. Youth anglers do not
+            participate in the main tournament pot or main stringer, and they
+            do not count on a boat team&apos;s paid side pots.{" "}
+            <Link href="/kids#rules" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
             </Link>
           </p>

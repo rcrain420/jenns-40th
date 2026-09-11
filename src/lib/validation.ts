@@ -10,6 +10,7 @@ import {
 } from "./config";
 import {
   boatRosterCapacityIssue,
+  boatYouthForbiddenIssue,
   youthLandRosterCapacityIssue,
 } from "./roster-capacity";
 import { SHIRT_SIZE_REQUIRED_ERROR, SHIRT_SIZES } from "./shirt-size";
@@ -88,6 +89,15 @@ function refineBoatRosterCapacity(
   ctx: z.RefinementCtx,
 ) {
   if (data.entryKind === ENTRY_KIND.YOUTH_LAND) return;
+  const youthIssue = boatYouthForbiddenIssue(data.anglers);
+  if (youthIssue) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["anglers"],
+      message: youthIssue,
+    });
+    return;
+  }
   const issue = boatRosterCapacityIssue(data.anglers);
   if (issue) {
     ctx.addIssue({

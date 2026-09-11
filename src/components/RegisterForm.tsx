@@ -11,13 +11,11 @@ import {
   SIDE_POT_BUY_IN_CENTS,
   YOUTH_TOURNAMENT,
   paidEntrySeatCount,
-  youthAnglerCount,
   type SidePotId,
 } from "@/lib/config";
 import {
   boatRosterCapacityIssue,
   canAddAdultSeat,
-  canAddYouthSeat,
 } from "@/lib/roster-capacity";
 import { boatContactNotAnglerNudge } from "@/lib/boat-contact-copy";
 import { isBoatContactNotAngler } from "@/lib/join-the-boat";
@@ -30,11 +28,7 @@ import {
   CAPTAIN_CONTACT_ADULT_NOTE,
   LICENSE_CONFIRM_ERROR,
   LICENSE_CONFIRM_LABEL,
-  YOUTH_ATTESTATION_ERROR,
-  YOUTH_ATTESTATION_LABEL,
-  YOUTH_CHECKBOX_LABEL,
-  YOUTH_EMAIL_HELPER,
-  hasYouthAngler,
+  YOUTH_SEPARATE_REGISTER,
 } from "@/lib/youth";
 import { SHIRT_SIZE_REQUIRED_ERROR, isShirtSize } from "@/lib/shirt-size";
 import { ResendConfirmButton } from "./ResendConfirmButton";
@@ -46,17 +40,15 @@ type AnglerDraft = {
   fullName: string;
   phone: string;
   email: string;
-  isYouth: boolean;
   shirtSize: string;
 };
 
 type FieldErrors = Record<string, string[] | undefined>;
 
-const emptyAngler = (isYouth = false): AnglerDraft => ({
+const emptyAngler = (): AnglerDraft => ({
   fullName: "",
   phone: "",
   email: "",
-  isYouth,
   shirtSize: "",
 });
 
@@ -70,7 +62,6 @@ const FIELD_ORDER = [
   "contactPhone",
   "registrantEmail",
   "anglers",
-  "youthGuardianAttested",
   "licenseConfirmed",
 ] as const;
 
@@ -81,7 +72,6 @@ type RegisterFormProps = {
   initialBoatType?: BoatType;
   initialCaptainName?: string;
   viewer?: PublicUser | null;
-  emphasizeYouth?: boolean;
 };
 
 export function RegisterForm({
@@ -91,7 +81,6 @@ export function RegisterForm({
   initialBoatType,
   initialCaptainName = "",
   viewer = null,
-  emphasizeYouth = false,
 }: RegisterFormProps) {
   const router = useRouter();
   const [teamName, setTeamName] = useState("");
@@ -104,10 +93,7 @@ export function RegisterForm({
   const [registrantEmail, setRegistrantEmail] = useState(viewer?.email ?? "");
   const [notes, setNotes] = useState("");
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
-  const [youthGuardianAttested, setYouthGuardianAttested] = useState(false);
-  const [anglers, setAnglers] = useState<AnglerDraft[]>(
-    emphasizeYouth ? [emptyAngler(false), emptyAngler(true)] : [emptyAngler()],
-  );
+  const [anglers, setAnglers] = useState<AnglerDraft[]>([emptyAngler()]);
   const [sidePots, setSidePots] = useState<SidePotId[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -118,14 +104,12 @@ export function RegisterForm({
   const [suggestError, setSuggestError] = useState<string | null>(null);
 
   const paidSeats = paidEntrySeatCount(anglers);
-  const youthSeats = youthAnglerCount(anglers);
   const canAddAdult = canAddAdultSeat(anglers);
-  const canAddYouth = canAddYouthSeat(anglers);
   const showBoatContactNudge = isBoatContactNotAngler(
     anglers.map((a) => ({
       fullName: a.fullName,
       email: a.email,
-      isYouth: a.isYouth,
+      isYouth: false,
     })),
     { email: registrantEmail, name: viewer?.name },
   );
@@ -186,12 +170,7 @@ export function RegisterForm({
 
   function addAdult() {
     if (!canAddAdultSeat(anglers)) return;
-    setAnglers((prev) => [...prev, emptyAngler(false)]);
-  }
-
-  function addYouth() {
-    if (!canAddYouthSeat(anglers)) return;
-    setAnglers((prev) => [...prev, emptyAngler(true)]);
+    setAnglers((prev) => [...prev, emptyAngler()]);
   }
 
   function removeAngler(index: number) {
@@ -224,9 +203,6 @@ export function RegisterForm({
         next[`angler-shirt-${index}`] = [SHIRT_SIZE_REQUIRED_ERROR];
       }
     });
-    if (hasYouthAngler(anglers) && !youthGuardianAttested) {
-      next.youthGuardianAttested = [YOUTH_ATTESTATION_ERROR];
-    }
     if (!licenseConfirmed) {
       next.licenseConfirmed = [LICENSE_CONFIRM_ERROR];
     }
@@ -284,8 +260,7 @@ export function RegisterForm({
           registrantEmail,
           notes,
           licenseConfirmed: licenseConfirmed ? true : false,
-          youthGuardianAttested,
-          anglers,
+          anglers: anglers.map((a) => ({ ...a, isYouth: false })),
           sidePots,
         }),
       });
@@ -657,14 +632,6 @@ export function RegisterForm({
             >
               + Add adult
             </button>
-            <button
-              type="button"
-              onClick={addYouth}
-              disabled={!canAddYouth}
-              className="text-sm font-semibold text-sea disabled:opacity-40"
-            >
-              + Add youth
-            </button>
           </div>
         </div>
         {showBoatContactNudge ? (
@@ -672,22 +639,12 @@ export function RegisterForm({
             {boatContactNotAnglerNudge(formatUsdWhole(BOAT_ENTRY_CENTS))}
           </p>
         ) : null}
-        {emphasizeYouth ? (
-          <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
-            Registering a youth angler? Check <strong>17 or under</strong>.
-            They do not take one of this boat&apos;s {MIN_ANGLERS}–{MAX_ANGLERS}{" "}
-            adult seats and do not change the ${BOAT_ENTRY_CENTS / 100} boat
-            entry. They may join if the captain or guide allows it — guides
-            often prefer no more than four anglers, so ask first. Kids may
-            also enter the {YOUTH_TOURNAMENT.name} from land with no boat.
-            They do not compete in the main stringer or main pot.
-            If this boat enters paid side pots, their fish may count there.{" "}
-            {YOUTH_EMAIL_HELPER}{" "}
-            <Link href="/register/youth" className="font-semibold text-sea hover:underline">
-              Enter from land instead →
-            </Link>
-          </p>
-        ) : null}
+        <p className="mt-3 border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
+          {YOUTH_SEPARATE_REGISTER}{" "}
+          <Link href="/register/youth" className="font-semibold text-sea hover:underline">
+            Enter {YOUTH_TOURNAMENT.name} →
+          </Link>
+        </p>
         <div className="mt-4 space-y-4">
           {anglers.map((angler, index) => (
             <div
@@ -781,23 +738,6 @@ export function RegisterForm({
                   Remove
                 </button>
               </div>
-              <label className="flex items-center gap-2 sm:col-span-2 lg:col-span-5">
-                <input
-                  id={`angler-youth-${index}`}
-                  type="checkbox"
-                  checked={angler.isYouth}
-                  onChange={(e) =>
-                    updateAngler(index, { isYouth: e.target.checked })
-                  }
-                  className="h-4 w-4 accent-sea"
-                />
-                <span className="text-sm">{YOUTH_CHECKBOX_LABEL}</span>
-              </label>
-              {angler.isYouth ? (
-                <p className="text-sm text-ink/60 sm:col-span-2 lg:col-span-5">
-                  {YOUTH_EMAIL_HELPER}
-                </p>
-              ) : null}
             </div>
           ))}
         </div>
@@ -880,45 +820,13 @@ export function RegisterForm({
       </label>
       {err("licenseConfirmed")}
 
-      {hasYouthAngler(anglers) ? (
-        <>
-          <label
-            data-field="youthGuardianAttested"
-            className="flex items-start gap-3 border border-wave/15 bg-mist/70 px-4 py-3"
-          >
-            <input
-              id="youthGuardianAttested"
-              type="checkbox"
-              checked={youthGuardianAttested}
-              onChange={(e) => setYouthGuardianAttested(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-sea"
-              aria-invalid={Boolean(fieldErrors.youthGuardianAttested?.length)}
-              aria-describedby={
-                fieldErrors.youthGuardianAttested?.length
-                  ? "youthGuardianAttested-error"
-                  : undefined
-              }
-            />
-            <span className="text-sm leading-relaxed">
-              {YOUTH_ATTESTATION_LABEL} <span className="text-alert">*</span>
-            </span>
-          </label>
-          {err("youthGuardianAttested")}
-        </>
-      ) : null}
-
       <div className="flex flex-col gap-4 border-t border-[var(--line)] pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-lg">
           Total due: <span className="font-semibold">{total}</span>
           <span className="block text-sm text-ink/60">
             {formatUsd(BOAT_ENTRY_CENTS)} boat entry
-            {paidSeats + youthSeats > 0
-              ? ` · ${paidSeats + youthSeats} angler${
-                  paidSeats + youthSeats === 1 ? "" : "s"
-                } on the roster`
-              : ""}
-            {youthSeats > 0
-              ? ` (${youthSeats} youth)`
+            {paidSeats > 0
+              ? ` · ${paidSeats} adult angler${paidSeats === 1 ? "" : "s"} on the roster`
               : ""}
             {sidePots.length > 0
               ? ` + ${sidePots.length} side pot${

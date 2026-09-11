@@ -18,7 +18,7 @@ export const LICENSE_CONFIRM_ERROR =
   "Confirm licenses for adults and 17-year-olds. Younger children generally do not need one.";
 
 export const CAPTAIN_CONTACT_ADULT_NOTE =
-  "If you add a guided captain or DIY primary contact, they must be 18 or older. Youth anglers are not the captain or boat contact. Kids may join a boat if the captain or guide allows it, or enter RowRide from land. You can add a captain later on My team.";
+  "If you add a guided captain or DIY primary contact, they must be 18 or older. Youth anglers are not the captain or boat contact. Kids register separately for RowRide — they are not added to a boat roster. They may fish from land or by boat. You can add a captain later on My team.";
 
 export const YOUTH_INVITE_SKIP_ERROR =
   "Youth anglers do not get a Join the boat / create-account invite. Parent login is the login.";
@@ -28,16 +28,18 @@ export const YOUTH_MAIN_STRINGER_RULE =
   "Youth anglers do not participate in the main tournament stringer or main pot competition.";
 
 export const YOUTH_SIDE_POT_RULE =
-  "Youth attached to a boat that entered paid team side pots may count on those team side pots. Land-only kids with no boat are RowRide-only.";
+  "RowRide kids are on their own RowRide entry. They do not join a boat roster and do not count on a boat team’s paid side pots.";
 
 export const YOUTH_ROWRIDE_RULE =
   "They still have their own host-funded RowRide Youth Angler Tournament — heaviest qualifying fish, no entry fee.";
 
 export const YOUTH_BOAT_SEAT_RULE =
-  "A boat’s 1–4 fishing seats are adults only. Youth do not take one of those seats and do not change the $300 boat entry. They may join a registered boat if the captain or guide allows it — guides often prefer no more than four anglers, so communicate in advance.";
+  "A boat’s 1–4 fishing seats are adults only. Youth do not take one of those seats and do not change the $300 boat entry. Kids register separately for RowRide — they are not added to a boat roster. They may fish from land or by boat. If they tag along on someone’s boat, ask the captain or guide first — guides often prefer no more than four anglers.";
 
 export const YOUTH_LAND_RULE =
-  "Kids are not required to be on a boat. They may fish from land, or optionally join a registered boat roster when the captain or guide allows it.";
+  "Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster.";
+
+export const YOUTH_SEPARATE_REGISTER = YOUTH_LAND_RULE;
 
 export const YOUTH_COMPETITION_POLICY = [
   YOUTH_MAIN_STRINGER_RULE,

@@ -15,13 +15,12 @@ import { prisma } from "@/lib/db";
 import { isBoatInviteLocked } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
 import { getRegistrationAvailability } from "@/lib/registration";
-import { YOUTH_COMPETITION_POLICY } from "@/lib/youth";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `${YOUTH_TOURNAMENT.name} · ${EVENT.shortName}`,
-  description: `${YOUTH_TOURNAMENT.tagline} Free youth tournament — fish from land or join a registered boat. Host-funded biggest fish.`,
+  description: `${YOUTH_TOURNAMENT.tagline} Free youth tournament — register separately for RowRide. Kids may fish from land or by boat.`,
 };
 
 export default async function KidsPage() {
@@ -83,8 +82,8 @@ export default async function KidsPage() {
             12th!
           </p>
           <p className="mt-3 text-ink/80">
-            Kids may fish from land or by boat. Youth anglers may also join a
-            registered tournament boat if the captain or guide allows it.
+            Register for RowRide separately. Kids may fish from land or by
+            boat. They are not added to a $300 boat roster.
           </p>
           <p className="mt-3 text-ink/80">
             The RowRide Youth Anglers Tournament gives the kids their own
@@ -98,46 +97,140 @@ export default async function KidsPage() {
           </p>
         </section>
 
-        <section>
-          <span className="section-banner">How kids fish</span>
-          <ul className="mt-4 list-disc space-y-3 pl-5 text-ink/80">
+        <section id="rules" className="scroll-mt-28">
+          <span className="section-banner">Rules</span>
+          <h2 className="mt-4 font-display text-2xl uppercase text-wave">
+            Official-ish {YOUTH_TOURNAMENT.name} rules
+          </h2>
+          <p className="mt-3 text-ink/80">
+            These are the kids / RowRide rules. The adult boat tournament has
+            its own document.{" "}
+            <Link
+              href="/rules"
+              className="font-semibold text-sea underline-offset-4 hover:underline"
+            >
+              Main tournament rules →
+            </Link>
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            1. A separate free tournament
+          </h3>
+          <p className="mt-3 text-ink/80">
+            RowRide is a separate tournament from the adult boat tournament.
+            There is no entry fee. Biggest / heaviest qualifying fish wins at
+            weigh-in.
+          </p>
+          <p className="mt-3 text-ink/80">
+            The prize is host-funded by Tournament Host, like the Heaviest
+            Saltwater Catfish prize, and does not come from paid side-pot
+            money.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            2. Who can enter
+          </h3>
+          <p className="mt-3 text-ink/80">
+            Open to youth anglers — anglers 17 or younger whom a parent or
+            legal guardian has registered. Kids can use a parent&apos;s email.
+            They do not need their own account. Parent login is the login.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            3. How kids register
+          </h3>
+          <p className="mt-3 text-ink/80">
+            Kids register only on the RowRide form. They are not added to a
+            boat roster. Boat teams are adults only.
+          </p>
+          <p className="mt-3">
+            <Link href="/register/youth" className="btn-bay btn-bay-red">
+              Enter RowRide
+            </Link>
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            4. How kids fish
+          </h3>
+          <ul className="mt-3 list-disc space-y-3 pl-5 text-ink/80">
             <li>
-              RowRide is a separate free tournament. There is no entry fee.
-              Biggest / heaviest qualifying fish wins at weigh-in.
+              Kids may fish from land or by boat. Registering for RowRide
+              does not put them on a $300 boat roster or in team side pots.
+            </li>
+            <li>
+              If they tag along on someone&apos;s boat, ask the captain or
+              guide first — guides often prefer no more than four anglers.
+              They are still not added to that boat&apos;s roster.
+            </li>
+            <li>
+              When a youth angler is fishing from a boat, an adult should be
+              on the boat.
+            </li>
+          </ul>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            5. What they compete for
+          </h3>
+          <p className="mt-3 text-ink/80">
+            The heaviest qualifying fish caught by a registered youth angler
+            wins. A qualifying fish must be legal, caught during tournament
+            hours, presented whole and accepted by the Weighmaster. Official
+            results come from weigh-in, not from AI Livewell estimates.
+          </p>
+          <p className="mt-3 text-ink/80">
+            The youth angler must personally hook the fish and land it.
+            Adults may help with safety. The child needs to do the fishing.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            6. What they do not compete in
+          </h3>
+          <ul className="mt-3 list-disc space-y-3 pl-5 text-ink/80">
+            <li>
+              Kids do not take one of a boat&apos;s 1–4 adult fishing seats
+              and do not change the {formatUsd(BOAT_ENTRY_CENTS)} boat entry.
             </li>
             <li>
               Kids do not compete in the adult main stringer or main pot.
             </li>
             <li>
-              Kids are not required to be on a boat. Land-only entries are
-              RowRide-only — no team side pots.
+              RowRide kids do not count on a boat team&apos;s paid side pots.
             </li>
-            <li>
-              Kids may optionally join a registered boat roster if the
-              captain or guide allows it. They do not take one of that
-              boat&apos;s 1–4 adult fishing seats and do not change the{" "}
-              {formatUsd(BOAT_ENTRY_CENTS)} boat entry. Example: 3 adults + 1
-              kid is still {formatUsd(BOAT_ENTRY_CENTS)} — a fourth adult can
-              still join. Guides often prefer no more than four anglers, so
-              communicate in advance.
-            </li>
-            <li>
-              If a kid is attached to a boat that entered paid side pots,
-              their fish may count on those team side pots.
-            </li>
-            <li>
-              A parent or legal guardian registers them. Kids can use a
-              parent&apos;s email. They do not need their own account. Parent
-              login is the login.
-            </li>
-            <li>{YOUTH_COMPETITION_POLICY}</li>
           </ul>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            7. Licenses
+          </h3>
+          <p className="mt-3 text-ink/80">
+            A Texas fishing license and saltwater endorsement are generally
+            required for 17-year-olds. Younger children generally do not need
+            a Texas fishing license. Check current Texas Parks and Wildlife
+            Department rules.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            8. Weigh-in
+          </h3>
+          <p className="mt-3 text-ink/80">
+            RowRide uses the same official scale, Weighmaster, and 2:00 p.m.
+            weigh-in deadline as the adult boat tournament. There are no
+            exceptions to that deadline.
+          </p>
+
+          <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
+            9. The final word
+          </h3>
+          <p className="mt-3 text-ink/80">
+            Everyone must behave safely, honestly and respectfully. The
+            Weighmaster has final authority over species, condition,
+            measurement, and official weight. All decisions are final.
+          </p>
           <p className="mt-4">
             <Link
-              href="/rules#kids-pot"
+              href="/rules"
               className="font-semibold text-sea underline-offset-4 hover:underline"
             >
-              {YOUTH_TOURNAMENT.name} rules →
+              Adult boat tournament rules →
             </Link>
           </p>
         </section>
@@ -155,26 +248,26 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "Sign in, then enter from land with no boat, or register a boat and add kids if the captain or guide allows it."
-                  : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
+                  ? "Sign in, then register for RowRide separately. Kids may fish from land or by boat. Boat registration is a separate adults-only path."
+                  : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/register/youth" className="btn-bay btn-bay-red">
-                  Enter from land
+                  Enter RowRide
                 </Link>
                 {availability.isOpen ? (
-                  <Link href="/register?youth=1" className="btn-bay btn-bay-navy">
-                    Register a boat + kids
+                  <Link href="/register" className="btn-bay btn-bay-navy">
+                    Register a boat
                   </Link>
                 ) : null}
               </div>
             </div>
-          ) : team && isRegistrant ? (
+          ) : team && isRegistrant && landOnly ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
-                {landOnly
-                  ? `Add youth anglers to ${team.teamName} here. This is a land-only RowRide entry — $0, no boat seats, no team side pots.`
-                  : `Add youth anglers to ${team.teamName} here. Kids do not take one of the 1–4 adult seats and do not change the $300 boat entry. They may join if the captain or guide allows it. They do not compete in the main stringer; they may count on paid team side pots and RowRide.`}
+                Add youth anglers to {team.teamName} here. This is a RowRide
+                entry — $0, not a $300 boat roster, no team side pots. Kids
+                may fish from land or by boat.
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({
@@ -196,35 +289,45 @@ export default async function KidsPage() {
                 currentDueCents={team.amountDueCents}
                 amountPaidCents={team.amountPaidCents}
                 canEditRoster={canEdit}
-                canInvite={!landOnly}
+                canInvite={false}
                 boatInviteLocked={inviteLocked}
                 defaultNewIsYouth
                 entryKind={team.entryKind}
               />
             </div>
+          ) : team && isRegistrant ? (
+            <div className="mt-4 space-y-4">
+              <p className="text-ink/80">
+                You&apos;re on boat team {team.teamName}. Kids are not added
+                to a boat roster. Another parent or guardian who is not already
+                on a team can enter them for RowRide.
+              </p>
+              <Link href="/register/youth" className="btn-bay btn-bay-red">
+                RowRide signup
+              </Link>
+            </div>
           ) : team ? (
             <p className="mt-4 text-ink/80">
-              You&apos;re on {team.teamName}. Ask the person who registered
-              to add youth anglers from{" "}
+              You&apos;re on {team.teamName}. Kids register separately for
+              RowRide — they are not added to a boat roster.{" "}
               <Link href="/team" className="font-semibold text-sea hover:underline">
                 My team
               </Link>
-              .
             </p>
           ) : (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "You're signed in and not on a boat. Enter kids from land, or register a boat and add them if the captain or guide allows it."
-                  : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
+                  ? "You're signed in and not on a team. Register for RowRide separately. Kids may fish from land or by boat. Boat registration is a separate adults-only path."
+                  : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/register/youth" className="btn-bay btn-bay-red">
-                  Enter from land
+                  Enter RowRide
                 </Link>
                 {availability.isOpen ? (
-                  <Link href="/register?youth=1" className="btn-bay btn-bay-navy">
-                    Register a boat + kids
+                  <Link href="/register" className="btn-bay btn-bay-navy">
+                    Register a boat
                   </Link>
                 ) : null}
               </div>

@@ -42,7 +42,7 @@ export default async function YouthLandRegisterPage() {
       <PageShell
         narrow
         title={REGISTER_ALREADY_IN.title}
-        description="You're already in. Add kids on your boat from the kids page, or manage a land-only entry on My team."
+        description="You're already in. Manage a RowRide entry on My team. Kids are not added to a boat roster — another parent or guardian who is not already on a team can enter them for RowRide. Kids may fish from land or by boat."
       >
         <p className="flex flex-wrap gap-4">
           <Link href="/kids" className="font-semibold text-sea hover:underline">
@@ -65,8 +65,9 @@ export default async function YouthLandRegisterPage() {
       title={`Enter ${YOUTH_TOURNAMENT.name}`}
       description={
         <>
-          Hi {welcomeName} — register kids from land with no boat and no entry
-          fee. Official winner is the Weighmaster, not Livewell AI.
+          Hi {welcomeName} — register for RowRide separately. No entry fee.
+          Kids may fish from land or by boat. Official winner is the
+          Weighmaster, not Livewell AI.
         </>
       }
     >

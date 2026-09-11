@@ -26,11 +26,6 @@ function parseBoatType(value: string | string[] | undefined): BoatType | undefin
   return undefined;
 }
 
-function parseFlag(value: string | string[] | undefined): boolean {
-  const raw = Array.isArray(value) ? value[0] : value;
-  return raw === "1" || raw === "true";
-}
-
 function parseCaptain(value: string | string[] | undefined): string | undefined {
   const raw = Array.isArray(value) ? value[0] : value;
   const trimmed = raw?.trim();
@@ -46,7 +41,6 @@ export default async function RegisterPage({
   const params = await searchParams;
   const initialBoatType = parseBoatType(params.boat);
   const initialCaptainName = parseCaptain(params.captain);
-  const emphasizeYouth = parseFlag(params.youth);
 
   const hasTeam = userHasRegisteredTeam(viewer);
   const view = registerPageView({
@@ -118,7 +112,7 @@ export default async function RegisterPage({
             href="/register/youth"
             className="text-coral underline-offset-4 hover:underline"
           >
-            Entering kids from land with no boat?
+            Registering kids for RowRide?
           </Link>{" "}
           <Link
             href="/guides"
@@ -136,7 +130,6 @@ export default async function RegisterPage({
         initialBoatType={initialBoatType}
         initialCaptainName={initialCaptainName}
         viewer={viewer}
-        emphasizeYouth={emphasizeYouth}
       />
     </PageShell>
   );

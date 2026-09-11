@@ -53,7 +53,7 @@ export function officialRosterBoatPotCents(
 }
 
 export function officialRosterLandSummary(): string {
-  return "RowRide · land · no boat fee";
+  return "RowRide · no boat fee";
 }
 
 export function officialRosterAdultSeatCount(
