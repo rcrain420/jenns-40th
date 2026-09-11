@@ -12,7 +12,7 @@ import {
 } from "./roster-capacity.ts";
 
 describe("boat vs youth seat capacity", () => {
-  it("counts youth toward the 1–4 boat roster", () => {
+  it("does not count youth toward the 1–4 adult boat cap", () => {
     const roster = [
       { isYouth: false },
       { isYouth: false },
@@ -21,26 +21,13 @@ describe("boat vs youth seat capacity", () => {
     ];
     assert.equal(adultSeatCount(roster), 3);
     assert.equal(youthSeatCount(roster), 1);
-    assert.equal(namedSeatCount(roster), MAX_ANGLERS);
+    assert.equal(namedSeatCount(roster), 4);
     assert.equal(boatRosterCapacityIssue(roster), null);
-    assert.equal(canAddAdultSeat(roster), false);
-    assert.equal(canAddYouthSeat(roster), false);
+    assert.equal(canAddAdultSeat(roster), true);
+    assert.equal(canAddYouthSeat(roster), true);
   });
 
-  it("treats 2 adults + 2 youth as a full boat", () => {
-    const roster = [
-      { isYouth: false },
-      { isYouth: false },
-      { isYouth: true },
-      { isYouth: true },
-    ];
-    assert.equal(namedSeatCount(roster), MAX_ANGLERS);
-    assert.equal(boatRosterCapacityIssue(roster), null);
-    assert.equal(canAddAdultSeat(roster), false);
-    assert.equal(canAddYouthSeat(roster), false);
-  });
-
-  it("rejects a fifth seat when 4 adults plus a youth would exceed the cap", () => {
+  it("allows 4 adults plus youth without filling the adult cap", () => {
     const roster = [
       { isYouth: false },
       { isYouth: false },
@@ -49,9 +36,20 @@ describe("boat vs youth seat capacity", () => {
       { isYouth: true },
     ];
     assert.equal(adultSeatCount(roster), MAX_ANGLERS);
-    assert.match(boatRosterCapacityIssue(roster) ?? "", /including youth/i);
+    assert.equal(boatRosterCapacityIssue(roster), null);
     assert.equal(canAddAdultSeat(roster), false);
-    assert.equal(canAddYouthSeat(roster), false);
+    assert.equal(canAddYouthSeat(roster), true);
+  });
+
+  it("treats 3 adults + 1 youth as not full for a fourth adult", () => {
+    const roster = [
+      { isYouth: false },
+      { isYouth: false },
+      { isYouth: false },
+      { isYouth: true },
+    ];
+    assert.equal(canAddAdultSeat(roster), true);
+    assert.equal(boatRosterCapacityIssue(roster), null);
   });
 
   it("rejects a boat with only youth", () => {
@@ -63,11 +61,25 @@ describe("boat vs youth seat capacity", () => {
 
   it("rejects a fifth adult", () => {
     const roster = Array.from({ length: 5 }, () => ({ isYouth: false }));
-    assert.match(boatRosterCapacityIssue(roster) ?? "", /at most 4/i);
-    assert.match(boatRosterCapacityIssue(roster) ?? "", /including youth/i);
+    assert.match(boatRosterCapacityIssue(roster) ?? "", /at most 4 adult/i);
+    assert.match(boatRosterCapacityIssue(roster) ?? "", /do not count toward that cap/i);
   });
 
-  it("keeps land-only RowRide at 1–8 youth, not the boat cap", () => {
+  it("caps boat youth extras at 8, same as land-only", () => {
+    const fourAdults = Array.from({ length: 4 }, () => ({ isYouth: false }));
+    const eightYouth = Array.from({ length: MAX_YOUTH_ANGLERS }, () => ({
+      isYouth: true,
+    }));
+    const atMax = [...fourAdults, ...eightYouth];
+    assert.equal(boatRosterCapacityIssue(atMax), null);
+    assert.equal(canAddYouthSeat(atMax), false);
+    assert.match(
+      boatRosterCapacityIssue([...atMax, { isYouth: true }]) ?? "",
+      /at most 8/i,
+    );
+  });
+
+  it("keeps land-only RowRide at 1–8 youth, not the adult boat cap", () => {
     assert.equal(
       youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]),
       null,
@@ -83,6 +95,9 @@ describe("boat vs youth seat capacity", () => {
       isYouth: true,
     }));
     assert.match(youthLandRosterCapacityIssue(tooMany) ?? "", /at most 8/i);
-    assert.equal(canAddYouthSeat(tooMany.slice(0, MAX_YOUTH_ANGLERS), "YOUTH_LAND"), false);
+    assert.equal(
+      canAddYouthSeat(tooMany.slice(0, MAX_YOUTH_ANGLERS), "YOUTH_LAND"),
+      false,
+    );
   });
 });

@@ -135,7 +135,7 @@ export default async function TeamsDirectoryPage() {
   return (
     <PageShell
       title="Teams"
-      description="Official fishing roster — each boat grows the main pot by $300. A boat lists up to 4 anglers including kids. Youth do not compete in the main stringer. Land-only RowRide entries are listed separately. Boat accounts who joined but are not fishing are not seats."
+      description="Official fishing roster — each boat grows the main pot by $300. A boat lists up to 4 adult anglers. Youth do not take an adult seat and do not compete in the main stringer. Land-only RowRide entries are listed separately. Boat accounts who joined but are not fishing are not seats."
     >
       <div className="space-y-6">
         {boatDirectory.length === 0 ? null : otherCount === 0 ? (

@@ -30,10 +30,13 @@ export const EVENT = {
 export const REGISTRATION_CLOSES_AT = new Date("2026-10-02T05:00:00.000Z");
 
 export const MAX_TEAMS = 25;
-/** Named fishing anglers on a paid boat (adults + youth combined). */
+/** Adult main-tournament fishing seats on a paid boat. Youth do not count. */
 export const MIN_ANGLERS = 1;
 export const MAX_ANGLERS = 4;
-/** Youth on a land-only RowRide entry. Boat youth share the 1–4 boat cap. */
+/**
+ * Youth extras on a boat, or youth on a land-only RowRide entry.
+ * Separate from the 1–4 adult cap. Boat extras share this 8-youth safety max.
+ */
 export const MIN_YOUTH_ANGLERS = 1;
 export const MAX_YOUTH_ANGLERS = 8;
 

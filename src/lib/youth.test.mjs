@@ -43,15 +43,20 @@ const LEFTOVER_BOAT_REQUIRED = [
   /same 1–4 cap/i,
 ];
 
-const LEFTOVER_YOUTH_OUTSIDE_CAP = [
-  /do not take one of/i,
-  /kids do not take one/i,
-  /without taking an adult seat/i,
-  /youth tag-alongs do not count/i,
-  /do not count toward that cap/i,
-  /you can still add a youth tag-along/i,
-  /not an adult seat/i,
-  /up to 8 youth extra/i,
+/** PR #36 hard “kids count toward 4” — youth extras do not fill adult seats. */
+const LEFTOVER_YOUTH_COUNT_TOWARD_FOUR = [
+  /count toward that boat/i,
+  /count toward this boat/i,
+  /count toward the 4/i,
+  /count toward the 1–4/i,
+  /count toward the 4-angler/i,
+  /kids count toward/i,
+  /youth count toward the/i,
+  /those kids count toward/i,
+  /1–4 named anglers total/i,
+  /anglers including kids/i,
+  /kids included/i,
+  /including youth/i,
 ];
 
 describe("youth main-stringer eligibility", () => {
@@ -81,11 +86,14 @@ describe("youth main-stringer eligibility", () => {
     assert.match(YOUTH_MAIN_STRINGER_RULE, /main pot/i);
     assert.match(YOUTH_COMPETITION_POLICY, /paid team side pots/i);
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide Youth Angler Tournament/i);
-    assert.match(YOUTH_COMPETITION_POLICY, /1–4 named anglers/i);
-    assert.match(YOUTH_COMPETITION_POLICY, /including youth/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /do not take one/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /captain or guide/i);
     assert.match(YOUTH_COMPETITION_POLICY, /fish from land/i);
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide-only/i);
     for (const pattern of LEFTOVER_MAIN_STRINGER) {
+      assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
+    }
+    for (const pattern of LEFTOVER_YOUTH_COUNT_TOWARD_FOUR) {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
     }
   });
@@ -118,10 +126,10 @@ describe("youth main-stringer leftover copy", () => {
     }
   });
 
-  it("does not say boat youth sit outside the 4-angler cap", () => {
+  it("does not say youth count toward the 4-adult boat cap", () => {
     for (const relative of COPY_SURFACES) {
       const text = readFileSync(join(ROOT, relative), "utf8");
-      for (const pattern of LEFTOVER_YOUTH_OUTSIDE_CAP) {
+      for (const pattern of LEFTOVER_YOUTH_COUNT_TOWARD_FOUR) {
         assert.equal(
           pattern.test(text),
           false,

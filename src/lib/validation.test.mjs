@@ -164,16 +164,16 @@ describe("boat vs land registration capacity", () => {
     );
   });
 
-  it("rejects 4 adults plus youth on a boat", () => {
-    assert.match(
+  it("accepts 4 adults plus youth on a boat", () => {
+    assert.equal(
       boatRosterCapacityIssue([
         { isYouth: false },
         { isYouth: false },
         { isYouth: false },
         { isYouth: false },
         { isYouth: true },
-      ]) ?? "",
-      /including youth/i,
+      ]),
+      null,
     );
   });
 
