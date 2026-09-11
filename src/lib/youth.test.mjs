@@ -123,7 +123,7 @@ describe("youth main-stringer eligibility", () => {
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide Youth Angler Tournament/i);
     assert.match(YOUTH_COMPETITION_POLICY, /do not take one/i);
     assert.match(YOUTH_COMPETITION_POLICY, /captain or guide/i);
-    assert.match(YOUTH_COMPETITION_POLICY, /land or by boat/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /land\s+or\s+by\s+boat/i);
     assert.match(YOUTH_COMPETITION_POLICY, /not added to a boat roster/i);
     for (const pattern of LEFTOVER_MAIN_STRINGER) {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
@@ -256,7 +256,7 @@ describe("RowRide rules live on the kids page", () => {
       assert.match(text, /must personally hook the fish/i);
       assert.match(text, /Tournament Host/);
       assert.match(text, /\/register\/youth/);
-      assert.match(text, /land or by boat/i);
+      assert.match(text, /land\s+or\s+by\s+boat/i);
       assert.match(text, /Main tournament rules|adult boat tournament rules/i);
     }
   });
@@ -264,7 +264,11 @@ describe("RowRide rules live on the kids page", () => {
   it("says kids may fish from land or by boat on public RowRide surfaces", () => {
     for (const relative of LAND_OR_BOAT_SURFACES) {
       const text = readFileSync(join(ROOT, relative), "utf8");
-      assert.match(text, /land or by boat/i, `${relative} is missing land-or-boat`);
+      assert.match(
+        text,
+        /land\s+or\s+by\s+boat/i,
+        `${relative} is missing land-or-boat`,
+      );
     }
   });
 });
