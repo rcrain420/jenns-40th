@@ -43,6 +43,16 @@ const LEFTOVER_BOAT_REQUIRED = [
   /same 1–4 cap/i,
 ];
 
+/** Kids register on RowRide only — not attached to a boat roster. */
+const LEFTOVER_YOUTH_ON_BOAT_REGISTER = [
+  /join a registered boat roster/i,
+  /register a boat \+ kids/i,
+  /register a boat and add kids/i,
+  /add kids if the captain/i,
+  /add them if the captain or guide allows/i,
+  /when kids are on the roster/i,
+];
+
 /** PR #36 hard “kids count toward 4” — youth extras do not fill adult seats. */
 const LEFTOVER_YOUTH_COUNT_TOWARD_FOUR = [
   /count toward that boat/i,
@@ -84,16 +94,20 @@ describe("youth main-stringer eligibility", () => {
     assert.match(YOUTH_MAIN_STRINGER_RULE, /do not participate/i);
     assert.match(YOUTH_MAIN_STRINGER_RULE, /main tournament stringer/i);
     assert.match(YOUTH_MAIN_STRINGER_RULE, /main pot/i);
-    assert.match(YOUTH_COMPETITION_POLICY, /paid team side pots/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /paid side pots/i);
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide Youth Angler Tournament/i);
     assert.match(YOUTH_COMPETITION_POLICY, /do not take one/i);
     assert.match(YOUTH_COMPETITION_POLICY, /captain or guide/i);
     assert.match(YOUTH_COMPETITION_POLICY, /fish from land/i);
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide-only/i);
+    assert.match(YOUTH_COMPETITION_POLICY, /not added to a boat roster/i);
     for (const pattern of LEFTOVER_MAIN_STRINGER) {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
     }
     for (const pattern of LEFTOVER_YOUTH_COUNT_TOWARD_FOUR) {
+      assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
+    }
+    for (const pattern of LEFTOVER_YOUTH_ON_BOAT_REGISTER) {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
     }
   });
@@ -137,5 +151,32 @@ describe("youth main-stringer leftover copy", () => {
         );
       }
     }
+  });
+
+  it("does not invite adding kids onto a boat roster via registration", () => {
+    for (const relative of COPY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of LEFTOVER_YOUTH_ON_BOAT_REGISTER) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
+});
+
+describe("boat register form is adults only", () => {
+  it("has no + Add youth or 17-or-under checkbox", () => {
+    const text = readFileSync(
+      join(ROOT, "src/components/RegisterForm.tsx"),
+      "utf8",
+    );
+    assert.equal(text.includes("+ Add youth"), false);
+    assert.equal(/YOUTH_CHECKBOX_LABEL/.test(text), false);
+    assert.equal(/17 or under/.test(text), false);
+    assert.match(text, /\/register\/youth/);
+    assert.match(text, /isYouth: false/);
   });
 });

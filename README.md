@@ -6,7 +6,7 @@ Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Bo
 
 - Public landing page and team registration (AI team-name suggestions after sign-in)
 - Teams of 1–4 adult anglers; a main-tournament boat needs at least one adult; guided (optional captain) or non-guided (optional primary contact)
-- Youth may fish from land (free RowRide entry) or join a boat if the captain or guide allows it — they do not take an adult seat (app safety max 8 youth extras)
+- Youth register separately for free RowRide from land (`/register/youth`) — they are not added to a boat roster (app safety max 8 youth on a land entry). On event day they may fish from a boat if the captain or guide allows it.
 - $300 flat per boat; youth do not change the boat entry; side pots $50 per team, per pot; Venmo payment link + QR (`public/venmo-qr.png`)
 - Fishing license confirmation checkbox
 - Soft cap of 25 teams; public registration closes end of day Oct 1, 2026 (America/Chicago). No walk-ups, day-of, or marina registration. Admins may add a late exception after the cutoff or soft cap.

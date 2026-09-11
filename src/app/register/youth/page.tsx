@@ -42,7 +42,7 @@ export default async function YouthLandRegisterPage() {
       <PageShell
         narrow
         title={REGISTER_ALREADY_IN.title}
-        description="You're already in. Add kids on your boat from the kids page, or manage a land-only entry on My team."
+        description="You're already in. Manage a land-only RowRide entry on My team. Kids are not added to a boat roster — another parent or guardian who is not already on a team can enter them for RowRide."
       >
         <p className="flex flex-wrap gap-4">
           <Link href="/kids" className="font-semibold text-sea hover:underline">

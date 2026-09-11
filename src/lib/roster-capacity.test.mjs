@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { MAX_ANGLERS, MAX_YOUTH_ANGLERS, MIN_ANGLERS } from "./config.ts";
 import {
+  BOAT_YOUTH_FORBIDDEN_ERROR,
   adultSeatCount,
   boatRosterCapacityIssue,
+  boatYouthForbiddenIssue,
   canAddAdultSeat,
   canAddYouthSeat,
   namedSeatCount,
@@ -24,10 +26,11 @@ describe("boat vs youth seat capacity", () => {
     assert.equal(namedSeatCount(roster), 4);
     assert.equal(boatRosterCapacityIssue(roster), null);
     assert.equal(canAddAdultSeat(roster), true);
-    assert.equal(canAddYouthSeat(roster), true);
+    assert.equal(canAddYouthSeat(roster), false);
+    assert.equal(boatYouthForbiddenIssue(roster), BOAT_YOUTH_FORBIDDEN_ERROR);
   });
 
-  it("allows 4 adults plus youth without filling the adult cap", () => {
+  it("allows leftover youth on a boat for adult-cap math only", () => {
     const roster = [
       { isYouth: false },
       { isYouth: false },
@@ -38,7 +41,8 @@ describe("boat vs youth seat capacity", () => {
     assert.equal(adultSeatCount(roster), MAX_ANGLERS);
     assert.equal(boatRosterCapacityIssue(roster), null);
     assert.equal(canAddAdultSeat(roster), false);
-    assert.equal(canAddYouthSeat(roster), true);
+    assert.equal(canAddYouthSeat(roster), false);
+    assert.equal(boatYouthForbiddenIssue(roster), BOAT_YOUTH_FORBIDDEN_ERROR);
   });
 
   it("treats 3 adults + 1 youth as not full for a fourth adult", () => {
@@ -65,7 +69,11 @@ describe("boat vs youth seat capacity", () => {
     assert.match(boatRosterCapacityIssue(roster) ?? "", /do not count toward that cap/i);
   });
 
-  it("caps boat youth extras at 8, same as land-only", () => {
+  it("forbids adding youth on a boat and still caps leftover youth at 8", () => {
+    const adultsOnly = Array.from({ length: 2 }, () => ({ isYouth: false }));
+    assert.equal(canAddYouthSeat(adultsOnly), false);
+    assert.equal(boatYouthForbiddenIssue(adultsOnly), null);
+
     const fourAdults = Array.from({ length: 4 }, () => ({ isYouth: false }));
     const eightYouth = Array.from({ length: MAX_YOUTH_ANGLERS }, () => ({
       isYouth: true,

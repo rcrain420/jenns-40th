@@ -34,8 +34,8 @@ export const MAX_TEAMS = 25;
 export const MIN_ANGLERS = 1;
 export const MAX_ANGLERS = 4;
 /**
- * Youth extras on a boat, or youth on a land-only RowRide entry.
- * Separate from the 1–4 adult cap. Boat extras share this 8-youth safety max.
+ * Youth on a land-only RowRide entry (1–8). Separate from the 1–4 adult
+ * boat cap. Boat teams are adults only — kids are not added to a boat roster.
  */
 export const MIN_YOUTH_ANGLERS = 1;
 export const MAX_YOUTH_ANGLERS = 8;

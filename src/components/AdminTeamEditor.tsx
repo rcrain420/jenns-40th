@@ -203,7 +203,16 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
           <select
             className={inputClass}
             value={entryKind}
-            onChange={(e) => setEntryKind(e.target.value as EntryKind)}
+            onChange={(e) => {
+              const next = e.target.value as EntryKind;
+              setEntryKind(next);
+              setAnglers((prev) =>
+                prev.map((a) => ({
+                  ...a,
+                  isYouth: next === ENTRY_KIND.YOUTH_LAND,
+                })),
+              );
+            }}
           >
             <option value={ENTRY_KIND.BOAT}>Boat (main tournament)</option>
             <option value={ENTRY_KIND.YOUTH_LAND}>
@@ -320,16 +329,18 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
                 + Adult
               </button>
             )}
-            <button
-              type="button"
-              disabled={!canAddYouthSeat(anglers, entryKind)}
-              onClick={() =>
-                setAnglers((a) => [...a, { ...emptyAngler(), isYouth: true }])
-              }
-              className="text-sm font-semibold text-sea disabled:opacity-40"
-            >
-              + Youth
-            </button>
+            {isYouthLandEntry(entryKind) ? (
+              <button
+                type="button"
+                disabled={!canAddYouthSeat(anglers, entryKind)}
+                onClick={() =>
+                  setAnglers((a) => [...a, { ...emptyAngler(), isYouth: true }])
+                }
+                className="text-sm font-semibold text-sea disabled:opacity-40"
+              >
+                + Youth
+              </button>
+            ) : null}
           </div>
         </div>
         {anglers.map((angler, index) => (
@@ -402,21 +413,23 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
             >
               Remove
             </button>
-            <label className="flex items-center gap-2 text-sm sm:col-span-2 lg:col-span-5">
-              <input
-                type="checkbox"
-                checked={angler.isYouth}
-                onChange={(e) =>
-                  setAnglers((prev) =>
-                    prev.map((a, i) =>
-                      i === index ? { ...a, isYouth: e.target.checked } : a,
-                    ),
-                  )
-                }
-                className="accent-sea"
-              />
-              17 or under
-            </label>
+            {isYouthLandEntry(entryKind) ? (
+              <label className="flex items-center gap-2 text-sm sm:col-span-2 lg:col-span-5">
+                <input
+                  type="checkbox"
+                  checked={angler.isYouth}
+                  onChange={(e) =>
+                    setAnglers((prev) =>
+                      prev.map((a, i) =>
+                        i === index ? { ...a, isYouth: e.target.checked } : a,
+                      ),
+                    )
+                  }
+                  className="accent-sea"
+                />
+                17 or under
+              </label>
+            ) : null}
           </div>
         ))}
       </div>

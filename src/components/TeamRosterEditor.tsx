@@ -44,7 +44,7 @@ type Props = {
   amountPaidCents?: number;
   canEditRoster: boolean;
   canInvite: boolean;
-  /** True at 4 invited adult anglers — hide + Add adult, not youth or Invite. */
+  /** True at 4 invited adult anglers — hide + Add adult, not Invite. */
   boatInviteLocked?: boolean;
   defaultNewIsYouth?: boolean;
   entryKind?: string;
@@ -97,9 +97,8 @@ export function TeamRosterEditor({
     canEditRoster && !landOnly && canAddAdultSeat(anglers) && !boatInviteLocked;
   const canAddYouth =
     canEditRoster &&
-    (landOnly
-      ? canAddYouthSeat(anglers, ENTRY_KIND.YOUTH_LAND)
-      : canAddYouthSeat(anglers));
+    landOnly &&
+    canAddYouthSeat(anglers, ENTRY_KIND.YOUTH_LAND);
   const extraDue = nextDue - currentDueCents;
 
   function patchAngler(index: number, next: Partial<RosterAnglerDraft>) {
@@ -178,7 +177,7 @@ export function TeamRosterEditor({
   async function onSave(e: React.FormEvent) {
     e.preventDefault();
     if (!canEditRoster) return;
-    if (hasYouthAngler(anglers) && !youthGuardianAttested) {
+    if (landOnly && hasYouthAngler(anglers) && !youthGuardianAttested) {
       setError(YOUTH_ATTESTATION_ERROR);
       return;
     }
@@ -265,16 +264,16 @@ export function TeamRosterEditor({
           Email is optional. {YOUTH_EMAIL_HELPER}{" "}
           {landOnly
             ? "This is a land-only RowRide entry — no boat fee and no team side pots. Parent login is the login."
-            : "Invite on an adult seat sends Join the boat. Youth do not take one of the 1–4 adult seats, do not get a create-account invite, and do not change the $300 boat entry. They may join if the captain or guide allows it — guides often prefer no more than four anglers, so ask first. Youth fish do not count on the main stringer; they may count on paid team side pots and RowRide."}{" "}
+            : "Invite on an adult seat sends Join the boat. Boat teams are adults only — kids register separately for RowRide from land and are not added here. Adult seats do not change the $300 boat entry."}{" "}
           {!landOnly
-            ? "Adults without email stay name-only and join from the invite link. That is not the kids path."
+            ? "Adults without email stay name-only and join from the invite link."
             : null}
           {canEditRoster
             ? landOnly
               ? " Use + Add youth to add another kid."
               : boatInviteLocked
-                ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. This boat is full of adults — you can still add a youth if the captain or guide allows it.`
-                : ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. Kids do not take one of those seats.`
+                ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. This boat is full of adults.`
+                : ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. Kids are not added to this boat.`
             : " Registration is closed, so names stay as they are — you can still add an email and resend Invite on adult seats."}
         </p>
         <div className="flex shrink-0 flex-col items-end gap-1">
@@ -301,7 +300,9 @@ export function TeamRosterEditor({
 
       {anglers.length === 0 ? (
         <p className="text-sm text-ink/60">
-          No extra seats yet. Add an adult fishing seat or a youth if the captain or guide allows it.
+          {landOnly
+            ? "No youth anglers yet. Use + Add youth."
+            : "No adult seats yet. Add an adult fishing seat."}
         </p>
       ) : null}
 
@@ -325,17 +326,19 @@ export function TeamRosterEditor({
                 </p>
                 {canEditRoster ? (
                   <div className="mt-2 flex flex-wrap items-end gap-4">
-                    <label className="flex items-center gap-2 text-sm text-ink/70">
-                      <input
-                        type="checkbox"
-                        checked={angler.isYouth}
-                        onChange={(e) =>
-                          patchAngler(index, { isYouth: e.target.checked })
-                        }
-                        className="h-4 w-4 accent-sea"
-                      />
-                      {YOUTH_CHECKBOX_LABEL}
-                    </label>
+                    {landOnly ? (
+                      <label className="flex items-center gap-2 text-sm text-ink/70">
+                        <input
+                          type="checkbox"
+                          checked={angler.isYouth}
+                          onChange={(e) =>
+                            patchAngler(index, { isYouth: e.target.checked })
+                          }
+                          className="h-4 w-4 accent-sea"
+                        />
+                        {YOUTH_CHECKBOX_LABEL}
+                      </label>
+                    ) : null}
                     <label className="block min-w-[7.5rem]">
                       <span className={labelClass}>Shirt size</span>
                       <ShirtSizeSelect
@@ -453,19 +456,23 @@ export function TeamRosterEditor({
                 onChange={(e) => patchAngler(index, { email: e.target.value })}
                 placeholder="Parent email is fine — kids do not need an account"
               />
-              <p className="mt-1 text-sm text-ink/60">{YOUTH_EMAIL_HELPER}</p>
+              {landOnly ? (
+                <p className="mt-1 text-sm text-ink/60">{YOUTH_EMAIL_HELPER}</p>
+              ) : null}
             </div>
-            <label className="flex items-center gap-2 sm:col-span-2">
-              <input
-                type="checkbox"
-                checked={angler.isYouth}
-                onChange={(e) =>
-                  patchAngler(index, { isYouth: e.target.checked })
-                }
-                className="h-4 w-4 accent-sea"
-              />
-              <span className="text-sm">{YOUTH_CHECKBOX_LABEL}</span>
-            </label>
+            {landOnly ? (
+              <label className="flex items-center gap-2 sm:col-span-2">
+                <input
+                  type="checkbox"
+                  checked={angler.isYouth}
+                  onChange={(e) =>
+                    patchAngler(index, { isYouth: e.target.checked })
+                  }
+                  className="h-4 w-4 accent-sea"
+                />
+                <span className="text-sm">{YOUTH_CHECKBOX_LABEL}</span>
+              </label>
+            ) : null}
             <div className="flex items-end gap-3">
               {canInvite && !angler.isYouth ? (
                 <button
@@ -517,7 +524,7 @@ export function TeamRosterEditor({
         </p>
       ) : null}
 
-      {canEditRoster && hasYouthAngler(anglers) ? (
+      {canEditRoster && landOnly && hasYouthAngler(anglers) ? (
         <label className="flex items-start gap-3 border border-wave/15 bg-mist/70 px-4 py-3">
           <input
             type="checkbox"

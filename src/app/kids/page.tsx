@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `${YOUTH_TOURNAMENT.name} · ${EVENT.shortName}`,
-  description: `${YOUTH_TOURNAMENT.tagline} Free youth tournament — fish from land or join a registered boat. Host-funded biggest fish.`,
+  description: `${YOUTH_TOURNAMENT.tagline} Free youth tournament — register kids on their own RowRide form. Host-funded biggest fish.`,
 };
 
 export default async function KidsPage() {
@@ -83,8 +83,9 @@ export default async function KidsPage() {
             12th!
           </p>
           <p className="mt-3 text-ink/80">
-            Kids may fish from land or by boat. Youth anglers may also join a
-            registered tournament boat if the captain or guide allows it.
+            Kids register separately for RowRide and fish from land. On event
+            day they may still fish from a boat if the captain or guide
+            allows it — they are not added to a boat roster.
           </p>
           <p className="mt-3 text-ink/80">
             The RowRide Youth Anglers Tournament gives the kids their own
@@ -109,21 +110,20 @@ export default async function KidsPage() {
               Kids do not compete in the adult main stringer or main pot.
             </li>
             <li>
-              Kids are not required to be on a boat. Land-only entries are
-              RowRide-only — no team side pots.
+              Kids are not required to be on a boat. They register on the
+              separate RowRide form — land-only entries are RowRide-only, with
+              no boat seats and no team side pots.
             </li>
             <li>
-              Kids may optionally join a registered boat roster if the
-              captain or guide allows it. They do not take one of that
+              Boat teams are adults only. Kids do not take one of a
               boat&apos;s 1–4 adult fishing seats and do not change the{" "}
-              {formatUsd(BOAT_ENTRY_CENTS)} boat entry. Example: 3 adults + 1
-              kid is still {formatUsd(BOAT_ENTRY_CENTS)} — a fourth adult can
-              still join. Guides often prefer no more than four anglers, so
-              communicate in advance.
+              {formatUsd(BOAT_ENTRY_CENTS)} boat entry. On event day they may
+              fish from a boat if the captain or guide allows it — guides
+              often prefer no more than four anglers, so communicate in
+              advance.
             </li>
             <li>
-              If a kid is attached to a boat that entered paid side pots,
-              their fish may count on those team side pots.
+              RowRide kids do not count on a boat team&apos;s paid side pots.
             </li>
             <li>
               A parent or legal guardian registers them. Kids can use a
@@ -155,7 +155,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "Sign in, then enter from land with no boat, or register a boat and add kids if the captain or guide allows it."
+                  ? "Sign in, then enter kids from land on the RowRide form. Boat registration is a separate adults-only path."
                   : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -163,18 +163,17 @@ export default async function KidsPage() {
                   Enter from land
                 </Link>
                 {availability.isOpen ? (
-                  <Link href="/register?youth=1" className="btn-bay btn-bay-navy">
-                    Register a boat + kids
+                  <Link href="/register" className="btn-bay btn-bay-navy">
+                    Register a boat
                   </Link>
                 ) : null}
               </div>
             </div>
-          ) : team && isRegistrant ? (
+          ) : team && isRegistrant && landOnly ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
-                {landOnly
-                  ? `Add youth anglers to ${team.teamName} here. This is a land-only RowRide entry — $0, no boat seats, no team side pots.`
-                  : `Add youth anglers to ${team.teamName} here. Kids do not take one of the 1–4 adult seats and do not change the $300 boat entry. They may join if the captain or guide allows it. They do not compete in the main stringer; they may count on paid team side pots and RowRide.`}
+                Add youth anglers to {team.teamName} here. This is a land-only
+                RowRide entry — $0, no boat seats, no team side pots.
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({
@@ -196,26 +195,36 @@ export default async function KidsPage() {
                 currentDueCents={team.amountDueCents}
                 amountPaidCents={team.amountPaidCents}
                 canEditRoster={canEdit}
-                canInvite={!landOnly}
+                canInvite={false}
                 boatInviteLocked={inviteLocked}
                 defaultNewIsYouth
                 entryKind={team.entryKind}
               />
             </div>
+          ) : team && isRegistrant ? (
+            <div className="mt-4 space-y-4">
+              <p className="text-ink/80">
+                You&apos;re on boat team {team.teamName}. Kids are not added
+                to a boat roster. Another parent or guardian who is not already
+                on a team can enter them for RowRide.
+              </p>
+              <Link href="/register/youth" className="btn-bay btn-bay-red">
+                RowRide signup
+              </Link>
+            </div>
           ) : team ? (
             <p className="mt-4 text-ink/80">
-              You&apos;re on {team.teamName}. Ask the person who registered
-              to add youth anglers from{" "}
+              You&apos;re on {team.teamName}. Kids register separately for
+              RowRide — they are not added to a boat roster.{" "}
               <Link href="/team" className="font-semibold text-sea hover:underline">
                 My team
               </Link>
-              .
             </p>
           ) : (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "You're signed in and not on a boat. Enter kids from land, or register a boat and add them if the captain or guide allows it."
+                  ? "You're signed in and not on a team. Enter kids from land on the RowRide form. Boat registration is a separate adults-only path."
                   : "The 25-boat field is full. Land-only RowRide is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -223,8 +232,8 @@ export default async function KidsPage() {
                   Enter from land
                 </Link>
                 {availability.isOpen ? (
-                  <Link href="/register?youth=1" className="btn-bay btn-bay-navy">
-                    Register a boat + kids
+                  <Link href="/register" className="btn-bay btn-bay-navy">
+                    Register a boat
                   </Link>
                 ) : null}
               </div>

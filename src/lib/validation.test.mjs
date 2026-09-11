@@ -25,7 +25,9 @@ const {
   getVenmoUrl,
 } = await import("./config.ts");
 const {
+  BOAT_YOUTH_FORBIDDEN_ERROR,
   boatRosterCapacityIssue,
+  boatYouthForbiddenIssue,
   youthLandRosterCapacityIssue,
 } = await import("./roster-capacity.ts");
 const {
@@ -86,7 +88,7 @@ describe("isYouth registration", () => {
     assert.equal(SIDE_POT_IDS.includes("kids"), false);
   });
 
-  it("keeps 3 adults + 1 youth as a $300 boat that is full", () => {
+  it("keeps leftover 3 adults + 1 youth as a $300 boat that still has an adult seat", () => {
     const roster = [
       { isYouth: false },
       { isYouth: false },
@@ -96,6 +98,7 @@ describe("isYouth registration", () => {
     assert.equal(paidEntrySeatCount(roster), 3);
     assert.equal(amountDueCents(0), 30000);
     assert.equal(boatRosterCapacityIssue(roster), null);
+    assert.equal(boatYouthForbiddenIssue(roster), BOAT_YOUTH_FORBIDDEN_ERROR);
   });
 
   it("allows a single fishing angler and keeps the boat fee flat", () => {
@@ -152,7 +155,7 @@ describe("Venmo handle", () => {
 });
 
 describe("boat vs land registration capacity", () => {
-  it("accepts 3 adults and 1 youth on a boat", () => {
+  it("treats leftover youth on a boat as extra names, not adult seats", () => {
     assert.equal(
       boatRosterCapacityIssue([
         { isYouth: false },
@@ -162,27 +165,22 @@ describe("boat vs land registration capacity", () => {
       ]),
       null,
     );
-  });
-
-  it("accepts 4 adults plus youth on a boat", () => {
     assert.equal(
-      boatRosterCapacityIssue([
-        { isYouth: false },
-        { isYouth: false },
-        { isYouth: false },
+      boatYouthForbiddenIssue([
         { isYouth: false },
         { isYouth: true },
       ]),
-      null,
+      BOAT_YOUTH_FORBIDDEN_ERROR,
     );
   });
 
-  it("accepts 2 adults and 2 youth on a boat", () => {
+  it("still counts leftover 4 adults plus youth as a full adult boat", () => {
     assert.equal(
       boatRosterCapacityIssue([
         { isYouth: false },
         { isYouth: false },
-        { isYouth: true },
+        { isYouth: false },
+        { isYouth: false },
         { isYouth: true },
       ]),
       null,
@@ -200,6 +198,25 @@ describe("boat vs land registration capacity", () => {
     );
     assert.ok(youthLandRosterCapacityIssue([{ isYouth: false }]));
     assert.equal(amountDueForEntry({ entryKind: ENTRY_KIND.YOUTH_LAND }), 0);
+  });
+});
+
+describe("BOAT writes reject youth anglers", () => {
+  it("forbids isYouth on a boat and allows youth-only land entries", () => {
+    assert.equal(
+      boatYouthForbiddenIssue([{ isYouth: false }]),
+      null,
+    );
+    assert.equal(
+      boatYouthForbiddenIssue([{ isYouth: false }, { isYouth: true }]),
+      BOAT_YOUTH_FORBIDDEN_ERROR,
+    );
+    assert.match(BOAT_YOUTH_FORBIDDEN_ERROR, /adults only/i);
+    assert.match(BOAT_YOUTH_FORBIDDEN_ERROR, /RowRide/i);
+    assert.equal(
+      youthLandRosterCapacityIssue([{ isYouth: true }]),
+      null,
+    );
   });
 });
 

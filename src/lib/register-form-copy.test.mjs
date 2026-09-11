@@ -4,7 +4,7 @@ import { BOAT_ENTRY_CENTS, MAX_ANGLERS, MIN_ANGLERS } from "./config.ts";
 import { anglersSectionHelp } from "./register-form-copy.ts";
 
 describe("anglersSectionHelp", () => {
-  it("keeps the roster, youth, invite, and captain rules without the essay", () => {
+  it("keeps the adult-only boat roster, invite, and captain rules without the essay", () => {
     const fee = BOAT_ENTRY_CENTS / 100;
     const text = anglersSectionHelp({
       minAnglers: MIN_ANGLERS,
@@ -14,24 +14,24 @@ describe("anglersSectionHelp", () => {
 
     assert.match(text, new RegExp(`${MIN_ANGLERS}–${MAX_ANGLERS}`));
     assert.match(text, /adult seats/);
-    assert.match(text, /kids do not take one/);
-    assert.match(text, /captain or guide/);
+    assert.match(text, /adults only/);
     assert.match(text, /One adult name/);
     assert.match(text, /My team/);
-    assert.match(text, /17-or-under/);
     assert.match(text, /shirt size/);
     assert.match(text, /email is optional/i);
     assert.match(text, /from land/);
+    assert.match(text, /RowRide/);
+    assert.match(text, /not added to this boat/);
     assert.match(text, new RegExp(`\\$${fee} boat entry`));
-    assert.match(text, /create-account invite/);
-    assert.match(text, /parent/);
     assert.match(text, /Join the boat/);
     assert.match(text, /invite link/);
     assert.match(text, /Captain is optional/);
     assert.match(text, /18\+/);
-    assert.match(text, /out of the main stringer/);
-    assert.match(text, /paid side pots and RowRide/);
 
+    assert.equal(/17-or-under/i.test(text), false);
+    assert.equal(/captain or guide/i.test(text), false);
+    assert.equal(/\+ Add youth/i.test(text), false);
+    assert.equal(/join a registered boat roster/i.test(text), false);
     assert.equal(/that is not the kids path/i.test(text), false);
     assert.equal(/still count on the team stringer/i.test(text), false);
     assert.equal(/kids included/i.test(text), false);
