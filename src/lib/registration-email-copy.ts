@@ -12,6 +12,7 @@ export type RegistrationConfirmationCopyInput = {
   boatEntryFeeLabel: string;
   paidSeatCount?: number;
   youthSeatCount?: number;
+  entryKind?: string | null;
 };
 
 export function registrationConfirmationCopy(
@@ -78,9 +79,13 @@ export function amountDueLine(input: {
   boatEntryFeeLabel: string;
   paidSeatCount?: number;
   youthSeatCount?: number;
+  entryKind?: string | null;
 }): string {
   void input.paidSeatCount;
   void input.youthSeatCount;
+  if (input.entryKind === "YOUTH_LAND") {
+    return `Amount due: ${input.amountLabel}. RowRide base entry is free. Optional side pots are $50 each.`;
+  }
   return `Amount due: ${input.amountLabel}. Entry is ${input.boatEntryFeeLabel} per boat. Kids do not change the boat total.`;
 }
 

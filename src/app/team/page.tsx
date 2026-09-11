@@ -194,7 +194,17 @@ export default async function MyTeamPage({
       title={team.teamName}
       description={
         isYouthLandEntry(team.entryKind)
-          ? `RowRide · $0 · ${rosterCount} youth ${rosterCount === 1 ? "angler" : "anglers"}`
+          ? `RowRide · ${formatUsd(team.amountDueCents)}${
+              team.amountDueCents > 0
+                ? ` · ${
+                    team.paymentStatus === "PAID"
+                      ? "Paid"
+                      : team.paymentStatus === "PARTIAL"
+                        ? `Partial · ${formatUsd(team.amountPaidCents)} paid`
+                        : "Unpaid"
+                  }`
+                : ""
+            } · ${rosterCount} youth ${rosterCount === 1 ? "angler" : "anglers"}`
           : `${formatUsd(team.amountDueCents)} due · ${
               team.paymentStatus === "PAID"
                 ? "Paid"

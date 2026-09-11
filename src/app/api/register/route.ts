@@ -96,6 +96,7 @@ export async function POST(request: Request) {
       registrantEmail: result.team.registrantEmail,
       paidSeatCount: paidEntrySeatCount(result.team.anglers),
       youthSeatCount: result.team.anglers.filter((a) => a.isYouth).length,
+      entryKind: result.team.entryKind,
     });
     confirmationEmailSent = delivery.delivered;
     if (!delivery.delivered) {

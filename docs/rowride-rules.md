@@ -52,7 +52,7 @@ The youth angler must personally hook the fish and land it. Adults may help with
 
 Youth anglers do not take one of a boat’s one-to-four adult fishing seats. They do not change the $300 boat entry and do not grow the main tournament pot beyond that boat fee.
 
-They do not participate in the main tournament stringer or main pot competition. They do not count on a boat team’s paid side pots. A RowRide entry is RowRide-only.
+They do not participate in the main tournament stringer or main pot competition. They do not count on a boat team’s paid side pots, even if they fish from a registered boat that entered those pots. To enter a paid side pot, they buy in on their own RowRide registration — $50 per pot. The free RowRide base stays $0.
 
 ## 7. Licenses
 

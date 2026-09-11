@@ -3,8 +3,10 @@ import {
   ENTRY_KIND,
   MAX_TEAMS,
   amountDueCents,
+  amountDueForEntry,
   isRegistrationOpen,
 } from "./config";
+import { derivePaymentStatus } from "./payments";
 import { normalizeUnlockEmail } from "./event-unlock-token";
 import {
   PUBLIC_REGISTRATION_DATE_CLOSED_ERROR,
@@ -84,6 +86,11 @@ export function teamCreateData(input: RegistrationInput) {
 }
 
 export function youthLandCreateData(input: YouthLandRegistrationInput) {
+  const sidePots = input.sidePots ?? [];
+  const amountDueCentsValue = amountDueForEntry({
+    entryKind: ENTRY_KIND.YOUTH_LAND,
+    sidePotCount: sidePots.length,
+  });
   return {
     teamName: input.teamName,
     entryKind: ENTRY_KIND.YOUTH_LAND,
@@ -97,9 +104,9 @@ export function youthLandCreateData(input: YouthLandRegistrationInput) {
     registrantEmail: input.registrantEmail,
     notes: input.notes ?? null,
     licenseConfirmed: input.licenseConfirmed,
-    paymentStatus: "PAID" as const,
-    sidePots: [] as string[],
-    amountDueCents: 0,
+    paymentStatus: derivePaymentStatus(0, amountDueCentsValue),
+    sidePots,
+    amountDueCents: amountDueCentsValue,
     amountPaidCents: 0,
     anglers: {
       create: anglerCreateRows(input.anglers, true),

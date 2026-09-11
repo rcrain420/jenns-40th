@@ -34,7 +34,7 @@ Late adds after the cutoff happen only if the organizers approve the exception a
 
 3. Boat teams may have one to four registered adult anglers. Entry is $300 per boat. Kids are not added to a boat roster and do not change that fee. Example: three adults is still $300 — a fourth adult can still join.
 
-4. Only registered adult anglers may catch fish entered for the main tournament stringer, main pot, or paid team side pots.
+4. Only registered adult anglers may catch fish entered for the main tournament stringer, main pot, or a boat team’s paid side pots. Youth fish never count on a boat team’s paid side pots. Kids who want those pots buy in on their own RowRide registration.
 
 5. Unsafe behavior, cheating, serious rule-breaking or acting like a complete jackass may result in an entry being refused or revoked.
 
@@ -177,7 +177,7 @@ All side-pot selections and payments must be completed through Venmo at the capt
 
 No side-pot entries or payments will be accepted after the captain’s meeting closes or on tournament day.
 
-Registered adult anglers may catch fish for paid team side pots when the team has entered those pots.
+Registered adult anglers may catch fish for paid team side pots when the team has entered those pots. Youth fish never count on a boat team’s paid side pots.
 
 Side-pot fish may also be included in the team’s main tournament stringer when otherwise eligible and caught by a registered adult angler.
 
@@ -211,7 +211,7 @@ If two fish have the same number of spots, the heavier fish wins. If they also w
 
 ### RowRide Youth Angler Tournament
 
-RowRide is a separate free youth tournament. Register for RowRide separately. Kids may fish from land or by boat. Its rules live in `docs/rowride-rules.md` and on `/kids#rules` — they are not part of these adult boat rules.
+RowRide is a separate free youth tournament. Register for RowRide separately. Kids may fish from land or by boat. Youth fish never count on a boat team’s paid side pots; kids buy into those pots on their own RowRide entry. Its rules live in `docs/rowride-rules.md` and on `/kids#rules` — they are not part of these adult boat rules.
 
 ### Heaviest Saltwater Catfish
 

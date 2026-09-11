@@ -152,6 +152,10 @@ export const youthLandRegistrationSchema = z
     }),
     youthGuardianAttested: z.boolean().optional(),
     entryKind: z.literal(ENTRY_KIND.YOUTH_LAND).optional(),
+    sidePots: z
+      .array(z.enum(SIDE_POT_IDS))
+      .default([])
+      .transform((pots) => Array.from(new Set(pots))),
   })
   .superRefine(refineYouthAttestation)
   .superRefine(refineYouthLandRoster);

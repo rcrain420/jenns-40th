@@ -222,7 +222,7 @@ export function AdminDashboard({ teams, stats }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     {team.entryKind === "YOUTH_LAND"
-                      ? "Land / RowRide"
+                      ? "RowRide"
                       : team.boatType === "GUIDED"
                         ? "Guided"
                         : "Non-guided"}

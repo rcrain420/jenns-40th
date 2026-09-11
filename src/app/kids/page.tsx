@@ -155,7 +155,7 @@ export default async function KidsPage() {
           <ul className="mt-3 list-disc space-y-3 pl-5 text-ink/80">
             <li>
               Kids may fish from land or by boat. Registering for RowRide
-              does not put them on a $300 boat roster or in team side pots.
+              does not put them on a $300 boat roster.
             </li>
             <li>
               If they tag along on someone&apos;s boat, ask the captain or
@@ -194,7 +194,11 @@ export default async function KidsPage() {
               Kids do not compete in the adult main stringer or main pot.
             </li>
             <li>
-              RowRide kids do not count on a boat team&apos;s paid side pots.
+              RowRide kids do not count on a boat team&apos;s paid side pots,
+              even if they fish from a registered boat that entered those
+              pots. To enter a paid side pot, they buy in on their own
+              RowRide registration — $50 per pot. The free RowRide base
+              stays $0.
             </li>
           </ul>
 
@@ -265,9 +269,10 @@ export default async function KidsPage() {
           ) : team && isRegistrant && landOnly ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
-                Add youth anglers to {team.teamName} here. This is a RowRide
-                entry — $0, not a $300 boat roster, no team side pots. Kids
-                may fish from land or by boat.
+                Add kids to this RowRide household ({team.teamName}). This
+                is a RowRide entry — $0 base, not a $300 boat roster.
+                Optional side pots they entered are $50 each. Kids may fish
+                from land or by boat.
               </p>
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({

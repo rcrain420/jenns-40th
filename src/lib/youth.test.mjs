@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import {
   YOUTH_COMPETITION_POLICY,
   YOUTH_MAIN_STRINGER_RULE,
+  YOUTH_SIDE_POT_RULE,
   isMainStringerEligible,
   isYouthAngler,
   mainStringerEligibleAnglers,
@@ -34,6 +35,7 @@ const COPY_SURFACES = [
   "src/components/YouthLandRegisterForm.tsx",
   "src/app/register/youth/page.tsx",
   "src/app/register/success/page.tsx",
+  "src/components/AdminDashboard.tsx",
 ];
 
 const LEFTOVER_MAIN_STRINGER = [
@@ -56,6 +58,27 @@ const LEFTOVER_YOUTH_ON_BOAT_REGISTER = [
   /add kids if the captain/i,
   /add them if the captain or guide allows/i,
   /when kids are on the roster/i,
+];
+
+/** Aaron 2026-09-11: kids never piggyback a boat’s paid side pots. */
+const LEFTOVER_BOAT_SIDE_POT_PIGGYBACK = [
+  /if a kid is attached to a boat/i,
+  /their fish may count/i,
+  /count on those team side pots/i,
+  /Land-only entries are RowRide-only/i,
+  /no team side pots/i,
+  /when this boat entered those pots/i,
+  /Add youth to Pretty Pier Pressure/i,
+  /Add youth anglers to /i,
+  /Land \/ RowRide/,
+  /Register for RowRide \(Land Only\)/i,
+  /Register for RowRide \(Boat Only\)/i,
+];
+
+/** Dual kids CTAs Aaron crossed out — one RowRide button only. */
+const LEFTOVER_DUAL_ROWRIDE_CTA = [
+  /Land Only/,
+  /Boat Only/,
 ];
 
 /** Fishing is land or boat — do not tell people kids may only fish from land. */
@@ -115,10 +138,13 @@ describe("youth main-stringer eligibility", () => {
     ]);
   });
 
-  it("states youth are out of main and in on side pots plus RowRide", () => {
+  it("states youth are out of main stringer and never on boat side pots", () => {
     assert.match(YOUTH_MAIN_STRINGER_RULE, /do not participate/i);
     assert.match(YOUTH_MAIN_STRINGER_RULE, /main tournament stringer/i);
     assert.match(YOUTH_MAIN_STRINGER_RULE, /main pot/i);
+    assert.match(YOUTH_SIDE_POT_RULE, /does not count toward a boat/i);
+    assert.match(YOUTH_SIDE_POT_RULE, /\$50 per pot/i);
+    assert.match(YOUTH_SIDE_POT_RULE, /RowRide registration/i);
     assert.match(YOUTH_COMPETITION_POLICY, /paid side pots/i);
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide Youth Angler Tournament/i);
     assert.match(YOUTH_COMPETITION_POLICY, /do not take one/i);
@@ -135,6 +161,12 @@ describe("youth main-stringer eligibility", () => {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
     }
     for (const pattern of LEFTOVER_LAND_ONLY_FISHING) {
+      assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
+    }
+    for (const pattern of LEFTOVER_BOAT_SIDE_POT_PIGGYBACK) {
+      assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
+    }
+    for (const pattern of LEFTOVER_DUAL_ROWRIDE_CTA) {
       assert.equal(pattern.test(YOUTH_COMPETITION_POLICY), false);
     }
   });
@@ -205,6 +237,32 @@ describe("youth main-stringer leftover copy", () => {
       }
     }
   });
+
+  it("does not say youth piggyback a boat team’s paid side pots", () => {
+    for (const relative of COPY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of LEFTOVER_BOAT_SIDE_POT_PIGGYBACK) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
+
+  it("does not offer separate Land Only and Boat Only RowRide buttons", () => {
+    for (const relative of COPY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of LEFTOVER_DUAL_ROWRIDE_CTA) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
 });
 
 const MAIN_RULES_SURFACES = [
@@ -258,6 +316,8 @@ describe("RowRide rules live on the kids page", () => {
       assert.match(text, /\/register\/youth/);
       assert.match(text, /land\s+or\s+by\s+boat/i);
       assert.match(text, /Main tournament rules|adult boat tournament rules/i);
+      assert.match(text, /\$50 per pot/);
+      assert.match(text, /own\s+RowRide registration/);
     }
   });
 
@@ -270,6 +330,22 @@ describe("RowRide rules live on the kids page", () => {
         `${relative} is missing land-or-boat`,
       );
     }
+  });
+});
+
+describe("RowRide register form", () => {
+  it("has one Enter RowRide button and optional side pot buy-in", () => {
+    const text = readFileSync(
+      join(ROOT, "src/components/YouthLandRegisterForm.tsx"),
+      "utf8",
+    );
+    assert.match(text, /Enter RowRide/);
+    assert.match(text, /PAID_SIDE_POTS/);
+    assert.match(text, /sidePots/);
+    assert.match(text, /\$50|SIDE_POT_BUY_IN_CENTS/);
+    assert.equal(/Land Only/.test(text), false);
+    assert.equal(/Boat Only/.test(text), false);
+    assert.equal(/no team side pots/i.test(text), false);
   });
 });
 

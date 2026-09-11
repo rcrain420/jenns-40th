@@ -102,6 +102,14 @@ export type ListedPot = {
   href?: string;
 };
 
+/** Boat teams and RowRide entries that bought this pot each count as one entrant. */
+export function countSidePotEntrants(
+  teams: Array<{ sidePots: string[] }>,
+  potId: string,
+): number {
+  return teams.filter((team) => team.sidePots.includes(potId)).length;
+}
+
 /** Paid side pots plus host prizes (kids pot and catfish at $0). */
 export function listedPots(): ListedPot[] {
   return [
@@ -198,12 +206,19 @@ export function youthAnglerCount(
   return anglers.filter((angler) => angler.isYouth === true).length;
 }
 
-/** $300 + side pots for boats; RowRide (YOUTH_LAND) is $0. */
+/** Free RowRide base + $50 per optional side pot the youth entry buys. */
+export function rowRideDueCents(sidePotCount = 0): number {
+  return SIDE_POT_BUY_IN_CENTS * sidePotCount;
+}
+
+/** $300 + side pots for boats; RowRide base is $0 + $50 × pots they choose. */
 export function amountDueForEntry(input: {
   entryKind?: string | null;
   sidePotCount?: number;
 }): number {
-  if (isYouthLandEntry(input.entryKind)) return 0;
+  if (isYouthLandEntry(input.entryKind)) {
+    return rowRideDueCents(input.sidePotCount ?? 0);
+  }
   return amountDueCents(input.sidePotCount ?? 0);
 }
 

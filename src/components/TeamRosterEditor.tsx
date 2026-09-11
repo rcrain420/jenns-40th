@@ -89,9 +89,9 @@ export function TeamRosterEditor({
     () =>
       amountDueForEntry({
         entryKind,
-        sidePotCount: landOnly ? 0 : sidePotCount,
+        sidePotCount,
       }),
-    [entryKind, landOnly, sidePotCount],
+    [entryKind, sidePotCount],
   );
   const canAddAdult =
     canEditRoster && !landOnly && canAddAdultSeat(anglers) && !boatInviteLocked;
@@ -264,7 +264,7 @@ export function TeamRosterEditor({
           Email is optional.{" "}
           {landOnly ? `${YOUTH_EMAIL_HELPER} ` : null}
           {landOnly
-            ? "This is a RowRide entry — no $300 boat fee and no team side pots. Kids may fish from land or by boat. Parent login is the login."
+            ? "This is a RowRide entry — no $300 boat fee. Optional side pots they bought on this entry are $50 each. Kids may fish from land or by boat. They do not count on a boat team’s paid side pots. Parent login is the login."
             : "Invite on an adult seat sends Join the boat. Boat teams are adults only — kids register separately for RowRide and are not added here. They may fish from land or by boat. Adult seats do not change the $300 boat entry."}{" "}
           {!landOnly
             ? "Adults without email stay name-only and join from the invite link."

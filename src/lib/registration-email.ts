@@ -17,6 +17,7 @@ export type RegistrationConfirmationInput = {
   registrantEmail: string;
   paidSeatCount?: number;
   youthSeatCount?: number;
+  entryKind?: string | null;
 };
 
 export type RegistrationConfirmationMessage = {
@@ -49,6 +50,7 @@ export function buildRegistrationConfirmation(
     boatEntryFeeLabel: formatUsdWhole(BOAT_ENTRY_CENTS),
     paidSeatCount: input.paidSeatCount,
     youthSeatCount: input.youthSeatCount,
+    entryKind: input.entryKind,
   });
 
   return {

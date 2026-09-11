@@ -23,12 +23,12 @@ export const CAPTAIN_CONTACT_ADULT_NOTE =
 export const YOUTH_INVITE_SKIP_ERROR =
   "Youth anglers do not get a Join the boat / create-account invite. Parent login is the login.";
 
-/** Locked product rule: youth out of main stringer / main pot; in on side pots + RowRide. */
+/** Locked product rule: youth out of main stringer / main pot; never on boat side pots; optional own RowRide buy-in. */
 export const YOUTH_MAIN_STRINGER_RULE =
   "Youth anglers do not participate in the main tournament stringer or main pot competition.";
 
 export const YOUTH_SIDE_POT_RULE =
-  "RowRide kids are on their own RowRide entry. They do not join a boat roster and do not count on a boat team’s paid side pots.";
+  "A kid’s fish does not count toward a boat’s paid side pots, even if the kid fishes from that boat. To enter a paid side pot, buy in on the RowRide registration — $50 per pot. The free RowRide base stays $0.";
 
 export const YOUTH_ROWRIDE_RULE =
   "They still have their own host-funded RowRide Youth Angler Tournament — heaviest qualifying fish, no entry fee.";
