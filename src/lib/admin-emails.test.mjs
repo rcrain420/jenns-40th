@@ -47,6 +47,21 @@ describe("listAdminEmails", () => {
     );
   });
 
+  it("reads process.env when no override is passed", () => {
+    const prevEmail = process.env.ADMIN_EMAIL;
+    const prevEmails = process.env.ADMIN_EMAILS;
+    process.env.ADMIN_EMAIL = "from-process@example.com";
+    delete process.env.ADMIN_EMAILS;
+    try {
+      assert.deepEqual(listAdminEmails(), ["from-process@example.com"]);
+    } finally {
+      if (prevEmail === undefined) delete process.env.ADMIN_EMAIL;
+      else process.env.ADMIN_EMAIL = prevEmail;
+      if (prevEmails === undefined) delete process.env.ADMIN_EMAILS;
+      else process.env.ADMIN_EMAILS = prevEmails;
+    }
+  });
+
   it("works when only one of the env vars is set", () => {
     assert.deepEqual(
       listAdminEmails({ ADMIN_EMAIL: "you@example.com" }),
