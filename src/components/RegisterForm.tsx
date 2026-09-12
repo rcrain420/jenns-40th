@@ -52,6 +52,11 @@ const emptyAngler = (): AnglerDraft => ({
   shirtSize: "",
 });
 
+/** Boat register is adults only. Roster helpers require an explicit isYouth flag. */
+function asAdultSeats(drafts: AnglerDraft[]) {
+  return drafts.map((draft) => ({ ...draft, isYouth: false as const }));
+}
+
 const FIELD_ORDER = [
   "teamName",
   "boatType",
@@ -103,8 +108,8 @@ export function RegisterForm({
   const [suggestingNames, setSuggestingNames] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
 
-  const paidSeats = paidEntrySeatCount(anglers);
-  const canAddAdult = canAddAdultSeat(anglers);
+  const paidSeats = paidEntrySeatCount(asAdultSeats(anglers));
+  const canAddAdult = canAddAdultSeat(asAdultSeats(anglers));
   const showBoatContactNudge = isBoatContactNotAngler(
     anglers.map((a) => ({
       fullName: a.fullName,
@@ -169,7 +174,7 @@ export function RegisterForm({
   }
 
   function addAdult() {
-    if (!canAddAdultSeat(anglers)) return;
+    if (!canAddAdultSeat(asAdultSeats(anglers))) return;
     setAnglers((prev) => [...prev, emptyAngler()]);
   }
 
@@ -191,7 +196,7 @@ export function RegisterForm({
       next.captainEmail = ["Valid email required"];
     }
     const named = anglers.filter((a) => a.fullName.trim());
-    const rosterIssue = boatRosterCapacityIssue(named);
+    const rosterIssue = boatRosterCapacityIssue(asAdultSeats(named));
     if (rosterIssue) {
       next.anglers = [rosterIssue];
     }
