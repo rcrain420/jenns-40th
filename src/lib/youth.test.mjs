@@ -352,13 +352,14 @@ describe("RowRide rules live on the kids page", () => {
 });
 
 describe("home youth angler count", () => {
-  it("renders the live kid count on home and the pot board", () => {
+  it("renders the live kid count on the home pot board", () => {
     const home = readFileSync(join(ROOT, "src/app/page.tsx"), "utf8");
     const board = readFileSync(join(ROOT, "src/components/PotBoard.tsx"), "utf8");
-    assert.match(home, /youthAnglersRegisteredLabel/);
-    assert.match(home, /youthAnglerCount/);
+    assert.match(home, /getPotTotals/);
+    assert.match(home, /<PotBoard totals=\{potTotals\} \/>/);
     assert.match(board, /youthAnglersRegisteredLabel/);
     assert.match(board, /youthAnglerCount/);
+    assert.match(board, /\/kids/);
   });
 });
 
