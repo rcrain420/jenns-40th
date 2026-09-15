@@ -4,6 +4,7 @@ import { BragBoard } from "@/components/BragBoard";
 import { Countdown } from "@/components/Countdown";
 import { PotBoard } from "@/components/PotBoard";
 import { SiteHeader } from "@/components/SiteHeader";
+import { YouthAnglersCard } from "@/components/YouthAnglersCard";
 import { getCurrentUser } from "@/lib/auth";
 import { listBragBoardCatches } from "@/lib/catches";
 import {
@@ -261,10 +262,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Pot calculator */}
-      <section className="mx-auto max-w-6xl px-5 pb-8 md:px-11 md:pb-11">
+      {/* Youth / RowRide card sits above the boat pot — not inside it */}
+      <section className="mx-auto flex max-w-6xl flex-col gap-5 px-5 pb-8 md:gap-7 md:px-11 md:pb-11">
+        <YouthAnglersCard count={potTotals.youthAnglerCount} />
         <PotBoard totals={potTotals} />
-        <p className="mt-4 text-right text-[0.95rem] md:text-base">
+        <p className="text-right text-[0.95rem] md:text-base">
           <Link
             href="/pots"
             className="text-sun underline-offset-2 hover:underline"
