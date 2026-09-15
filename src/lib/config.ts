@@ -207,7 +207,7 @@ export function youthAnglerCount(
 }
 
 /**
- * Live home / pot-board count: named youth anglers (isYouth rows),
+ * Live home youth-card count: named youth anglers (isYouth rows),
  * not RowRide teams and not adult boat seats. Includes YOUTH_LAND
  * anglers plus any leftover youth seats still on a boat.
  */
