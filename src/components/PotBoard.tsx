@@ -1,9 +1,11 @@
+import Link from "next/link";
 import {
   BOAT_ENTRY_CENTS,
   SIDE_POT_BUY_IN_CENTS,
 } from "@/lib/config";
 import { formatUsd, formatUsdWhole } from "@/lib/money";
 import type { PotTotals } from "@/lib/pots";
+import { youthAnglersRegisteredLabel } from "@/lib/youth";
 
 const MEDALS = ["🥇", "🥈", "🥉"] as const;
 
@@ -18,10 +20,17 @@ export function PotBoard({ totals }: { totals: PotTotals }) {
         <p className="font-display text-[2.5rem] leading-none tracking-[0.02em] text-sun md:text-[4rem]">
           {formatUsdWhole(totals.mainPotCents)}
         </p>
-        <p className="font-label text-[0.875rem] tracking-[0.1em] text-wave/70 md:text-base">
-          {totals.teamCount} team{totals.teamCount === 1 ? "" : "s"} ×{" "}
-          {formatUsd(BOAT_ENTRY_CENTS)}
-        </p>
+        <div>
+          <p className="font-label text-[0.875rem] tracking-[0.1em] text-wave/70 md:text-base">
+            {totals.teamCount} team{totals.teamCount === 1 ? "" : "s"} ×{" "}
+            {formatUsd(BOAT_ENTRY_CENTS)}
+          </p>
+          <p className="font-label mt-1 text-[0.875rem] tracking-[0.1em] text-wave/70 md:text-base">
+            <Link href="/kids" className="underline-offset-2 hover:underline">
+              {youthAnglersRegisteredLabel(totals.youthAnglerCount)}
+            </Link>
+          </p>
+        </div>
         <div className="grid grid-cols-3 border-y-[3px] border-double border-wave">
           {totals.payouts.map((payout, index) => (
             <div

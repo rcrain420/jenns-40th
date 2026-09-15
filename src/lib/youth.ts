@@ -53,6 +53,12 @@ export function isYouthAngler(angler: { isYouth?: boolean | null }): boolean {
   return angler.isYouth === true;
 }
 
+/** Home / pot-board line — kids (angler rows), not youth teams. */
+export function youthAnglersRegisteredLabel(count: number): string {
+  const noun = count === 1 ? "youth angler" : "youth anglers";
+  return `RowRide: ${count} ${noun} registered`;
+}
+
 /** Main tournament stringer / main pot: registered adult (non-youth) anglers only. */
 export function isMainStringerEligible(angler: {
   isYouth?: boolean | null;
