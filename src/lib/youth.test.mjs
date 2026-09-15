@@ -353,7 +353,7 @@ describe("RowRide rules live on the kids page", () => {
 });
 
 describe("home youth angler count", () => {
-  it("renders the live kid count on its own home card, not the main pot", () => {
+  it("renders the live kid count on its own home card below the main pot", () => {
     const home = readFileSync(join(ROOT, "src/app/page.tsx"), "utf8");
     const card = readFileSync(
       join(ROOT, "src/components/YouthAnglersCard.tsx"),
@@ -363,6 +363,11 @@ describe("home youth angler count", () => {
     assert.match(home, /getPotTotals/);
     assert.match(home, /<PotBoard totals=\{potTotals\} \/>/);
     assert.match(home, /<YouthAnglersCard count=\{potTotals.youthAnglerCount\} \/>/);
+    const potIndex = home.indexOf("<PotBoard totals={potTotals} />");
+    const youthIndex = home.indexOf(
+      "<YouthAnglersCard count={potTotals.youthAnglerCount} />",
+    );
+    assert.ok(potIndex > -1 && youthIndex > potIndex);
     assert.match(card, /youthAnglersRegisteredLabel/);
     assert.match(card, /Youth anglers/);
     assert.match(card, /RowRide/);
