@@ -262,10 +262,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Youth / RowRide card sits above the boat pot — not inside it */}
+      {/* Youth / RowRide card sits below the main pot — not inside it */}
       <section className="mx-auto flex max-w-6xl flex-col gap-5 px-5 pb-8 md:gap-7 md:px-11 md:pb-11">
-        <YouthAnglersCard count={potTotals.youthAnglerCount} />
         <PotBoard totals={potTotals} />
+        <YouthAnglersCard count={potTotals.youthAnglerCount} />
         <p className="text-right text-[0.95rem] md:text-base">
           <Link
             href="/pots"
