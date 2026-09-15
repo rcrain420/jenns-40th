@@ -20,6 +20,7 @@ import {
   REGISTRATION_CLOSED_SHORT,
   publicRegistrationDeadlineNote,
 } from "@/lib/registration-policy";
+import { youthAnglersRegisteredLabel } from "@/lib/youth";
 
 export const dynamic = "force-dynamic";
 
@@ -256,6 +257,14 @@ export default async function HomePage() {
             count.{" "}
             <Link href="/kids#rules" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name} rules →
+            </Link>
+          </p>
+          <p className="font-label mt-4 text-[0.875rem] tracking-[0.1em] text-wave/70 md:text-base">
+            <Link
+              href="/kids"
+              className="underline-offset-2 hover:underline"
+            >
+              {youthAnglersRegisteredLabel(potTotals.youthAnglerCount)}
             </Link>
           </p>
         </div>

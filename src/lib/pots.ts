@@ -2,6 +2,7 @@ import {
   MAIN_POT_SPLITS,
   PAID_SIDE_POTS,
   SIDE_POT_BUY_IN_CENTS,
+  countRegisteredYouthAnglers,
   countSidePotEntrants,
   isBoatEntry,
   mainPotCentsForTeams,
@@ -25,6 +26,8 @@ export type SidePotTotal = {
 export type PotTotals = {
   teamCount: number;
   anglerCount: number;
+  /** Named youth anglers (kids), not RowRide teams or adult boat seats. */
+  youthAnglerCount: number;
   mainPotCents: number;
   payouts: PotPayout[];
   sidePots: SidePotTotal[];
@@ -45,6 +48,7 @@ export async function getPotTotals(): Promise<PotTotals> {
     (sum, t) => sum + t.anglers.filter((a) => a.isYouth !== true).length,
     0,
   );
+  const youthAnglerCount = countRegisteredYouthAnglers(teams);
   const mainPotCents = mainPotCentsForTeams(teamCount);
 
   const payouts = MAIN_POT_SPLITS.map((split) => ({
@@ -63,5 +67,12 @@ export async function getPotTotals(): Promise<PotTotals> {
     };
   });
 
-  return { teamCount, anglerCount, mainPotCents, payouts, sidePots };
+  return {
+    teamCount,
+    anglerCount,
+    youthAnglerCount,
+    mainPotCents,
+    payouts,
+    sidePots,
+  };
 }

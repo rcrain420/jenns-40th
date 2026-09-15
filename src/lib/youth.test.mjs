@@ -10,6 +10,7 @@ import {
   isMainStringerEligible,
   isYouthAngler,
   mainStringerEligibleAnglers,
+  youthAnglersRegisteredLabel,
 } from "./youth.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -116,6 +117,23 @@ const LEFTOVER_YOUTH_COUNT_TOWARD_FOUR = [
   /kids included/i,
   /including youth/i,
 ];
+
+describe("youth anglers registered label", () => {
+  it("names kids, not teams, and pluralizes", () => {
+    assert.equal(
+      youthAnglersRegisteredLabel(0),
+      "RowRide: 0 youth anglers registered",
+    );
+    assert.equal(
+      youthAnglersRegisteredLabel(1),
+      "RowRide: 1 youth angler registered",
+    );
+    assert.equal(
+      youthAnglersRegisteredLabel(2),
+      "RowRide: 2 youth anglers registered",
+    );
+  });
+});
 
 describe("youth main-stringer eligibility", () => {
   it("treats 17-or-under roster seats as youth", () => {
@@ -330,6 +348,17 @@ describe("RowRide rules live on the kids page", () => {
         `${relative} is missing land-or-boat`,
       );
     }
+  });
+});
+
+describe("home youth angler count", () => {
+  it("renders the live kid count on home and the pot board", () => {
+    const home = readFileSync(join(ROOT, "src/app/page.tsx"), "utf8");
+    const board = readFileSync(join(ROOT, "src/components/PotBoard.tsx"), "utf8");
+    assert.match(home, /youthAnglersRegisteredLabel/);
+    assert.match(home, /youthAnglerCount/);
+    assert.match(board, /youthAnglersRegisteredLabel/);
+    assert.match(board, /youthAnglerCount/);
   });
 });
 

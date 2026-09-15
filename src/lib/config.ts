@@ -206,6 +206,17 @@ export function youthAnglerCount(
   return anglers.filter((angler) => angler.isYouth === true).length;
 }
 
+/**
+ * Live home / pot-board count: named youth anglers (isYouth rows),
+ * not RowRide teams and not adult boat seats. Includes YOUTH_LAND
+ * anglers plus any leftover youth seats still on a boat.
+ */
+export function countRegisteredYouthAnglers(
+  teams: Array<{ anglers: Array<{ isYouth?: boolean | null }> }>,
+): number {
+  return teams.reduce((sum, team) => sum + youthAnglerCount(team.anglers), 0);
+}
+
 /** Free RowRide base + $50 per optional side pot the youth entry buys. */
 export function rowRideDueCents(sidePotCount = 0): number {
   return SIDE_POT_BUY_IN_CENTS * sidePotCount;
