@@ -62,6 +62,7 @@ Sign up with an address in `ADMIN_EMAIL` (or `ADMIN_EMAILS`) to get the admin co
 | `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` (must support vision / image_url) |
 | `OPENAI_TEAM_NAME_MODEL` | Optional; defaults to vision model or `gpt-4o-mini` |
 | `NEXT_PUBLIC_APP_URL` | Optional canonical site URL for metadata and magic links |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional GA4 measurement ID (`G-XXXXXXXX`). Loads `@next/third-parties` Google Analytics only when set. Alias: `NEXT_PUBLIC_GA_ID` |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional. Shows “Continue with Google” on the shared login form |
 | `FACEBOOK_APP_ID` / `FACEBOOK_APP_SECRET` | Optional. Shows “Continue with Facebook” on the shared login form |
 
@@ -71,6 +72,8 @@ Google / Facebook redirect URIs the app serves:
 - `https://officialishfishingtournament.com/api/auth/oauth/{google|facebook}/callback`
 
 Leave those env vars empty to keep email/password only. Production applies the `OAuthAccount` / nullable `passwordHash` migration on the next Vercel build (`prisma migrate deploy` is already in `npm run build`).
+
+**Google Analytics 4:** set `NEXT_PUBLIC_GA_MEASUREMENT_ID` (or `NEXT_PUBLIC_GA_ID`) on Vercel Production — and Preview if you want those deploys counted — to the GA4 Measurement ID (`G-XXXXXXXX`), then redeploy. The site does not ship a hardcoded ID; without that env var, no gtag script loads.
 
 ### Vercel: Livewell AI estimates
 
