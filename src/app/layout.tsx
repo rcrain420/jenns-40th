@@ -5,7 +5,9 @@ import {
   Barlow_Condensed,
   Kaushan_Script,
 } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { EVENT, getAppUrl } from "@/lib/config";
+import { getGaMeasurementId } from "@/lib/ga";
 import "./globals.css";
 
 const display = Anton({
@@ -79,6 +81,8 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const gaId = getGaMeasurementId();
+
   return (
     <html
       lang="en"
@@ -87,6 +91,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col bg-paper text-ink">
         {children}
       </body>
+      {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
     </html>
   );
 }
