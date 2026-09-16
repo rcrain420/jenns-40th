@@ -23,6 +23,7 @@ import {
   AdminPaymentLedger,
   type AdminPaymentRow,
 } from "./AdminPaymentLedger";
+import { youthLandDisplayName } from "@/lib/youth";
 import { ShirtSizeSelect } from "./ShirtSizeSelect";
 
 type AnglerDraft = {
@@ -114,7 +115,13 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
 
   function payload() {
     return {
-      teamName,
+      teamName: isYouthLandEntry(entryKind)
+        ? youthLandDisplayName({
+            teamName,
+            anglers,
+            registrantEmail,
+          })
+        : teamName,
       entryKind,
       boatType,
       captainName,
