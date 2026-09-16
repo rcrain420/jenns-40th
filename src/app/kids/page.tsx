@@ -217,8 +217,8 @@ export default async function KidsPage() {
           </h3>
           <p className="mt-3 text-ink/80">
             RowRide uses the same official scale, Weighmaster, and 2:00 p.m.
-            weigh-in deadline as the adult boat tournament. There are no
-            exceptions to that deadline.
+            weigh-in deadline as the adult boat tournament at {EVENT.venue}.
+            There are no exceptions to that deadline.
           </p>
 
           <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">

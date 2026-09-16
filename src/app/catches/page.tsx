@@ -3,6 +3,7 @@ import { CatchLogger } from "@/components/CatchLogger";
 import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
 import { listCatchesGroupedByAuthor } from "@/lib/catches";
+import { EVENT } from "@/lib/config";
 import { livewellPlusIsActive } from "@/lib/livewell-plus";
 import { findTeamAnglersForUser } from "@/lib/users";
 
@@ -54,7 +55,7 @@ export default async function CatchesPage() {
           <p className="mt-2 text-base leading-relaxed text-ink/80 md:text-lg">
             AI length and weight guesses are{" "}
             <strong>pure entertainment and competitive banter</strong>. They will{" "}
-            <strong>not</strong> be used at Boatmen&apos;s weigh-in — the
+            <strong>not</strong> be used at {EVENT.venue} weigh-in — the
             Weighmaster&apos;s official scale is the only scale that counts.
             Log catches to keep teams engaged, buzzing, and laughing all day.
           </p>

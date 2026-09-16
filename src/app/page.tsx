@@ -56,7 +56,7 @@ export default async function HomePage() {
         </h1>
         <Image
           src="/brand/hero-tournament-v2.png"
-          alt="Official-ish Fishing Tournament — Jenn's 40th Birthday Bay Bash at Boatmen's Cove Harbor, Rockport, Texas, October 9–10, 2026"
+          alt={`Official-ish Fishing Tournament — Jenn's 40th Birthday Bay Bash at ${EVENT.venue}, Cove Harbor, Rockport, Texas, October 9–10, 2026`}
           width={2048}
           height={1152}
           priority
@@ -295,9 +295,7 @@ export default async function HomePage() {
             Where to show up
           </p>
           <h2 className="font-display text-[1.875rem] leading-none tracking-[0.02em] md:text-[2.875rem]">
-            Boatmen&apos;s Club
-            <br />
-            Bar &amp; Marina
+            {EVENT.venue}
           </h2>
           <p className="text-[1.05rem] leading-relaxed md:text-[1.125rem]">
             140 Cove Harbor N

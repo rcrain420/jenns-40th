@@ -675,7 +675,7 @@ export default function RulesPage() {
           </p>
           <p>Teams entering the line after 2:00 p.m. may not weigh fish.</p>
           <p>
-            Being near Boatmen&apos;s does not count. Being at the dock does not
+            Being near {EVENT.venue} does not count. Being at the dock does not
             count. Being in the parking lot does not count. Flying toward the
             weigh-in while yelling, &ldquo;We&apos;re right here!&rdquo; does not
             count.
