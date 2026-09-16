@@ -93,6 +93,24 @@ const LEFTOVER_YOUTH_TEAM_OR_BOAT_NAME = [
   /Add kids to this RowRide household/i,
 ];
 
+/** Aaron 2026-09-16: kids page — no blunt adults-only / boat-register leftovers. */
+const LEFTOVER_KIDS_PAGE_ADULTS_ONLY = [
+  /Boat teams are adults only/i,
+  /adults-only path/i,
+];
+
+const LEFTOVER_KIDS_PAGE_BOAT_REGISTER_CTA = [
+  /Register a boat/i,
+  /href=["']\/register["']/,
+];
+
+const LEFTOVER_KIDS_PAGE_ADULT_RULES_LINK = [
+  /Adult boat tournament rules/i,
+  /Main tournament rules/i,
+  /The adult boat tournament has its own document/i,
+  /href=["']\/rules/,
+];
+
 /** Fishing is land or boat — do not tell people kids may only fish from land. */
 const LEFTOVER_LAND_ONLY_FISHING = [
   /Kids register separately for RowRide and fish from land/i,
@@ -356,6 +374,39 @@ describe("youth main-stringer leftover copy", () => {
   });
 });
 
+describe("kids page leftover copy", () => {
+  it("drops adults-only register clause, boat-register CTAs, mid-rules Enter RowRide, and adult-rules links", () => {
+    const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
+    const docs = readFileSync(join(ROOT, "docs/rowride-rules.md"), "utf8");
+
+    assert.match(kids, /When a youth angler is fishing from a boat, an adult should be/);
+    assert.match(kids, /Kids register only on the RowRide form/);
+    assert.match(kids, /not added to a boat roster/);
+    assert.match(kids, /do not compete in the adult main stringer or main pot/);
+    assert.match(kids, /\$50 per pot/);
+    assert.match(kids, /Enter RowRide/);
+
+    for (const pattern of LEFTOVER_KIDS_PAGE_ADULTS_ONLY) {
+      assert.equal(pattern.test(kids), false, `kids page still matches ${pattern}`);
+      assert.equal(pattern.test(docs), false, `rowride-rules still matches ${pattern}`);
+    }
+    for (const pattern of LEFTOVER_KIDS_PAGE_BOAT_REGISTER_CTA) {
+      assert.equal(pattern.test(kids), false, `kids page still matches ${pattern}`);
+    }
+    for (const pattern of LEFTOVER_KIDS_PAGE_ADULT_RULES_LINK) {
+      assert.equal(pattern.test(kids), false, `kids page still matches ${pattern}`);
+    }
+
+    const howRegisterStart = kids.indexOf("3. How kids register");
+    const howFishStart = kids.indexOf("4. How kids fish");
+    assert.ok(howRegisterStart > -1 && howFishStart > howRegisterStart);
+    const howRegister = kids.slice(howRegisterStart, howFishStart);
+    assert.equal(/Enter RowRide/.test(howRegister), false);
+    assert.equal(/href=["']\/register\/youth["']/.test(howRegister), false);
+    assert.match(howRegister, /Kids register only on the RowRide form/);
+  });
+});
+
 const MAIN_RULES_SURFACES = [
   "docs/tournament-rules.md",
   "src/app/rules/page.tsx",
@@ -406,7 +457,6 @@ describe("RowRide rules live on the kids page", () => {
       assert.match(text, /Tournament Host/);
       assert.match(text, /\/register\/youth/);
       assert.match(text, /land\s+or\s+by\s+boat/i);
-      assert.match(text, /Main tournament rules|adult boat tournament rules/i);
       assert.match(text, /\$50 per pot/);
       assert.match(text, /own\s+RowRide registration/);
     }
