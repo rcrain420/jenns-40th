@@ -269,8 +269,9 @@ export default async function KidsPage() {
           ) : team && isRegistrant && landOnly ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
-                Add kids to this RowRide household ({team.teamName}). This
-                is a RowRide entry — $0 base, not a $300 boat roster.
+                Add kids to this RowRide entry. This is a RowRide entry —
+                $0 base, not a $300 boat roster. Kids are individuals — they
+                do not need a team or boat name.
                 Optional side pots they entered are $50 each. Kids may fish
                 from land or by boat.
               </p>

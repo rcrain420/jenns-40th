@@ -136,7 +136,11 @@ export const registrationSchema = teamFieldsSchema
 
 export const youthLandRegistrationSchema = z
   .object({
-    teamName: z.string().trim().min(1, "A household or kids name is required"),
+    teamName: z
+      .string()
+      .trim()
+      .optional()
+      .transform((v) => (v ? v : undefined)),
     registrantEmail: z.string().trim().email("Valid email required"),
     notes: z
       .string()

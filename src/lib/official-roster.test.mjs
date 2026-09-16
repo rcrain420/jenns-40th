@@ -218,12 +218,13 @@ describe("official roster grouped by boat", () => {
     const boats = groupOfficialRosterByBoat([
       {
         id: "land_1",
-        teamName: "The Crain kids",
+        teamName: "RowRide — Rowan",
         entryKind: "YOUTH_LAND",
         anglers: [{ fullName: "Rowan", isYouth: true }],
       },
     ]);
     assert.equal(boats[0].entryKind, "YOUTH_LAND");
+    assert.equal(boats[0].boatName, "RowRide — Rowan");
     assert.equal(
       officialRosterBoatPotCents(boats[0].anglers, BOAT_ENTRY_CENTS, "YOUTH_LAND"),
       0,

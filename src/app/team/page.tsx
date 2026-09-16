@@ -217,24 +217,28 @@ export default async function MyTeamPage({
       <div className="space-y-10">
         {joined === "1" ? (
           <p className="rounded-md bg-mist px-4 py-3 text-sm text-wave">
-            You’re on {team.teamName}. You can post on the Livewell from this
-            account.
+            {isYouthLandEntry(team.entryKind)
+              ? "You’re signed in for this RowRide entry. You can post on the Livewell from this account."
+              : `You’re on ${team.teamName}. You can post on the Livewell from this account.`}
           </p>
         ) : null}
         {unlocked === "1" ? (
           <p className="rounded-md bg-mist px-4 py-3 text-sm text-wave">
             You’re signed in on this device.
-            {inviteLocked
-              ? ` ${BOAT_FULL_NOTE}`
-              : " Invite teammates below."}
+            {isYouthLandEntry(team.entryKind)
+              ? " Manage youth anglers below."
+              : inviteLocked
+                ? ` ${BOAT_FULL_NOTE}`
+                : " Invite teammates below."}
           </p>
         ) : null}
-        {showBoatContactNudge ? (
+        {showBoatContactNudge && !isYouthLandEntry(team.entryKind) ? (
           <p className="rounded-md border border-wave/15 bg-mist/60 px-4 py-3 text-sm text-wave">
             {boatContactNotAnglerNudge(formatUsdWhole(BOAT_ENTRY_CENTS))}
           </p>
         ) : null}
 
+        {isYouthLandEntry(team.entryKind) ? null : (
         <section>
           <span className="section-banner">Invite the boat</span>
           {inviteLocked || !inviteUrl ? (
@@ -260,7 +264,9 @@ export default async function MyTeamPage({
             </>
           )}
         </section>
+        )}
 
+        {isYouthLandEntry(team.entryKind) ? null : (
         <section>
           <span className="section-banner">On this boat</span>
           <ul className="mt-3 space-y-1 text-ink/80">
@@ -278,8 +284,9 @@ export default async function MyTeamPage({
             ))}
           </ul>
         </section>
+        )}
 
-        {isRegistrant ? (
+        {isRegistrant && !isYouthLandEntry(team.entryKind) ? (
           <section>
             <span className="section-banner">Captain</span>
             <p className="mt-3 text-sm text-ink/65">
@@ -311,14 +318,26 @@ export default async function MyTeamPage({
           <section>
             <span className="section-banner">Official roster</span>
             <p className="mt-3 text-sm text-ink/65">
-              Paid names on {team.teamName}.{" "}
+              {isYouthLandEntry(team.entryKind)
+                ? "Youth anglers on this RowRide entry. Kids are individuals — they do not need a team or boat name. "
+                : `Paid names on ${team.teamName}. `}
               <Link href="/teams" className="font-semibold text-sea hover:underline">
-                See every boat on Teams
+                {isYouthLandEntry(team.entryKind)
+                  ? "See every boat and RowRide entry on Teams"
+                  : "See every boat on Teams"}
               </Link>
               .
             </p>
             <div className="mt-4 space-y-4">
-              <BoatRosterHeading boatName={team.teamName} isOwn />
+              <BoatRosterHeading
+                boatName={team.teamName}
+                isOwn
+                ownLabel={
+                  isYouthLandEntry(team.entryKind)
+                    ? "Your RowRide entry"
+                    : "Your boat"
+                }
+              />
               <TeamRosterEditor
                 initialAnglers={team.anglers.map((a) => ({
                   id: a.id,
@@ -361,10 +380,13 @@ export default async function MyTeamPage({
             ])}
             footer={
               <p className="mt-3 text-sm text-ink/60">
-                Only the person who registered can change paid names or send
-                invites. This list is {team.teamName} only.{" "}
+                {isYouthLandEntry(team.entryKind)
+                  ? "Only the parent who registered can change youth names. This list is this RowRide entry only. "
+                  : `Only the person who registered can change paid names or send invites. This list is ${team.teamName} only. `}
                 <Link href="/teams" className="font-semibold text-sea hover:underline">
-                  See every boat on Teams
+                  {isYouthLandEntry(team.entryKind)
+                    ? "See every boat and RowRide entry on Teams"
+                    : "See every boat on Teams"}
                 </Link>
                 .
               </p>
