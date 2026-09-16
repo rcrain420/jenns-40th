@@ -14,6 +14,7 @@ import {
 } from "./registration-policy";
 import { ensureTeamMember } from "./team-invite";
 import type { RegistrationInput, YouthLandRegistrationInput } from "./validation";
+import { youthLandDisplayName } from "./youth";
 
 /** Paid boat entries only — a YOUTH_LAND / RowRide entry does not consume a boat slot. */
 export async function getTeamCount(): Promise<number> {
@@ -92,7 +93,11 @@ export function youthLandCreateData(input: YouthLandRegistrationInput) {
     sidePotCount: sidePots.length,
   });
   return {
-    teamName: input.teamName,
+    teamName: youthLandDisplayName({
+      teamName: input.teamName,
+      anglers: input.anglers,
+      registrantEmail: input.registrantEmail,
+    }),
     entryKind: ENTRY_KIND.YOUTH_LAND,
     boatType: "NON_GUIDED" as const,
     captainName: null,

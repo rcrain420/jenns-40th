@@ -56,7 +56,6 @@ export function YouthLandRegisterForm({
   viewer = null,
 }: Props) {
   const router = useRouter();
-  const [teamName, setTeamName] = useState("");
   const [registrantEmail, setRegistrantEmail] = useState(viewer?.email ?? "");
   const [notes, setNotes] = useState("");
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
@@ -99,7 +98,6 @@ export function YouthLandRegisterForm({
 
   function validate(): FieldErrors {
     const next: FieldErrors = {};
-    if (!teamName.trim()) next.teamName = ["A household or kids name is required"];
     if (!registrantEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registrantEmail.trim())) {
       next.registrantEmail = ["Valid email required"];
     }
@@ -140,7 +138,6 @@ export function YouthLandRegisterForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           entryKind: ENTRY_KIND.YOUTH_LAND,
-          teamName,
           registrantEmail,
           notes,
           licenseConfirmed: true,
@@ -217,21 +214,6 @@ export function YouthLandRegisterForm({
           {formError}
         </p>
       ) : null}
-
-      <div>
-        <label className={labelClass} htmlFor="teamName">
-          Household or kids name <span className="text-alert">*</span>
-        </label>
-        <input
-          id="teamName"
-          className={inputClass}
-          value={teamName}
-          onChange={(e) => setTeamName(e.target.value)}
-          placeholder="e.g. The Crain kids"
-          required
-        />
-        {err("teamName")}
-      </div>
 
       <div>
         <label className={labelClass} htmlFor="registrantEmail">

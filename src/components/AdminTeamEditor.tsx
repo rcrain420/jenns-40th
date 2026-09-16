@@ -23,6 +23,7 @@ import {
   AdminPaymentLedger,
   type AdminPaymentRow,
 } from "./AdminPaymentLedger";
+import { youthLandDisplayName } from "@/lib/youth";
 import { ShirtSizeSelect } from "./ShirtSizeSelect";
 
 type AnglerDraft = {
@@ -114,7 +115,13 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
 
   function payload() {
     return {
-      teamName,
+      teamName: isYouthLandEntry(entryKind)
+        ? youthLandDisplayName({
+            teamName,
+            anglers,
+            registrantEmail,
+          })
+        : teamName,
       entryKind,
       boatType,
       captainName,
@@ -190,13 +197,26 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className={labelClass}>Team name</label>
+          <label className={labelClass}>
+            {isYouthLandEntry(entryKind) ? "Display name" : "Team name"}
+          </label>
           <input
             className={inputClass}
             value={teamName}
             onChange={(e) => setTeamName(e.target.value)}
-            required
+            required={!isYouthLandEntry(entryKind)}
+            placeholder={
+              isYouthLandEntry(entryKind)
+                ? "Optional — leave blank to use the first kid’s name"
+                : undefined
+            }
           />
+          {isYouthLandEntry(entryKind) ? (
+            <p className="mt-1 text-xs text-ink/55">
+              Public RowRide signup does not ask for a team or boat name.
+              This is only for admin lists.
+            </p>
+          ) : null}
         </div>
         <div>
           <label className={labelClass}>Entry</label>

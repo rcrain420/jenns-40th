@@ -59,6 +59,37 @@ export function youthAnglersRegisteredLabel(count: number): string {
   return `RowRide: ${count} ${noun} registered`;
 }
 
+function joinYouthNames(names: string[]): string {
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} & ${names[1]}`;
+  if (names.length === 3) {
+    return `${names[0]}, ${names[1]} & ${names[2]}`;
+  }
+  return `${names[0]} and ${names.length - 1} more`;
+}
+
+/**
+ * Internal Team.teamName for YOUTH_LAND / RowRide rows. Public signup
+ * does not collect a team or boat name — kids are individuals.
+ */
+export function youthLandDisplayName(input: {
+  anglers?: Array<{ fullName?: string | null }>;
+  registrantEmail?: string | null;
+  teamName?: string | null;
+}): string {
+  const provided = input.teamName?.trim();
+  if (provided) return provided;
+
+  const names = (input.anglers ?? [])
+    .map((angler) => angler.fullName?.trim())
+    .filter((name): name is string => Boolean(name));
+  if (names.length > 0) return `RowRide — ${joinYouthNames(names)}`;
+
+  const local = input.registrantEmail?.trim().split("@")[0];
+  if (local) return `RowRide — ${local}`;
+  return "RowRide";
+}
+
 /** Main tournament stringer / main pot: registered adult (non-youth) anglers only. */
 export function isMainStringerEligible(angler: {
   isYouth?: boolean | null;

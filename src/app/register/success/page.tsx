@@ -26,6 +26,10 @@ import {
   SUCCESS_UNLOCK_NOTE,
   SUCCESS_VENMO_BANNER,
   SUCCESS_VENMO_NOTE,
+  SUCCESS_YOUTH_ACCOUNT_NOTE,
+  SUCCESS_YOUTH_SUMMARY_HEADING,
+  SUCCESS_YOUTH_UNLOCK_NOTE,
+  SUCCESS_YOUTH_VENMO_MATCH,
 } from "@/lib/register-success-copy";
 import { BOAT_FULL_NOTE, isBoatInviteLocked } from "@/lib/join-the-boat";
 import { publicAbsoluteUrl } from "@/lib/safe-path";
@@ -173,7 +177,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               <h3 className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-wave/80">
                 Open my team
               </h3>
-              <p className="mt-2 text-sm text-ink/65">{SUCCESS_UNLOCK_NOTE}</p>
+              <p className="mt-2 text-sm text-ink/65">
+                {landOnly ? SUCCESS_YOUTH_UNLOCK_NOTE : SUCCESS_UNLOCK_NOTE}
+              </p>
               <div className="mt-3">
                 <InviteLinkCopy
                   url={unlockUrl}
@@ -198,8 +204,14 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
             >
               {VENMO_HANDLE}
             </a>
-            . Use the note below so we can match your payment — it names your{" "}
-            <strong>team</strong>
+            . Use the note below so we can match your payment —{" "}
+            {landOnly ? (
+              SUCCESS_YOUTH_VENMO_MATCH
+            ) : (
+              <>
+                it names your <strong>team</strong>
+              </>
+            )}
             {chosenPots.length > 0 ? (
               <>
                 {" "}
@@ -282,9 +294,9 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
               Create your account
             </h2>
             <p className="mt-3 text-ink/75">
-              Until you set a password, you are missing from the boat list. Add
-              a captain email anytime on My team to invite them — that is not a
-              paid angler seat.
+              {landOnly
+                ? SUCCESS_YOUTH_ACCOUNT_NOTE
+                : "Until you set a password, you are missing from the boat list. Add a captain email anytime on My team to invite them — that is not a paid angler seat."}
             </p>
             <div className="mt-4">
               <SetPasswordForm email={team.registrantEmail} />
@@ -294,7 +306,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
 
         <section className="border-t border-dashed border-wave/25 pt-8">
           <h2 className="font-display text-2xl uppercase text-wave">
-            Team summary
+            {landOnly ? SUCCESS_YOUTH_SUMMARY_HEADING : "Team summary"}
           </h2>
           <dl className="mt-4 space-y-3 text-sm md:text-base">
             <div className="flex justify-between gap-4">
@@ -311,7 +323,7 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
                     : "Non-guided"}
               </dd>
             </div>
-            {team.boatType === "GUIDED" ? (
+            {landOnly ? null : team.boatType === "GUIDED" ? (
               <div className="flex justify-between gap-4">
                 <dt className="text-ink/60">Captain</dt>
                 <dd className="text-right">

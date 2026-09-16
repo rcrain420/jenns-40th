@@ -11,6 +11,7 @@ import {
   isYouthAngler,
   mainStringerEligibleAnglers,
   youthAnglersRegisteredLabel,
+  youthLandDisplayName,
 } from "./youth.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -38,6 +39,8 @@ const COPY_SURFACES = [
   "src/app/register/youth/page.tsx",
   "src/app/register/success/page.tsx",
   "src/components/AdminDashboard.tsx",
+  "src/lib/register-success-copy.ts",
+  "src/lib/validation.ts",
 ];
 
 const LEFTOVER_MAIN_STRINGER = [
@@ -83,6 +86,13 @@ const LEFTOVER_DUAL_ROWRIDE_CTA = [
   /Boat Only/,
 ];
 
+/** Aaron 2026-09-16: public youth signup does not collect a team/boat name. */
+const LEFTOVER_YOUTH_TEAM_OR_BOAT_NAME = [
+  /household or kids name/i,
+  /A household or kids name is required/,
+  /Add kids to this RowRide household/i,
+];
+
 /** Fishing is land or boat — do not tell people kids may only fish from land. */
 const LEFTOVER_LAND_ONLY_FISHING = [
   /Kids register separately for RowRide and fish from land/i,
@@ -118,6 +128,55 @@ const LEFTOVER_YOUTH_COUNT_TOWARD_FOUR = [
   /kids included/i,
   /including youth/i,
 ];
+
+describe("youth land display name", () => {
+  it("names one kid, pluralizes two or three, and falls back to the parent", () => {
+    assert.equal(
+      youthLandDisplayName({ anglers: [{ fullName: "Rowan Crain" }] }),
+      "RowRide — Rowan Crain",
+    );
+    assert.equal(
+      youthLandDisplayName({
+        anglers: [{ fullName: "Rowan" }, { fullName: "Rider" }],
+      }),
+      "RowRide — Rowan & Rider",
+    );
+    assert.equal(
+      youthLandDisplayName({
+        anglers: [
+          { fullName: "Rowan" },
+          { fullName: "Rider" },
+          { fullName: "Sam" },
+        ],
+      }),
+      "RowRide — Rowan, Rider & Sam",
+    );
+    assert.equal(
+      youthLandDisplayName({
+        anglers: [
+          { fullName: "Rowan" },
+          { fullName: "Rider" },
+          { fullName: "Sam" },
+          { fullName: "Pat" },
+        ],
+      }),
+      "RowRide — Rowan and 3 more",
+    );
+    assert.equal(
+      youthLandDisplayName({ registrantEmail: "parent@example.com" }),
+      "RowRide — parent",
+    );
+    assert.equal(
+      youthLandDisplayName({
+        teamName: "Admin override",
+        anglers: [{ fullName: "Rowan" }],
+      }),
+      "Admin override",
+    );
+    assert.equal(youthLandDisplayName({}), "RowRide");
+    assert.equal(/untitled/i.test(youthLandDisplayName({})), false);
+  });
+});
 
 describe("youth anglers registered label", () => {
   it("names kids, not teams, and pluralizes", () => {
@@ -282,6 +341,19 @@ describe("youth main-stringer leftover copy", () => {
       }
     }
   });
+
+  it("does not ask youth signup for a team or boat name", () => {
+    for (const relative of COPY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of LEFTOVER_YOUTH_TEAM_OR_BOAT_NAME) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
 });
 
 const MAIN_RULES_SURFACES = [
@@ -391,6 +463,42 @@ describe("RowRide register form", () => {
     assert.equal(/Land Only/.test(text), false);
     assert.equal(/Boat Only/.test(text), false);
     assert.equal(/no team side pots/i.test(text), false);
+    assert.equal(/teamName/.test(text), false);
+    assert.equal(/boat name/i.test(text), false);
+    assert.equal(/team name/i.test(text), false);
+    assert.equal(/household/i.test(text), false);
+  });
+});
+
+describe("youth signup leftover team/boat name copy", () => {
+  it("does not collect a team or boat name on public youth surfaces", () => {
+    const youthForm = readFileSync(
+      join(ROOT, "src/components/YouthLandRegisterForm.tsx"),
+      "utf8",
+    );
+    const youthPage = readFileSync(
+      join(ROOT, "src/app/register/youth/page.tsx"),
+      "utf8",
+    );
+    const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
+    const team = readFileSync(join(ROOT, "src/app/team/page.tsx"), "utf8");
+    const success = readFileSync(
+      join(ROOT, "src/app/register/success/page.tsx"),
+      "utf8",
+    );
+    const schema = readFileSync(join(ROOT, "src/lib/validation.ts"), "utf8");
+
+    for (const text of [youthForm, youthPage, schema]) {
+      assert.equal(/household or kids name/i.test(text), false);
+      assert.equal(/A household or kids name is required/.test(text), false);
+    }
+    assert.equal(/teamName/.test(youthForm), false);
+    assert.match(kids, /do not need a team or boat name/);
+    assert.match(team, /do not need a team or boat name/);
+    assert.match(success, /SUCCESS_YOUTH_SUMMARY_HEADING/);
+    assert.match(success, /SUCCESS_YOUTH_VENMO_MATCH/);
+    assert.match(schema, /youthLandRegistrationSchema/);
+    assert.match(schema, /\.optional\(\)/);
   });
 });
 

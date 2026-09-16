@@ -36,6 +36,7 @@ const {
   contactEmailIssue,
 } = await import("./boat-contact.ts");
 const { derivePaymentStatus } = await import("./payments.ts");
+const { youthLandDisplayName } = await import("./youth.ts");
 
 describe("optional angler email", () => {
   it("allows a blank seat and keeps a valid plus-alias", () => {
@@ -228,6 +229,25 @@ describe("BOAT writes reject youth anglers", () => {
     assert.equal(
       youthLandRosterCapacityIssue([{ isYouth: true }]),
       null,
+    );
+  });
+});
+
+describe("RowRide registration does not require a team name", () => {
+  it("invents a readable default from the first kid when teamName is omitted", () => {
+    assert.equal(
+      youthLandDisplayName({
+        anglers: [{ fullName: "Rowan Crain" }],
+        registrantEmail: "parent@example.com",
+      }),
+      "RowRide — Rowan Crain",
+    );
+    assert.equal(
+      youthLandDisplayName({
+        teamName: "Admin label",
+        anglers: [{ fullName: "Rider" }],
+      }),
+      "Admin label",
     );
   });
 });
