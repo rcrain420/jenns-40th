@@ -103,14 +103,7 @@ export default async function KidsPage() {
             Official-ish {YOUTH_TOURNAMENT.name} rules
           </h2>
           <p className="mt-3 text-ink/80">
-            These are the kids / RowRide rules. The adult boat tournament has
-            its own document.{" "}
-            <Link
-              href="/rules"
-              className="font-semibold text-sea underline-offset-4 hover:underline"
-            >
-              Main tournament rules →
-            </Link>
+            These are the kids / RowRide rules.
           </p>
 
           <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">

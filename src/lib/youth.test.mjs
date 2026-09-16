@@ -104,8 +104,11 @@ const LEFTOVER_KIDS_PAGE_BOAT_REGISTER_CTA = [
   /href=["']\/register["']/,
 ];
 
-const LEFTOVER_KIDS_PAGE_ADULT_RULES_FOOTER = [
+const LEFTOVER_KIDS_PAGE_ADULT_RULES_LINK = [
   /Adult boat tournament rules/i,
+  /Main tournament rules/i,
+  /The adult boat tournament has its own document/i,
+  /href=["']\/rules/,
 ];
 
 /** Fishing is land or boat — do not tell people kids may only fish from land. */
@@ -372,7 +375,7 @@ describe("youth main-stringer leftover copy", () => {
 });
 
 describe("kids page leftover copy", () => {
-  it("drops adults-only register clause, boat-register CTAs, mid-rules Enter RowRide, and the bottom adult-rules link", () => {
+  it("drops adults-only register clause, boat-register CTAs, mid-rules Enter RowRide, and adult-rules links", () => {
     const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
     const docs = readFileSync(join(ROOT, "docs/rowride-rules.md"), "utf8");
 
@@ -390,7 +393,7 @@ describe("kids page leftover copy", () => {
     for (const pattern of LEFTOVER_KIDS_PAGE_BOAT_REGISTER_CTA) {
       assert.equal(pattern.test(kids), false, `kids page still matches ${pattern}`);
     }
-    for (const pattern of LEFTOVER_KIDS_PAGE_ADULT_RULES_FOOTER) {
+    for (const pattern of LEFTOVER_KIDS_PAGE_ADULT_RULES_LINK) {
       assert.equal(pattern.test(kids), false, `kids page still matches ${pattern}`);
     }
 
@@ -454,7 +457,6 @@ describe("RowRide rules live on the kids page", () => {
       assert.match(text, /Tournament Host/);
       assert.match(text, /\/register\/youth/);
       assert.match(text, /land\s+or\s+by\s+boat/i);
-      assert.match(text, /Main tournament rules|adult boat tournament rules/i);
       assert.match(text, /\$50 per pot/);
       assert.match(text, /own\s+RowRide registration/);
     }
