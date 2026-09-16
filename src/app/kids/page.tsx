@@ -141,12 +141,7 @@ export default async function KidsPage() {
           </h3>
           <p className="mt-3 text-ink/80">
             Kids register only on the RowRide form. They are not added to a
-            boat roster. Boat teams are adults only.
-          </p>
-          <p className="mt-3">
-            <Link href="/register/youth" className="btn-bay btn-bay-red">
-              Enter RowRide
-            </Link>
+            boat roster.
           </p>
 
           <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
@@ -229,14 +224,6 @@ export default async function KidsPage() {
             Weighmaster has final authority over species, condition,
             measurement, and official weight. All decisions are final.
           </p>
-          <p className="mt-4">
-            <Link
-              href="/rules"
-              className="font-semibold text-sea underline-offset-4 hover:underline"
-            >
-              Adult boat tournament rules →
-            </Link>
-          </p>
         </section>
 
         <section>
@@ -252,18 +239,13 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "Sign in, then register for RowRide separately. Kids may fish from land or by boat. Boat registration is a separate adults-only path."
+                  ? "Sign in, then register for RowRide separately. Kids may fish from land or by boat."
                   : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/register/youth" className="btn-bay btn-bay-red">
                   Enter RowRide
                 </Link>
-                {availability.isOpen ? (
-                  <Link href="/register" className="btn-bay btn-bay-navy">
-                    Register a boat
-                  </Link>
-                ) : null}
               </div>
             </div>
           ) : team && isRegistrant && landOnly ? (
@@ -324,18 +306,13 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "You're signed in and not on a team. Register for RowRide separately. Kids may fish from land or by boat. Boat registration is a separate adults-only path."
+                  ? "You're signed in and not on a team. Register for RowRide separately. Kids may fish from land or by boat."
                   : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/register/youth" className="btn-bay btn-bay-red">
                   Enter RowRide
                 </Link>
-                {availability.isOpen ? (
-                  <Link href="/register" className="btn-bay btn-bay-navy">
-                    Register a boat
-                  </Link>
-                ) : null}
               </div>
             </div>
           )}

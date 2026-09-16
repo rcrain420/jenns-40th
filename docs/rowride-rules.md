@@ -30,7 +30,7 @@ A parent or guardian may use their own email for the child. The child does not g
 
 Kids register only on the RowRide form (`/register/youth`). They are not added to a boat roster.
 
-Boat teams are adults only. Adults without email may stay name-only on a boat roster and still create an account from the invite link. That is not the kids path.
+Adults without email may stay name-only on a boat roster and still create an account from the invite link. That is not the kids path.
 
 ## 4. How kids fish
 
