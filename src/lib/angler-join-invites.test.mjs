@@ -55,7 +55,7 @@ describe("register / Invite join emails", () => {
       eventName: "Official-ish Fishing Tournament for Jenn's 40th Birthday",
       shortName: "Jenn's 40th",
       dateLabel: "October 9–10, 2026",
-      venue: "Boatmen’s Club Bar & Marina",
+      venue: "Boatman’s Knot",
       footerScript: "See you in Rockport!",
     });
 

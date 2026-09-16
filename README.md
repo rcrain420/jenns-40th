@@ -1,6 +1,6 @@
 # Jen's 40th Birthday Fishing Tournament
 
-Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Boatmens at Cove Harbor Marina).
+Registration + admin console for the Oct 10, 2026 tournament in Rockport, TX (Boatman’s Knot at Cove Harbor).
 
 ## Features
 

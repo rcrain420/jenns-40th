@@ -19,7 +19,7 @@ const FALLBACK_NAMES = [
   "Bay Day Bandits",
   "Speck-tacular Forty",
   "Drum Roll Please",
-  "Boatmens Birthday Brigade",
+  "Boatman's Birthday Brigade",
 ];
 
 function shuffle<T>(items: T[]): T[] {
