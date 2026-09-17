@@ -262,6 +262,7 @@ export function toDirectoryTeam(input: {
   id: string;
   teamName: string;
   ownTeamId?: string | null;
+  ownTeamIds?: string[] | null;
   entryKind?: string | null;
   anglers: BoatRosterInput["anglers"];
   members: BoatRosterInput["members"];
@@ -275,7 +276,10 @@ export function toDirectoryTeam(input: {
   return {
     id: input.id,
     teamName: input.teamName,
-    isOwn: Boolean(input.ownTeamId && input.id === input.ownTeamId),
+    isOwn: Boolean(
+      (input.ownTeamId && input.id === input.ownTeamId) ||
+        input.ownTeamIds?.includes(input.id),
+    ),
     entryKind: input.entryKind === "YOUTH_LAND" ? "YOUTH_LAND" : "BOAT",
     anglers: rows.map((row) => ({
       name: row.name,

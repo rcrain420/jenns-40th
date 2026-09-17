@@ -1,38 +1,46 @@
 import { prisma } from "./db";
 import { sendTeamInviteEmail } from "./team-invite-email";
 import { normalizeEmail } from "./safe-path";
+import { userOwnsTeam } from "./team-membership";
 
 export async function inviteAnglerOnTeam(opts: {
   userId: string;
   anglerId: string;
   email?: string;
 }) {
-  const member = await prisma.teamMember.findUnique({
-    where: { userId: opts.userId },
+  const user = await prisma.user.findUnique({
+    where: { id: opts.userId },
+    select: { id: true, email: true },
+  });
+  const angler = await prisma.angler.findUnique({
+    where: { id: opts.anglerId },
     include: {
       team: {
         select: {
           id: true,
           teamName: true,
           claimedByUserId: true,
+          registrantEmail: true,
         },
       },
     },
   });
-
-  if (!member || member.team.claimedByUserId !== opts.userId) {
+  if (!user || !angler) {
+    return { ok: false as const, error: "That angler is not on this team.", status: 404 };
+  }
+  if (
+    !userOwnsTeam({
+      userId: user.id,
+      userEmail: user.email,
+      claimedByUserId: angler.team.claimedByUserId,
+      registrantEmail: angler.team.registrantEmail,
+    })
+  ) {
     return {
       ok: false as const,
       error: "Only the person who registered this team can send invites.",
       status: 403,
     };
-  }
-
-  const angler = await prisma.angler.findUnique({
-    where: { id: opts.anglerId },
-  });
-  if (!angler || angler.teamId !== member.team.id) {
-    return { ok: false as const, error: "That angler is not on this team.", status: 404 };
   }
 
   if (angler.isYouth) {
@@ -62,8 +70,8 @@ export async function inviteAnglerOnTeam(opts: {
   }
 
   const delivery = await sendTeamInviteEmail({
-    teamId: member.team.id,
-    teamName: member.team.teamName,
+    teamId: angler.team.id,
+    teamName: angler.team.teamName,
     anglerName: angler.fullName,
     to: nextEmail,
   });

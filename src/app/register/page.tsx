@@ -11,7 +11,7 @@ import {
   registerAuthMode,
   registerContinuePath,
   registerPageView,
-  userHasRegisteredTeam,
+  userHasBoatTeam,
 } from "@/lib/register-logged-in";
 import { getRegistrationAvailability } from "@/lib/registration";
 import { publicRegistrationClosedCopy } from "@/lib/registration-policy";
@@ -42,7 +42,7 @@ export default async function RegisterPage({
   const initialBoatType = parseBoatType(params.boat);
   const initialCaptainName = parseCaptain(params.captain);
 
-  const hasTeam = userHasRegisteredTeam(viewer);
+  const hasTeam = userHasBoatTeam(viewer);
   const view = registerPageView({
     signedIn: Boolean(viewer),
     hasTeam,

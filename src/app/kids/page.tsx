@@ -11,10 +11,10 @@ import {
   isYouthLandEntry,
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
-import { prisma } from "@/lib/db";
 import { isBoatInviteLocked } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
 import { getRegistrationAvailability } from "@/lib/registration";
+import { findTeamsForUser, userOwnsLoadedTeam } from "@/lib/user-teams";
 
 export const dynamic = "force-dynamic";
 
@@ -28,27 +28,17 @@ export default async function KidsPage() {
     getCurrentUser(),
     getRegistrationAvailability(),
   ]);
-  const member = user
-    ? await prisma.teamMember.findUnique({
-        where: { userId: user.id },
-        include: {
-          team: {
-            include: {
-              anglers: { orderBy: { sortOrder: "asc" } },
-              members: {
-                include: {
-                  user: { select: { name: true, email: true } },
-                },
-              },
-            },
-          },
-        },
-      })
-    : null;
-  const team = member?.team ?? null;
-  const isRegistrant = Boolean(team && team.claimedByUserId === user?.id);
-  const canEdit = isRegistrant && isRegistrationOpen();
-  const landOnly = team ? isYouthLandEntry(team.entryKind) : false;
+  const teams = user ? await findTeamsForUser(user.id) : [];
+  const youthTeams = teams.filter(
+    (team) =>
+      isYouthLandEntry(team.entryKind) &&
+      Boolean(user && userOwnsLoadedTeam(team, user)),
+  );
+  const boatTeam = teams.find((team) => !isYouthLandEntry(team.entryKind));
+  const team = youthTeams[0] ?? boatTeam ?? null;
+  const canEdit = Boolean(
+    youthTeams[0] && isRegistrationOpen(),
+  );
   const inviteLocked = team
     ? isBoatInviteLocked({
         anglers: team.anglers,
@@ -241,60 +231,56 @@ export default async function KidsPage() {
                 </Link>
               </div>
             </div>
-          ) : team && isRegistrant && landOnly ? (
-            <div className="mt-4 space-y-4">
+          ) : youthTeams.length > 0 ? (
+            <div className="mt-4 space-y-8">
               <p className="text-ink/80">
-                Add kids to this RowRide entry. This is a RowRide entry —
-                $0 base, not a $300 boat roster. Kids are individuals — they
-                do not need a team or boat name.
+                Add kids to {youthTeams.length === 1 ? "this RowRide entry" : "your RowRide entries"}.
+                This is a RowRide entry — $0 base, not a $300 boat roster.
+                Kids are individuals — they do not need a team or boat name.
                 Optional side pots they entered are $50 each. Kids may fish
                 from land or by boat.
               </p>
-              <TeamRosterEditor
-                initialAnglers={team.anglers.map((a) => ({
-                  id: a.id,
-                  fullName: a.fullName,
-                  phone: a.phone ?? "",
-                  email: a.email ?? "",
-                  isYouth: a.isYouth,
-                  shirtSize: a.shirtSize ?? "",
-                }))}
-                sidePotCount={team.sidePots.length}
-                paymentStatus={
-                  team.paymentStatus === "PAID"
-                    ? "PAID"
-                    : team.paymentStatus === "PARTIAL"
-                      ? "PARTIAL"
-                      : "UNPAID"
-                }
-                currentDueCents={team.amountDueCents}
-                amountPaidCents={team.amountPaidCents}
-                canEditRoster={canEdit}
-                canInvite={false}
-                boatInviteLocked={inviteLocked}
-                defaultNewIsYouth
-                entryKind={team.entryKind}
-              />
+              {youthTeams.map((youthTeam) => (
+                <TeamRosterEditor
+                  key={youthTeam.id}
+                  teamId={youthTeam.id}
+                  initialAnglers={youthTeam.anglers.map((a) => ({
+                    id: a.id,
+                    fullName: a.fullName,
+                    phone: a.phone ?? "",
+                    email: a.email ?? "",
+                    isYouth: a.isYouth,
+                    shirtSize: a.shirtSize ?? "",
+                  }))}
+                  sidePotCount={youthTeam.sidePots.length}
+                  paymentStatus={
+                    youthTeam.paymentStatus === "PAID"
+                      ? "PAID"
+                      : youthTeam.paymentStatus === "PARTIAL"
+                        ? "PARTIAL"
+                        : "UNPAID"
+                  }
+                  currentDueCents={youthTeam.amountDueCents}
+                  amountPaidCents={youthTeam.amountPaidCents}
+                  canEditRoster={canEdit}
+                  canInvite={false}
+                  boatInviteLocked={inviteLocked}
+                  defaultNewIsYouth
+                  entryKind={youthTeam.entryKind}
+                />
+              ))}
             </div>
-          ) : team && isRegistrant ? (
+          ) : boatTeam ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
-                You&apos;re on boat team {team.teamName}. Kids are not added
-                to a boat roster. Another parent or guardian who is not already
-                on a team can enter them for RowRide.
+                You&apos;re on boat team {boatTeam.teamName}. Kids register
+                separately for RowRide — they are not added to a boat roster.
+                You can still enter them from this account.
               </p>
               <Link href="/register/youth" className="btn-bay btn-bay-red">
                 RowRide signup
               </Link>
             </div>
-          ) : team ? (
-            <p className="mt-4 text-ink/80">
-              You&apos;re on {team.teamName}. Kids register separately for
-              RowRide — they are not added to a boat roster.{" "}
-              <Link href="/team" className="font-semibold text-sea hover:underline">
-                My team
-              </Link>
-            </p>
           ) : (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">

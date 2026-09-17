@@ -8,6 +8,7 @@ import { CAPTAIN_CONTACT_ADULT_NOTE } from "@/lib/youth";
 type BoatType = "GUIDED" | "NON_GUIDED";
 
 type Props = {
+  teamId?: string;
   boatType: BoatType;
   captainName: string;
   captainPhone: string;
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export function TeamCaptainEditor({
+  teamId,
   boatType: initialBoatType,
   captainName: initialCaptainName,
   captainPhone: initialCaptainPhone,
@@ -55,6 +57,7 @@ export function TeamCaptainEditor({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          teamId,
           boatType,
           captainName,
           captainPhone,

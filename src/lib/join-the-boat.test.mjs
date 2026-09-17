@@ -423,6 +423,17 @@ describe("teams directory", () => {
     });
 
     assert.equal(team.isOwn, true);
+    assert.equal(
+      toDirectoryTeam({
+        id: "youth_1",
+        teamName: "RowRide — Rowan",
+        ownTeamIds: ["team_1", "youth_1"],
+        entryKind: "YOUTH_LAND",
+        anglers: [{ fullName: "Rowan", isYouth: true }],
+        members: [],
+      }).isOwn,
+      true,
+    );
     assert.deepEqual(
       team.anglers.map((row) => ({
         name: row.name,

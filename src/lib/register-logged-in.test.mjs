@@ -9,6 +9,7 @@ import {
   registerAuthMode,
   registerContinuePath,
   registerPageView,
+  userHasBoatTeam,
   userHasRegisteredTeam,
 } from "./register-logged-in.ts";
 
@@ -44,6 +45,9 @@ describe("logged-in /register gate", () => {
     assert.equal(userHasRegisteredTeam(null), false);
     assert.equal(userHasRegisteredTeam({ teamName: null }), false);
     assert.equal(userHasRegisteredTeam({ teamName: "Redfish Rodeo" }), true);
+    assert.equal(userHasBoatTeam(null), false);
+    assert.equal(userHasBoatTeam({ hasBoatTeam: false }), false);
+    assert.equal(userHasBoatTeam({ hasBoatTeam: true }), true);
 
     assert.equal(
       registerPageView({ signedIn: true, hasTeam: false }),
@@ -61,6 +65,18 @@ describe("logged-in /register gate", () => {
       registerApiAllowsCreate({ signedIn: true, hasTeam: true }),
       false,
     );
+  });
+
+  it("keeps RowRide signup open when the parent is already on a boat", () => {
+    assert.equal(
+      registerPageView({ signedIn: true, hasTeam: false }),
+      "form",
+    );
+    assert.equal(
+      registerApiAllowsCreate({ signedIn: true, hasTeam: false }),
+      true,
+    );
+    assert.equal(userHasBoatTeam({ hasBoatTeam: true }), true);
   });
 
   it("opens Create account first, same as Join the boat", () => {

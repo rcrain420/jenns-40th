@@ -11,7 +11,6 @@ import {
   registerAuthMode,
   registerContinuePath,
   registerPageView,
-  userHasRegisteredTeam,
 } from "@/lib/register-logged-in";
 import { getRegistrationAvailability } from "@/lib/registration";
 
@@ -19,10 +18,9 @@ export const dynamic = "force-dynamic";
 
 export default async function YouthLandRegisterPage() {
   const viewer = await getCurrentUser();
-  const hasTeam = userHasRegisteredTeam(viewer);
   const view = registerPageView({
     signedIn: Boolean(viewer),
-    hasTeam,
+    hasTeam: false,
   });
 
   if (view === "auth") {
@@ -42,7 +40,7 @@ export default async function YouthLandRegisterPage() {
       <PageShell
         narrow
         title={REGISTER_ALREADY_IN.title}
-        description="You're already in. Manage a RowRide entry on My team. Kids are not added to a boat roster — another parent or guardian who is not already on a team can enter them for RowRide. Kids may fish from land or by boat."
+        description="You're already in. Manage a RowRide entry on My team. Kids are not added to a boat roster. A parent on a boat can still enter kids for RowRide. Kids may fish from land or by boat."
       >
         <p className="flex flex-wrap gap-4">
           <Link href="/kids" className="font-semibold text-sea hover:underline">

@@ -1,9 +1,11 @@
+import { isBoatEntry } from "./config";
 import { prisma } from "./db";
 import {
   BOAT_FULL_MESSAGE,
   canJoinBoat,
 } from "./join-the-boat";
 import { publicAbsoluteUrl } from "./safe-path";
+import { decideTeamMembership } from "./team-membership";
 import {
   generateInviteCode,
   inviteCodeExpiresAt,
@@ -101,8 +103,38 @@ export async function teamInviteUrl(teamId: string): Promise<string> {
 }
 
 export async function ensureTeamMember(userId: string, teamId: string) {
-  const existing = await prisma.teamMember.findUnique({ where: { userId } });
-  if (existing) return existing;
+  const existingOnTeam = await prisma.teamMember.findUnique({
+    where: { userId_teamId: { userId, teamId } },
+  });
+  if (existingOnTeam) return existingOnTeam;
+
+  const team = await prisma.team.findUnique({
+    where: { id: teamId },
+    select: { id: true, entryKind: true },
+  });
+  if (!team) {
+    throw new Error("Team not found");
+  }
+
+  const memberships = await prisma.teamMember.findMany({
+    where: { userId },
+    include: { team: { select: { id: true, entryKind: true } } },
+  });
+  const decision = decideTeamMembership({
+    existing: memberships.map((row) => ({
+      teamId: row.teamId,
+      entryKind: row.team.entryKind,
+    })),
+    target: { teamId, entryKind: team.entryKind },
+  });
+  if (!decision.ok) {
+    const fallback =
+      memberships.find((row) => isBoatEntry(row.team.entryKind)) ??
+      memberships[0];
+    if (fallback) return fallback;
+    throw new Error(decision.error);
+  }
+
   return prisma.teamMember.create({ data: { userId, teamId } });
 }
 
@@ -117,6 +149,7 @@ export async function joinTeam(userId: string, teamId: string) {
       select: {
         id: true,
         teamName: true,
+        entryKind: true,
         captainName: true,
         captainEmail: true,
         anglers: {
@@ -135,35 +168,47 @@ export async function joinTeam(userId: string, teamId: string) {
     return { ok: false as const, error: "That invite is not valid.", status: 404 };
   }
 
-  const existing = await prisma.teamMember.findUnique({ where: { userId } });
-  if (existing) {
-    if (existing.teamId === teamId) {
-      return { ok: true as const, already: true, teamName: team.teamName };
-    }
+  const memberships = await prisma.teamMember.findMany({
+    where: { userId },
+    include: { team: { select: { id: true, entryKind: true } } },
+  });
+  const decision = decideTeamMembership({
+    existing: memberships.map((row) => ({
+      teamId: row.teamId,
+      entryKind: row.team.entryKind,
+    })),
+    target: { teamId, entryKind: team.entryKind },
+  });
+  if (!decision.ok) {
     return {
       ok: false as const,
-      error: "You’re already on another team.",
+      error: decision.error,
       status: 409,
     };
   }
+  if (decision.already) {
+    return { ok: true as const, already: true, teamName: team.teamName };
+  }
 
-  const roster = {
-    anglers: team.anglers,
-    members: team.members.map((member) => ({
-      name: member.user.name,
-      email: member.user.email,
-    })),
-    captain: {
-      name: team.captainName,
-      email: team.captainEmail,
-    },
-  };
-  if (!canJoinBoat(roster, user?.email)) {
-    return {
-      ok: false as const,
-      error: BOAT_FULL_MESSAGE,
-      status: 409,
+  if (isBoatEntry(team.entryKind)) {
+    const roster = {
+      anglers: team.anglers,
+      members: team.members.map((member) => ({
+        name: member.user.name,
+        email: member.user.email,
+      })),
+      captain: {
+        name: team.captainName,
+        email: team.captainEmail,
+      },
     };
+    if (!canJoinBoat(roster, user?.email)) {
+      return {
+        ok: false as const,
+        error: BOAT_FULL_MESSAGE,
+        status: 409,
+      };
+    }
   }
 
   await prisma.teamMember.create({ data: { userId, teamId } });

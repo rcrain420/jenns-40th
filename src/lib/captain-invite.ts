@@ -23,10 +23,18 @@ export async function sendCaptainJoinInvite(opts: {
   const existingUser = await prisma.user.findUnique({
     where: { email },
     select: {
-      membership: { select: { teamId: true } },
+      memberships: {
+        select: { teamId: true, team: { select: { entryKind: true } } },
+      },
     },
   });
-  const memberTeamId = existingUser?.membership?.teamId ?? null;
+  const boatMemberships = (existingUser?.memberships ?? []).filter((row) =>
+    row.team.entryKind !== "YOUTH_LAND",
+  );
+  const memberTeamId =
+    boatMemberships.find((row) => row.teamId === opts.teamId)?.teamId ??
+    boatMemberships[0]?.teamId ??
+    null;
   const plan = shouldSendCaptainInvite({
     email,
     alreadyOnThisBoat: memberTeamId === opts.teamId,
@@ -69,13 +77,14 @@ export async function inviteCaptainOnTeam(opts: {
   | { ok: true; sent: boolean; email: string | null; skipped?: "empty" | "joined" }
   | { ok: false; error: string; status: number }
 > {
-  const member = await prisma.teamMember.findUnique({
+  const memberships = await prisma.teamMember.findMany({
     where: { userId: opts.userId },
     include: {
       team: {
         select: {
           id: true,
           teamName: true,
+          entryKind: true,
           claimedByUserId: true,
           captainName: true,
           captainEmail: true,
@@ -83,8 +92,13 @@ export async function inviteCaptainOnTeam(opts: {
       },
     },
   });
+  const member = memberships.find(
+    (row) =>
+      row.team.entryKind !== "YOUTH_LAND" &&
+      row.team.claimedByUserId === opts.userId,
+  );
 
-  if (!member || member.team.claimedByUserId !== opts.userId) {
+  if (!member) {
     return {
       ok: false,
       error: "Only the person who registered this team can set the captain.",
