@@ -37,6 +37,7 @@ export type RosterAnglerDraft = {
 };
 
 type Props = {
+  teamId?: string;
   initialAnglers: RosterAnglerDraft[];
   sidePotCount: number;
   paymentStatus: "UNPAID" | "PARTIAL" | "PAID";
@@ -61,6 +62,7 @@ const emptyAngler = (isYouth = false): RosterAnglerDraft => ({
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function TeamRosterEditor({
+  teamId,
   initialAnglers,
   sidePotCount,
   paymentStatus,
@@ -143,6 +145,7 @@ export function TeamRosterEditor({
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        teamId,
         anglers: named.map((a) => ({
           fullName: a.fullName,
           phone: a.phone,

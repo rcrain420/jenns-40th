@@ -1,6 +1,7 @@
 /**
- * /register is the create-a-team path until the signed-in user is actually
- * on a boat (membership or claimed team). An account alone is not
+ * /register is the create-a-boat path until the signed-in user is actually
+ * on a boat (membership or claimed team). A RowRide / YOUTH_LAND entry
+ * does not block boat register or Join the boat. An account alone is not
  * registration — Google/email sign-in with no team still gets the form.
  *
  * Logged-out visitors never see that form first. They get the same
@@ -44,6 +45,13 @@ export function userHasRegisteredTeam(
   user: { teamName?: string | null } | null | undefined,
 ): boolean {
   return Boolean(user?.teamName);
+}
+
+/** Paid boat membership / claim. RowRide youth does not count. */
+export function userHasBoatTeam(
+  user: { hasBoatTeam?: boolean } | null | undefined,
+): boolean {
+  return Boolean(user?.hasBoatTeam);
 }
 
 export function registerPageView(input: RegisterGateInput): RegisterPageView {

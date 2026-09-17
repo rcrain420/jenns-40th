@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { ENTRY_KIND, paidEntrySeatCount } from "@/lib/config";
 import {
   registerApiAllowsCreate,
-  userHasRegisteredTeam,
+  userHasBoatTeam,
 } from "@/lib/register-logged-in";
 import {
   createTeamRegistration,
@@ -20,23 +20,6 @@ import {
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   const signedIn = Boolean(user);
-  if (
-    !registerApiAllowsCreate({
-      signedIn,
-      hasTeam: userHasRegisteredTeam(user),
-    })
-  ) {
-    if (!signedIn) {
-      return NextResponse.json(
-        { error: "Sign in to register a team." },
-        { status: 401 },
-      );
-    }
-    return NextResponse.json(
-      { error: "You're already registered. Open your boat instead." },
-      { status: 409 },
-    );
-  }
 
   let body: unknown;
   try {
@@ -51,6 +34,24 @@ export async function POST(request: Request) {
     body !== null &&
     "entryKind" in body &&
     (body as { entryKind?: string }).entryKind === ENTRY_KIND.YOUTH_LAND;
+
+  if (
+    !registerApiAllowsCreate({
+      signedIn,
+      hasTeam: wantsLand ? false : userHasBoatTeam(user),
+    })
+  ) {
+    if (!signedIn) {
+      return NextResponse.json(
+        { error: "Sign in to register a team." },
+        { status: 401 },
+      );
+    }
+    return NextResponse.json(
+      { error: "You're already registered. Open your boat instead." },
+      { status: 409 },
+    );
+  }
 
   const result = wantsLand
     ? await (async () => {

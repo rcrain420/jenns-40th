@@ -10,6 +10,7 @@ import {
   type OAuthProvider,
 } from "./oauth";
 import { hashPassword, MIN_PASSWORD_LENGTH, verifyPassword } from "./password";
+import { isBoatEntry } from "./config";
 import { claimTeamIfRegistrant } from "./registration";
 import {
   registrantClaimMatches,
@@ -18,6 +19,8 @@ import {
 import { normalizeEmail } from "./safe-path";
 import { shouldSendSignupConfirmEmail } from "./signup-confirm";
 import { ensureTeamMember } from "./team-invite";
+import { pickDisplayTeamName } from "./team-membership";
+import { findTeamsForUser } from "./user-teams";
 
 const CONFIRM_MS = 48 * 60 * 60 * 1000;
 const RESET_MS = 60 * 60 * 1000;
@@ -31,8 +34,24 @@ export type PublicUser = {
   emailVerified: boolean;
   isAdmin: boolean;
   teamName: string | null;
+  hasBoatTeam: boolean;
+  hasYouthTeam: boolean;
   isRegistrant: boolean;
 };
+
+type PublicTeamRef = { teamName: string; entryKind?: string | null };
+
+function teamsFromUser(user: {
+  claimedTeams?: PublicTeamRef[] | null;
+  memberships?: Array<{ team?: PublicTeamRef | null }> | null;
+}): PublicTeamRef[] {
+  const teams: PublicTeamRef[] = [];
+  for (const team of user.claimedTeams ?? []) teams.push(team);
+  for (const row of user.memberships ?? []) {
+    if (row.team) teams.push(row.team);
+  }
+  return teams;
+}
 
 export function toPublicUser(user: {
   id: string;
@@ -41,9 +60,10 @@ export function toPublicUser(user: {
   imageUrl?: string | null;
   emailVerifiedAt: Date | null;
   role: string;
-  claimedTeam?: { teamName: string } | null;
-  membership?: { team?: { teamName: string } | null } | null;
+  claimedTeams?: PublicTeamRef[] | null;
+  memberships?: Array<{ team?: PublicTeamRef | null }> | null;
 }): PublicUser {
+  const teams = teamsFromUser(user);
   return {
     id: user.id,
     email: user.email,
@@ -51,9 +71,10 @@ export function toPublicUser(user: {
     imageUrl: sanitizeAvatarUrl(user.imageUrl),
     emailVerified: Boolean(user.emailVerifiedAt),
     isAdmin: user.role === "ADMIN",
-    teamName:
-      user.membership?.team?.teamName ?? user.claimedTeam?.teamName ?? null,
-    isRegistrant: Boolean(user.claimedTeam),
+    teamName: pickDisplayTeamName(teams),
+    hasBoatTeam: teams.some((team) => isBoatEntry(team.entryKind)),
+    hasYouthTeam: teams.some((team) => !isBoatEntry(team.entryKind)),
+    isRegistrant: Boolean(user.claimedTeams?.length),
   };
 }
 
@@ -64,8 +85,10 @@ const userSelect = {
   imageUrl: true,
   emailVerifiedAt: true,
   role: true,
-  claimedTeam: { select: { id: true, teamName: true } },
-  membership: { select: { team: { select: { teamName: true } } } },
+  claimedTeams: { select: { id: true, teamName: true, entryKind: true } },
+  memberships: {
+    select: { team: { select: { teamName: true, entryKind: true } } },
+  },
 } as const;
 
 function createTokenSecret(): string {
@@ -93,35 +116,43 @@ export async function markEmailVerified(userId: string) {
 }
 
 export async function claimTeamForUser(userId: string, email: string) {
-  const existing = await prisma.team.findFirst({
+  const existing = await prisma.team.findMany({
     where: { claimedByUserId: userId },
   });
-  if (existing) {
-    await ensureTeamMember(userId, existing.id);
-    return existing;
+  for (const team of existing) {
+    await ensureTeamMember(userId, team.id);
   }
 
-  const match = await prisma.team.findFirst({
+  const matches = await prisma.team.findMany({
     where: {
       claimedByUserId: null,
       registrantEmail: { equals: email, mode: "insensitive" },
     },
     include: { anglers: { orderBy: { sortOrder: "asc" } } },
   });
-  if (!match) return null;
+  const claimed = [];
+  for (const match of matches) {
+    const updated = await prisma.team.update({
+      where: { id: match.id },
+      data: { claimedByUserId: userId },
+    });
+    await ensureTeamMember(userId, updated.id);
+    claimed.push(updated);
+  }
 
-  const claimed = await prisma.team.update({
-    where: { id: match.id },
-    data: { claimedByUserId: userId },
-  });
-  await ensureTeamMember(userId, claimed.id);
-  return claimed;
+  return claimed[0] ?? existing[0] ?? null;
 }
 
 /** Invited captain email: attach the account to that boat on sign-in. */
 export async function claimTeamIfCaptain(userId: string, email: string) {
-  const existing = await prisma.teamMember.findUnique({ where: { userId } });
-  if (existing) return existing;
+  const memberships = await prisma.teamMember.findMany({
+    where: { userId },
+    include: { team: { select: { entryKind: true } } },
+  });
+  const boatMembership = memberships.find((row) =>
+    isBoatEntry(row.team.entryKind),
+  );
+  if (boatMembership) return boatMembership;
 
   const team = await prisma.team.findFirst({
     where: { captainEmail: { equals: email, mode: "insensitive" } },
@@ -135,39 +166,19 @@ export async function claimTeamIfCaptain(userId: string, email: string) {
 }
 
 export async function findTeamAnglersForUser(userId: string) {
-  const member = await prisma.teamMember.findUnique({
-    where: { userId },
-    include: {
-      team: { include: { anglers: { orderBy: { sortOrder: "asc" } } } },
-    },
-  });
-  const team =
-    member?.team ??
-    (await prisma.team.findUnique({
-      where: { claimedByUserId: userId },
-      include: { anglers: { orderBy: { sortOrder: "asc" } } },
-    }));
-  return team?.anglers ?? [];
+  const teams = await findTeamsForUser(userId);
+  return teams.flatMap((team) => team.anglers);
 }
 
 export async function findAnglerForUser(userId: string, name: string) {
-  const member = await prisma.teamMember.findUnique({
-    where: { userId },
-    include: { team: { include: { anglers: { orderBy: { sortOrder: "asc" } } } } },
-  });
-  const team =
-    member?.team ??
-    (await prisma.team.findUnique({
-      where: { claimedByUserId: userId },
-      include: { anglers: { orderBy: { sortOrder: "asc" } } },
-    }));
-  if (!team?.anglers.length) return null;
+  const teams = await findTeamsForUser(userId);
+  const anglers = teams.flatMap((team) => team.anglers);
+  if (!anglers.length) return null;
   const needle = name.trim().toLowerCase();
-  return (
-    team.anglers.find((a) => a.fullName.trim().toLowerCase() === needle) ??
-    team.anglers[0] ??
-    null
-  );
+  const exact = anglers.find((a) => a.fullName.trim().toLowerCase() === needle);
+  if (exact) return exact;
+  const boat = teams.find((team) => isBoatEntry(team.entryKind));
+  return boat?.anglers[0] ?? anglers[0] ?? null;
 }
 
 async function issueEmailToken(

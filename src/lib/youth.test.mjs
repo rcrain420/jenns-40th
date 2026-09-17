@@ -25,6 +25,7 @@ const COPY_SURFACES = [
   "src/app/page.tsx",
   "src/app/pots/page.tsx",
   "src/app/team/page.tsx",
+  "src/components/MyTeamEntry.tsx",
   "src/app/teams/page.tsx",
   "src/app/register/page.tsx",
   "src/components/RegisterForm.tsx",
@@ -531,7 +532,7 @@ describe("youth signup leftover team/boat name copy", () => {
       "utf8",
     );
     const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
-    const team = readFileSync(join(ROOT, "src/app/team/page.tsx"), "utf8");
+    const team = readFileSync(join(ROOT, "src/components/MyTeamEntry.tsx"), "utf8");
     const success = readFileSync(
       join(ROOT, "src/app/register/success/page.tsx"),
       "utf8",

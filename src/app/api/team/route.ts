@@ -11,6 +11,11 @@ import { derivePaymentStatus } from "@/lib/payments";
 import { emptyToNull } from "@/lib/registration";
 import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { teamInviteUrl } from "@/lib/team-invite";
+import {
+  findTeamsForUser,
+  pickTeamForEdit,
+  type UserTeam,
+} from "@/lib/user-teams";
 import { teamContactSchema, teamRosterSchema } from "@/lib/validation";
 
 function boatRosterInput(team: {
@@ -36,22 +41,44 @@ function boatRosterInput(team: {
   };
 }
 
-async function loadMemberTeam(userId: string) {
-  const member = await prisma.teamMember.findUnique({
-    where: { userId },
-    include: {
-      team: {
-        include: {
-          anglers: { orderBy: { sortOrder: "asc" } },
-          members: {
-            include: { user: { select: { id: true, name: true, email: true } } },
-            orderBy: { createdAt: "asc" },
-          },
-        },
-      },
-    },
-  });
-  return member?.team ?? null;
+function teamIdFromBody(body: unknown): string | undefined {
+  if (!body || typeof body !== "object") return undefined;
+  const teamId = (body as { teamId?: unknown }).teamId;
+  return typeof teamId === "string" && teamId.trim() ? teamId.trim() : undefined;
+}
+
+function serializeTeam(team: UserTeam, userId: string) {
+  return {
+    id: team.id,
+    teamName: team.teamName,
+    paymentStatus: team.paymentStatus,
+    amountDueCents: team.amountDueCents,
+    amountPaidCents: team.amountPaidCents,
+    sidePots: team.sidePots,
+    entryKind: team.entryKind,
+    boatType: team.boatType,
+    captainName: team.captainName ?? "",
+    captainPhone: team.captainPhone ?? "",
+    captainEmail: team.captainEmail ?? "",
+    contactName: team.contactName ?? "",
+    contactPhone: team.contactPhone ?? "",
+    contactEmail: team.contactEmail ?? "",
+    anglers: team.anglers.map((a) => ({
+      id: a.id,
+      fullName: a.fullName,
+      phone: a.phone ?? "",
+      email: a.email ?? "",
+      isYouth: a.isYouth,
+      shirtSize: a.shirtSize ?? "",
+    })),
+    members: team.members.map((m) => ({
+      id: m.user.id,
+      name: m.user.name,
+      email: m.user.email,
+      isRegistrant: m.user.id === team.claimedByUserId,
+    })),
+    isRegistrant: team.claimedByUserId === userId,
+  };
 }
 
 export async function GET() {
@@ -60,7 +87,8 @@ export async function GET() {
     return NextResponse.json({ error: "Sign in first" }, { status: 401 });
   }
 
-  const team = await loadMemberTeam(user.id);
+  const teams = await findTeamsForUser(user.id);
+  const team = teams[0];
   if (!team) {
     return NextResponse.json({ error: "You’re not on a team yet." }, { status: 404 });
   }
@@ -68,36 +96,8 @@ export async function GET() {
   const isRegistrant = team.claimedByUserId === user.id;
   const inviteLocked = isBoatInviteLocked(boatRosterInput(team));
   return NextResponse.json({
-    team: {
-      id: team.id,
-      teamName: team.teamName,
-      paymentStatus: team.paymentStatus,
-      amountDueCents: team.amountDueCents,
-      amountPaidCents: team.amountPaidCents,
-      sidePots: team.sidePots,
-      entryKind: team.entryKind,
-      boatType: team.boatType,
-      captainName: team.captainName ?? "",
-      captainPhone: team.captainPhone ?? "",
-      captainEmail: team.captainEmail ?? "",
-      contactName: team.contactName ?? "",
-      contactPhone: team.contactPhone ?? "",
-      contactEmail: team.contactEmail ?? "",
-      anglers: team.anglers.map((a) => ({
-        id: a.id,
-        fullName: a.fullName,
-        phone: a.phone ?? "",
-        email: a.email ?? "",
-        isYouth: a.isYouth,
-        shirtSize: a.shirtSize ?? "",
-      })),
-      members: team.members.map((m) => ({
-        id: m.user.id,
-        name: m.user.name,
-        email: m.user.email,
-        isRegistrant: m.user.id === team.claimedByUserId,
-      })),
-    },
+    team: serializeTeam(team, user.id),
+    teams: teams.map((row) => serializeTeam(row, user.id)),
     inviteUrl: inviteLocked ? null : await teamInviteUrl(team.id),
     inviteLocked,
     isRegistrant,
@@ -111,19 +111,20 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Sign in first" }, { status: 401 });
   }
 
-  const team = await loadMemberTeam(user.id);
-  if (!team || team.claimedByUserId !== user.id) {
-    return NextResponse.json(
-      { error: "Only the person who registered this team can edit the roster." },
-      { status: 403 },
-    );
-  }
-
+  const teams = await findTeamsForUser(user.id);
   let body: unknown;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const team = pickTeamForEdit(teams, user, teamIdFromBody(body));
+  if (!team) {
+    return NextResponse.json(
+      { error: "Only the person who registered this team can edit the roster." },
+      { status: 403 },
+    );
   }
 
   if (body && typeof body === "object" && !("anglers" in body)) {

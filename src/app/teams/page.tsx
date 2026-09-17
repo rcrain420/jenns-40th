@@ -5,6 +5,7 @@ import { PageShell } from "@/components/PageShell";
 import { getCurrentUser } from "@/lib/auth";
 import { BOAT_ENTRY_CENTS, EVENT, isBoatEntry, isYouthLandEntry } from "@/lib/config";
 import { prisma } from "@/lib/db";
+import { findTeamIdsForUser } from "@/lib/user-teams";
 import { toDirectoryTeam } from "@/lib/join-the-boat";
 import { formatUsdWhole } from "@/lib/money";
 import {
@@ -47,11 +48,7 @@ export default async function TeamsDirectoryPage() {
     );
   }
 
-  const member = await prisma.teamMember.findUnique({
-    where: { userId: user.id },
-    select: { teamId: true },
-  });
-  const ownTeamId = member?.teamId ?? null;
+  const ownTeamIds = await findTeamIdsForUser(user.id);
 
   const teams = await prisma.team.findMany({
     orderBy: { teamName: "asc" },
@@ -77,7 +74,7 @@ export default async function TeamsDirectoryPage() {
       id: team.id,
       teamName: team.teamName,
       entryKind: team.entryKind,
-      ownTeamId,
+      ownTeamIds,
       anglers: team.anglers,
       members: team.members.map((m) => ({
         name: m.user.name,

@@ -1,3 +1,5 @@
+import { pickDisplayTeamName } from "./team-membership";
+
 export function authorName(row: {
   user?: { name: string } | null;
   angler?: { fullName: string } | null;
@@ -6,20 +8,29 @@ export function authorName(row: {
 }
 
 export const userTeamNameSelect = {
-  claimedTeam: { select: { teamName: true } },
-  membership: { select: { team: { select: { teamName: true } } } },
+  claimedTeams: { select: { teamName: true, entryKind: true } },
+  memberships: {
+    select: { team: { select: { teamName: true, entryKind: true } } },
+  },
 } as const;
 
 export function authorTeamName(row: {
   user?: {
-    claimedTeam?: { teamName: string } | null;
-    membership?: { team?: { teamName: string } | null } | null;
+    claimedTeams?: Array<{ teamName: string; entryKind?: string | null }> | null;
+    memberships?: Array<{
+      team?: { teamName: string; entryKind?: string | null } | null;
+    }> | null;
   } | null;
   angler?: { team?: { teamName: string } | null } | null;
 }): string {
+  const fromMemberships = (row.user?.memberships ?? [])
+    .map((item) => item.team)
+    .filter((team): team is { teamName: string; entryKind?: string | null } =>
+      Boolean(team),
+    );
+  const fromClaims = row.user?.claimedTeams ?? [];
   return (
-    row.user?.membership?.team?.teamName ??
-    row.user?.claimedTeam?.teamName ??
+    pickDisplayTeamName([...fromMemberships, ...fromClaims]) ??
     row.angler?.team?.teamName ??
     ""
   );

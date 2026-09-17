@@ -24,8 +24,8 @@ model User {
   updatedAt       DateTime  @updatedAt
   tokens          EmailToken[]
   oauthAccounts   OAuthAccount[]
-  claimedTeam     Team?
-  membership      TeamMember?
+  claimedTeams    Team[]
+  memberships     TeamMember[]
   catches         FishCatch[]
   comments        CatchComment[]
   paymentsCreated Payment[]
@@ -83,7 +83,7 @@ model Team {
   amountDueCents   Int
   /// Denormalized sum of Payment.amountCents; kept in sync on ledger writes.
   amountPaidCents  Int      @default(0)
-  claimedByUserId  String?  @unique
+  claimedByUserId  String?
   claimedByUser    User?    @relation(fields: [claimedByUserId], references: [id], onDelete: SetNull)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -93,6 +93,7 @@ model Team {
   payments         Payment[]
 
   @@index([captainEmail])
+  @@index([claimedByUserId])
 }
 
 /// Per-boat payment ledger. Writes are MANUAL today; VENMO is reserved for later.
@@ -128,11 +129,13 @@ model TeamMember {
   id        String   @id @default(cuid())
   teamId    String
   team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  userId    String   @unique
+  userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
+  @@unique([userId, teamId])
   @@index([teamId])
+  @@index([userId])
 }
 
 model Angler {
