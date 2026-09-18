@@ -63,6 +63,10 @@ export const YOUTH_BOAT_SEAT_RULE =
 export const YOUTH_LAND_RULE =
   "Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster.";
 
+/** Kids path is its own product — never a boat-register CTA or boat roster add-on. */
+export const YOUTH_OWN_ENTRY_RULE =
+  "Kids enter RowRide on their own. Boat registration is a different product — they are not added to a boat roster.";
+
 export const YOUTH_SEPARATE_REGISTER = YOUTH_LAND_RULE;
 
 export const YOUTH_COMPETITION_POLICY = [

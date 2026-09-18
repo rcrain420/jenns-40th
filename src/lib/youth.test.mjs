@@ -10,6 +10,7 @@ import {
   YOUTH_MAIN_STRINGER_RULE,
   YOUTH_ONE_AWARD_ASSIGNMENT,
   YOUTH_ONE_AWARD_RULE,
+  YOUTH_OWN_ENTRY_RULE,
   YOUTH_ROWRIDE_RULE,
   YOUTH_SIDE_POT_RULE,
   isMainStringerEligible,
@@ -110,6 +111,25 @@ const LEFTOVER_KIDS_PAGE_ADULTS_ONLY = [
 const LEFTOVER_KIDS_PAGE_BOAT_REGISTER_CTA = [
   /Register a boat/i,
   /href=["']\/register["']/,
+];
+
+/** Aaron 2026-09-18: RowRide signup is its own product — no boat-register CTAs. */
+const ROWRIDE_ONLY_SURFACES = [
+  "src/app/kids/page.tsx",
+  "src/app/register/youth/page.tsx",
+  "src/components/YouthLandRegisterForm.tsx",
+  "src/components/YouthDivisionAwards.tsx",
+];
+
+const LEFTOVER_BOAT_FLOW_ON_ROWRIDE = [
+  /href=["']\/register["']/,
+  /Register an adults-only boat/i,
+  /Register a boat/i,
+  /Register your team/i,
+  /add kids to a boat/i,
+  /add kids onto a boat/i,
+  /You're on boat team/i,
+  /boatTeam\.teamName/,
 ];
 
 const LEFTOVER_KIDS_PAGE_ADULT_RULES_LINK = [
@@ -414,6 +434,49 @@ describe("kids page leftover copy", () => {
     assert.equal(/Enter RowRide/.test(howRegister), false);
     assert.equal(/href=["']\/register\/youth["']/.test(howRegister), false);
     assert.match(howRegister, /Kids register only on the RowRide form/);
+    assert.match(kids, /YOUTH_OWN_ENTRY_RULE/);
+    assert.equal(/boatTeam\.teamName/.test(kids), false);
+    assert.equal(/You're on boat team/i.test(kids), false);
+  });
+});
+
+describe("RowRide is a separate product from boat registration", () => {
+  it("keeps youth surfaces off the adult boat register path", () => {
+    assert.match(YOUTH_OWN_ENTRY_RULE, /on their own/i);
+    assert.match(YOUTH_OWN_ENTRY_RULE, /different product/i);
+    assert.match(YOUTH_OWN_ENTRY_RULE, /not added to a boat roster/i);
+
+    for (const relative of ROWRIDE_ONLY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      assert.match(
+        text,
+        /YOUTH_OWN_ENTRY_RULE|enter RowRide on their own/,
+        `${relative} is missing the own-entry rule`,
+      );
+      for (const pattern of LEFTOVER_BOAT_FLOW_ON_ROWRIDE) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+
+    const youthForm = readFileSync(
+      join(ROOT, "src/components/YouthLandRegisterForm.tsx"),
+      "utf8",
+    );
+    const awards = readFileSync(
+      join(ROOT, "src/components/YouthDivisionAwards.tsx"),
+      "utf8",
+    );
+    const youthPage = readFileSync(
+      join(ROOT, "src/app/register/youth/page.tsx"),
+      "utf8",
+    );
+    assert.equal(/href=["']\/rules/.test(youthForm), false);
+    assert.match(awards, /\/register\/youth/);
+    assert.match(youthPage, /YouthLandRegisterForm/);
   });
 });
 
@@ -594,6 +657,9 @@ describe("RowRide register form", () => {
     assert.equal(/boat name/i.test(text), false);
     assert.equal(/team name/i.test(text), false);
     assert.equal(/household/i.test(text), false);
+    assert.equal(/href=["']\/register["']/.test(text), false);
+    assert.equal(/Register an adults-only boat/i.test(text), false);
+    assert.match(text, /YOUTH_OWN_ENTRY_RULE/);
   });
 });
 

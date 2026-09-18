@@ -16,6 +16,7 @@ import {
   YOUTH_DIVISION_HEADING,
   YOUTH_ONE_AWARD_ASSIGNMENT,
   YOUTH_ONE_AWARD_RULE,
+  YOUTH_OWN_ENTRY_RULE,
   youthDivisionAwardLine,
 } from "@/lib/youth";
 import { isBoatInviteLocked } from "@/lib/join-the-boat";
@@ -79,8 +80,7 @@ export default async function KidsPage() {
             12th!
           </p>
           <p className="mt-3 text-ink/80">
-            Register for RowRide separately. Kids may fish from land or by
-            boat. They are not added to a $300 boat roster.
+            {YOUTH_OWN_ENTRY_RULE} Kids may fish from land or by boat.
           </p>
           <p className="mt-3 text-ink/80">
             The RowRide Youth Anglers Tournament gives the kids their own
@@ -145,8 +145,7 @@ export default async function KidsPage() {
             3. How kids register
           </h3>
           <p className="mt-3 text-ink/80">
-            Kids register only on the RowRide form. They are not added to a
-            boat roster.
+            Kids register only on the RowRide form. {YOUTH_OWN_ENTRY_RULE}
           </p>
 
           <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
@@ -248,13 +247,14 @@ export default async function KidsPage() {
               <RegistrationClosedNotice
                 openByDate={availability.openByDate}
                 openByCapacity={availability.openByCapacity}
+                showRulesLink={false}
               />
             </div>
           ) : !user ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "Sign in, then register for RowRide separately. Kids may fish from land or by boat."
+                  ? "Sign in, then enter kids on the RowRide form. Boat registration is a different product. Kids may fish from land or by boat."
                   : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -269,8 +269,8 @@ export default async function KidsPage() {
                 Add kids to {youthTeams.length === 1 ? "this RowRide entry" : "your RowRide entries"}.
                 This is a RowRide entry — $0 base, not a $300 boat roster.
                 Kids are individuals — they do not need a team or boat name.
-                Optional side pots they entered are $50 each. Kids may fish
-                from land or by boat.
+                Boat registration is a different product. Optional side pots
+                they entered are $50 each. Kids may fish from land or by boat.
               </p>
               {youthTeams.map((youthTeam) => (
                 <TeamRosterEditor
@@ -305,9 +305,9 @@ export default async function KidsPage() {
           ) : boatTeam ? (
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
-                You&apos;re on boat team {boatTeam.teamName}. Kids register
-                separately for RowRide — they are not added to a boat roster.
-                You can still enter them from this account.
+                You already have a boat. Kids still enter RowRide on their
+                own — they are not added to a boat roster. Use this
+                account&apos;s RowRide form.
               </p>
               <Link href="/register/youth" className="btn-bay btn-bay-red">
                 RowRide signup
@@ -317,7 +317,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "You're signed in and not on a team. Register for RowRide separately. Kids may fish from land or by boat."
+                  ? "You're signed in. Kids enter RowRide on their own — this is not a boat roster. Kids may fish from land or by boat."
                   : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">

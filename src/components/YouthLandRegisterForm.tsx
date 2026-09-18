@@ -23,6 +23,7 @@ import {
   YOUTH_ATTESTATION_ERROR,
   YOUTH_ATTESTATION_LABEL,
   YOUTH_EMAIL_HELPER,
+  YOUTH_OWN_ENTRY_RULE,
 } from "@/lib/youth";
 import {
   publicRegistrationClosedCopy,
@@ -182,10 +183,10 @@ export function YouthLandRegisterForm({
         <p className="mt-3 text-ink/70">{closed.body}</p>
         <p className="mt-4">
           <Link
-            href="/rules#registration-deadline"
+            href="/kids#rules"
             className="font-semibold text-sea underline-offset-4 hover:underline"
           >
-            Registration deadline in the rules →
+            RowRide rules →
           </Link>
         </p>
       </div>
@@ -200,13 +201,11 @@ export function YouthLandRegisterForm({
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-8">
       <p className="rounded-md border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
-        Free {YOUTH_TOURNAMENT.name} base entry — no $300 boat fee. Optional
-        side pots are {formatUsd(SIDE_POT_BUY_IN_CENTS)} each on this form.
-        Kids may fish from land or by boat. They are not added to a boat
-        roster and do not count on a boat team&apos;s paid side pots.{" "}
-        <Link href="/register" className="font-semibold text-sea hover:underline">
-          Register an adults-only boat →
-        </Link>
+        Free {YOUTH_TOURNAMENT.name} base entry — no $300 boat fee.{" "}
+        {YOUTH_OWN_ENTRY_RULE} Optional side pots are{" "}
+        {formatUsd(SIDE_POT_BUY_IN_CENTS)} each on this form. Kids may fish
+        from land or by boat. They do not count on a boat team&apos;s paid
+        side pots.
       </p>
 
       {formError ? (
