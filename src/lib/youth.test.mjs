@@ -13,6 +13,7 @@ import {
   YOUTH_OWN_ENTRY_RULE,
   YOUTH_ROWRIDE_RULE,
   YOUTH_SIDE_POT_RULE,
+  YOUTH_SIGNUP_AUTH_BODY,
   isMainStringerEligible,
   isYouthAngler,
   mainStringerEligibleAnglers,
@@ -477,6 +478,9 @@ describe("RowRide is a separate product from boat registration", () => {
     assert.equal(/href=["']\/rules/.test(youthForm), false);
     assert.match(awards, /\/register\/youth/);
     assert.match(youthPage, /YouthLandRegisterForm/);
+    assert.equal(/REGISTER_AUTH/.test(youthPage), false);
+    assert.match(youthPage, /YOUTH_SIGNUP_AUTH_BODY/);
+    assert.equal(/register your team/i.test(YOUTH_SIGNUP_AUTH_BODY), false);
   });
 });
 

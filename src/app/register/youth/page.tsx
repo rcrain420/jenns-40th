@@ -7,11 +7,11 @@ import { YOUTH_TOURNAMENT } from "@/lib/config";
 import { firstName } from "@/lib/safe-path";
 import {
   REGISTER_ALREADY_IN,
-  REGISTER_AUTH,
   registerAuthMode,
   registerContinuePath,
   registerPageView,
 } from "@/lib/register-logged-in";
+import { YOUTH_SIGNUP_AUTH_BODY } from "@/lib/youth";
 import { getRegistrationAvailability } from "@/lib/registration";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +28,7 @@ export default async function YouthLandRegisterPage() {
       <PageShell
         narrow
         title={`Enter ${YOUTH_TOURNAMENT.name}`}
-        description={REGISTER_AUTH.body}
+        description={YOUTH_SIGNUP_AUTH_BODY}
       >
         <AuthForm mode={registerAuthMode()} next={registerContinuePath({ land: "1" })} />
       </PageShell>
