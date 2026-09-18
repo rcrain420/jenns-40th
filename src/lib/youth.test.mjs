@@ -478,10 +478,10 @@ describe("RowRide rules live on the kids page", () => {
     assert.match(kids, /YOUTH_ONE_AWARD_ASSIGNMENT/);
 
     const docs = readFileSync(join(ROOT, "docs/rowride-rules.md"), "utf8");
-    assert.match(docs, YOUTH_ONE_AWARD_RULE);
-    assert.match(docs, YOUTH_ONE_AWARD_ASSIGNMENT);
+    assert.equal(docs.includes(YOUTH_ONE_AWARD_RULE), true);
+    assert.equal(docs.includes(YOUTH_ONE_AWARD_ASSIGNMENT), true);
     for (const award of YOUTH_DIVISION_AWARDS) {
-      assert.match(docs, new RegExp(youthDivisionAwardLine(award)));
+      assert.equal(docs.includes(youthDivisionAwardLine(award)), true);
     }
   });
 
