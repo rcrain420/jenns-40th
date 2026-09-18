@@ -10,6 +10,7 @@ import {
   YOUTH_MAIN_STRINGER_RULE,
   YOUTH_ONE_AWARD_ASSIGNMENT,
   YOUTH_ONE_AWARD_RULE,
+  YOUTH_INDIVIDUAL_RULE,
   YOUTH_OWN_ENTRY_RULE,
   YOUTH_ROWRIDE_RULE,
   YOUTH_SIDE_POT_RULE,
@@ -446,6 +447,9 @@ describe("RowRide is a separate product from boat registration", () => {
     assert.match(YOUTH_OWN_ENTRY_RULE, /on their own/i);
     assert.match(YOUTH_OWN_ENTRY_RULE, /different product/i);
     assert.match(YOUTH_OWN_ENTRY_RULE, /not added to a boat roster/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /individually/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /not a named youth team/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /more than one kid/i);
 
     for (const relative of ROWRIDE_ONLY_SURFACES) {
       const text = readFileSync(join(ROOT, relative), "utf8");
@@ -453,6 +457,11 @@ describe("RowRide is a separate product from boat registration", () => {
         text,
         /YOUTH_OWN_ENTRY_RULE|enter RowRide on their own/,
         `${relative} is missing the own-entry rule`,
+      );
+      assert.match(
+        text,
+        /YOUTH_INDIVIDUAL_RULE|individually/,
+        `${relative} is missing individual-angler copy`,
       );
       for (const pattern of LEFTOVER_BOAT_FLOW_ON_ROWRIDE) {
         assert.equal(
@@ -690,7 +699,12 @@ describe("youth signup leftover team/boat name copy", () => {
       assert.equal(/A household or kids name is required/.test(text), false);
     }
     assert.equal(/teamName/.test(youthForm), false);
+    assert.equal(/Team name/.test(youthForm), false);
+    assert.equal(/Boat name/.test(youthForm), false);
+    assert.match(youthForm, /YOUTH_INDIVIDUAL_RULE/);
+    assert.match(youthPage, /individually/);
     assert.match(kids, /do not need a team or boat name/);
+    assert.match(kids, /YOUTH_INDIVIDUAL_RULE/);
     assert.match(team, /do not need a team or boat name/);
     assert.match(success, /SUCCESS_YOUTH_SUMMARY_HEADING/);
     assert.match(success, /SUCCESS_YOUTH_VENMO_MATCH/);

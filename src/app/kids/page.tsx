@@ -16,6 +16,7 @@ import {
   YOUTH_DIVISION_HEADING,
   YOUTH_ONE_AWARD_ASSIGNMENT,
   YOUTH_ONE_AWARD_RULE,
+  YOUTH_INDIVIDUAL_RULE,
   YOUTH_OWN_ENTRY_RULE,
   youthDivisionAwardLine,
 } from "@/lib/youth";
@@ -80,7 +81,8 @@ export default async function KidsPage() {
             12th!
           </p>
           <p className="mt-3 text-ink/80">
-            {YOUTH_OWN_ENTRY_RULE} Kids may fish from land or by boat.
+            {YOUTH_OWN_ENTRY_RULE} {YOUTH_INDIVIDUAL_RULE} Kids may fish
+            from land or by boat.
           </p>
           <p className="mt-3 text-ink/80">
             The RowRide Youth Anglers Tournament gives the kids their own
@@ -145,7 +147,8 @@ export default async function KidsPage() {
             3. How kids register
           </h3>
           <p className="mt-3 text-ink/80">
-            Kids register only on the RowRide form. {YOUTH_OWN_ENTRY_RULE}
+            Kids register only on the RowRide form. {YOUTH_OWN_ENTRY_RULE}{" "}
+            {YOUTH_INDIVIDUAL_RULE}
           </p>
 
           <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
@@ -254,7 +257,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "Sign in, then enter kids on the RowRide form. Boat registration is a different product. Kids may fish from land or by boat."
+                  ? "Sign in, then enter kids individually on the RowRide form. Boat registration is a different product. Kids may fish from land or by boat."
                   : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -269,6 +272,7 @@ export default async function KidsPage() {
                 Add kids to {youthTeams.length === 1 ? "this RowRide entry" : "your RowRide entries"}.
                 This is a RowRide entry — $0 base, not a $300 boat roster.
                 Kids are individuals — they do not need a team or boat name.
+                {` ${YOUTH_INDIVIDUAL_RULE} `}
                 Boat registration is a different product. Optional side pots
                 they entered are $50 each. Kids may fish from land or by boat.
               </p>
@@ -317,7 +321,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "You're signed in. Kids enter RowRide on their own — this is not a boat roster. Kids may fish from land or by boat."
+                  ? "You're signed in. Kids enter RowRide individually — this is not a boat roster or youth team. Kids may fish from land or by boat."
                   : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">

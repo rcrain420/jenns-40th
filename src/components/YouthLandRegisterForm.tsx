@@ -23,6 +23,7 @@ import {
   YOUTH_ATTESTATION_ERROR,
   YOUTH_ATTESTATION_LABEL,
   YOUTH_EMAIL_HELPER,
+  YOUTH_INDIVIDUAL_RULE,
   YOUTH_OWN_ENTRY_RULE,
 } from "@/lib/youth";
 import {
@@ -202,10 +203,10 @@ export function YouthLandRegisterForm({
     <form onSubmit={onSubmit} noValidate className="space-y-8">
       <p className="rounded-md border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
         Free {YOUTH_TOURNAMENT.name} base entry — no $300 boat fee.{" "}
-        {YOUTH_OWN_ENTRY_RULE} Optional side pots are{" "}
-        {formatUsd(SIDE_POT_BUY_IN_CENTS)} each on this form. Kids may fish
-        from land or by boat. They do not count on a boat team&apos;s paid
-        side pots.
+        {YOUTH_OWN_ENTRY_RULE} {YOUTH_INDIVIDUAL_RULE} Optional side pots
+        are {formatUsd(SIDE_POT_BUY_IN_CENTS)} each on this form. Kids may
+        fish from land or by boat. They do not count on a boat team&apos;s
+        paid side pots.
       </p>
 
       {formError ? (
@@ -236,7 +237,8 @@ export function YouthLandRegisterForm({
               Youth anglers <span className="text-alert">*</span>
             </h3>
             <p className="text-sm text-ink/65">
-              {MIN_YOUTH_ANGLERS}–{MAX_YOUTH_ANGLERS} kids, 17 or under.{" "}
+              {MIN_YOUTH_ANGLERS}–{MAX_YOUTH_ANGLERS} named kids, 17 or
+              under — each is an individual angler, not a youth team.{" "}
               {YOUTH_EMAIL_HELPER}
             </p>
           </div>
