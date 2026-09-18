@@ -5,8 +5,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ENTRY_KIND,
-  MAX_YOUTH_ANGLERS,
-  MIN_YOUTH_ANGLERS,
   PAID_SIDE_POTS,
   SIDE_POT_BUY_IN_CENTS,
   YOUTH_TOURNAMENT,
@@ -15,7 +13,6 @@ import {
 } from "@/lib/config";
 import { formatUsd } from "@/lib/money";
 import { formatPhoneInput } from "@/lib/phone";
-import { canAddYouthSeat } from "@/lib/roster-capacity";
 import type { PublicUser } from "@/lib/users";
 import {
   LICENSE_CONFIRM_ERROR,
@@ -23,6 +20,8 @@ import {
   YOUTH_ATTESTATION_ERROR,
   YOUTH_ATTESTATION_LABEL,
   YOUTH_EMAIL_HELPER,
+  YOUTH_INDIVIDUAL_RULE,
+  YOUTH_OWN_ENTRY_RULE,
 } from "@/lib/youth";
 import {
   publicRegistrationClosedCopy,
@@ -60,7 +59,7 @@ export function YouthLandRegisterForm({
   const [notes, setNotes] = useState("");
   const [licenseConfirmed, setLicenseConfirmed] = useState(false);
   const [youthGuardianAttested, setYouthGuardianAttested] = useState(false);
-  const [kids, setKids] = useState<YouthDraft[]>([emptyYouth()]);
+  const [kid, setKid] = useState<YouthDraft>(emptyYouth());
   const [sidePots, setSidePots] = useState<SidePotId[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -77,13 +76,8 @@ export function YouthLandRegisterForm({
     );
   }
 
-  const canAdd = canAddYouthSeat(
-    kids.map(() => ({ isYouth: true })),
-    ENTRY_KIND.YOUTH_LAND,
-  );
-
-  function updateKid(index: number, patch: Partial<YouthDraft>) {
-    setKids((prev) => prev.map((kid, i) => (i === index ? { ...kid, ...patch } : kid)));
+  function updateKid(patch: Partial<YouthDraft>) {
+    setKid((prev) => ({ ...prev, ...patch }));
   }
 
   function err(key: string) {
@@ -101,18 +95,15 @@ export function YouthLandRegisterForm({
     if (!registrantEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registrantEmail.trim())) {
       next.registrantEmail = ["Valid email required"];
     }
-    const named = kids.filter((kid) => kid.fullName.trim());
-    if (named.length < MIN_YOUTH_ANGLERS) {
-      next.anglers = [`Add at least ${MIN_YOUTH_ANGLERS} youth angler.`];
+    if (!kid.fullName.trim()) {
+      next.anglers = ["Name one youth angler for a RowRide entry."];
     }
-    kids.forEach((kid, index) => {
-      if (kid.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(kid.email.trim())) {
-        next[`angler-email-${index}`] = ["Valid email required"];
-      }
-      if (kid.fullName.trim() && !isShirtSize(kid.shirtSize)) {
-        next[`angler-shirt-${index}`] = [SHIRT_SIZE_REQUIRED_ERROR];
-      }
-    });
+    if (kid.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(kid.email.trim())) {
+      next["angler-email-0"] = ["Valid email required"];
+    }
+    if (kid.fullName.trim() && !isShirtSize(kid.shirtSize)) {
+      next["angler-shirt-0"] = [SHIRT_SIZE_REQUIRED_ERROR];
+    }
     if (!youthGuardianAttested) {
       next.youthGuardianAttested = [YOUTH_ATTESTATION_ERROR];
     }
@@ -143,15 +134,15 @@ export function YouthLandRegisterForm({
           licenseConfirmed: true,
           youthGuardianAttested: true,
           sidePots,
-          anglers: kids
-            .filter((kid) => kid.fullName.trim())
-            .map((kid) => ({
+          anglers: [
+            {
               fullName: kid.fullName,
               phone: kid.phone,
               email: kid.email,
               shirtSize: kid.shirtSize,
               isYouth: true,
-            })),
+            },
+          ],
         }),
       });
       const data = await res.json();
@@ -182,10 +173,10 @@ export function YouthLandRegisterForm({
         <p className="mt-3 text-ink/70">{closed.body}</p>
         <p className="mt-4">
           <Link
-            href="/rules#registration-deadline"
+            href="/kids#rules"
             className="font-semibold text-sea underline-offset-4 hover:underline"
           >
-            Registration deadline in the rules →
+            RowRide rules →
           </Link>
         </p>
       </div>
@@ -200,13 +191,11 @@ export function YouthLandRegisterForm({
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-8">
       <p className="rounded-md border border-sun/40 bg-mist/70 px-4 py-3 text-sm text-ink/80">
-        Free {YOUTH_TOURNAMENT.name} base entry — no $300 boat fee. Optional
-        side pots are {formatUsd(SIDE_POT_BUY_IN_CENTS)} each on this form.
-        Kids may fish from land or by boat. They are not added to a boat
-        roster and do not count on a boat team&apos;s paid side pots.{" "}
-        <Link href="/register" className="font-semibold text-sea hover:underline">
-          Register an adults-only boat →
-        </Link>
+        Free {YOUTH_TOURNAMENT.name} base entry — no $300 boat fee.{" "}
+        {YOUTH_OWN_ENTRY_RULE} {YOUTH_INDIVIDUAL_RULE} Optional side pots
+        are {formatUsd(SIDE_POT_BUY_IN_CENTS)} each on this form. Kids may
+        fish from land or by boat. They do not count on a boat team&apos;s
+        paid side pots.
       </p>
 
       {formError ? (
@@ -231,103 +220,67 @@ export function YouthLandRegisterForm({
       </div>
 
       <div data-field="anglers">
-        <div className="flex items-end justify-between gap-4">
+        <h3 className="font-display text-xl text-wave">
+          Youth angler <span className="text-alert">*</span>
+        </h3>
+        <p className="text-sm text-ink/65">
+          One named kid, 17 or under — an individual angler, not a youth
+          team. {YOUTH_EMAIL_HELPER}
+        </p>
+        <div className="mt-4 grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-2 lg:grid-cols-[1fr_7.5rem_1fr_1fr]">
           <div>
-            <h3 className="font-display text-xl text-wave">
-              Youth anglers <span className="text-alert">*</span>
-            </h3>
-            <p className="text-sm text-ink/65">
-              {MIN_YOUTH_ANGLERS}–{MAX_YOUTH_ANGLERS} kids, 17 or under.{" "}
-              {YOUTH_EMAIL_HELPER}
-            </p>
+            <label className={labelClass} htmlFor="youth-name-0">
+              Name <span className="text-alert">*</span>
+            </label>
+            <input
+              id="youth-name-0"
+              className={inputClass}
+              value={kid.fullName}
+              onChange={(e) => updateKid({ fullName: e.target.value })}
+              required
+            />
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              if (!canAdd) return;
-              setKids((prev) => [...prev, emptyYouth()]);
-            }}
-            disabled={!canAdd}
-            className="text-sm font-semibold text-sea disabled:opacity-40"
-          >
-            + Add youth
-          </button>
-        </div>
-        <div className="mt-4 space-y-4">
-          {kids.map((kid, index) => (
-            <div
-              key={index}
-              className="grid gap-3 border border-wave/15 bg-paper p-4 sm:grid-cols-2 lg:grid-cols-[1fr_7.5rem_1fr_1fr_auto]"
-            >
-              <div>
-                <label className={labelClass} htmlFor={`youth-name-${index}`}>
-                  Name <span className="text-alert">*</span>
-                </label>
-                <input
-                  id={`youth-name-${index}`}
-                  className={inputClass}
-                  value={kid.fullName}
-                  onChange={(e) => updateKid(index, { fullName: e.target.value })}
-                  required
-                />
-              </div>
-              <div>
-                <label className={labelClass} htmlFor={`youth-shirt-${index}`}>
-                  Shirt size <span className="text-alert">*</span>
-                </label>
-                <ShirtSizeSelect
-                  id={`youth-shirt-${index}`}
-                  className={inputClass}
-                  value={kid.shirtSize}
-                  onChange={(shirtSize) => updateKid(index, { shirtSize })}
-                  required
-                />
-                {err(`angler-shirt-${index}`)}
-              </div>
-              <div>
-                <label className={labelClass} htmlFor={`youth-email-${index}`}>
-                  Email (optional)
-                </label>
-                <input
-                  id={`youth-email-${index}`}
-                  type="email"
-                  className={inputClass}
-                  value={kid.email}
-                  onChange={(e) => updateKid(index, { email: e.target.value })}
-                />
-                {err(`angler-email-${index}`)}
-              </div>
-              <div>
-                <label className={labelClass} htmlFor={`youth-phone-${index}`}>
-                  Phone (optional)
-                </label>
-                <input
-                  id={`youth-phone-${index}`}
-                  type="tel"
-                  className={inputClass}
-                  value={kid.phone}
-                  maxLength={14}
-                  onChange={(e) =>
-                    updateKid(index, { phone: formatPhoneInput(e.target.value) })
-                  }
-                />
-              </div>
-              <div className="flex items-end">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setKids((prev) =>
-                      prev.length <= 1 ? prev : prev.filter((_, i) => i !== index),
-                    )
-                  }
-                  disabled={kids.length <= 1}
-                  className="pb-2.5 text-sm text-alert disabled:opacity-30"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
+          <div>
+            <label className={labelClass} htmlFor="youth-shirt-0">
+              Shirt size <span className="text-alert">*</span>
+            </label>
+            <ShirtSizeSelect
+              id="youth-shirt-0"
+              className={inputClass}
+              value={kid.shirtSize}
+              onChange={(shirtSize) => updateKid({ shirtSize })}
+              required
+            />
+            {err("angler-shirt-0")}
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="youth-email-0">
+              Email (optional)
+            </label>
+            <input
+              id="youth-email-0"
+              type="email"
+              className={inputClass}
+              value={kid.email}
+              onChange={(e) => updateKid({ email: e.target.value })}
+            />
+            {err("angler-email-0")}
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="youth-phone-0">
+              Phone (optional)
+            </label>
+            <input
+              id="youth-phone-0"
+              type="tel"
+              className={inputClass}
+              value={kid.phone}
+              maxLength={14}
+              onChange={(e) =>
+                updateKid({ phone: formatPhoneInput(e.target.value) })
+              }
+            />
+          </div>
         </div>
         {err("anglers")}
       </div>

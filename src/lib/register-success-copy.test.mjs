@@ -5,6 +5,8 @@ import {
   SUCCESS_UNLOCK_NOTE,
   SUCCESS_VENMO_BANNER,
   SUCCESS_VENMO_NOTE,
+  SUCCESS_REGISTER_ANOTHER_KID,
+  SUCCESS_REGISTER_ANOTHER_KID_NOTE,
   SUCCESS_YOUTH_ACCOUNT_NOTE,
   SUCCESS_YOUTH_SUMMARY_HEADING,
   SUCCESS_YOUTH_UNLOCK_NOTE,
@@ -51,5 +53,11 @@ describe("register success leftover copy", () => {
     assert.equal(/enter a (team|boat) name/i.test(text), false);
     assert.equal(SUCCESS_YOUTH_SUMMARY_HEADING, "RowRide summary");
     assert.match(SUCCESS_YOUTH_VENMO_MATCH, /RowRide entry/);
+  });
+
+  it("offers a fresh Register another kid submit after RowRide success", () => {
+    assert.equal(SUCCESS_REGISTER_ANOTHER_KID, "Register another kid");
+    assert.match(SUCCESS_REGISTER_ANOTHER_KID_NOTE, /one kid per form/i);
+    assert.match(SUCCESS_REGISTER_ANOTHER_KID_NOTE, /same parent account/i);
   });
 });

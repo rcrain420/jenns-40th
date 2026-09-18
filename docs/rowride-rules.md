@@ -12,13 +12,23 @@
 
 These are the kids / RowRide rules. Adult boat tournament rules are separate — see `docs/tournament-rules.md` and `/rules`.
 
+## Youth Division awards
+
+🏆 Youth Division
+
+- Biggest Redfish — 1st Place
+- Biggest Speckled Trout — 1st Place
+- Biggest Trash Fish — 1st Place
+
+A youth angler may only win one Youth Division award. See section 5 for how weigh-in hosts assign leftover awards.
+
 ## 1. A separate free tournament
 
 RowRide is a separate tournament from the adult boat tournament. There is no entry fee.
 
-The prize is host-funded by Tournament Host, like the Heaviest Saltwater Catfish prize, and does not come from paid side-pot money.
+The Youth Division trophies are host-funded by Tournament Host and do not come from paid side-pot money.
 
-Biggest / heaviest qualifying fish wins at weigh-in.
+Youth Division awards are decided at weigh-in.
 
 ## 2. Who can enter
 
@@ -28,7 +38,7 @@ A parent or guardian may use their own email for the child. The child does not g
 
 ## 3. How kids register
 
-Kids register only on the RowRide form (`/register/youth`). They are not added to a boat roster.
+Kids register only on the RowRide form (`/register/youth`). They enter RowRide on their own. Kids register individually — each child is an individual angler, not a named youth team. One kid per form submit. Parents with more than one child register again for each kid. Boat registration is a different product — they are not added to a boat roster.
 
 Adults without email may stay name-only on a boat roster and still create an account from the invite link. That is not the kids path.
 
@@ -42,7 +52,15 @@ When a youth angler is fishing from a boat, an adult should be on the boat.
 
 ## 5. What they compete for
 
-The heaviest qualifying fish caught by a registered youth angler wins.
+Registered youth anglers compete for three host-funded Youth Division awards:
+
+- Biggest Redfish — 1st Place
+- Biggest Speckled Trout — 1st Place
+- Biggest Trash Fish — 1st Place
+
+A youth angler may only win one Youth Division award. If the same kid brings in the biggest redfish and biggest trout (or any two), they take only one award and the next eligible angler takes the other so the fun spreads around.
+
+At the scale: start with the heaviest qualifying fish in each category. If one kid would win more than one award, they keep the award they win by the most — usually their heaviest fish, or the one with the biggest lead over second place. Each leftover award goes to the next heaviest qualifying fish in that category from a kid who has not already won. If two fish in the same category weigh the same, the one weighed first wins. If it is still a toss-up, the Weighmaster decides, and that call is final.
 
 A qualifying fish must be legal, caught during tournament hours, presented whole and accepted by the Weighmaster. Official results come from weigh-in, not from AI Livewell estimates.
 

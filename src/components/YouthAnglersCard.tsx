@@ -18,8 +18,8 @@ export function YouthAnglersCard({ count }: { count: number }) {
         {youthAnglersRegisteredLabel(count)}
       </p>
       <p className="text-[0.95rem] text-wave/70 md:text-base">
-        {YOUTH_TOURNAMENT.tagline} Host-funded — kids are not in the main
-        tournament pot.{" "}
+        {YOUTH_TOURNAMENT.tagline} Host-funded — kids register individually,
+        not as a youth team, and are not in the main tournament pot.{" "}
         <Link href="/kids" className="text-sun underline-offset-2 hover:underline">
           {YOUTH_TOURNAMENT.name} →
         </Link>

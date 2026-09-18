@@ -5,12 +5,21 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   YOUTH_COMPETITION_POLICY,
+  YOUTH_DIVISION_AWARDS,
+  YOUTH_DIVISION_HEADING,
   YOUTH_MAIN_STRINGER_RULE,
+  YOUTH_ONE_AWARD_ASSIGNMENT,
+  YOUTH_ONE_AWARD_RULE,
+  YOUTH_INDIVIDUAL_RULE,
+  YOUTH_OWN_ENTRY_RULE,
+  YOUTH_ROWRIDE_RULE,
   YOUTH_SIDE_POT_RULE,
+  YOUTH_SIGNUP_AUTH_BODY,
   isMainStringerEligible,
   isYouthAngler,
   mainStringerEligibleAnglers,
   youthAnglersRegisteredLabel,
+  youthDivisionAwardLine,
   youthLandDisplayName,
 } from "./youth.ts";
 
@@ -37,6 +46,7 @@ const COPY_SURFACES = [
   "src/lib/youth.ts",
   "src/components/YouthLandRegisterForm.tsx",
   "src/components/YouthAnglersCard.tsx",
+  "src/components/YouthDivisionAwards.tsx",
   "src/app/register/youth/page.tsx",
   "src/app/register/success/page.tsx",
   "src/components/AdminDashboard.tsx",
@@ -92,6 +102,8 @@ const LEFTOVER_YOUTH_TEAM_OR_BOAT_NAME = [
   /household or kids name/i,
   /A household or kids name is required/,
   /Add kids to this RowRide household/i,
+  /Add kids to this RowRide entry/i,
+  /more than one kid on the same form/i,
 ];
 
 /** Aaron 2026-09-16: kids page — no blunt adults-only / boat-register leftovers. */
@@ -103,6 +115,25 @@ const LEFTOVER_KIDS_PAGE_ADULTS_ONLY = [
 const LEFTOVER_KIDS_PAGE_BOAT_REGISTER_CTA = [
   /Register a boat/i,
   /href=["']\/register["']/,
+];
+
+/** Aaron 2026-09-18: RowRide signup is its own product — no boat-register CTAs. */
+const ROWRIDE_ONLY_SURFACES = [
+  "src/app/kids/page.tsx",
+  "src/app/register/youth/page.tsx",
+  "src/components/YouthLandRegisterForm.tsx",
+  "src/components/YouthDivisionAwards.tsx",
+];
+
+const LEFTOVER_BOAT_FLOW_ON_ROWRIDE = [
+  /href=["']\/register["']/,
+  /Register an adults-only boat/i,
+  /Register a boat/i,
+  /Register your team/i,
+  /add kids to a boat/i,
+  /add kids onto a boat/i,
+  /You're on boat team/i,
+  /boatTeam\.teamName/,
 ];
 
 const LEFTOVER_KIDS_PAGE_ADULT_RULES_LINK = [
@@ -244,6 +275,8 @@ describe("youth main-stringer eligibility", () => {
     assert.match(YOUTH_SIDE_POT_RULE, /RowRide registration/i);
     assert.match(YOUTH_COMPETITION_POLICY, /paid side pots/i);
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide Youth Angler Tournament/i);
+    assert.match(YOUTH_ROWRIDE_RULE, /Youth Division/i);
+    assert.match(YOUTH_ROWRIDE_RULE, /trash fish/i);
     assert.match(YOUTH_COMPETITION_POLICY, /do not take one/i);
     assert.match(YOUTH_COMPETITION_POLICY, /captain or guide/i);
     assert.match(YOUTH_COMPETITION_POLICY, /land\s+or\s+by\s+boat/i);
@@ -405,6 +438,61 @@ describe("kids page leftover copy", () => {
     assert.equal(/Enter RowRide/.test(howRegister), false);
     assert.equal(/href=["']\/register\/youth["']/.test(howRegister), false);
     assert.match(howRegister, /Kids register only on the RowRide form/);
+    assert.match(kids, /YOUTH_OWN_ENTRY_RULE/);
+    assert.equal(/boatTeam\.teamName/.test(kids), false);
+    assert.equal(/You're on boat team/i.test(kids), false);
+  });
+});
+
+describe("RowRide is a separate product from boat registration", () => {
+  it("keeps youth surfaces off the adult boat register path", () => {
+    assert.match(YOUTH_OWN_ENTRY_RULE, /on their own/i);
+    assert.match(YOUTH_OWN_ENTRY_RULE, /different product/i);
+    assert.match(YOUTH_OWN_ENTRY_RULE, /not added to a boat roster/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /individually/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /not a named youth team/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /one kid per form/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /register again/i);
+
+    for (const relative of ROWRIDE_ONLY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      assert.match(
+        text,
+        /YOUTH_OWN_ENTRY_RULE|enter RowRide on their own/,
+        `${relative} is missing the own-entry rule`,
+      );
+      assert.match(
+        text,
+        /YOUTH_INDIVIDUAL_RULE|individually/,
+        `${relative} is missing individual-angler copy`,
+      );
+      for (const pattern of LEFTOVER_BOAT_FLOW_ON_ROWRIDE) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+
+    const youthForm = readFileSync(
+      join(ROOT, "src/components/YouthLandRegisterForm.tsx"),
+      "utf8",
+    );
+    const awards = readFileSync(
+      join(ROOT, "src/components/YouthDivisionAwards.tsx"),
+      "utf8",
+    );
+    const youthPage = readFileSync(
+      join(ROOT, "src/app/register/youth/page.tsx"),
+      "utf8",
+    );
+    assert.equal(/href=["']\/rules/.test(youthForm), false);
+    assert.match(awards, /\/register\/youth/);
+    assert.match(youthPage, /YouthLandRegisterForm/);
+    assert.equal(/REGISTER_AUTH/.test(youthPage), false);
+    assert.match(youthPage, /YOUTH_SIGNUP_AUTH_BODY/);
+    assert.equal(/register your team/i.test(YOUTH_SIGNUP_AUTH_BODY), false);
   });
 });
 
@@ -460,6 +548,19 @@ describe("RowRide rules live on the kids page", () => {
       assert.match(text, /land\s+or\s+by\s+boat/i);
       assert.match(text, /\$50 per pot/);
       assert.match(text, /own\s+RowRide registration/);
+      assert.match(text, /Youth Division/);
+    }
+
+    const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
+    assert.match(kids, /YOUTH_DIVISION_AWARDS/);
+    assert.match(kids, /YOUTH_ONE_AWARD_RULE/);
+    assert.match(kids, /YOUTH_ONE_AWARD_ASSIGNMENT/);
+
+    const docs = readFileSync(join(ROOT, "docs/rowride-rules.md"), "utf8");
+    assert.equal(docs.includes(YOUTH_ONE_AWARD_RULE), true);
+    assert.equal(docs.includes(YOUTH_ONE_AWARD_ASSIGNMENT), true);
+    for (const award of YOUTH_DIVISION_AWARDS) {
+      assert.equal(docs.includes(youthDivisionAwardLine(award)), true);
     }
   });
 
@@ -475,6 +576,50 @@ describe("RowRide rules live on the kids page", () => {
   });
 });
 
+describe("Youth Division awards", () => {
+  it("lists three 1st-place trophies and one award per youth angler", () => {
+    assert.equal(YOUTH_DIVISION_HEADING, "Youth Division");
+    assert.deepEqual(
+      YOUTH_DIVISION_AWARDS.map((award) => youthDivisionAwardLine(award)),
+      [
+        "Biggest Redfish — 1st Place",
+        "Biggest Speckled Trout — 1st Place",
+        "Biggest Trash Fish — 1st Place",
+      ],
+    );
+    assert.match(YOUTH_ONE_AWARD_RULE, /only win one Youth Division award/i);
+    assert.match(YOUTH_ONE_AWARD_RULE, /next eligible angler/i);
+    assert.match(YOUTH_ONE_AWARD_ASSIGNMENT, /weighed first wins/i);
+    assert.match(YOUTH_ONE_AWARD_ASSIGNMENT, /Weighmaster decides/i);
+  });
+
+  it("does not keep old youth prize names on RowRide surfaces", () => {
+    const youthPrizeSurfaces = [
+      "docs/rowride-rules.md",
+      "src/app/kids/page.tsx",
+      "src/lib/youth.ts",
+      "src/components/YouthAnglersCard.tsx",
+      "src/components/YouthDivisionAwards.tsx",
+    ];
+    const leftoverYouthPrizeNames = [
+      /Birthday Trash Fish/i,
+      /Heaviest Saltwater Catfish/i,
+      /heaviest qualifying fish takes the prize/i,
+      /Biggest \/ heaviest qualifying fish wins/i,
+    ];
+    for (const relative of youthPrizeSurfaces) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of leftoverYouthPrizeNames) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
+});
+
 describe("home youth angler count", () => {
   it("renders the live kid count on its own home card below the main pot", () => {
     const home = readFileSync(join(ROOT, "src/app/page.tsx"), "utf8");
@@ -482,22 +627,32 @@ describe("home youth angler count", () => {
       join(ROOT, "src/components/YouthAnglersCard.tsx"),
       "utf8",
     );
+    const awards = readFileSync(
+      join(ROOT, "src/components/YouthDivisionAwards.tsx"),
+      "utf8",
+    );
     const board = readFileSync(join(ROOT, "src/components/PotBoard.tsx"), "utf8");
     assert.match(home, /getPotTotals/);
     assert.match(home, /<PotBoard totals=\{potTotals\} \/>/);
     assert.match(home, /<YouthAnglersCard count=\{potTotals.youthAnglerCount\} \/>/);
+    assert.match(home, /<YouthDivisionAwards/);
     const potIndex = home.indexOf("<PotBoard totals={potTotals} />");
     const youthIndex = home.indexOf(
       "<YouthAnglersCard count={potTotals.youthAnglerCount} />",
     );
+    const awardsIndex = home.indexOf("<YouthDivisionAwards");
     assert.ok(potIndex > -1 && youthIndex > potIndex);
+    assert.ok(awardsIndex > potIndex);
     assert.match(card, /youthAnglersRegisteredLabel/);
     assert.match(card, /Youth anglers/);
     assert.match(card, /RowRide/);
     assert.match(card, /\/kids/);
+    assert.match(awards, /YOUTH_DIVISION_AWARDS/);
+    assert.match(awards, /YOUTH_DIVISION_HEADING/);
     assert.equal(board.includes("youthAnglersRegisteredLabel"), false);
     assert.equal(board.includes("youthAnglerCount"), false);
     assert.equal(board.includes("/kids"), false);
+    assert.equal(board.includes("YouthDivisionAwards"), false);
   });
 });
 
@@ -518,6 +673,9 @@ describe("RowRide register form", () => {
     assert.equal(/boat name/i.test(text), false);
     assert.equal(/team name/i.test(text), false);
     assert.equal(/household/i.test(text), false);
+    assert.equal(/href=["']\/register["']/.test(text), false);
+    assert.equal(/Register an adults-only boat/i.test(text), false);
+    assert.match(text, /YOUTH_OWN_ENTRY_RULE/);
   });
 });
 
@@ -544,12 +702,57 @@ describe("youth signup leftover team/boat name copy", () => {
       assert.equal(/A household or kids name is required/.test(text), false);
     }
     assert.equal(/teamName/.test(youthForm), false);
+    assert.equal(/Team name/.test(youthForm), false);
+    assert.equal(/Boat name/.test(youthForm), false);
+    assert.match(youthForm, /YOUTH_INDIVIDUAL_RULE/);
+    assert.match(youthPage, /individually/);
     assert.match(kids, /do not need a team or boat name/);
+    assert.match(kids, /YOUTH_INDIVIDUAL_RULE/);
     assert.match(team, /do not need a team or boat name/);
     assert.match(success, /SUCCESS_YOUTH_SUMMARY_HEADING/);
     assert.match(success, /SUCCESS_YOUTH_VENMO_MATCH/);
     assert.match(schema, /youthLandRegistrationSchema/);
     assert.match(schema, /\.optional\(\)/);
+    assert.match(schema, /YOUTH_LAND_ONE_ERROR/);
+    assert.match(schema, /LAND_YOUTH_MIN_ERROR/);
+    assert.match(schema, /MAX_YOUTH_ANGLERS/);
+  });
+});
+
+describe("one kid per RowRide form submit", () => {
+  it("has no multi-kid draft UI and offers Register another kid after success", () => {
+    const youthForm = readFileSync(
+      join(ROOT, "src/components/YouthLandRegisterForm.tsx"),
+      "utf8",
+    );
+    const success = readFileSync(
+      join(ROOT, "src/app/register/success/page.tsx"),
+      "utf8",
+    );
+    const successCopy = readFileSync(
+      join(ROOT, "src/lib/register-success-copy.ts"),
+      "utf8",
+    );
+    const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
+    const rules = readFileSync(join(ROOT, "docs/rowride-rules.md"), "utf8");
+    const roster = readFileSync(
+      join(ROOT, "src/components/TeamRosterEditor.tsx"),
+      "utf8",
+    );
+
+    assert.equal(youthForm.includes("+ Add youth"), false);
+    assert.equal(/setKids|canAddYouthSeat/.test(youthForm), false);
+    assert.equal(/list more than one kid/i.test(youthForm), false);
+    assert.equal(/1–8 named kids/.test(youthForm), false);
+    assert.match(youthForm, /One named kid/);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /one kid per form submit/i);
+    assert.equal(/same form/.test(YOUTH_INDIVIDUAL_RULE), false);
+    assert.match(success, /SUCCESS_REGISTER_ANOTHER_KID/);
+    assert.match(success, /\/register\/youth/);
+    assert.match(successCopy, /Register another kid/);
+    assert.match(kids, /Register another kid/);
+    assert.match(rules, /One kid per form submit/);
+    assert.equal(/Use \+ Add youth to add another kid/.test(roster), false);
   });
 });
 

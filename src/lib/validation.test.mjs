@@ -196,8 +196,11 @@ describe("boat vs land registration capacity", () => {
 
   it("keeps RowRide at $0 base plus $50 per optional side pot", () => {
     assert.equal(
-      youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]),
+      youthLandRosterCapacityIssue([{ isYouth: true }]),
       null,
+    );
+    assert.ok(
+      youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]),
     );
     assert.ok(youthLandRosterCapacityIssue([{ isYouth: false }]));
     assert.equal(amountDueForEntry({ entryKind: ENTRY_KIND.YOUTH_LAND }), 0);

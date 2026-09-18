@@ -7,11 +7,15 @@ import { YOUTH_TOURNAMENT } from "@/lib/config";
 import { firstName } from "@/lib/safe-path";
 import {
   REGISTER_ALREADY_IN,
-  REGISTER_AUTH,
   registerAuthMode,
   registerContinuePath,
   registerPageView,
 } from "@/lib/register-logged-in";
+import {
+  YOUTH_INDIVIDUAL_RULE,
+  YOUTH_OWN_ENTRY_RULE,
+  YOUTH_SIGNUP_AUTH_BODY,
+} from "@/lib/youth";
 import { getRegistrationAvailability } from "@/lib/registration";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +32,7 @@ export default async function YouthLandRegisterPage() {
       <PageShell
         narrow
         title={`Enter ${YOUTH_TOURNAMENT.name}`}
-        description={REGISTER_AUTH.body}
+        description={YOUTH_SIGNUP_AUTH_BODY}
       >
         <AuthForm mode={registerAuthMode()} next={registerContinuePath({ land: "1" })} />
       </PageShell>
@@ -40,7 +44,7 @@ export default async function YouthLandRegisterPage() {
       <PageShell
         narrow
         title={REGISTER_ALREADY_IN.title}
-        description="You're already in. Manage a RowRide entry on My team. Kids are not added to a boat roster. A parent on a boat can still enter kids for RowRide. Kids may fish from land or by boat."
+        description="You're already in. Manage a RowRide entry on My team. Kids register individually — they are not a youth team and are not added to a boat roster. A parent who already registered a boat can still enter kids here. Kids may fish from land or by boat."
       >
         <p className="flex flex-wrap gap-4">
           <Link href="/kids" className="font-semibold text-sea hover:underline">
@@ -63,9 +67,9 @@ export default async function YouthLandRegisterPage() {
       title={`Enter ${YOUTH_TOURNAMENT.name}`}
       description={
         <>
-          Hi {welcomeName} — register for RowRide separately. No entry fee.
-          Kids may fish from land or by boat. Official winner is the
-          Weighmaster, not Livewell AI.
+          Hi {welcomeName} — {YOUTH_OWN_ENTRY_RULE} {YOUTH_INDIVIDUAL_RULE}{" "}
+          No entry fee. Kids may fish from land or by boat. Official winner
+          is the Weighmaster, not Livewell AI.
         </>
       }
     >

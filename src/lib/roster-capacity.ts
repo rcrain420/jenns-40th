@@ -5,14 +5,16 @@
  *
  * Enforced app cap: 1–4 adults on a BOAT team. New writes are
  * adults-only — youth register on a YOUTH_LAND entry. Leftover
- * youth rows on a boat still do not consume an adult seat.
- * A YOUTH_LAND / RowRide entry allows 1–8 youth. Kids may fish
- * from land or by boat; the registration record stays YOUTH_LAND.
+ * youth rows on a boat still do not consume an adult seat
+ * (safety max 8 leftover). A YOUTH_LAND / RowRide entry is
+ * exactly one named kid per submit. Kids may fish from land or
+ * by boat; the registration record stays YOUTH_LAND.
  */
 const MIN_ADULTS = 1;
 const MAX_ADULTS = 4;
 const MIN_YOUTH = 1;
-const MAX_YOUTH = 8;
+const MAX_YOUTH_LAND = 1;
+const MAX_LEFTOVER_BOAT_YOUTH = 8;
 
 export function adultSeatCount(
   anglers: Array<{ isYouth?: boolean | null }>,
@@ -40,12 +42,15 @@ export const BOAT_ADULT_MAX_ERROR = `At most ${MAX_ADULTS} adult anglers on a bo
 export const BOAT_YOUTH_FORBIDDEN_ERROR =
   "Boat teams are adults only. Register kids separately for RowRide.";
 
-export const YOUTH_MAX_ERROR = `At most ${MAX_YOUTH} youth anglers on one entry.`;
+export const YOUTH_MAX_ERROR = `At most ${MAX_LEFTOVER_BOAT_YOUTH} leftover youth anglers on a boat.`;
+
+export const YOUTH_LAND_ONE_ERROR =
+  "One youth angler per RowRide entry. Register another kid as a new submit.";
 
 export const LAND_YOUTH_ONLY_ERROR =
   "RowRide entries are youth only. Register a boat if adults are fishing the main tournament.";
 
-export const LAND_YOUTH_MIN_ERROR = `Add at least ${MIN_YOUTH} youth angler for a RowRide entry.`;
+export const LAND_YOUTH_MIN_ERROR = `Name one youth angler for a RowRide entry.`;
 
 /** Adult 1–4 math. Leftover youth rows on a boat do not fail this check. */
 export function boatRosterCapacityIssue(
@@ -54,7 +59,7 @@ export function boatRosterCapacityIssue(
   const adults = adultSeatCount(anglers);
   if (adults < MIN_ADULTS) return BOAT_ADULT_MIN_ERROR;
   if (adults > MAX_ADULTS) return BOAT_ADULT_MAX_ERROR;
-  if (youthSeatCount(anglers) > MAX_YOUTH) return YOUTH_MAX_ERROR;
+  if (youthSeatCount(anglers) > MAX_LEFTOVER_BOAT_YOUTH) return YOUTH_MAX_ERROR;
   return null;
 }
 
@@ -73,7 +78,7 @@ export function youthLandRosterCapacityIssue(
     return LAND_YOUTH_ONLY_ERROR;
   }
   if (anglers.length < MIN_YOUTH) return LAND_YOUTH_MIN_ERROR;
-  if (anglers.length > MAX_YOUTH) return YOUTH_MAX_ERROR;
+  if (anglers.length > MAX_YOUTH_LAND) return YOUTH_LAND_ONE_ERROR;
   return null;
 }
 
@@ -88,5 +93,5 @@ export function canAddYouthSeat(
   entryKind: string = "BOAT",
 ): boolean {
   if (entryKind !== "YOUTH_LAND") return false;
-  return youthSeatCount(anglers) < MAX_YOUTH;
+  return youthSeatCount(anglers) < MAX_YOUTH_LAND;
 }
