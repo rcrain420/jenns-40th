@@ -20,3 +20,8 @@ export const SUCCESS_YOUTH_ACCOUNT_NOTE =
 
 export const SUCCESS_YOUTH_UNLOCK_NOTE =
   "Open this on the phone you’ll use at the marina to create your parent account and open My team. Parent login is the login for this RowRide entry.";
+
+export const SUCCESS_REGISTER_ANOTHER_KID = "Register another kid";
+
+export const SUCCESS_REGISTER_ANOTHER_KID_NOTE =
+  "One kid per form. Same parent account is fine.";

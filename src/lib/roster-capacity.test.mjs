@@ -75,7 +75,7 @@ describe("boat vs youth seat capacity", () => {
     assert.equal(boatYouthForbiddenIssue(adultsOnly), null);
 
     const fourAdults = Array.from({ length: 4 }, () => ({ isYouth: false }));
-    const eightYouth = Array.from({ length: MAX_YOUTH_ANGLERS }, () => ({
+    const eightYouth = Array.from({ length: 8 }, () => ({
       isYouth: true,
     }));
     const atMax = [...fourAdults, ...eightYouth];
@@ -87,25 +87,19 @@ describe("boat vs youth seat capacity", () => {
     );
   });
 
-  it("keeps land-only RowRide at 1–8 youth, not the adult boat cap", () => {
-    assert.equal(
-      youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]),
-      null,
+  it("keeps land-only RowRide at exactly one youth, not the adult boat cap", () => {
+    assert.equal(MAX_YOUTH_ANGLERS, 1);
+    assert.equal(youthLandRosterCapacityIssue([{ isYouth: true }]), null);
+    assert.match(
+      youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]) ?? "",
+      /one youth angler/i,
     );
     assert.match(
       youthLandRosterCapacityIssue([{ isYouth: false }]) ?? "",
       /youth only/i,
     );
-    const fiveLand = Array.from({ length: 5 }, () => ({ isYouth: true }));
-    assert.equal(youthLandRosterCapacityIssue(fiveLand), null);
-    assert.equal(canAddYouthSeat(fiveLand, "YOUTH_LAND"), true);
-    const tooMany = Array.from({ length: MAX_YOUTH_ANGLERS + 1 }, () => ({
-      isYouth: true,
-    }));
-    assert.match(youthLandRosterCapacityIssue(tooMany) ?? "", /at most 8/i);
-    assert.equal(
-      canAddYouthSeat(tooMany.slice(0, MAX_YOUTH_ANGLERS), "YOUTH_LAND"),
-      false,
-    );
+    assert.equal(canAddYouthSeat([], "YOUTH_LAND"), true);
+    assert.equal(canAddYouthSeat([{ isYouth: true }], "YOUTH_LAND"), false);
+    assert.match(youthLandRosterCapacityIssue([]) ?? "", /name one youth/i);
   });
 });

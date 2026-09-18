@@ -274,7 +274,7 @@ export function TeamRosterEditor({
             : null}
           {canEditRoster
             ? landOnly
-              ? " Use + Add youth to add another kid."
+              ? " This entry is one kid. Register another kid on a fresh RowRide form."
               : boatInviteLocked
                 ? ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. This boat is full of adults.`
                 : ` ${MIN_ANGLERS}–${MAX_ANGLERS} adult seats. Kids are not added to this boat.`
@@ -305,7 +305,7 @@ export function TeamRosterEditor({
       {anglers.length === 0 ? (
         <p className="text-sm text-ink/60">
           {landOnly
-            ? "No youth anglers yet. Use + Add youth."
+            ? "No youth angler on this entry yet."
             : "No adult seats yet. Add an adult fishing seat."}
         </p>
       ) : null}

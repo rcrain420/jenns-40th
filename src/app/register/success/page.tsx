@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InviteLinkCopy } from "@/components/InviteLinkCopy";
 import { PageShell } from "@/components/PageShell";
@@ -26,6 +27,8 @@ import {
   SUCCESS_UNLOCK_NOTE,
   SUCCESS_VENMO_BANNER,
   SUCCESS_VENMO_NOTE,
+  SUCCESS_REGISTER_ANOTHER_KID,
+  SUCCESS_REGISTER_ANOTHER_KID_NOTE,
   SUCCESS_YOUTH_ACCOUNT_NOTE,
   SUCCESS_YOUTH_SUMMARY_HEADING,
   SUCCESS_YOUTH_UNLOCK_NOTE,
@@ -128,6 +131,19 @@ export default async function RegisterSuccessPage({ searchParams }: Props) {
       }
     >
       <div className="space-y-8">
+        {landOnly ? (
+          <section className="border border-sun/40 bg-mist/70 px-5 py-5">
+            <p className="text-ink/80">{SUCCESS_REGISTER_ANOTHER_KID_NOTE}</p>
+            <p className="mt-3">
+              <Link
+                href="/register/youth"
+                className="inline-flex items-center justify-center bg-wave px-6 py-3 font-display text-sm font-semibold uppercase tracking-[0.12em] text-paper transition hover:bg-sea"
+              >
+                {SUCCESS_REGISTER_ANOTHER_KID}
+              </Link>
+            </p>
+          </section>
+        ) : null}
         <section className="border border-wave/15 bg-mist/60 px-5 py-5">
           <span className="section-banner">
             {landOnly ? "Links for this entry" : "Links for this boat"}

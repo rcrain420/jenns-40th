@@ -102,6 +102,8 @@ const LEFTOVER_YOUTH_TEAM_OR_BOAT_NAME = [
   /household or kids name/i,
   /A household or kids name is required/,
   /Add kids to this RowRide household/i,
+  /Add kids to this RowRide entry/i,
+  /more than one kid on the same form/i,
 ];
 
 /** Aaron 2026-09-16: kids page — no blunt adults-only / boat-register leftovers. */
@@ -449,7 +451,8 @@ describe("RowRide is a separate product from boat registration", () => {
     assert.match(YOUTH_OWN_ENTRY_RULE, /not added to a boat roster/i);
     assert.match(YOUTH_INDIVIDUAL_RULE, /individually/i);
     assert.match(YOUTH_INDIVIDUAL_RULE, /not a named youth team/i);
-    assert.match(YOUTH_INDIVIDUAL_RULE, /more than one kid/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /one kid per form/i);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /register again/i);
 
     for (const relative of ROWRIDE_ONLY_SURFACES) {
       const text = readFileSync(join(ROOT, relative), "utf8");
@@ -710,6 +713,43 @@ describe("youth signup leftover team/boat name copy", () => {
     assert.match(success, /SUCCESS_YOUTH_VENMO_MATCH/);
     assert.match(schema, /youthLandRegistrationSchema/);
     assert.match(schema, /\.optional\(\)/);
+  });
+});
+
+describe("one kid per RowRide form submit", () => {
+  it("has no multi-kid draft UI and offers Register another kid after success", () => {
+    const youthForm = readFileSync(
+      join(ROOT, "src/components/YouthLandRegisterForm.tsx"),
+      "utf8",
+    );
+    const success = readFileSync(
+      join(ROOT, "src/app/register/success/page.tsx"),
+      "utf8",
+    );
+    const successCopy = readFileSync(
+      join(ROOT, "src/lib/register-success-copy.ts"),
+      "utf8",
+    );
+    const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
+    const rules = readFileSync(join(ROOT, "docs/rowride-rules.md"), "utf8");
+    const roster = readFileSync(
+      join(ROOT, "src/components/TeamRosterEditor.tsx"),
+      "utf8",
+    );
+
+    assert.equal(youthForm.includes("+ Add youth"), false);
+    assert.equal(/setKids|canAddYouthSeat/.test(youthForm), false);
+    assert.equal(/list more than one kid/i.test(youthForm), false);
+    assert.equal(/1–8 named kids/.test(youthForm), false);
+    assert.match(youthForm, /One named kid/);
+    assert.match(YOUTH_INDIVIDUAL_RULE, /one kid per form submit/i);
+    assert.equal(/same form/.test(YOUTH_INDIVIDUAL_RULE), false);
+    assert.match(success, /SUCCESS_REGISTER_ANOTHER_KID/);
+    assert.match(success, /\/register\/youth/);
+    assert.match(successCopy, /Register another kid/);
+    assert.match(kids, /Register another kid/);
+    assert.match(rules, /One kid per form submit/);
+    assert.equal(/Use \+ Add youth to add another kid/.test(roster), false);
   });
 });
 

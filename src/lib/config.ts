@@ -34,12 +34,13 @@ export const MAX_TEAMS = 25;
 export const MIN_ANGLERS = 1;
 export const MAX_ANGLERS = 4;
 /**
- * Youth on a YOUTH_LAND / RowRide entry (1–8). Separate from the 1–4 adult
- * boat cap. Boat teams are adults only — kids are not added to a boat roster.
- * Kids may fish from land or by boat; the entry kind stays YOUTH_LAND.
+ * Youth on a YOUTH_LAND / RowRide entry: exactly one named kid per submit.
+ * Separate from the 1–4 adult boat cap. Boat leftover youth rows still do
+ * not consume an adult seat. Parents with more than one child submit the
+ * RowRide form once per kid. The entry kind stays YOUTH_LAND.
  */
 export const MIN_YOUTH_ANGLERS = 1;
-export const MAX_YOUTH_ANGLERS = 8;
+export const MAX_YOUTH_ANGLERS = 1;
 
 export const ENTRY_KIND = {
   BOAT: "BOAT",

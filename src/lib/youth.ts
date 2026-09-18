@@ -67,12 +67,12 @@ export const YOUTH_LAND_RULE =
 export const YOUTH_OWN_ENTRY_RULE =
   "Kids enter RowRide on their own. Boat registration is a different product — they are not added to a boat roster.";
 
-/** Public youth copy: named kids, not a named youth team. */
+/** Public youth copy: named kids, not a named youth team. One submit each. */
 export const YOUTH_INDIVIDUAL_RULE =
-  "Kids register individually — each child is an individual angler, not a named youth team. A parent can list more than one kid on the same form.";
+  "Kids register individually — each child is an individual angler, not a named youth team. One kid per form submit. Parents with more than one child register again for each kid.";
 
 export const YOUTH_SIGNUP_AUTH_BODY =
-  "Log in, create an account, or continue with Google — then enter kids individually on the RowRide form. Boat registration is a different product. Same parent account for the Livewell and My team.";
+  "Log in, create an account, or continue with Google — then enter one kid on the RowRide form. Boat registration is a different product. Same parent account for the Livewell and My team.";
 
 export const YOUTH_SEPARATE_REGISTER = YOUTH_LAND_RULE;
 

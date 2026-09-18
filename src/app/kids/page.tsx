@@ -257,7 +257,7 @@ export default async function KidsPage() {
             <div className="mt-4 space-y-4">
               <p className="text-ink/80">
                 {availability.isOpen
-                  ? "Sign in, then enter kids individually on the RowRide form. Boat registration is a different product. Kids may fish from land or by boat."
+                  ? "Sign in, then enter one kid on the RowRide form. Boat registration is a different product. Kids may fish from land or by boat."
                   : "The 25-boat field is full. RowRide signup is still open — it does not use a boat slot."}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -269,12 +269,20 @@ export default async function KidsPage() {
           ) : youthTeams.length > 0 ? (
             <div className="mt-4 space-y-8">
               <p className="text-ink/80">
-                Add kids to {youthTeams.length === 1 ? "this RowRide entry" : "your RowRide entries"}.
-                This is a RowRide entry — $0 base, not a $300 boat roster.
+                {youthTeams.length === 1
+                  ? "This RowRide entry is one kid."
+                  : "Each RowRide entry is one kid."}{" "}
+                Register another kid on a fresh form — same parent account is
+                fine. This is a RowRide entry — $0 base, not a $300 boat roster.
                 Kids are individuals — they do not need a team or boat name.
                 {` ${YOUTH_INDIVIDUAL_RULE} `}
                 Boat registration is a different product. Optional side pots
                 they entered are $50 each. Kids may fish from land or by boat.
+              </p>
+              <p>
+                <Link href="/register/youth" className="btn-bay btn-bay-red">
+                  Register another kid
+                </Link>
               </p>
               {youthTeams.map((youthTeam) => (
                 <TeamRosterEditor

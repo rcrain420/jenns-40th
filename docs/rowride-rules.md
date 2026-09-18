@@ -38,7 +38,7 @@ A parent or guardian may use their own email for the child. The child does not g
 
 ## 3. How kids register
 
-Kids register only on the RowRide form (`/register/youth`). They enter RowRide on their own. Kids register individually — each child is an individual angler, not a named youth team. A parent can list more than one kid on the same form. Boat registration is a different product — they are not added to a boat roster.
+Kids register only on the RowRide form (`/register/youth`). They enter RowRide on their own. Kids register individually — each child is an individual angler, not a named youth team. One kid per form submit. Parents with more than one child register again for each kid. Boat registration is a different product — they are not added to a boat roster.
 
 Adults without email may stay name-only on a boat roster and still create an account from the invite link. That is not the kids path.
 

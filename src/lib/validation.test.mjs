@@ -37,6 +37,7 @@ const {
 } = await import("./boat-contact.ts");
 const { derivePaymentStatus } = await import("./payments.ts");
 const { youthLandDisplayName } = await import("./youth.ts");
+const { youthLandRegistrationSchema } = await import("./validation.ts");
 
 describe("optional angler email", () => {
   it("allows a blank seat and keeps a valid plus-alias", () => {
@@ -196,8 +197,11 @@ describe("boat vs land registration capacity", () => {
 
   it("keeps RowRide at $0 base plus $50 per optional side pot", () => {
     assert.equal(
-      youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]),
+      youthLandRosterCapacityIssue([{ isYouth: true }]),
       null,
+    );
+    assert.ok(
+      youthLandRosterCapacityIssue([{ isYouth: true }, { isYouth: true }]),
     );
     assert.ok(youthLandRosterCapacityIssue([{ isYouth: false }]));
     assert.equal(amountDueForEntry({ entryKind: ENTRY_KIND.YOUTH_LAND }), 0);
@@ -230,6 +234,41 @@ describe("BOAT writes reject youth anglers", () => {
       youthLandRosterCapacityIssue([{ isYouth: true }]),
       null,
     );
+  });
+});
+
+describe("RowRide registration is exactly one youth angler", () => {
+  it("accepts one named kid and rejects a second kid on the same submit", () => {
+    const oneKid = {
+      registrantEmail: "parent@example.com",
+      licenseConfirmed: true,
+      youthGuardianAttested: true,
+      entryKind: ENTRY_KIND.YOUTH_LAND,
+      anglers: [
+        {
+          fullName: "Rowan Layne",
+          shirtSize: "S",
+          isYouth: true,
+        },
+      ],
+    };
+    const ok = youthLandRegistrationSchema.safeParse(oneKid);
+    assert.equal(ok.success, true);
+
+    const twoKids = youthLandRegistrationSchema.safeParse({
+      ...oneKid,
+      anglers: [
+        ...oneKid.anglers,
+        { fullName: "Sibling", shirtSize: "M", isYouth: true },
+      ],
+    });
+    assert.equal(twoKids.success, false);
+
+    const none = youthLandRegistrationSchema.safeParse({
+      ...oneKid,
+      anglers: [],
+    });
+    assert.equal(none.success, false);
   });
 });
 

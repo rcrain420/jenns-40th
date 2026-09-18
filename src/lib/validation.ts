@@ -11,6 +11,8 @@ import {
 import {
   boatRosterCapacityIssue,
   boatYouthForbiddenIssue,
+  LAND_YOUTH_MIN_ERROR,
+  YOUTH_LAND_ONE_ERROR,
   youthLandRosterCapacityIssue,
 } from "./roster-capacity";
 import { SHIRT_SIZE_REQUIRED_ERROR, SHIRT_SIZES } from "./shirt-size";
@@ -149,8 +151,8 @@ export const youthLandRegistrationSchema = z
       .transform((v) => (v ? v : undefined)),
     anglers: z
       .array(anglerSchema)
-      .min(MIN_YOUTH_ANGLERS, `At least ${MIN_YOUTH_ANGLERS} youth angler required`)
-      .max(MAX_YOUTH_ANGLERS, `At most ${MAX_YOUTH_ANGLERS} youth anglers allowed`),
+      .min(MIN_YOUTH_ANGLERS, LAND_YOUTH_MIN_ERROR)
+      .max(MAX_YOUTH_ANGLERS, YOUTH_LAND_ONE_ERROR),
     licenseConfirmed: z.literal(true, {
       error: LICENSE_CONFIRM_ERROR,
     }),
