@@ -6,6 +6,7 @@ import { PotBoard } from "@/components/PotBoard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Sponsors } from "@/components/Sponsors";
 import { YouthAnglersCard } from "@/components/YouthAnglersCard";
+import { YouthDivisionAwards } from "@/components/YouthDivisionAwards";
 import { getCurrentUser } from "@/lib/auth";
 import { listBragBoardCatches } from "@/lib/catches";
 import {
@@ -240,8 +241,9 @@ export default async function HomePage() {
             <Link href="/kids" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name}
             </Link>{" "}
-            is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Heaviest
-            qualifying fish by a registered youth angler.
+            is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Youth
+            Division trophies for biggest redfish, biggest speckled trout,
+            and biggest trash fish.
           </p>
           <p className="mt-3 text-[0.95rem] text-wave/70 md:text-base">
             Register for RowRide separately. Kids may fish from land or by
@@ -266,7 +268,10 @@ export default async function HomePage() {
       {/* Youth / RowRide card sits below the main pot — not inside it */}
       <section className="mx-auto flex max-w-6xl flex-col gap-5 px-5 pb-8 md:gap-7 md:px-11 md:pb-11">
         <PotBoard totals={potTotals} />
-        <YouthAnglersCard count={potTotals.youthAnglerCount} />
+        <div className="grid gap-5 md:grid-cols-2 md:gap-7">
+          <YouthAnglersCard count={potTotals.youthAnglerCount} />
+          <YouthDivisionAwards />
+        </div>
         <p className="text-right text-[0.95rem] md:text-base">
           <Link
             href="/pots"

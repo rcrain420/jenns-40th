@@ -106,7 +106,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by{" "}
                   {pot.id === "kids" ? "Tournament Host" : "Jenn and Aaron"}
                   {pot.id === "kids"
-                    ? `. ${YOUTH_TOURNAMENT.tagline} Heaviest qualifying fish by a registered youth angler. Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster and do not take an adult seat. Youth are out of the main stringer and main pot and do not count on a boat team’s paid side pots. To enter a paid side pot, they buy in on their own RowRide entry — $50 per pot.`
+                    ? `. ${YOUTH_TOURNAMENT.tagline} Youth Division trophies for biggest redfish, biggest speckled trout, and biggest trash fish — one award per youth angler. Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster and do not take an adult seat. Youth are out of the main stringer and main pot and do not count on a boat team’s paid side pots. To enter a paid side pot, they buy in on their own RowRide entry — $50 per pot.`
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>

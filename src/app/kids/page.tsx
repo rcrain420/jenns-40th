@@ -11,6 +11,13 @@ import {
   isYouthLandEntry,
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
+import {
+  YOUTH_DIVISION_AWARDS,
+  YOUTH_DIVISION_HEADING,
+  YOUTH_ONE_AWARD_ASSIGNMENT,
+  YOUTH_ONE_AWARD_RULE,
+  youthDivisionAwardLine,
+} from "@/lib/youth";
 import { isBoatInviteLocked } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
 import { getRegistrationAvailability } from "@/lib/registration";
@@ -77,13 +84,29 @@ export default async function KidsPage() {
           </p>
           <p className="mt-3 text-ink/80">
             The RowRide Youth Anglers Tournament gives the kids their own
-            free competition at the scales. The registered youth angler with
-            the heaviest qualifying fish takes the prize, provided by the
-            Tournament Host.
+            free Youth Division at the scales — trophies for biggest
+            redfish, biggest speckled trout, and biggest trash fish,
+            provided by the Tournament Host.
           </p>
           <p className="mt-3 text-ink/80">
             Just like the main tournament, the Weighmaster has the final say
             on the official winner — not Livewell AI.
+          </p>
+        </section>
+
+        <section>
+          <span className="section-banner">Awards</span>
+          <h2 className="mt-4 font-display text-2xl uppercase text-wave">
+            🏆 {YOUTH_DIVISION_HEADING}
+          </h2>
+          <ul className="mt-4 list-disc space-y-2 pl-5 text-ink/80">
+            {YOUTH_DIVISION_AWARDS.map((award) => (
+              <li key={award.id}>{youthDivisionAwardLine(award)}</li>
+            ))}
+          </ul>
+          <p className="mt-3 text-ink/80">
+            Host-funded — kids are not in the adult main pot. One award per
+            youth angler so the fun spreads around.
           </p>
         </section>
 
@@ -101,13 +124,12 @@ export default async function KidsPage() {
           </h3>
           <p className="mt-3 text-ink/80">
             RowRide is a separate tournament from the adult boat tournament.
-            There is no entry fee. Biggest / heaviest qualifying fish wins at
+            There is no entry fee. Youth Division awards are decided at
             weigh-in.
           </p>
           <p className="mt-3 text-ink/80">
-            The prize is host-funded by Tournament Host, like the Heaviest
-            Saltwater Catfish prize, and does not come from paid side-pot
-            money.
+            The Youth Division trophies are host-funded by Tournament Host
+            and do not come from paid side-pot money.
           </p>
 
           <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">
@@ -150,9 +172,19 @@ export default async function KidsPage() {
             5. What they compete for
           </h3>
           <p className="mt-3 text-ink/80">
-            The heaviest qualifying fish caught by a registered youth angler
-            wins. A qualifying fish must be legal, caught during tournament
-            hours, presented whole and accepted by the Weighmaster. Official
+            Registered youth anglers compete for three host-funded{" "}
+            {YOUTH_DIVISION_HEADING} awards:
+          </p>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-ink/80">
+            {YOUTH_DIVISION_AWARDS.map((award) => (
+              <li key={award.id}>{youthDivisionAwardLine(award)}</li>
+            ))}
+          </ul>
+          <p className="mt-3 text-ink/80">{YOUTH_ONE_AWARD_RULE}</p>
+          <p className="mt-3 text-ink/80">{YOUTH_ONE_AWARD_ASSIGNMENT}</p>
+          <p className="mt-3 text-ink/80">
+            A qualifying fish must be legal, caught during tournament hours,
+            presented whole and accepted by the Weighmaster. Official
             results come from weigh-in, not from AI Livewell estimates.
           </p>
           <p className="mt-3 text-ink/80">

@@ -5,12 +5,18 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   YOUTH_COMPETITION_POLICY,
+  YOUTH_DIVISION_AWARDS,
+  YOUTH_DIVISION_HEADING,
   YOUTH_MAIN_STRINGER_RULE,
+  YOUTH_ONE_AWARD_ASSIGNMENT,
+  YOUTH_ONE_AWARD_RULE,
+  YOUTH_ROWRIDE_RULE,
   YOUTH_SIDE_POT_RULE,
   isMainStringerEligible,
   isYouthAngler,
   mainStringerEligibleAnglers,
   youthAnglersRegisteredLabel,
+  youthDivisionAwardLine,
   youthLandDisplayName,
 } from "./youth.ts";
 
@@ -37,6 +43,7 @@ const COPY_SURFACES = [
   "src/lib/youth.ts",
   "src/components/YouthLandRegisterForm.tsx",
   "src/components/YouthAnglersCard.tsx",
+  "src/components/YouthDivisionAwards.tsx",
   "src/app/register/youth/page.tsx",
   "src/app/register/success/page.tsx",
   "src/components/AdminDashboard.tsx",
@@ -244,6 +251,8 @@ describe("youth main-stringer eligibility", () => {
     assert.match(YOUTH_SIDE_POT_RULE, /RowRide registration/i);
     assert.match(YOUTH_COMPETITION_POLICY, /paid side pots/i);
     assert.match(YOUTH_COMPETITION_POLICY, /RowRide Youth Angler Tournament/i);
+    assert.match(YOUTH_ROWRIDE_RULE, /Youth Division/i);
+    assert.match(YOUTH_ROWRIDE_RULE, /trash fish/i);
     assert.match(YOUTH_COMPETITION_POLICY, /do not take one/i);
     assert.match(YOUTH_COMPETITION_POLICY, /captain or guide/i);
     assert.match(YOUTH_COMPETITION_POLICY, /land\s+or\s+by\s+boat/i);
@@ -460,6 +469,19 @@ describe("RowRide rules live on the kids page", () => {
       assert.match(text, /land\s+or\s+by\s+boat/i);
       assert.match(text, /\$50 per pot/);
       assert.match(text, /own\s+RowRide registration/);
+      assert.match(text, /Youth Division/);
+    }
+
+    const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
+    assert.match(kids, /YOUTH_DIVISION_AWARDS/);
+    assert.match(kids, /YOUTH_ONE_AWARD_RULE/);
+    assert.match(kids, /YOUTH_ONE_AWARD_ASSIGNMENT/);
+
+    const docs = readFileSync(join(ROOT, "docs/rowride-rules.md"), "utf8");
+    assert.match(docs, YOUTH_ONE_AWARD_RULE);
+    assert.match(docs, YOUTH_ONE_AWARD_ASSIGNMENT);
+    for (const award of YOUTH_DIVISION_AWARDS) {
+      assert.match(docs, new RegExp(youthDivisionAwardLine(award)));
     }
   });
 
@@ -475,6 +497,50 @@ describe("RowRide rules live on the kids page", () => {
   });
 });
 
+describe("Youth Division awards", () => {
+  it("lists three 1st-place trophies and one award per youth angler", () => {
+    assert.equal(YOUTH_DIVISION_HEADING, "Youth Division");
+    assert.deepEqual(
+      YOUTH_DIVISION_AWARDS.map((award) => youthDivisionAwardLine(award)),
+      [
+        "Biggest Redfish — 1st Place",
+        "Biggest Speckled Trout — 1st Place",
+        "Biggest Trash Fish — 1st Place",
+      ],
+    );
+    assert.match(YOUTH_ONE_AWARD_RULE, /only win one Youth Division award/i);
+    assert.match(YOUTH_ONE_AWARD_RULE, /next eligible angler/i);
+    assert.match(YOUTH_ONE_AWARD_ASSIGNMENT, /weighed first wins/i);
+    assert.match(YOUTH_ONE_AWARD_ASSIGNMENT, /Weighmaster decides/i);
+  });
+
+  it("does not keep old youth prize names on RowRide surfaces", () => {
+    const youthPrizeSurfaces = [
+      "docs/rowride-rules.md",
+      "src/app/kids/page.tsx",
+      "src/lib/youth.ts",
+      "src/components/YouthAnglersCard.tsx",
+      "src/components/YouthDivisionAwards.tsx",
+    ];
+    const leftoverYouthPrizeNames = [
+      /Birthday Trash Fish/i,
+      /Heaviest Saltwater Catfish/i,
+      /heaviest qualifying fish takes the prize/i,
+      /Biggest \/ heaviest qualifying fish wins/i,
+    ];
+    for (const relative of youthPrizeSurfaces) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of leftoverYouthPrizeNames) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
+});
+
 describe("home youth angler count", () => {
   it("renders the live kid count on its own home card below the main pot", () => {
     const home = readFileSync(join(ROOT, "src/app/page.tsx"), "utf8");
@@ -482,22 +548,32 @@ describe("home youth angler count", () => {
       join(ROOT, "src/components/YouthAnglersCard.tsx"),
       "utf8",
     );
+    const awards = readFileSync(
+      join(ROOT, "src/components/YouthDivisionAwards.tsx"),
+      "utf8",
+    );
     const board = readFileSync(join(ROOT, "src/components/PotBoard.tsx"), "utf8");
     assert.match(home, /getPotTotals/);
     assert.match(home, /<PotBoard totals=\{potTotals\} \/>/);
     assert.match(home, /<YouthAnglersCard count=\{potTotals.youthAnglerCount\} \/>/);
+    assert.match(home, /<YouthDivisionAwards/);
     const potIndex = home.indexOf("<PotBoard totals={potTotals} />");
     const youthIndex = home.indexOf(
       "<YouthAnglersCard count={potTotals.youthAnglerCount} />",
     );
+    const awardsIndex = home.indexOf("<YouthDivisionAwards");
     assert.ok(potIndex > -1 && youthIndex > potIndex);
+    assert.ok(awardsIndex > potIndex);
     assert.match(card, /youthAnglersRegisteredLabel/);
     assert.match(card, /Youth anglers/);
     assert.match(card, /RowRide/);
     assert.match(card, /\/kids/);
+    assert.match(awards, /YOUTH_DIVISION_AWARDS/);
+    assert.match(awards, /YOUTH_DIVISION_HEADING/);
     assert.equal(board.includes("youthAnglersRegisteredLabel"), false);
     assert.equal(board.includes("youthAnglerCount"), false);
     assert.equal(board.includes("/kids"), false);
+    assert.equal(board.includes("YouthDivisionAwards"), false);
   });
 });
 
