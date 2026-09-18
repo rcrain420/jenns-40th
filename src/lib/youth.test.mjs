@@ -713,6 +713,9 @@ describe("youth signup leftover team/boat name copy", () => {
     assert.match(success, /SUCCESS_YOUTH_VENMO_MATCH/);
     assert.match(schema, /youthLandRegistrationSchema/);
     assert.match(schema, /\.optional\(\)/);
+    assert.match(schema, /YOUTH_LAND_ONE_ERROR/);
+    assert.match(schema, /LAND_YOUTH_MIN_ERROR/);
+    assert.match(schema, /MAX_YOUTH_ANGLERS/);
   });
 });
 
