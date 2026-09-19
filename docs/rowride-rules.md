@@ -5,7 +5,7 @@
 **Tournament name:** RowRide Youth Angler Tournament  
 **Tagline:** Little Anglers. Big Fish. Bigger Bragging Rights.  
 **Tournament date:** Saturday, October 10, 2026  
-**Headquarters and weigh-in:** Boatman’s Knot, Rockport, Texas  
+**Headquarters and weigh-in:** Boatmen’s Bar and Marina, Rockport, Texas  
 **Fishing hours:** Sunrise to 2:00 p.m.  
 **Weigh-in hours:** 12:00 p.m. to 2:00 p.m.  
 **Registration:** Separate RowRide form at `/register/youth`. Same October 1, 2026 deadline (end of day, America/Chicago). A RowRide entry does not use a $300 boat slot. Kids may fish from land or by boat.

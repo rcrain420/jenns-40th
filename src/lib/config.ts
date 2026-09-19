@@ -10,8 +10,8 @@ export const EVENT = {
   dateBand: "OCTOBER 9–10, 2026",
   fridayLabel: "Friday, Oct 9",
   saturdayLabel: "Saturday, Oct 10",
-  locationLabel: "Rockport, TX · Boatman’s Knot",
-  venue: "Boatman’s Knot",
+  locationLabel: "Rockport, TX · Boatmen’s Bar and Marina",
+  venue: "Boatmen’s Bar and Marina",
   address: "140 Cove Harbor N, Rockport, TX 78382",
   phone: "(361) 223-9459",
   phoneTel: "+13612239459",
@@ -21,7 +21,7 @@ export const EVENT = {
   /** Lines in / captain's day start — America/Chicago */
   countdownTargetIso: "2026-10-09T12:00:00.000Z",
   directionsUrl:
-    "https://www.google.com/maps/search/?api=1&query=Boatman%27s+Knot+140+Cove+Harbor+N+Rockport+TX+78382",
+    "https://www.google.com/maps/search/?api=1&query=Boatmen%27s+Bar+and+Marina+140+Cove+Harbor+N+Rockport+TX+78382",
   mapEmbedUrl:
     "https://www.openstreetmap.org/export/embed.html?bbox=-97.0954309%2C27.9771173%2C-97.0554309%2C28.0071173&layer=mapnik&marker=27.9921173%2C-97.0754309",
 } as const;
