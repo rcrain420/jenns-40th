@@ -4,10 +4,10 @@
 
 **Tournament Name:** Unofficial Fishing Tournament for Jenn’s 40th Birthday
 **Tournament Date:** Saturday, October 10, 2026
-**Tournament Headquarters and Weigh-In:** Boatman’s Knot, Rockport, Texas
+**Tournament Headquarters and Weigh-In:** Boatmen’s Bar and Marina, Rockport, Texas
 **Fishing Hours:** Sunrise to 2:00 p.m.
 **Weigh-In Hours:** 12:00 p.m. to 2:00 p.m.
-**Captain’s Meeting:** Friday, October 9, 2026, at 7:00 p.m. at Boatman’s Knot
+**Captain’s Meeting:** Friday, October 9, 2026, at 7:00 p.m. at Boatmen’s Bar and Marina
 **Registration deadline:** Thursday, October 1, 2026 (end of day, America/Chicago). No walk-up, day-of, or marina registration.
 
 The goal is simple: catch fish, celebrate Jenn, talk a little trash and have a great time.
@@ -20,7 +20,7 @@ These are the adult boat tournament rules. Kids / RowRide rules are separate —
 
 Every boat must be registered online by the end of the day on **October 1, 2026** (America/Chicago).
 
-There is no walk-up, day-of, or marina registration. Showing up at Boatman’s Knot on Friday or Saturday without a registered team does not get you in the tournament.
+There is no walk-up, day-of, or marina registration. Showing up at Boatmen’s Bar and Marina on Friday or Saturday without a registered team does not get you in the tournament.
 
 Public registration also closes if the field fills (soft cap of 25 teams) before that date.
 
@@ -62,7 +62,7 @@ Guided and non-guided teams will compete together unless separate divisions are 
 
 At least one representative from every team must attend the captain’s meeting:
 
-**Boatman’s Knot**
+**Boatmen’s Bar and Marina**
 **Friday, October 9, 2026, at 7:00 p.m.**
 
 This is where we will cover the final details, answer questions, clarify boundaries and pretend everyone is going to get a full night of sleep.
@@ -271,7 +271,7 @@ The official scale is the official scale. Your bathroom scale, fish-grip scale a
 
 ## 15. The Very Important 2:00 p.m. Deadline
 
-The official weigh-in will take place at Boatman’s Knot.
+The official weigh-in will take place at Boatmen’s Bar and Marina.
 
 The scales will open at **12:00 p.m.** on Saturday, October 10, 2026.
 
@@ -285,7 +285,7 @@ Teams that are in line by 2:00 p.m. may complete their weigh-in.
 
 Teams entering the line after 2:00 p.m. may not weigh fish.
 
-Being near Boatman’s Knot does not count. Being at the dock does not count. Being in the parking lot does not count. Flying toward the weigh-in while yelling, “We’re right here!” does not count.
+Being near Boatmen’s Bar and Marina does not count. Being at the dock does not count. Being in the parking lot does not count. Flying toward the weigh-in while yelling, “We’re right here!” does not count.
 
 Telephone calls, text messages, photographs, traffic, boat trouble or evidence that your team is approaching the marina will not satisfy the deadline.
 

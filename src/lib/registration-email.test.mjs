@@ -18,7 +18,7 @@ function welcomeCopy(overrides = {}) {
     eventName: "Official-ish Fishing Tournament for Jenn's 40th Birthday",
     shortName: "Jenn's 40th",
     dateLabel: "October 9–10, 2026",
-    venue: "Boatman’s Knot",
+    venue: "Boatmen’s Bar and Marina",
     footerScript: "See you in Rockport!",
     boatEntryFeeLabel: "$300",
     paidSeatCount: 2,
@@ -37,7 +37,7 @@ describe("registration welcome email", () => {
     );
     assert.ok(message.text.includes("Pretty Pier Pressure is registered"));
     assert.ok(message.text.includes("October 9–10, 2026"));
-    assert.ok(message.text.includes("Boatman’s Knot"));
+    assert.ok(message.text.includes("Boatmen’s Bar and Marina"));
     assert.ok(message.text.includes("Venmo Jennski for entry"));
     assert.ok(message.text.includes(VENMO_URL));
     assert.ok(message.text.includes("$300.00"));
