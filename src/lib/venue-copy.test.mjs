@@ -45,7 +45,7 @@ describe("weigh-in venue leftover copy", () => {
     assert.match(EVENT.directionsUrl, /Bar\+and\+Marina|Bar and Marina/);
     assert.equal(/Knot/i.test(EVENT.venue), false);
     assert.equal(/Club/i.test(EVENT.venue), false);
-    assert.equal(/40 Cove Harbor/.test(EVENT.address), false);
+    assert.equal(/\b40 Cove Harbor/.test(EVENT.address), false);
   });
 
   it("does not keep Boatman’s Knot on public surfaces", () => {
@@ -65,7 +65,7 @@ describe("weigh-in venue leftover copy", () => {
     assert.match(EVENT.mapEmbedUrl, /marker=27\.9921173%2C-97\.0754309/);
     const home = readFileSync(join(ROOT, "src/app/page.tsx"), "utf8");
     assert.match(home, /140 Cove Harbor N/);
-    assert.equal(/40 Cove Harbor/.test(home), false);
+    assert.equal(/\b40 Cove Harbor/.test(home), false);
     assert.match(home, /Park at Cove Harbor and walk to the dock/);
     assert.match(home, /Weigh-in is at the end of/);
     assert.match(home, /EVENT\.venue/);
