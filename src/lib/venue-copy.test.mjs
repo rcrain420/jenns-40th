@@ -36,6 +36,12 @@ const LEFTOVER_VENUE = [
   /Club Bar/i,
 ];
 
+/** Aaron: drop the homepage pier-walk blurb; it is not official guidance. */
+const LEFTOVER_PIER_WALK = [
+  /Park at Cove Harbor and walk to the dock/i,
+  /Weigh-in is at the end of the pier/i,
+];
+
 describe("weigh-in venue leftover copy", () => {
   it("names Boatmen’s Bar and Marina as the official venue", () => {
     assert.equal(EVENT.venue, "Boatmen’s Bar and Marina");
@@ -61,13 +67,29 @@ describe("weigh-in venue leftover copy", () => {
     }
   });
 
-  it("keeps the Cove Harbor pin and pier walk guidance", () => {
+  it("does not keep pier-walk parking guidance on public surfaces", () => {
+    for (const relative of COPY_SURFACES) {
+      const text = readFileSync(join(ROOT, relative), "utf8");
+      for (const pattern of LEFTOVER_PIER_WALK) {
+        assert.equal(
+          pattern.test(text),
+          false,
+          `${relative} still matches ${pattern}`,
+        );
+      }
+    }
+  });
+
+  it("keeps the Cove Harbor pin and venue address without pier-walk guidance", () => {
     assert.match(EVENT.mapEmbedUrl, /marker=27\.9921173%2C-97\.0754309/);
     const home = readFileSync(join(ROOT, "src/app/page.tsx"), "utf8");
     assert.match(home, /140 Cove Harbor N/);
     assert.equal(/\b40 Cove Harbor/.test(home), false);
-    assert.match(home, /Park at Cove Harbor and walk to the dock/);
-    assert.match(home, /Weigh-in is at the end of/);
+    assert.equal(
+      /Park at Cove Harbor and walk to the dock/.test(home),
+      false,
+    );
+    assert.equal(/Weigh-in is at the end of/.test(home), false);
     assert.match(home, /EVENT\.venue/);
     const kids = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
     assert.match(kids, /EVENT\.venue/);
