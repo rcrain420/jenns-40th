@@ -307,10 +307,6 @@ export default async function HomePage() {
             <br />
             Rockport, TX 78382
           </p>
-          <p className="text-[1rem] leading-relaxed text-wave/75 md:text-[1.05rem]">
-            Park at Cove Harbor and walk to the dock. Weigh-in is at the end of
-            the pier.
-          </p>
           <div className="mt-1 flex flex-wrap gap-3">
             <a
               href={EVENT.directionsUrl}
