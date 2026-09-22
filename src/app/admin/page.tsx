@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { AdminDashboard, type AdminTeamRow } from "@/components/AdminDashboard";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { adminPaymentStats } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +15,6 @@ export default async function AdminPage() {
     include: { anglers: { orderBy: { sortOrder: "asc" } } },
     orderBy: { createdAt: "desc" },
   });
-
-  const anglerCount = teams.reduce((sum, t) => sum + t.anglers.length, 0);
-  // Collected = sum of amountPaidCents (actual ledger, including overpay).
-  // Outstanding = sum of max(0, due − paid).
-  const { collectedCents, outstandingCents } = adminPaymentStats(teams);
 
   const rows: AdminTeamRow[] = teams.map((t) => ({
     id: t.id,
@@ -45,15 +39,7 @@ export default async function AdminPage() {
   return (
     <main className="flex-1 bg-salt px-5 py-10 md:px-8">
       <div className="mx-auto max-w-6xl">
-        <AdminDashboard
-          teams={rows}
-          stats={{
-            teamCount: teams.length,
-            anglerCount,
-            collectedCents,
-            outstandingCents,
-          }}
-        />
+        <AdminDashboard teams={rows} />
       </div>
     </main>
   );

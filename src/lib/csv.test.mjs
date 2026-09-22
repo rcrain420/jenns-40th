@@ -55,6 +55,8 @@ describe("CSV youth column", () => {
     assert.match(header, /,youth,/);
     assert.match(header, /,shirtSizes,/);
     assert.match(header, /,amountPaidCents,amountPaid,paymentStatus,/);
+    assert.match(header, /,createdAt,division$/);
+    assert.match(row, /,Adult$/);
     assert.match(row, /Rowan \(youth\) \[XS\]/);
     assert.match(row, /Aaron: L; Rowan: XS/);
     assert.match(row, /,Rowan,/);

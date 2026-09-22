@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { orderTeamsForExport } from "@/lib/admin-console";
 import { requireAdmin } from "@/lib/auth";
 import { teamsToCsv } from "@/lib/csv";
 import { prisma } from "@/lib/db";
@@ -14,7 +15,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
   });
 
-  const csv = teamsToCsv(teams);
+  const csv = teamsToCsv(orderTeamsForExport(teams));
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",

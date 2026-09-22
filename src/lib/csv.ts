@@ -1,4 +1,5 @@
 import type { Angler, Team } from "@prisma/client";
+import { adminDivisionLabel } from "./admin-console.ts";
 
 type TeamWithAnglers = Team & { anglers: Angler[] };
 
@@ -35,6 +36,7 @@ export function teamsToCsv(teams: TeamWithAnglers[]): string {
     "licenseConfirmed",
     "notes",
     "createdAt",
+    "division",
   ];
 
   const rows = teams.map((t) =>
@@ -77,6 +79,7 @@ export function teamsToCsv(teams: TeamWithAnglers[]): string {
       t.licenseConfirmed,
       t.notes,
       t.createdAt.toISOString(),
+      adminDivisionLabel(t.entryKind),
     ]
       .map(csvEscape)
       .join(","),
