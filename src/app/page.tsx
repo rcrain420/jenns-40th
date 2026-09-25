@@ -4,7 +4,6 @@ import { BragBoard } from "@/components/BragBoard";
 import { Countdown } from "@/components/Countdown";
 import { PotBoard } from "@/components/PotBoard";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Sponsors } from "@/components/Sponsors";
 import { YouthAnglersCard } from "@/components/YouthAnglersCard";
 import { YouthDivisionAwards } from "@/components/YouthDivisionAwards";
 import { getCurrentUser } from "@/lib/auth";
@@ -349,8 +348,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <Sponsors />
 
       {/* Footer */}
       <footer className="bg-sun px-5 py-7 text-paper md:px-11 md:py-8">
