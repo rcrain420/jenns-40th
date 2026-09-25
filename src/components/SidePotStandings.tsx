@@ -1,5 +1,6 @@
 "use client";
 
+import { LeaderboardPublic } from "@/components/LeaderboardPublic";
 import { useChicagoClock, usePolledBoard } from "@/components/usePolledBoard";
 import { EVENT } from "@/lib/config";
 import { formatUsdWhole } from "@/lib/money";
@@ -17,42 +18,55 @@ export function SidePotStandings({
   pinnedSessionId?: string | null;
 }) {
   const board = usePolledBoard(initial, "/api/leaderboard/side-pots", pinnedSessionId);
-  const clock = useChicagoClock();
-  const tv = variant === "tv";
-  const live = board.session?.status === "OPEN";
+
+  if (variant === "tv") {
+    return <SidePotTv board={board} />;
+  }
 
   return (
-    <div
-      className={
-        tv
-          ? "flex h-screen flex-col overflow-hidden bg-wave text-paper"
-          : "mx-auto max-w-6xl px-5 py-8 text-wave md:px-11 md:py-11"
-      }
+    <LeaderboardPublic
+      title="Side pot leaders"
+      current="side-pots"
+      session={board.session}
+      pinnedSessionId={pinnedSessionId}
+      footer="Winner takes the pool. AI Brag Board is for fun — these are official scale fish."
     >
-      <header className={tv ? "flex items-end justify-between gap-6 px-8 pb-4 pt-6" : "mb-6"}>
+      <div className="grid gap-5 lg:grid-cols-3">
+        {board.pots.map((pot) => (
+          <PotColumn key={pot.id} pot={pot} tv={false} />
+        ))}
+      </div>
+    </LeaderboardPublic>
+  );
+}
+
+function SidePotTv({ board }: { board: SidePotLeaderboard }) {
+  const clock = useChicagoClock();
+  const live = board.session?.status === "OPEN";
+  const statusLabel = !board.session ? "Waiting" : live ? "Live" : "Final";
+
+  return (
+    <div className="flex h-screen flex-col overflow-hidden bg-wave text-paper">
+      <header className="flex items-end justify-between gap-6 px-8 pb-4 pt-6">
         <div>
-          <p className={`font-label text-sun ${tv ? "text-xl tracking-[0.18em]" : "text-sm tracking-[0.16em]"}`}>
-            {EVENT.shortName} · {live ? "Live" : "Final"}
+          <p className="font-label text-xl tracking-[0.18em] text-sun">
+            {EVENT.shortName} · {statusLabel}
           </p>
-          <h1 className={`font-display leading-none ${tv ? "text-5xl" : "text-4xl md:text-5xl"}`}>
-            Side pot leaders
-          </h1>
+          <h1 className="font-display text-5xl leading-none">Side pot leaders</h1>
         </div>
-        <div className={tv ? "text-right" : "mt-3 text-sm text-wave/70"}>
-          <p className={tv ? "font-display text-4xl tabular-nums" : "font-label tracking-[0.12em]"}>
-            {clock || "—"}
-          </p>
-          <p className={tv ? "text-paper/70" : ""}>America/Chicago · {EVENT.venue}</p>
+        <div className="text-right">
+          <p className="font-display text-4xl tabular-nums">{clock || "—"}</p>
+          <p className="text-paper/70">America/Chicago · {EVENT.venue}</p>
         </div>
       </header>
 
-      <div className={tv ? "grid min-h-0 flex-1 grid-cols-3 gap-5 px-8" : "grid gap-5 md:grid-cols-3"}>
+      <div className="grid min-h-0 flex-1 grid-cols-3 gap-5 px-8">
         {board.pots.map((pot) => (
-          <PotColumn key={pot.id} pot={pot} tv={tv} />
+          <PotColumn key={pot.id} pot={pot} tv />
         ))}
       </div>
 
-      <footer className={tv ? "px-8 py-4 text-lg text-paper/75" : "mt-8 text-sm text-wave/60"}>
+      <footer className="px-8 py-4 text-lg text-paper/75">
         Winner takes the pool. AI Brag Board is for fun — these are official scale fish. {EVENT.venue}.
       </footer>
     </div>
@@ -60,8 +74,9 @@ export function SidePotStandings({
 }
 
 function PotColumn({ pot, tv }: { pot: SidePotColumn; tv: boolean }) {
-  const leader = pot.leaders[0];
-  const rest = pot.leaders.slice(1, 3);
+  const shown = tv ? pot.leaders.slice(0, 3) : pot.leaders;
+  const leader = shown[0];
+  const rest = shown.slice(1);
   return (
     <section
       className={
@@ -80,8 +95,12 @@ function PotColumn({ pot, tv }: { pot: SidePotColumn; tv: boolean }) {
 
       {leader ? (
         <div className="mt-4">
-          <p className={`font-display leading-none ${tv ? "text-5xl" : "text-3xl"}`}>{leader.teamName}</p>
-          <p className={`mt-2 font-display text-sun ${tv ? "text-4xl" : "text-2xl"}`}>{leader.metricLabel}</p>
+          <p className={`font-display leading-none break-words ${tv ? "text-5xl" : "text-3xl"}`}>
+            {leader.teamName}
+          </p>
+          <p className={`mt-2 font-display text-sun ${tv ? "text-4xl" : "text-2xl"}`}>
+            {leader.metricLabel}
+          </p>
           <PotDetail leader={leader} potId={pot.id} />
         </div>
       ) : (
@@ -91,11 +110,14 @@ function PotColumn({ pot, tv }: { pot: SidePotColumn; tv: boolean }) {
       {rest.length ? (
         <ol className={`mt-auto space-y-2 pt-4 ${tv ? "text-xl" : "text-sm"}`}>
           {rest.map((row) => (
-            <li key={row.teamId} className="flex items-baseline justify-between gap-3 border-t border-current/15 pt-2">
-              <span>
+            <li
+              key={row.teamId}
+              className="flex items-baseline justify-between gap-3 border-t border-current/15 pt-2"
+            >
+              <span className="min-w-0 break-words">
                 #{row.place} {row.teamName}
               </span>
-              <span className="tabular-nums">{row.metricLabel}</span>
+              <span className="shrink-0 tabular-nums">{row.metricLabel}</span>
             </li>
           ))}
         </ol>

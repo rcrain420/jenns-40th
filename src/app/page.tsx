@@ -163,6 +163,20 @@ export default async function HomePage() {
             Weigh-in time is final. Late arrivals are disqualified — no
             exceptions, no matter how good the story is.
           </p>
+          <p className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[0.95rem] md:text-[1.05rem]">
+            <Link
+              href="/leaderboard/weigh-in"
+              className="text-sun underline-offset-2 hover:underline"
+            >
+              Official weigh-in board
+            </Link>
+            <Link
+              href="/leaderboard/side-pots"
+              className="text-sun underline-offset-2 hover:underline"
+            >
+              Side pot leaders
+            </Link>
+          </p>
         </div>
       </section>
 

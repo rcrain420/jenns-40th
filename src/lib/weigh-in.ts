@@ -819,7 +819,7 @@ export async function setWeighSession(input: {
     });
     return {
       session: toBoardSession(created),
-      message: `Opened “${created.label}”. The TV boards are live.`,
+      message: `Opened “${created.label}”. The official boards are live.`,
     };
   }
 
