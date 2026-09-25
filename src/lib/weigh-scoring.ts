@@ -17,7 +17,7 @@ export const TROUT_MAX_INCHES = 20;
 export const BLACKJACK_TARGET_INCHES = 21;
 export const MAX_STRINGER_REDFISH = 3;
 
-/** TV boards poll on this cadence while the session is OPEN. */
+/** Public boards and the optional TV cast poll on this cadence while the session is OPEN. */
 export const WEIGH_POLL_OPEN_MS = 2500;
 /** Slower poll after the session is CLOSED. */
 export const WEIGH_POLL_CLOSED_MS = 15_000;

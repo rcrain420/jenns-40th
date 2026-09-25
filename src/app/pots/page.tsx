@@ -58,16 +58,20 @@ export default async function PotsPage() {
 
       <section className="mx-auto max-w-6xl px-5 py-8 md:px-11 md:py-11">
         <PotBoard totals={totals} />
-        {openWeigh ? (
-          <p className="mt-4 text-right text-[0.95rem] md:text-base">
-            <Link
-              href="/leaderboard/side-pots"
-              className="text-sun underline-offset-2 hover:underline"
-            >
-              See live leaders →
-            </Link>
-          </p>
-        ) : null}
+        <p className="mt-4 flex flex-wrap justify-end gap-x-4 gap-y-2 text-right text-[0.95rem] md:text-base">
+          <Link
+            href="/leaderboard/weigh-in"
+            className="text-sun underline-offset-2 hover:underline"
+          >
+            {openWeigh ? "Live weigh-in" : "Official weigh-in"} →
+          </Link>
+          <Link
+            href="/leaderboard/side-pots"
+            className="text-sun underline-offset-2 hover:underline"
+          >
+            {openWeigh ? "Live side pots" : "Side pot leaders"} →
+          </Link>
+        </p>
       </section>
 
       <section className="mx-auto max-w-6xl px-5 pb-10 md:px-11 md:pb-14">

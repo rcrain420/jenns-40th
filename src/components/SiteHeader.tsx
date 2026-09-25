@@ -19,6 +19,8 @@ const NAV = [
   { href: "/guides", label: "Guides" },
   { href: "/catches", label: "Livewell" },
   { href: "/teams", label: "Teams" },
+  { href: "/leaderboard/weigh-in", label: "Weigh-in" },
+  { href: "/leaderboard/side-pots", label: "Side pots" },
 ] as const;
 
 export function SiteHeader({

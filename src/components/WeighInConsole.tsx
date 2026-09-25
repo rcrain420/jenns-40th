@@ -19,6 +19,11 @@ const SPECIES: Array<{ id: Species; label: string }> = [
   { id: "CATFISH", label: "Catfish" },
 ];
 
+function boardHref(path: string, sessionId?: string) {
+  if (!sessionId) return path;
+  return `${path}?session=${encodeURIComponent(sessionId)}`;
+}
+
 export function WeighInConsole({ data }: { data: WeighAdminData }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -185,20 +190,36 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
             </a>
           ) : null}
           <a
-            href="/leaderboard/weigh-in/tv"
+            href={boardHref("/leaderboard/weigh-in", session?.id)}
             target="_blank"
             rel="noreferrer"
             className="rounded-md bg-wave px-3 py-2 text-sm font-semibold text-salt"
           >
-            Main TV
+            Weigh-in board
           </a>
           <a
-            href="/leaderboard/side-pots/tv"
+            href={boardHref("/leaderboard/side-pots", session?.id)}
             target="_blank"
             rel="noreferrer"
             className="rounded-md bg-wave px-3 py-2 text-sm font-semibold text-salt"
           >
-            Side pot TV
+            Side pot board
+          </a>
+          <a
+            href={boardHref("/leaderboard/weigh-in/tv", session?.id)}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-md px-3 py-2 text-sm text-ink/55 underline-offset-2 hover:text-ink hover:underline"
+          >
+            Cast weigh-in
+          </a>
+          <a
+            href={boardHref("/leaderboard/side-pots/tv", session?.id)}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-md px-3 py-2 text-sm text-ink/55 underline-offset-2 hover:text-ink hover:underline"
+          >
+            Cast side pots
           </a>
         </div>
       </div>
@@ -212,8 +233,8 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
             </p>
             <p className="text-sm text-ink/60">
               {session?.status === "OPEN"
-                ? "Open. TV boards poll every few seconds. Closing freezes the ranks."
-                : "Closed. Open it when the scales start so the TV boards go live."}
+                ? "Open. The weigh-in and side pot pages refresh every few seconds. Closing freezes the ranks."
+                : "Closed. Open it when the scales start so the public boards go live."}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
