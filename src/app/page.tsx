@@ -18,6 +18,7 @@ import {
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
 import { getPotTotals } from "@/lib/pots";
+import { getOpenWeighSession } from "@/lib/weigh-in";
 import { getRegistrationAvailability } from "@/lib/registration";
 import {
   REGISTRATION_CLOSED_SHORT,
@@ -35,11 +36,12 @@ const FRIDAY_BULLETS = [
 ] as const;
 
 export default async function HomePage() {
-  const [availability, bragRows, potTotals, account] = await Promise.all([
+  const [availability, bragRows, potTotals, account, openWeigh] = await Promise.all([
     getRegistrationAvailability(),
     listBragBoardCatches(5),
     getPotTotals(),
     getCurrentUser(),
+    getOpenWeighSession(),
   ]);
 
   const countdownTarget = new Date(EVENT.countdownTargetIso);
@@ -281,6 +283,31 @@ export default async function HomePage() {
           </Link>
         </p>
       </section>
+
+      {openWeigh ? (
+        <section className="bg-sun px-5 py-8 text-paper md:px-11">
+          <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="font-label text-sm tracking-[0.16em] text-paper/80">
+                Scales are open
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl">Live official weigh-in</h2>
+              <p className="max-w-xl text-paper/90">
+                Boat stringers and side pots from the scale. The Brag Board
+                below is still for fun.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/leaderboard/weigh-in" className="btn-bay btn-bay-navy">
+                Live weigh-in
+              </Link>
+              <Link href="/leaderboard/side-pots" className="btn-bay btn-bay-outline">
+                Side pots
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <BragBoard rows={bragRows} />
 

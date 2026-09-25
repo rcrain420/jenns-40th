@@ -29,6 +29,7 @@ model User {
   catches         FishCatch[]
   comments        CatchComment[]
   paymentsCreated Payment[]
+  weighedFishEntered WeighedFish[] @relation("WeighedFishEnteredBy")
 }
 
 model OAuthAccount {
@@ -91,6 +92,9 @@ model Team {
   members          TeamMember[]
   inviteCodes      TeamInviteCode[]
   payments         Payment[]
+  weighedFish      WeighedFish[]
+  mainStringers    MainStringer[]
+  sidePotEntries   SidePotEntry[]
 
   @@index([captainEmail])
   @@index([claimedByUserId])
@@ -195,4 +199,121 @@ model CatchComment {
   @@index([anglerId])
   @@index([userId])
   @@index([createdAt])
+}
+
+/// One scale event (tournament Saturday, or a practice reopen).
+model WeighSession {
+  id        String   @id @default(cuid())
+  /// e.g. "2026-10-10 main"
+  label     String
+  startsAt  DateTime?
+  endsAt    DateTime?
+  /// OPEN | CLOSED
+  status    String   @default("CLOSED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  fish      WeighedFish[]
+  stringers MainStringer[]
+  sidePots  SidePotEntry[]
+
+  @@index([status])
+}
+
+/// Official scale ticket. Not a Livewell photo and not an AI estimate.
+model WeighedFish {
+  id              String       @id @default(cuid())
+  sessionId       String
+  session         WeighSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  teamId          String
+  team            Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  /// TROUT | REDFISH | CATFISH
+  species         String
+  weightLbs       Float
+  lengthInches    Float?
+  spotCount       Int?
+  weighedAt       DateTime
+  /// Monotonic per session. Tie-break when timestamps match.
+  sequence        Int
+  disqualified    Boolean      @default(false)
+  dqReason        String?
+  /// Spotted Seatrout Tag or Bonus Spotted Seatrout Tag. Ineligible for stringer and trout pot.
+  taggedTrout     Boolean      @default(false)
+  notes           String?
+  enteredByUserId String?
+  enteredByUser   User?        @relation("WeighedFishEnteredBy", fields: [enteredByUserId], references: [id], onDelete: SetNull)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  troutSlot       MainStringer?     @relation("MainStringerTrout")
+  redfishSlots    MainStringerFish[]
+  sidePotEntries  SidePotEntry[]
+
+  @@unique([sessionId, sequence])
+  @@index([sessionId, weighedAt])
+  @@index([teamId])
+  @@index([species])
+  @@index([enteredByUserId])
+}
+
+/// One official main stringer per boat per session.
+model MainStringer {
+  id             String            @id @default(cuid())
+  sessionId      String
+  session        WeighSession      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  teamId         String
+  team           Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  /// DRAFT | LOCKED | DQ
+  status         String            @default("DRAFT")
+  troutFishId    String?           @unique
+  troutFish      WeighedFish?      @relation("MainStringerTrout", fields: [troutFishId], references: [id], onDelete: SetNull)
+  totalWeightLbs Float             @default(0)
+  lockedAt       DateTime?
+  unlockNote     String?
+  dqReason       String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  redfish        MainStringerFish[]
+
+  @@unique([sessionId, teamId])
+  @@index([sessionId, status])
+  @@index([teamId])
+}
+
+/// Redfish slots 1–3 on a main stringer.
+model MainStringerFish {
+  id            String      @id @default(cuid())
+  stringerId    String
+  stringer      MainStringer @relation(fields: [stringerId], references: [id], onDelete: Cascade)
+  weighedFishId String      @unique
+  weighedFish   WeighedFish @relation(fields: [weighedFishId], references: [id], onDelete: Cascade)
+  /// 1 | 2 | 3
+  slot          Int
+
+  @@unique([stringerId, slot])
+  @@index([stringerId])
+}
+
+/// One competing fish per team per paid side pot (trout | blackjack | spots).
+model SidePotEntry {
+  id               String       @id @default(cuid())
+  sessionId        String
+  session          WeighSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  /// trout | blackjack | spots
+  potId            String
+  teamId           String
+  team             Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  weighedFishId    String
+  weighedFish      WeighedFish  @relation(fields: [weighedFishId], references: [id], onDelete: Cascade)
+  /// Sort key: trout weight, blackjack length, spots count.
+  metricValue      Float
+  metricLabel      String
+  eligible         Boolean
+  ineligibleReason String?
+  weighedAt        DateTime
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@unique([sessionId, potId, teamId])
+  @@index([sessionId, potId, eligible])
+  @@index([teamId])
+  @@index([weighedFishId])
 }
