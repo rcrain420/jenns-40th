@@ -11,6 +11,7 @@ import {
 import { formatUsd } from "@/lib/money";
 import { getCurrentUser } from "@/lib/auth";
 import { getPotTotals } from "@/lib/pots";
+import { getOpenWeighSession } from "@/lib/weigh-in";
 import { getRegistrationAvailability } from "@/lib/registration";
 import {
   REGISTRATION_CLOSED_SHORT,
@@ -24,10 +25,11 @@ export const metadata = {
 };
 
 export default async function PotsPage() {
-  const [totals, availability, account] = await Promise.all([
+  const [totals, availability, account, openWeigh] = await Promise.all([
     getPotTotals(),
     getRegistrationAvailability(),
     getCurrentUser(),
+    getOpenWeighSession(),
   ]);
 
   const splitLabel = MAIN_POT_SPLITS.map(
@@ -56,6 +58,16 @@ export default async function PotsPage() {
 
       <section className="mx-auto max-w-6xl px-5 py-8 md:px-11 md:py-11">
         <PotBoard totals={totals} />
+        {openWeigh ? (
+          <p className="mt-4 text-right text-[0.95rem] md:text-base">
+            <Link
+              href="/leaderboard/side-pots"
+              className="text-sun underline-offset-2 hover:underline"
+            >
+              See live leaders →
+            </Link>
+          </p>
+        ) : null}
       </section>
 
       <section className="mx-auto max-w-6xl px-5 pb-10 md:px-11 md:pb-14">
