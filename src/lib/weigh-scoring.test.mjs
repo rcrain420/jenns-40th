@@ -6,12 +6,17 @@ import {
   blackjackLengthEligible,
   canEnterMainStringer,
   evaluateSidePot,
+  formatWeightLbs,
+  formatWeightLbsOz,
+  lbsOzFromWeightLbs,
+  parseScaleWeight,
   qualifyingStringerTotal,
   rankMainStringers,
   rankSidePot,
   teamBoughtSidePot,
   troutLengthEligible,
   validateStringerAssignment,
+  weightLbsFromLbsOz,
 } from "./weigh-scoring.ts";
 
 const trout = (overrides = {}) => ({
@@ -555,5 +560,64 @@ describe("standings boards", () => {
     );
     assert.equal(announceBoardPlace(2, 12.4, true), "#2 on the board — 12.40 lb");
     assert.match(announceBoardPlace(null, 4, false), /Lock the stringer/);
+  });
+});
+
+describe("scale pounds and ounces", () => {
+  it("converts whole pounds and ounces to decimal pounds", () => {
+    assert.equal(weightLbsFromLbsOz(5, 8), 5.5);
+    assert.equal(weightLbsFromLbsOz(5, 0), 5);
+    assert.equal(weightLbsFromLbsOz(0, 8), 0.5);
+    assert.equal(weightLbsFromLbsOz(1, 1), 1 + 1 / 16);
+    assert.equal(weightLbsFromLbsOz(0, 0), 0);
+  });
+
+  it("treats a blank ounce field as 0 and a blank pound field as 0", () => {
+    assert.equal(parseScaleWeight("5", ""), 5);
+    assert.equal(parseScaleWeight("5", "   "), 5);
+    assert.equal(parseScaleWeight("", "8"), 0.5);
+    assert.equal(parseScaleWeight("5.0", "0"), 5);
+  });
+
+  it("rejects empty, fractional, and out-of-range ounces", () => {
+    assert.throws(() => parseScaleWeight("", ""), /pounds and ounces/);
+    assert.throws(() => parseScaleWeight("0", "0"), /greater than 0/);
+    assert.throws(() => parseScaleWeight("5.5", "0"), /whole number/);
+    assert.throws(() => weightLbsFromLbsOz(1, 1.5), /0 to 15/);
+    assert.throws(() => weightLbsFromLbsOz(1, 16), /0 to 15/);
+    assert.throws(() => weightLbsFromLbsOz(-1, 0), /whole number/);
+    assert.throws(() => parseScaleWeight("nope", "2"), /whole number/);
+  });
+
+  it("splits stored pounds back to the nearest ounce and round-trips", () => {
+    assert.deepEqual(lbsOzFromWeightLbs(5.5), { lbs: 5, oz: 8 });
+    assert.deepEqual(lbsOzFromWeightLbs(5), { lbs: 5, oz: 0 });
+    assert.deepEqual(lbsOzFromWeightLbs(0.5), { lbs: 0, oz: 8 });
+    assert.deepEqual(lbsOzFromWeightLbs(5.33), { lbs: 5, oz: 5 });
+    assert.deepEqual(lbsOzFromWeightLbs(0.03125), { lbs: 0, oz: 1 });
+    assert.deepEqual(lbsOzFromWeightLbs(0.03), { lbs: 0, oz: 0 });
+
+    for (let lbs = 0; lbs <= 40; lbs += 1) {
+      for (let oz = 0; oz <= 15; oz += 1) {
+        if (lbs === 0 && oz === 0) continue;
+        const decimal = weightLbsFromLbsOz(lbs, oz);
+        const back = lbsOzFromWeightLbs(decimal);
+        assert.deepEqual(back, { lbs, oz });
+        assert.equal(weightLbsFromLbsOz(back.lbs, back.oz), decimal);
+      }
+    }
+
+    const snapped = lbsOzFromWeightLbs(5.33);
+    const snappedLbs = weightLbsFromLbsOz(snapped.lbs, snapped.oz);
+    assert.deepEqual(lbsOzFromWeightLbs(snappedLbs), snapped);
+  });
+
+  it("formats a tournament-style weight without changing the decimal board string", () => {
+    assert.equal(formatWeightLbs(5.5), "5.50 lb");
+    assert.equal(formatWeightLbsOz(5.5), "5 lb 8 oz");
+    assert.equal(formatWeightLbsOz(5), "5 lb 0 oz");
+    assert.equal(formatWeightLbsOz(0.5), "0 lb 8 oz");
+    assert.equal(formatWeightLbsOz(null), "—");
+    assert.equal(formatWeightLbsOz(Number.NaN), "—");
   });
 });

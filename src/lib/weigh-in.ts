@@ -17,7 +17,7 @@ import {
   announceBoardPlace,
   canEnterMainStringer,
   evaluateSidePot,
-  formatWeightLbs,
+  formatWeightLbsOz,
   isPaidPotId,
   isWeighSpecies,
   qualifyingStringerTotal,
@@ -416,7 +416,7 @@ export async function saveWeighedFish(input: {
     species === "TROUT" ? "trout" : species === "REDFISH" ? "redfish" : "catfish";
   const message = input.disqualified
     ? `Disqualified ${label}. The board will drop it on the next refresh.`
-    : `Saved ${formatWeightLbs(input.weightLbs)} ${label}.`;
+    : `Saved ${formatWeightLbsOz(input.weightLbs)} ${label}.`;
   return { fishId, message };
 }
 

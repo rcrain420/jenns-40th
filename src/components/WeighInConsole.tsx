@@ -8,6 +8,9 @@ import { buildWeighInStandings, type WeighAdminData } from "@/lib/weigh-board";
 import {
   canEnterMainStringer,
   formatWeightLbs,
+  formatWeightLbsOz,
+  lbsOzFromWeightLbs,
+  parseScaleWeight,
   teamBoughtSidePot,
 } from "@/lib/weigh-scoring";
 
@@ -29,7 +32,8 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
   const [query, setQuery] = useState("");
   const [teamId, setTeamId] = useState<string | null>(null);
   const [species, setSpecies] = useState<Species>("REDFISH");
-  const [weight, setWeight] = useState("");
+  const [pounds, setPounds] = useState("");
+  const [ounces, setOunces] = useState("");
   const [length, setLength] = useState("");
   const [spots, setSpots] = useState("");
   const [tagged, setTagged] = useState(false);
@@ -91,23 +95,9 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
     }
   }
 
-  async function saveFish(event: FormEvent) {
-    event.preventDefault();
-    if (!session || !team) return;
-    const ok = await post("/api/admin/weigh-in/fish", {
-      id: editingId,
-      sessionId: session.id,
-      teamId: team.id,
-      species,
-      weightLbs: weight,
-      lengthInches: length || null,
-      spotCount: species === "REDFISH" ? spots : null,
-      taggedTrout: species === "TROUT" && tagged,
-      disqualified: false,
-      notes,
-    });
-    if (!ok) return;
-    setWeight("");
+  function clearFishForm() {
+    setPounds("");
+    setOunces("");
     setLength("");
     setSpots("");
     setNotes("");
@@ -115,12 +105,40 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
     setEditingId(null);
   }
 
+  async function saveFish(event: FormEvent) {
+    event.preventDefault();
+    if (!session || !team) return;
+    let weightLbs: number;
+    try {
+      weightLbs = parseScaleWeight(pounds, ounces);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Enter a weight in pounds and ounces.");
+      return;
+    }
+    const ok = await post("/api/admin/weigh-in/fish", {
+      id: editingId,
+      sessionId: session.id,
+      teamId: team.id,
+      species,
+      weightLbs,
+      lengthInches: length || null,
+      spotCount: species === "REDFISH" ? spots : null,
+      taggedTrout: species === "TROUT" && tagged,
+      disqualified: false,
+      notes,
+    });
+    if (!ok) return;
+    clearFishForm();
+  }
+
   function loadFish(fishId: string) {
     const fish = teamFish.find((row) => row.id === fishId);
     if (!fish) return;
+    const scale = lbsOzFromWeightLbs(fish.weightLbs);
     setEditingId(fish.id);
     setSpecies(fish.species as Species);
-    setWeight(String(fish.weightLbs));
+    setPounds(String(scale.lbs));
+    setOunces(String(scale.oz));
     setLength(fish.lengthInches == null ? "" : String(fish.lengthInches));
     setSpots(fish.spotCount == null ? "" : String(fish.spotCount));
     setTagged(fish.taggedTrout);
@@ -433,14 +451,7 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                     <button
                       type="button"
                       className="text-sm text-ink/60"
-                      onClick={() => {
-                        setEditingId(null);
-                        setWeight("");
-                        setLength("");
-                        setSpots("");
-                        setNotes("");
-                        setTagged(false);
-                      }}
+                      onClick={clearFishForm}
                     >
                       New fish
                     </button>
@@ -460,8 +471,26 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                     </button>
                   ))}
                 </div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <NumberField label="Weight (lb)" value={weight} onChange={setWeight} />
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="sm:col-span-2 lg:col-span-2">
+                    <div className="grid grid-cols-2 gap-3">
+                      <NumberField
+                        label="lbs"
+                        value={pounds}
+                        onChange={setPounds}
+                        integer
+                        required={false}
+                      />
+                      <NumberField
+                        label="oz"
+                        value={ounces}
+                        onChange={setOunces}
+                        integer
+                        required={false}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-ink/50">Scale 5 lb 8 oz → 5 and 8</p>
+                  </div>
                   <NumberField
                     label="Length (in)"
                     value={length}
@@ -471,7 +500,7 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                   {species === "REDFISH" ? (
                     <NumberField label="Spots" value={spots} onChange={setSpots} integer />
                   ) : (
-                    <span />
+                    <span className="hidden lg:block" />
                   )}
                 </div>
                 {species === "TROUT" ? (
@@ -513,7 +542,7 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                     <li key={fish.id} className="rounded-lg border border-[var(--line)] bg-white p-4">
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
                         <p className="font-display text-2xl text-wave">
-                          {fish.species} · {formatWeightLbs(fish.weightLbs)}
+                          {fish.species} · {formatWeightLbsOz(fish.weightLbs)}
                           {fish.lengthInches != null ? ` · ${fish.lengthInches} in` : ""}
                           {fish.spotCount != null ? ` · ${fish.spotCount} spots` : ""}
                           {fish.taggedTrout ? " · tagged" : ""}

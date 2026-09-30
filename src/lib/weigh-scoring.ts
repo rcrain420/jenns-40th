@@ -59,6 +59,71 @@ export function formatWeightLbs(lbs: number | null | undefined): string {
   return `${lbs.toFixed(2)} lb`;
 }
 
+const OUNCES_PER_POUND = 16;
+
+export type ScaleWeight = {
+  lbs: number;
+  oz: number;
+};
+
+/**
+ * Whole pounds plus ounces (0–15) → decimal pounds stored on WeighedFish.weightLbs.
+ * 5 lb 8 oz → 5.5.
+ */
+export function weightLbsFromLbsOz(lbs: number, ounces: number): number {
+  if (!Number.isInteger(lbs) || lbs < 0) {
+    throw new Error("Pounds must be a whole number, 0 or more.");
+  }
+  if (!Number.isInteger(ounces) || ounces < 0 || ounces > 15) {
+    throw new Error("Ounces must be a whole number from 0 to 15.");
+  }
+  return (lbs * OUNCES_PER_POUND + ounces) / OUNCES_PER_POUND;
+}
+
+/**
+ * Split stored decimal pounds into whole pounds and the nearest ounce (1/16 lb)
+ * so correcting a fish does not drift off the scale reading.
+ */
+export function lbsOzFromWeightLbs(weightLbs: number): ScaleWeight {
+  if (!Number.isFinite(weightLbs) || weightLbs <= 0) {
+    return { lbs: 0, oz: 0 };
+  }
+  const sixteenths = Math.round(weightLbs * OUNCES_PER_POUND);
+  return {
+    lbs: Math.floor(sixteenths / OUNCES_PER_POUND),
+    oz: sixteenths % OUNCES_PER_POUND,
+  };
+}
+
+/** Blank ounces count as 0. Blank pounds count as 0 when ounces are entered. */
+export function parseScaleWeight(lbsText: string, ouncesText: string): number {
+  const lbsRaw = lbsText.trim();
+  const ozRaw = ouncesText.trim();
+  if (!lbsRaw && !ozRaw) {
+    throw new Error("Enter a weight in pounds and ounces.");
+  }
+  const lbs = lbsRaw === "" ? 0 : Number(lbsRaw);
+  const ounces = ozRaw === "" ? 0 : Number(ozRaw);
+  if (lbsRaw !== "" && !Number.isInteger(lbs)) {
+    throw new Error("Pounds must be a whole number, 0 or more.");
+  }
+  if (ozRaw !== "" && !Number.isInteger(ounces)) {
+    throw new Error("Ounces must be a whole number from 0 to 15.");
+  }
+  const weightLbs = weightLbsFromLbsOz(lbs, ounces);
+  if (weightLbs <= 0) {
+    throw new Error("Enter a weight in pounds, greater than 0.");
+  }
+  return weightLbs;
+}
+
+/** Weighmaster display. Public boards keep the decimal formatWeightLbs string. */
+export function formatWeightLbsOz(lbs: number | null | undefined): string {
+  if (lbs == null || !Number.isFinite(lbs)) return "—";
+  const parts = lbsOzFromWeightLbs(lbs);
+  return `${parts.lbs} lb ${parts.oz} oz`;
+}
+
 export function formatInches(inches: number | null | undefined): string {
   if (inches == null || Number.isNaN(inches)) return "—";
   const rounded = milli(inches) / 1000;
