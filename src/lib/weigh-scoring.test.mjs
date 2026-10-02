@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { buildSidePotStandings, buildWeighInStandings } from "./weigh-board.ts";
+import { buildSidePotStandings, buildWeighInStandings, slotWeightText } from "./weigh-board.ts";
 import {
   announceBoardPlace,
   blackjackLengthEligible,
@@ -488,6 +488,98 @@ describe("standings boards", () => {
     assert.deepEqual(board.boatsRemaining, ["Delta"]);
     assert.equal(board.ranks[0].redfishLbs[0], 8);
     assert.equal(board.ranks[0].redfishLbs[1], null);
+    assert.equal(board.ranks[0].redfishInches[0], 22);
+    assert.equal(board.ranks[0].redfishSpots[0], 1);
+    assert.equal(board.ranks[0].redfishInches[1], null);
+    assert.equal(board.ranks[0].redfishSpots[1], null);
+    assert.equal(board.ranks[0].troutInches, null);
+    assert.equal(board.ranks[1].redfishInches[0], 21);
+    assert.equal(board.ranks[1].redfishSpots[0], 2);
+  });
+
+  it("prints length on every weighed slot and spots only on redfish", () => {
+    assert.equal(slotWeightText(12.06, false, 30, 2), "12.06 lb · 30 in · 2 spots");
+    assert.equal(slotWeightText(4, false, 18, 1), "4.00 lb · 18 in · 1 spot");
+    assert.equal(slotWeightText(2.5, false, 20), "2.50 lb · 20 in");
+    assert.equal(slotWeightText(5, false, 19.5, 0), "5.00 lb · 19.5 in · 0 spots");
+    assert.equal(slotWeightText(null, true, 20, 3), "DQ");
+    assert.equal(slotWeightText(null, false), "—");
+    assert.equal(slotWeightText(6, false, null, null), "6.00 lb");
+  });
+
+  it("keeps trout length off the spots field and hides a DQ redfish", () => {
+    const board = buildWeighInStandings({
+      session,
+      teams: [{ id: "a", teamName: "Brahmas", entryKind: "BOAT", sidePots: [] }],
+      fish: [
+        {
+          id: "t",
+          teamId: "a",
+          species: "TROUT",
+          weightLbs: 12.06,
+          lengthInches: 20,
+          spotCount: 9,
+          weighedAt: "2026-10-10T17:00:00.000Z",
+          sequence: 1,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "r",
+          teamId: "a",
+          species: "REDFISH",
+          weightLbs: 8,
+          lengthInches: 30,
+          spotCount: 2,
+          weighedAt: "2026-10-10T17:01:00.000Z",
+          sequence: 2,
+          disqualified: true,
+          taggedTrout: false,
+        },
+        {
+          id: "r2",
+          teamId: "a",
+          species: "REDFISH",
+          weightLbs: 4.25,
+          lengthInches: 18.5,
+          spotCount: 1,
+          weighedAt: "2026-10-10T17:02:00.000Z",
+          sequence: 3,
+          disqualified: false,
+          taggedTrout: false,
+        },
+      ],
+      stringers: [
+        {
+          teamId: "a",
+          status: "LOCKED",
+          troutFishId: "t",
+          redfish: [
+            { slot: 1, weighedFishId: "r" },
+            { slot: 2, weighedFishId: "r2" },
+          ],
+          totalWeightLbs: 16.31,
+          lockedAt: "2026-10-10T17:05:00.000Z",
+          dqReason: null,
+        },
+      ],
+    });
+    const row = board.ranks[0];
+    assert.equal(row.teamName, "Brahmas");
+    assert.equal(row.troutLbs, 12.06);
+    assert.equal(row.troutInches, 20);
+    assert.equal(slotWeightText(row.troutLbs, row.troutDq, row.troutInches), "12.06 lb · 20 in");
+    assert.equal(row.redfishDq[0], true);
+    assert.equal(row.redfishSpots[0], null);
+    assert.equal(
+      slotWeightText(row.redfishLbs[0], row.redfishDq[0], row.redfishInches[0], row.redfishSpots[0]),
+      "DQ",
+    );
+    assert.equal(
+      slotWeightText(row.redfishLbs[1], row.redfishDq[1], row.redfishInches[1], row.redfishSpots[1]),
+      "4.25 lb · 18.5 in · 1 spot",
+    );
+    assert.equal(row.totalWeightLbs, 16.31);
   });
 
   it("does not put an ineligible or unpaid pot fish on the side-pot board", () => {

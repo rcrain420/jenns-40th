@@ -188,15 +188,24 @@ function RankCards({
             </p>
           </div>
           <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            <Slot label="Trout" value={slotWeightText(row.troutLbs, row.troutDq)} />
-            <Slot label="Red 1" value={slotWeightText(row.redfishLbs[0], row.redfishDq[0])} />
-            <Slot label="Red 2" value={slotWeightText(row.redfishLbs[1], row.redfishDq[1])} />
-            <Slot label="Red 3" value={slotWeightText(row.redfishLbs[2], row.redfishDq[2])} />
+            <Slot label="Trout" value={slotWeightText(row.troutLbs, row.troutDq, row.troutInches)} />
+            <Slot label="Red 1" value={redSlotText(row, 0)} />
+            <Slot label="Red 2" value={redSlotText(row, 1)} />
+            <Slot label="Red 3" value={redSlotText(row, 2)} />
           </dl>
           <p className="mt-2 text-xs text-wave/60">Locked {formatChicagoTime(row.lockedAt)}</p>
         </li>
       ))}
     </ul>
+  );
+}
+
+function redSlotText(row: WeighInRankRow, index: 0 | 1 | 2): string {
+  return slotWeightText(
+    row.redfishLbs[index],
+    row.redfishDq[index],
+    row.redfishInches[index],
+    row.redfishSpots[index],
   );
 }
 
@@ -245,10 +254,12 @@ function RankTable({
               {row.teamName}
               {flash.has(row.teamId) ? <span className="sr-only"> rank changed</span> : null}
             </td>
-            <td className="py-2 pr-3 tabular-nums">{slotWeightText(row.troutLbs, row.troutDq)}</td>
-            {row.redfishLbs.map((lbs, index) => (
+            <td className="py-2 pr-3 tabular-nums">
+              {slotWeightText(row.troutLbs, row.troutDq, row.troutInches)}
+            </td>
+            {([0, 1, 2] as const).map((index) => (
               <td key={index} className="py-2 pr-3 tabular-nums">
-                {slotWeightText(lbs, row.redfishDq[index])}
+                {redSlotText(row, index)}
               </td>
             ))}
             <td className="py-2 pr-3 font-display tabular-nums text-sun">
