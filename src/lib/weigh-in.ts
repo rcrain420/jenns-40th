@@ -507,14 +507,36 @@ async function recomputeStringerTotal(tx: Tx, stringerId: string) {
   });
 }
 
+function stampUnlockNote(note: string, actorLabel: string | null | undefined, at: Date): string {
+  const who = actorLabel?.trim();
+  if (!who) return note;
+  return `${note} — ${who.slice(0, 80)}, ${at.toISOString()}`;
+}
+
+function logStringerAudit(event: {
+  action: "unlock" | "clear";
+  sessionId: string;
+  teamId: string;
+  teamName: string;
+  stringerId: string;
+  previousStatus: string;
+  actorUserId?: string | null;
+  actorLabel?: string | null;
+  at: string;
+}) {
+  console.info("[weigh-in] main stringer", JSON.stringify(event));
+}
+
 export async function saveStringer(input: {
   sessionId: string;
   teamId: string;
-  action: "assign" | "lock" | "unlock" | "dq";
+  action: "assign" | "lock" | "unlock" | "dq" | "clear";
   troutFishId?: string | null;
   redfish?: Array<{ slot: number; weighedFishId: string }>;
   unlockNote?: string | null;
   dqReason?: string | null;
+  actorUserId?: string | null;
+  actorLabel?: string | null;
 }) {
   const session = await requireOpenSession(input.sessionId);
   const team = await prisma.team.findUnique({
@@ -526,7 +548,8 @@ export async function saveStringer(input: {
     throw new WeighInError("Youth RowRide entries are not on the main stringer board.");
   }
 
-  await prisma.$transaction(async (tx) => {
+  const at = new Date();
+  const audit = await prisma.$transaction(async (tx) => {
     const existing = await tx.mainStringer.findUnique({
       where: { sessionId_teamId: { sessionId: session.id, teamId: team.id } },
       include: { redfish: true },
@@ -542,10 +565,29 @@ export async function saveStringer(input: {
       }
       await tx.mainStringer.update({
         where: { id: existing.id },
-        data: { status: "DRAFT", unlockNote: note },
+        data: { status: "DRAFT", unlockNote: stampUnlockNote(note, input.actorLabel, at) },
       });
       await touchSession(tx, session);
-      return;
+      return {
+        action: "unlock" as const,
+        stringerId: existing.id,
+        previousStatus: existing.status,
+      };
+    }
+
+    if (input.action === "clear") {
+      if (!existing) {
+        throw new WeighInError("This boat has no main stringer to clear.");
+      }
+      // Slots go away with the assignment. WeighedFish rows stay for re-slotting.
+      await tx.mainStringerFish.deleteMany({ where: { stringerId: existing.id } });
+      await tx.mainStringer.delete({ where: { id: existing.id } });
+      await touchSession(tx, session);
+      return {
+        action: "clear" as const,
+        stringerId: existing.id,
+        previousStatus: existing.status,
+      };
     }
 
     if (input.action === "dq") {
@@ -564,7 +606,7 @@ export async function saveStringer(input: {
         data: { status: "DQ", dqReason: reason },
       });
       await touchSession(tx, session);
-      return;
+      return null;
     }
 
     if (existing?.status === "LOCKED") {
@@ -646,10 +688,30 @@ export async function saveStringer(input: {
       data: { troutFishId },
     });
     await touchSession(tx, session);
+    return null;
   });
+
+  if (audit) {
+    logStringerAudit({
+      action: audit.action,
+      sessionId: session.id,
+      teamId: team.id,
+      teamName: team.teamName,
+      stringerId: audit.stringerId,
+      previousStatus: audit.previousStatus,
+      actorUserId: input.actorUserId ?? null,
+      actorLabel: input.actorLabel ?? null,
+      at: at.toISOString(),
+    });
+  }
 
   if (input.action === "unlock") {
     return { message: `${team.teamName} is off the board until you lock again.` };
+  }
+  if (input.action === "clear") {
+    return {
+      message: `${team.teamName} is back in still to weigh. Fish stay on the boat. The board drops this boat on the next refresh.`,
+    };
   }
   if (input.action === "dq") {
     return { message: `${team.teamName} disqualified.` };
