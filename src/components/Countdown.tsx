@@ -72,6 +72,7 @@ export function Countdown({ targetIso, initial }: Props) {
       className="flex items-end gap-2 md:gap-3"
       aria-live="polite"
       aria-atomic="true"
+      aria-label={`${parts.days} days, ${parts.hours} hours, ${parts.minutes} minutes, ${parts.seconds} seconds until first cast`}
     >
       {units.map((unit) => (
         <div key={unit.labelFull} className="text-center">

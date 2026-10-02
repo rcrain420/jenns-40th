@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
+import { chicagoParts } from "./chicago-time.ts";
 import {
   REGISTRATION_CLOSES_AT,
   isRegistrationOpen,
@@ -61,6 +62,23 @@ describe("registration cutoff", () => {
       REGISTRATION_CLOSES_AT.toISOString(),
       "2026-10-02T05:00:00.000Z",
     );
+    const closes = chicagoParts(REGISTRATION_CLOSES_AT);
+    assert.deepEqual(
+      {
+        year: closes.year,
+        month: closes.month,
+        day: closes.day,
+        hour: closes.hour,
+        minute: closes.minute,
+        second: closes.second,
+      },
+      { year: 2026, month: 10, day: 2, hour: 0, minute: 0, second: 0 },
+    );
+    const stillThursday = chicagoParts(
+      new Date(REGISTRATION_CLOSES_AT.getTime() - 1),
+    );
+    assert.equal(stillThursday.day, 1);
+    assert.equal(stillThursday.month, 10);
     assert.equal(
       isRegistrationOpen(new Date(REGISTRATION_CLOSES_AT.getTime() - 1)),
       true,

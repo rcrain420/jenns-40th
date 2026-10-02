@@ -1,3 +1,16 @@
+import { chicagoWallTime } from "./chicago-time.ts";
+
+/**
+ * First cast / lines in.
+ * Friday, October 9, 2026, 7:00 AM America/Chicago.
+ */
+export const FIRST_CAST_AT = chicagoWallTime({
+  year: 2026,
+  month: 10,
+  day: 9,
+  hour: 7,
+});
+
 export const EVENT = {
   name: "Official-ish Fishing Tournament for Jenn's 40th Birthday",
   shortName: "Jenn's 40th",
@@ -18,16 +31,26 @@ export const EVENT = {
   city: "Rockport, Texas",
   tagline: "Good friends ★ Tight lines ★ Great memories",
   footerScript: "See you in Rockport!",
-  /** Lines in / captain's day start — America/Chicago */
-  countdownTargetIso: "2026-10-09T12:00:00.000Z",
+  /** Days until first cast / lines in — Friday, Oct 9, 2026, 7:00 AM America/Chicago. */
+  countdownTargetIso: FIRST_CAST_AT.toISOString(),
+  countdownCaption: "Until first cast",
+  countdownDetail: "Lines in · 7:00 AM CT",
   directionsUrl:
     "https://www.google.com/maps/search/?api=1&query=Boatmen%27s+Bar+and+Marina+140+Cove+Harbor+N+Rockport+TX+78382",
   mapEmbedUrl:
     "https://www.openstreetmap.org/export/embed.html?bbox=-97.0954309%2C27.9771173%2C-97.0554309%2C28.0071173&layer=mapnik&marker=27.9921173%2C-97.0754309",
 } as const;
 
-/** Registration closes at end of day (America/Chicago) Oct 1, 2026 */
-export const REGISTRATION_CLOSES_AT = new Date("2026-10-02T05:00:00.000Z");
+/**
+ * Public registration closes at the end of Thursday, October 1, 2026:
+ * 2026-10-02 00:00:00 America/Chicago (midnight starting October 2).
+ */
+export const REGISTRATION_CLOSES_AT = chicagoWallTime({
+  year: 2026,
+  month: 10,
+  day: 2,
+  hour: 0,
+});
 
 export const MAX_TEAMS = 25;
 /** Adult main-tournament fishing seats on a paid boat. Youth do not count. */
