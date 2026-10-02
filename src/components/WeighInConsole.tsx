@@ -171,6 +171,34 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
     });
   }
 
+  async function unlockStringer() {
+    if (!session || !team) return;
+    if (unlockNote.trim().length < 3) {
+      setError("Add a short note before unlocking a locked stringer.");
+      return;
+    }
+    const ok = await post("/api/admin/weigh-in/stringer", {
+      action: "unlock",
+      sessionId: session.id,
+      teamId: team.id,
+      unlockNote,
+    });
+    if (ok) setUnlockNote("");
+  }
+
+  async function clearStringer() {
+    if (!session || !team || !stringer) return;
+    const confirmed = window.confirm(
+      `Clear the main stringer for ${team.teamName}? The boat goes back to still to weigh. Fish stay on the boat.`,
+    );
+    if (!confirmed) return;
+    await post("/api/admin/weigh-in/stringer", {
+      action: "clear",
+      sessionId: session.id,
+      teamId: team.id,
+    });
+  }
+
   async function togglePot(fishId: string, potId: string) {
     if (!session || !team) return;
     const current = data.sidePotEntries.find(
@@ -392,7 +420,11 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                           Lock stringer
                         </button>
                       ) : (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex max-w-xs flex-col gap-2">
+                          <p className="text-xs text-ink/60">
+                            Unlock to change slots. Clear removes this stringer and puts the boat
+                            back in still to weigh. Fish stay on the boat.
+                          </p>
                           <input
                             value={unlockNote}
                             onChange={(event) => setUnlockNote(event.target.value)}
@@ -401,21 +433,27 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                           />
                           <button
                             type="button"
-                            disabled={busy}
-                            className="rounded-md border border-[var(--line)] px-3 py-2 text-sm font-semibold"
-                            onClick={() =>
-                              void post("/api/admin/weigh-in/stringer", {
-                                action: "unlock",
-                                sessionId: session.id,
-                                teamId: team.id,
-                                unlockNote,
-                              })
-                            }
+                            disabled={busy || !open}
+                            className="rounded-md bg-wave px-4 py-3 text-sm font-semibold text-salt disabled:opacity-50"
+                            onClick={() => void unlockStringer()}
                           >
-                            Unlock
+                            Unlock stringer
                           </button>
                         </div>
                       )}
+                      {stringer ? (
+                        <button
+                          type="button"
+                          disabled={busy || !open}
+                          className="rounded-md border border-[var(--line)] px-3 py-2 text-sm font-semibold text-alert disabled:opacity-50"
+                          onClick={() => void clearStringer()}
+                        >
+                          Clear stringer
+                        </button>
+                      ) : null}
+                      {stringer?.unlockNote ? (
+                        <p className="max-w-xs text-xs text-ink/55">Last unlock: {stringer.unlockNote}</p>
+                      ) : null}
                       <input
                         value={dqReason}
                         onChange={(event) => setDqReason(event.target.value)}

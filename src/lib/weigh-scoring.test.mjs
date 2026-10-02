@@ -497,6 +497,61 @@ describe("standings boards", () => {
     assert.equal(board.ranks[1].redfishSpots[0], 2);
   });
 
+  it("returns a cleared boat to still to weigh while its fish stay in the session", () => {
+    const board = buildWeighInStandings({
+      session,
+      teams: [
+        { id: "e", teamName: "Echo", entryKind: "BOAT", sidePots: [] },
+        { id: "a", teamName: "Alpha", entryKind: "BOAT", sidePots: [] },
+      ],
+      fish: [
+        {
+          id: "ef",
+          teamId: "e",
+          species: "REDFISH",
+          weightLbs: 7,
+          lengthInches: 24,
+          spotCount: 3,
+          weighedAt: "2026-10-10T17:12:00.000Z",
+          sequence: 1,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "af",
+          teamId: "a",
+          species: "REDFISH",
+          weightLbs: 6,
+          lengthInches: 22,
+          spotCount: 1,
+          weighedAt: "2026-10-10T17:20:00.000Z",
+          sequence: 2,
+          disqualified: false,
+          taggedTrout: false,
+        },
+      ],
+      stringers: [
+        {
+          teamId: "a",
+          status: "LOCKED",
+          troutFishId: null,
+          redfish: [{ slot: 1, weighedFishId: "af" }],
+          totalWeightLbs: 6,
+          lockedAt: "2026-10-10T17:21:00.000Z",
+          dqReason: null,
+        },
+      ],
+    });
+
+    assert.deepEqual(
+      board.ranks.map((row) => row.teamName),
+      ["Alpha"],
+    );
+    assert.deepEqual(board.boatsRemaining, ["Echo"]);
+    assert.deepEqual(board.onTheScale, []);
+    assert.deepEqual(board.disqualified, []);
+  });
+
   it("prints length on every weighed slot and spots only on redfish", () => {
     assert.equal(slotWeightText(12.06, false, 30, 2), "12.06 lb · 30 in · 2 spots");
     assert.equal(slotWeightText(4, false, 18, 1), "4.00 lb · 18 in · 1 spot");

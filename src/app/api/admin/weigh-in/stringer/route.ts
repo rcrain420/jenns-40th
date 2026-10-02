@@ -20,8 +20,14 @@ export async function POST(request: Request) {
   try {
     const body = asRecord(await request.json());
     const action = body.action;
-    if (action !== "assign" && action !== "lock" && action !== "unlock" && action !== "dq") {
-      throw new WeighInError("Action must be assign, lock, unlock, or dq.");
+    if (
+      action !== "assign" &&
+      action !== "lock" &&
+      action !== "unlock" &&
+      action !== "dq" &&
+      action !== "clear"
+    ) {
+      throw new WeighInError("Action must be assign, lock, unlock, clear, or dq.");
     }
     const sessionId = typeof body.sessionId === "string" ? body.sessionId : "";
     const teamId = typeof body.teamId === "string" ? body.teamId : "";
@@ -45,6 +51,8 @@ export async function POST(request: Request) {
       redfish,
       unlockNote: typeof body.unlockNote === "string" ? body.unlockNote : null,
       dqReason: typeof body.dqReason === "string" ? body.dqReason : null,
+      actorUserId: admin.id,
+      actorLabel: admin.name?.trim() || admin.email,
     });
     return NextResponse.json(result);
   } catch (err) {
