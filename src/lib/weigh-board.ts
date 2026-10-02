@@ -4,6 +4,7 @@ import {
   blackjackLengthEligible,
   canEnterMainStringer,
   evaluateSidePot,
+  formatInches,
   formatWeightLbs,
   qualifyingStringerTotal,
   rankMainStringers,
@@ -59,8 +60,11 @@ export type WeighInRankRow = {
   teamId: string;
   teamName: string;
   troutLbs: number | null;
+  troutInches: number | null;
   troutDq: boolean;
   redfishLbs: [number | null, number | null, number | null];
+  redfishInches: [number | null, number | null, number | null];
+  redfishSpots: [number | null, number | null, number | null];
   redfishDq: [boolean, boolean, boolean];
   totalWeightLbs: number;
   lockedAt: string | null;
@@ -161,8 +165,11 @@ export function buildWeighInStandings(input: {
     string,
     {
       troutLbs: number | null;
+      troutInches: number | null;
       troutDq: boolean;
       redfishLbs: [number | null, number | null, number | null];
+      redfishInches: [number | null, number | null, number | null];
+      redfishSpots: [number | null, number | null, number | null];
       redfishDq: [boolean, boolean, boolean];
     }
   >();
@@ -177,13 +184,28 @@ export function buildWeighInStandings(input: {
       trout: toSlot(trout),
       redfish: reds.map((fish) => toSlot(fish)),
     });
+    const shown = (fish: BoardFish | null) =>
+      fish && !fish.disqualified ? fish : null;
+    const troutShown = shown(trout);
+    const redShown = reds.map((fish) => shown(fish));
     displayByTeam.set(team.id, {
-      troutLbs: trout && !trout.disqualified ? trout.weightLbs : null,
+      troutLbs: troutShown ? troutShown.weightLbs : null,
+      troutInches: troutShown ? troutShown.lengthInches : null,
       troutDq: Boolean(trout?.disqualified),
       redfishLbs: [
-        reds[0] && !reds[0].disqualified ? reds[0].weightLbs : null,
-        reds[1] && !reds[1].disqualified ? reds[1].weightLbs : null,
-        reds[2] && !reds[2].disqualified ? reds[2].weightLbs : null,
+        redShown[0] ? redShown[0].weightLbs : null,
+        redShown[1] ? redShown[1].weightLbs : null,
+        redShown[2] ? redShown[2].weightLbs : null,
+      ],
+      redfishInches: [
+        redShown[0] ? redShown[0].lengthInches : null,
+        redShown[1] ? redShown[1].lengthInches : null,
+        redShown[2] ? redShown[2].lengthInches : null,
+      ],
+      redfishSpots: [
+        redShown[0] ? redShown[0].spotCount : null,
+        redShown[1] ? redShown[1].spotCount : null,
+        redShown[2] ? redShown[2].spotCount : null,
       ],
       redfishDq: [
         Boolean(reds[0]?.disqualified),
@@ -225,8 +247,11 @@ export function buildWeighInStandings(input: {
       teamId: row.teamId,
       teamName: row.teamName,
       troutLbs: display?.troutLbs ?? null,
+      troutInches: display?.troutInches ?? null,
       troutDq: display?.troutDq ?? false,
       redfishLbs: display?.redfishLbs ?? [null, null, null],
+      redfishInches: display?.redfishInches ?? [null, null, null],
+      redfishSpots: display?.redfishSpots ?? [null, null, null],
       redfishDq: display?.redfishDq ?? [false, false, false],
       totalWeightLbs: row.totalWeightLbs,
       lockedAt: row.lockedAt,
@@ -333,10 +358,22 @@ export function buildSidePotStandings(input: {
   return { session: input.session, pots };
 }
 
-export function slotWeightText(lbs: number | null, dq: boolean): string {
+/** Public slot cell. Weight stays `12.06 lb`; length and redfish spots follow. */
+export function slotWeightText(
+  lbs: number | null,
+  dq: boolean,
+  inches: number | null = null,
+  spots: number | null = null,
+): string {
   if (dq) return "DQ";
   if (lbs == null) return "—";
-  return formatWeightLbs(lbs);
+  const parts = [formatWeightLbs(lbs)];
+  if (inches != null) parts.push(formatInches(inches));
+  if (spots != null) {
+    const noun = spots === 1 ? "spot" : "spots";
+    parts.push(`${spots} ${noun}`);
+  }
+  return parts.join(" · ");
 }
 
 export type WeighAdminData = {
