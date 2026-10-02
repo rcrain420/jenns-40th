@@ -17,11 +17,32 @@ import {
   YOUTH_SIGNUP_AUTH_BODY,
 } from "@/lib/youth";
 import { getRegistrationAvailability } from "@/lib/registration";
+import { publicRegistrationClosedCopy } from "@/lib/registration-policy";
 
 export const dynamic = "force-dynamic";
 
 export default async function YouthLandRegisterPage() {
   const viewer = await getCurrentUser();
+  const availability = await getRegistrationAvailability();
+  if (!availability.isLandOpen) {
+    const closed = publicRegistrationClosedCopy({
+      openByDate: false,
+      openByCapacity: true,
+    });
+    return (
+      <PageShell narrow title={closed.title} description={closed.body}>
+        <p>
+          <Link
+            href="/kids#rules"
+            className="font-semibold text-sea hover:underline"
+          >
+            RowRide rules →
+          </Link>
+        </p>
+      </PageShell>
+    );
+  }
+
   const view = registerPageView({
     signedIn: Boolean(viewer),
     hasTeam: false,
@@ -58,7 +79,6 @@ export default async function YouthLandRegisterPage() {
     );
   }
 
-  const availability = await getRegistrationAvailability();
   const welcomeName = firstName(viewer?.name ?? "");
 
   return (

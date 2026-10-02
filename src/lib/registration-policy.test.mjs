@@ -197,6 +197,22 @@ describe("no leftover walk-up invitations", () => {
       join(ROOT, "src/lib/registration.ts"),
       "utf8",
     );
+    const registerRoute = readFileSync(
+      join(ROOT, "src/app/api/register/route.ts"),
+      "utf8",
+    );
+    assert.match(registerRoute, /isRegistrationOpen\(\)/);
+    assert.match(registerRoute, /PUBLIC_REGISTRATION_DATE_CLOSED_ERROR/);
+
+    const youthPage = readFileSync(
+      join(ROOT, "src/app/register/youth/page.tsx"),
+      "utf8",
+    );
+    assert.ok(
+      youthPage.indexOf("isLandOpen") < youthPage.indexOf("view === \"auth\""),
+      "RowRide page must show the closed state before the signup form",
+    );
+
     assert.match(publicCreate, /publicCreateBlockedReason/);
     assert.match(publicCreate, /isLandOpen/);
     assert.match(publicCreate, /PUBLIC_REGISTRATION_DATE_CLOSED_ERROR/);
