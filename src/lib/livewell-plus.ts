@@ -5,7 +5,7 @@
  */
 export const FORCE_LIVEWELL_PLUS_ACTIVE_FOR_TEST = true;
 
-/** Same instant as EVENT.countdownTargetIso (lines in / captain's day). */
+/** Same instant as first cast / EVENT.countdownTargetIso (lines in). */
 export const LIVEWELL_START_AT = new Date("2026-10-09T12:00:00.000Z");
 
 /** End of Saturday Oct 10, 2026 (America/Chicago). */

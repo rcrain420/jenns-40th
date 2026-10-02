@@ -82,15 +82,23 @@ export default async function HomePage() {
             </span>
           </div>
 
-          <Countdown
-            targetIso={EVENT.countdownTargetIso}
-            initial={{
-              days: initialCountdown.days,
-              hours: initialCountdown.hours,
-              minutes: initialCountdown.minutes,
-              seconds: initialCountdown.seconds,
-            }}
-          />
+          <div className="flex flex-col items-center gap-1.5">
+            <p className="font-label text-[0.72rem] tracking-[0.16em] text-paper md:text-[0.85rem]">
+              {EVENT.countdownCaption}
+            </p>
+            <Countdown
+              targetIso={EVENT.countdownTargetIso}
+              initial={{
+                days: initialCountdown.days,
+                hours: initialCountdown.hours,
+                minutes: initialCountdown.minutes,
+                seconds: initialCountdown.seconds,
+              }}
+            />
+            <p className="text-center text-xs tracking-wide text-paper/85 md:text-sm">
+              {EVENT.countdownDetail}
+            </p>
+          </div>
 
           {availability.isOpen ? (
             <Link
@@ -116,13 +124,24 @@ export default async function HomePage() {
           <h2 className="font-display border-b-2 border-sun pb-3 text-[1.375rem] tracking-[0.04em] md:text-[1.875rem]">
             Friday, October 9
           </h2>
-          <div className="mt-5">
-            <p className="font-label text-[0.95rem] tracking-[0.12em] text-sun md:text-[1.25rem]">
-              Captain&apos;s Meeting
-            </p>
-            <p className="font-display text-[1.75rem] tracking-[0.02em] md:text-[2.5rem]">
-              7:00 PM
-            </p>
+          <div className="mt-5 flex gap-8 md:gap-10">
+            <div>
+              <p className="font-label text-[0.95rem] tracking-[0.12em] text-sun md:text-[1.25rem]">
+                First cast
+              </p>
+              <p className="font-display text-[1.75rem] tracking-[0.02em] md:text-[2.5rem]">
+                7:00 AM
+              </p>
+              <p className="mt-1 text-sm text-wave/70">Lines in</p>
+            </div>
+            <div>
+              <p className="font-label text-[0.95rem] tracking-[0.12em] text-sun md:text-[1.25rem]">
+                Captain&apos;s Meeting
+              </p>
+              <p className="font-display text-[1.75rem] tracking-[0.02em] md:text-[2.5rem]">
+                7:00 PM
+              </p>
+            </div>
           </div>
           <ul className="mt-3.5 flex flex-col gap-3 text-[1.05rem] md:text-[1.125rem]">
             {FRIDAY_BULLETS.map((item) => (
@@ -143,7 +162,7 @@ export default async function HomePage() {
           <div className="mt-5 flex gap-8 md:gap-10">
             <div>
               <p className="font-label text-[0.95rem] tracking-[0.12em] text-sun md:text-[1.25rem]">
-                First cast
+                Fishing hours
               </p>
               <p className="font-display text-[1.75rem] tracking-[0.02em] md:text-[2.5rem]">
                 SUNRISE

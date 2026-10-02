@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { sendJoinEmailsForRegisteredAnglers } from "@/lib/angler-join-invites";
 import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { getCurrentUser } from "@/lib/auth";
-import { ENTRY_KIND, paidEntrySeatCount } from "@/lib/config";
+import { ENTRY_KIND, isRegistrationOpen, paidEntrySeatCount } from "@/lib/config";
 import {
   registerApiAllowsCreate,
   userHasBoatTeam,
@@ -12,12 +12,20 @@ import {
   createYouthLandRegistration,
 } from "@/lib/registration";
 import { sendRegistrationConfirmation } from "@/lib/registration-email";
+import { PUBLIC_REGISTRATION_DATE_CLOSED_ERROR } from "@/lib/registration-policy";
 import {
   registrationSchema,
   youthLandRegistrationSchema,
 } from "@/lib/validation";
 
 export async function POST(request: Request) {
+  if (!isRegistrationOpen()) {
+    return NextResponse.json(
+      { error: PUBLIC_REGISTRATION_DATE_CLOSED_ERROR },
+      { status: 403 },
+    );
+  }
+
   const user = await getCurrentUser();
   const signedIn = Boolean(user);
 
