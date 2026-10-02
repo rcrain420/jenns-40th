@@ -5,7 +5,10 @@
  */
 export const FORCE_LIVEWELL_PLUS_ACTIVE_FOR_TEST = true;
 
-/** Same instant as first cast / EVENT.countdownTargetIso (lines in). */
+/**
+ * Catch posting opens Friday, October 9, 2026, 7:00 AM America/Chicago.
+ * Separate from first cast (Saturday sunrise). Do not slide this with the countdown.
+ */
 export const LIVEWELL_START_AT = new Date("2026-10-09T12:00:00.000Z");
 
 /** End of Saturday Oct 10, 2026 (America/Chicago). */

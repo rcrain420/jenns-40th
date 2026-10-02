@@ -2,13 +2,15 @@ import { chicagoWallTime } from "./chicago-time.ts";
 
 /**
  * First cast / lines in.
- * Friday, October 9, 2026, 7:00 AM America/Chicago.
+ * Saturday, October 10, 2026, sunrise in Rockport, TX —
+ * 7:25 AM America/Chicago (timeanddate / generalblue).
  */
 export const FIRST_CAST_AT = chicagoWallTime({
   year: 2026,
   month: 10,
-  day: 9,
+  day: 10,
   hour: 7,
+  minute: 25,
 });
 
 export const EVENT = {
@@ -31,10 +33,10 @@ export const EVENT = {
   city: "Rockport, Texas",
   tagline: "Good friends ★ Tight lines ★ Great memories",
   footerScript: "See you in Rockport!",
-  /** Days until first cast / lines in — Friday, Oct 9, 2026, 7:00 AM America/Chicago. */
+  /** Days until first cast — Saturday, Oct 10, 2026, sunrise America/Chicago. */
   countdownTargetIso: FIRST_CAST_AT.toISOString(),
   countdownCaption: "Until first cast",
-  countdownDetail: "Lines in · 7:00 AM CT",
+  countdownDetail: "Lines in · sunrise Sat Oct 10",
   directionsUrl:
     "https://www.google.com/maps/search/?api=1&query=Boatmen%27s+Bar+and+Marina+140+Cove+Harbor+N+Rockport+TX+78382",
   mapEmbedUrl:
