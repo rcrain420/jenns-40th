@@ -317,3 +317,20 @@ model SidePotEntry {
   @@index([teamId])
   @@index([weighedFishId])
 }
+
+/// Side contest: a donated guess of the fishing-line length in the jar.
+/// Admin-only until a winner is revealed. No public read path in this table.
+model LineJarGuess {
+  id                  String   @id @default(cuid())
+  /// Name the donor entered with the guess.
+  name                String
+  /// Guessed length of the line, in inches.
+  guessedLengthInches Float
+  /// Donation attached to this guess, in cents.
+  donationCents       Int
+  /// True once that donation is paid.
+  paid                Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@index([createdAt])
+}
