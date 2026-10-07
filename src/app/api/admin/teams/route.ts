@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { sendJoinEmailsForRegisteredAnglers } from "@/lib/angler-join-invites";
 import { requireAdmin } from "@/lib/auth";
 import { sendCaptainJoinInvite } from "@/lib/captain-invite";
-import { ENTRY_KIND } from "@/lib/config";
+import { ENTRY_KIND, paidEntrySeatCount } from "@/lib/config";
 import { prisma } from "@/lib/db";
 import { teamCreateData, youthLandCreateData } from "@/lib/registration";
+import { sendRegistrationConfirmation } from "@/lib/registration-email";
 import {
   registrationSchema,
   youthLandRegistrationSchema,
@@ -114,6 +116,42 @@ export async function POST(request: Request) {
     });
   }
 
+  // Mail failures are logged and do not fail the create.
+  let confirmationEmailSent = false;
+  if (team.registrantEmail.trim()) {
+    try {
+      const delivery = await sendRegistrationConfirmation({
+        teamId: team.id,
+        teamName: team.teamName,
+        amountDueCents: team.amountDueCents,
+        registrantEmail: team.registrantEmail,
+        paidSeatCount: paidEntrySeatCount(team.anglers),
+        youthSeatCount: team.anglers.filter((a) => a.isYouth).length,
+        entryKind: team.entryKind,
+      });
+      confirmationEmailSent = delivery.delivered;
+      if (!delivery.delivered) {
+        console.error(
+          "[admin] confirmation email not delivered",
+          delivery.error,
+        );
+      }
+    } catch (error) {
+      console.error("[admin] confirmation email failed", error);
+    }
+  }
+
+  let joinInvites = { attempted: 0, sent: 0 };
+  try {
+    joinInvites = await sendJoinEmailsForRegisteredAnglers({
+      teamId: team.id,
+      teamName: team.teamName,
+      anglers: team.anglers,
+    });
+  } catch (error) {
+    console.error("[admin] join invites failed", error);
+  }
+
   if (team.captainEmail) {
     try {
       await sendCaptainJoinInvite({
@@ -127,5 +165,10 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ team });
+  return NextResponse.json({
+    team,
+    confirmationEmailSent,
+    joinEmailsAttempted: joinInvites.attempted,
+    joinEmailsSent: joinInvites.sent,
+  });
 }
