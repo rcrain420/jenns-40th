@@ -3,9 +3,8 @@ import { describe, it, before } from "node:test";
 
 process.env.SESSION_SECRET ??= "test-session-secret-at-least-32-chars!!";
 
-const { emailedAnglersForJoinInvite } = await import(
-  "./angler-join-recipients.ts"
-);
+const { emailedAnglersForJoinInvite, anglersNewlyAddedForJoinInvite } =
+  await import("./angler-join-recipients.ts");
 const { JOIN_SITE_ACCESS } = await import("./join-site-access.ts");
 const { teamInviteEmailCopy } = await import("./team-invite-email-copy.ts");
 const {
@@ -69,6 +68,45 @@ describe("register / Invite join emails", () => {
     const verified = verifyTeamInviteToken(params.get("token") ?? "");
     assert.equal(verified.ok, true);
     if (verified.ok) assert.equal(verified.teamId, TEAM_ID);
+  });
+});
+
+describe("admin edit join invites", () => {
+  it("invites only newly added adult emails and skips joined or empty seats", () => {
+    const recipients = anglersNewlyAddedForJoinInvite({
+      previous: [
+        { fullName: "Pat Email", email: "Pat@Example.com" },
+        { fullName: "Walkup", email: null },
+        { fullName: "Kid", email: "parent@example.com", isYouth: true },
+      ],
+      next: [
+        { fullName: "Pat Email", email: "pat@example.com" },
+        { fullName: "Walkup", email: "walkup@example.com" },
+        { fullName: "New Adult", email: "new@example.com" },
+        { fullName: "New Adult Again", email: "NEW@example.com" },
+        { fullName: "Blank", email: "  " },
+        { fullName: "Name Only", email: null },
+        { fullName: "Rowan", email: "youth@example.com", isYouth: true },
+        { fullName: "Already Here", email: "joined@example.com" },
+      ],
+      joinedEmails: ["Joined@Example.com"],
+    });
+
+    assert.deepEqual(
+      recipients.map((r) => ({ name: r.fullName, email: r.email })),
+      [
+        { name: "Walkup", email: "walkup@example.com" },
+        { name: "New Adult", email: "new@example.com" },
+      ],
+    );
+  });
+
+  it("does not re-invite the roster when nobody new was added", () => {
+    const recipients = anglersNewlyAddedForJoinInvite({
+      previous: [{ fullName: "Pat", email: "pat@example.com" }],
+      next: [{ fullName: "Pat", email: "pat@example.com" }],
+    });
+    assert.deepEqual(recipients, []);
   });
 });
 

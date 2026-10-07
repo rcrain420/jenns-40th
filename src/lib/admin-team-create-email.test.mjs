@@ -66,10 +66,39 @@ describe("admin late-add registration email", () => {
     assert.equal(/getRegistrationAvailability\s*\(/.test(admin), false);
   });
 
-  it("leaves admin team edits on the captain-invite-only path", () => {
+  it("sends join invites for newly added anglers and skips registration confirmation", () => {
     const patch = read("src/app/api/admin/teams/[id]/route.ts");
-    assert.equal(patch.includes("sendRegistrationConfirmation"), false);
-    assert.equal(patch.includes("sendJoinEmailsForRegisteredAnglers"), false);
-    assert.match(patch, /sendCaptainJoinInvite\(/);
+    const update = patch.slice(patch.indexOf("export async function PATCH"));
+
+    assert.equal(update.includes("sendRegistrationConfirmation"), false);
+    assert.match(update, /anglers:\s*\{\s*select:\s*\{\s*email:\s*true\s*\}\s*\}/);
+    assert.match(update, /nextEmail !== prevEmail/);
+    assert.match(update, /sendCaptainJoinInvite\(/);
+    assert.match(update, /\[admin\] captain invite failed/);
+    assert.match(update, /\[admin\] join invites failed/);
+
+    const selector = callBody(update, "anglersNewlyAddedForJoinInvite");
+    assert.match(selector, /previous:\s*previous\.anglers/);
+    assert.match(selector, /next:\s*team\.anglers/);
+    assert.match(selector, /joinedEmails:/);
+    assert.match(
+      selector,
+      /previous\.members\.map\(\(member\) => member\.user\.email\)/,
+    );
+
+    const joinCall = callBody(update, "sendJoinEmailsForRegisteredAnglers");
+    assert.match(joinCall, /anglers:\s*newlyAdded/);
+    assert.equal(joinCall.includes("team.anglers"), false);
+
+    const captainCall = update.indexOf("sendCaptainJoinInvite(");
+    const joinCallAt = update.indexOf("sendJoinEmailsForRegisteredAnglers(");
+    const joinCatch = update.indexOf("[admin] join invites failed");
+    const response = update.lastIndexOf("return NextResponse.json({ team })");
+    assert.ok(
+      captainCall > 0 &&
+        captainCall < joinCallAt &&
+        joinCallAt < joinCatch &&
+        joinCatch < response,
+    );
   });
 });
