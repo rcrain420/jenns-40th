@@ -66,6 +66,10 @@ Sign up with an address in `ADMIN_EMAIL` (or `ADMIN_EMAILS`) to get the admin co
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional. Shows “Continue with Google” on the shared login form |
 | `FACEBOOK_APP_ID` / `FACEBOOK_APP_SECRET` | Optional. Shows “Continue with Facebook” on the shared login form |
 
+### Rockport weather
+
+The homepage forecast for Cove Harbor (Rockport, TX) comes from the [Open-Meteo](https://open-meteo.com/) forecast API. No API key or environment variable is required. A successful response is cached in memory for 30 minutes on each server instance (the homepage is `force-dynamic`, so Next.js fetch revalidation does not apply). If Open-Meteo is unreachable, the rest of the homepage still renders and the weather block says the forecast is unavailable.
+
 Google / Facebook redirect URIs the app serves:
 
 - `http://localhost:3000/api/auth/oauth/{google|facebook}/callback`

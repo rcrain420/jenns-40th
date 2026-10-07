@@ -1,8 +1,13 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { BragBoard } from "@/components/BragBoard";
 import { Countdown } from "@/components/Countdown";
 import { PotBoard } from "@/components/PotBoard";
+import {
+  RockportWeather,
+  RockportWeatherFallback,
+} from "@/components/RockportWeather";
 import { SiteHeader } from "@/components/SiteHeader";
 import { YouthAnglersCard } from "@/components/YouthAnglersCard";
 import { YouthDivisionAwards } from "@/components/YouthDivisionAwards";
@@ -19,6 +24,7 @@ import {
 import { getPotTotals } from "@/lib/pots";
 import { getOpenWeighSession } from "@/lib/weigh-in";
 import { getRegistrationAvailability } from "@/lib/registration";
+import { loadRockportForecast } from "@/lib/rockport-weather";
 import {
   REGISTRATION_CLOSED_SHORT,
   publicRegistrationDeadlineNote,
@@ -35,6 +41,7 @@ const FRIDAY_BULLETS = [
 ] as const;
 
 export default async function HomePage() {
+  const rockportForecast = loadRockportForecast();
   const [availability, bragRows, potTotals, account, openWeigh] = await Promise.all([
     getRegistrationAvailability(),
     listBragBoardCatches(5),
@@ -184,6 +191,12 @@ export default async function HomePage() {
               Side pot leaders
             </Link>
           </p>
+        </div>
+
+        <div className="md:col-span-2">
+          <Suspense fallback={<RockportWeatherFallback />}>
+            <RockportWeather forecast={rockportForecast} />
+          </Suspense>
         </div>
       </section>
 
