@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { anglersNewlyAddedForJoinInvite } from "@/lib/angler-join-recipients";
+import { sendJoinEmailsForRegisteredAnglers } from "@/lib/angler-join-invites";
 import { requireAdmin } from "@/lib/auth";
 import { sendCaptainJoinInvite } from "@/lib/captain-invite";
 import { ENTRY_KIND, amountDueForEntry } from "@/lib/config";
@@ -99,7 +101,12 @@ export async function PATCH(request: Request, { params }: Params) {
   const guided = input.boatType === "GUIDED";
   const previous = await prisma.team.findUnique({
     where: { id },
-    select: { captainEmail: true, amountPaidCents: true },
+    select: {
+      captainEmail: true,
+      amountPaidCents: true,
+      anglers: { select: { email: true } },
+      members: { select: { user: { select: { email: true } } } },
+    },
   });
   if (!previous) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -161,6 +168,22 @@ export async function PATCH(request: Request, { params }: Params) {
     } catch (error) {
       console.error("[admin] captain invite failed", error);
     }
+  }
+
+  // Mail failures are logged and do not fail the edit. No registration confirmation.
+  const newlyAdded = anglersNewlyAddedForJoinInvite({
+    previous: previous.anglers,
+    next: team.anglers,
+    joinedEmails: previous.members.map((member) => member.user.email),
+  });
+  try {
+    await sendJoinEmailsForRegisteredAnglers({
+      teamId: team.id,
+      teamName: team.teamName,
+      anglers: newlyAdded,
+    });
+  } catch (error) {
+    console.error("[admin] join invites failed", error);
   }
 
   return NextResponse.json({ team });

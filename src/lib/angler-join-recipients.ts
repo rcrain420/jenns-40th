@@ -19,3 +19,35 @@ export function emailedAnglersForJoinInvite<T extends JoinInviteAngler>(
   }
   return recipients;
 }
+
+function normalizedEmail(email: string | null | undefined): string {
+  return email?.trim().toLowerCase() ?? "";
+}
+
+/**
+ * Admin edit recipients. Only adult seats whose email was not already on
+ * the roster. Already-joined team members are dropped when their emails
+ * are passed in. Youth, blank, and duplicate emails stay out.
+ */
+export function anglersNewlyAddedForJoinInvite<T extends JoinInviteAngler>(input: {
+  previous: readonly JoinInviteAngler[];
+  next: readonly T[];
+  joinedEmails?: readonly string[];
+}): Array<T & { email: string }> {
+  const previousEmails = new Set<string>();
+  for (const angler of input.previous) {
+    const email = normalizedEmail(angler.email);
+    if (email) previousEmails.add(email);
+  }
+  const joined = new Set<string>();
+  for (const email of input.joinedEmails ?? []) {
+    const normalized = normalizedEmail(email);
+    if (normalized) joined.add(normalized);
+  }
+  const fresh = input.next.filter((angler) => {
+    const email = normalizedEmail(angler.email);
+    if (!email || previousEmails.has(email) || joined.has(email)) return false;
+    return true;
+  });
+  return emailedAnglersForJoinInvite(fresh);
+}
