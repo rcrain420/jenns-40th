@@ -58,6 +58,8 @@ Sign up with an address in `ADMIN_EMAIL` (or `ADMIN_EMAILS`) to get the admin co
 | `EMAIL_FROM` / `RESEND_FROM` | Optional From: header for Resend |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob token; omit locally to store uploads under `public/uploads/catches` |
 | `VENMO_URL` | Optional Venmo payment link override |
+| `LINE_GUESS_PATH_TOKEN` | Secret path for the jar-table line guess. 20–128 letters, numbers, `_`, or `-`. Generate with `openssl rand -hex 24`. Guest form: `/line/<token>`. Tracker: `/line/<token>/list`. Not linked from the public site or `/admin` |
+| `LINE_GUESS_PIN` | 4–8 digit PIN for the table tracker |
 | `OPENAI_API_KEY` | Server-only. Enables Livewell fish estimates and team-name suggestions. **Set this on the Vercel Production env for `jenns-40th`**, then redeploy. Missing key: catch still logs as Unknown with **blank** size/weight and “Estimate unavailable because AI isn’t configured” (never a fake 18" / 3.5 lb) |
 | `OPENAI_VISION_MODEL` | Optional; defaults to `gpt-4o-mini` (must support vision / image_url) |
 | `OPENAI_TEAM_NAME_MODEL` | Optional; defaults to vision model or `gpt-4o-mini` |
@@ -93,6 +95,16 @@ Vision `breed` is locked to **Redfish**, **Trout**, **Black drum**, **Hardhead c
 ### Venmo
 
 The app defaults to Venmo handle `Jennski` (`https://venmo.com/u/Jennski`) with QR at `public/venmo-qr.png`. Leave `VENMO_URL` empty unless you need a full custom payment URL override.
+
+### Jar table line guess
+
+Guests at the jar scan a QR that opens `/line/<LINE_GUESS_PATH_TOKEN>`. They enter a name and a guess in feet of fishing line, donate at least $40 on the Cancer Care Alliance Classy campaign (`https://impact.ccalliance.org/Fightlikearedfish`), and check “I donated $40”. This page does not use Venmo.
+
+Staff open `/line/<LINE_GUESS_PATH_TOKEN>/list` on the table tablet and enter `LINE_GUESS_PIN`. The tracker lists guesses newest first and can flag a row unpaid or delete a bad entry. The same page shows a printable QR and the full entry URL. Print it from the production host you want encoded in the QR (the image uses the site you are on). You can also paste `https://officialishfishingtournament.com/line/<token>` into any QR generator.
+
+Do not add that URL to the homepage, footer, sitemap, or admin menus. `/line/` is separate from team invite links on `/j/`.
+
+Set both env vars on Vercel Production, then redeploy so `prisma migrate deploy` creates the `LineGuess` table. `LINE_GUESS_PATH_TOKEN` must stay the same after the QR is printed.
 
 ## Production (Vercel + Neon + Blob)
 

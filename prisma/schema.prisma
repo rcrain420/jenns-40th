@@ -317,3 +317,19 @@ model SidePotEntry {
   @@index([teamId])
   @@index([weighedFishId])
 }
+
+/// Jar-table fishing line guess. Not registration and not the admin console.
+model LineGuess {
+  id          String   @id @default(cuid())
+  name        String
+  guessFeet   Float
+  /// Honor-system box. Staff can clear this if the guest did not pay.
+  paidClaimed Boolean  @default(false)
+  /// CCA — Cancer Care Alliance Classy.
+  method      String   @default("CCA")
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
+}
