@@ -23,6 +23,7 @@ import {
 import { isBoatInviteLocked } from "@/lib/join-the-boat";
 import { formatUsd } from "@/lib/money";
 import { getRegistrationAvailability } from "@/lib/registration";
+import { publicRegistrationDeadlineNote } from "@/lib/registration-policy";
 import { findTeamsForUser, userOwnsLoadedTeam } from "@/lib/user-teams";
 
 export const dynamic = "force-dynamic";
@@ -149,6 +150,9 @@ export default async function KidsPage() {
           <p className="mt-3 text-ink/80">
             Kids register only on the RowRide form. {YOUTH_OWN_ENTRY_RULE}{" "}
             {YOUTH_INDIVIDUAL_RULE}
+          </p>
+          <p className="mt-3 text-ink/80">
+            {publicRegistrationDeadlineNote(availability.isLandOpen)}
           </p>
 
           <h3 className="mt-8 font-display text-lg uppercase tracking-wide text-sea">

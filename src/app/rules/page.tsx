@@ -3,6 +3,12 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { PageShell } from "@/components/PageShell";
 import { EVENT, YOUTH_TOURNAMENT } from "@/lib/config";
+import {
+  NO_WALKUP_POLICY,
+  REGISTRATION_DEADLINE_FULL,
+  REGISTRATION_DEADLINE_MONTH_DAY,
+  REGISTRATION_DEADLINE_WEEKDAY,
+} from "@/lib/registration-policy";
 
 export const metadata: Metadata = {
   title: `Tournament rules · ${EVENT.shortName}`,
@@ -10,7 +16,11 @@ export const metadata: Metadata = {
 };
 
 const TOC = [
-  { id: "registration-deadline", number: 1, title: "Register by October 1" },
+  {
+    id: "registration-deadline",
+    number: 1,
+    title: `Register by ${REGISTRATION_DEADLINE_MONTH_DAY}`,
+  },
   { id: "who-can-fish", number: 2, title: "Who Can Fish?" },
   { id: "guided-and-diy", number: 3, title: "Guided and DIY Teams" },
   { id: "captains-meeting", number: 4, title: "Captain’s Meeting" },
@@ -168,8 +178,8 @@ export default function RulesPage() {
                 Registration deadline
               </dt>
               <dd className="mt-1">
-                October 1, 2026 (end of day, America/Chicago). No walk-ups at
-                the marina or on tournament weekend.
+                Midnight {REGISTRATION_DEADLINE_FULL} (Central time).{" "}
+                {NO_WALKUP_POLICY}
               </dd>
             </div>
           </dl>
@@ -221,10 +231,14 @@ export default function RulesPage() {
           </nav>
         </header>
 
-        <Section id="registration-deadline" number={1} title="Register by October 1">
+        <Section
+          id="registration-deadline"
+          number={1}
+          title={`Register by ${REGISTRATION_DEADLINE_MONTH_DAY}`}
+        >
           <p>
-            Every boat must be registered online by the end of the day on{" "}
-            <strong>October 1, 2026</strong> (America/Chicago).
+            Every boat must be registered online by midnight{" "}
+            <strong>{REGISTRATION_DEADLINE_WEEKDAY}</strong> (Central time).
           </p>
           <p>
             There is no walk-up, day-of, or marina registration. Showing up at{" "}

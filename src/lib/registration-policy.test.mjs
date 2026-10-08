@@ -12,9 +12,14 @@ import {
   ADMIN_EXCEPTION_NOTE,
   NO_WALKUP_POLICY,
   PUBLIC_REGISTRATION_DATE_CLOSED_ERROR,
+  PUBLIC_REGISTRATION_ENDED_PHRASE,
   PUBLIC_REGISTRATION_FULL_ERROR,
+  PUBLIC_REGISTRATION_OPEN_NOTE,
   REGISTRATION_CLOSED_TITLE,
+  REGISTRATION_DEADLINE_FULL,
   REGISTRATION_DEADLINE_LABEL,
+  REGISTRATION_DEADLINE_MONTH_DAY,
+  REGISTRATION_DEADLINE_WEEKDAY,
   publicCreateBlockedReason,
   publicRegistrationClosedCopy,
   publicRegistrationDeadlineNote,
@@ -30,6 +35,7 @@ const COPY_SURFACES = [
   "src/app/register/page.tsx",
   "src/app/pots/page.tsx",
   "src/app/kids/page.tsx",
+  "docs/rowride-rules.md",
   "src/app/team/page.tsx",
   "src/app/guides/page.tsx",
   "src/app/register/youth/page.tsx",
@@ -56,13 +62,13 @@ const INVITING_WALKUP = [
 ];
 
 describe("registration cutoff", () => {
-  it("stays open until end of day October 1, 2026 America/Chicago", () => {
-    assert.equal(REGISTRATION_DEADLINE_LABEL, "October 1, 2026");
+  it("stays open through Thursday, October 8, 2026 and closes at midnight Central", () => {
     assert.equal(
       REGISTRATION_CLOSES_AT.toISOString(),
-      "2026-10-02T05:00:00.000Z",
+      "2026-10-09T05:00:00.000Z",
     );
     const closes = chicagoParts(REGISTRATION_CLOSES_AT);
+    assert.equal(closes.weekday, "Friday");
     assert.deepEqual(
       {
         year: closes.year,
@@ -72,13 +78,15 @@ describe("registration cutoff", () => {
         minute: closes.minute,
         second: closes.second,
       },
-      { year: 2026, month: 10, day: 2, hour: 0, minute: 0, second: 0 },
+      { year: 2026, month: 10, day: 9, hour: 0, minute: 0, second: 0 },
     );
     const stillThursday = chicagoParts(
       new Date(REGISTRATION_CLOSES_AT.getTime() - 1),
     );
-    assert.equal(stillThursday.day, 1);
+    assert.equal(stillThursday.weekday, "Thursday");
+    assert.equal(stillThursday.day, 8);
     assert.equal(stillThursday.month, 10);
+    assert.equal(stillThursday.year, 2026);
     assert.equal(
       isRegistrationOpen(new Date(REGISTRATION_CLOSES_AT.getTime() - 1)),
       true,
@@ -87,6 +95,26 @@ describe("registration cutoff", () => {
     assert.equal(
       isRegistrationOpen(new Date(REGISTRATION_CLOSES_AT.getTime() + 1)),
       false,
+    );
+    // 8:00 PM CT on Wednesday, October 7 — the reopen window Aaron asked for.
+    const wednesdayEvening = new Date("2026-10-08T01:00:00.000Z");
+    assert.equal(isRegistrationOpen(wednesdayEvening), true);
+    const lateThursday = new Date("2026-10-09T04:59:00.000Z");
+    assert.equal(isRegistrationOpen(lateThursday), true);
+  });
+
+  it("derives cutoff labels from the last open Chicago calendar day", () => {
+    assert.equal(REGISTRATION_DEADLINE_WEEKDAY, "Thursday, October 8");
+    assert.equal(REGISTRATION_DEADLINE_MONTH_DAY, "October 8");
+    assert.equal(REGISTRATION_DEADLINE_LABEL, "October 8, 2026");
+    assert.equal(REGISTRATION_DEADLINE_FULL, "Thursday, October 8, 2026");
+    assert.match(
+      PUBLIC_REGISTRATION_OPEN_NOTE,
+      /^Registration closes at midnight Thursday, October 8 \(Central time\)\.$/,
+    );
+    assert.equal(
+      PUBLIC_REGISTRATION_ENDED_PHRASE,
+      "Public registration ended Thursday, October 8",
     );
   });
 });
@@ -105,13 +133,16 @@ describe("public create gate", () => {
       publicCreateBlockedReason({ openByDate: true, openByCapacity: false }),
       PUBLIC_REGISTRATION_FULL_ERROR,
     );
-    assert.match(PUBLIC_REGISTRATION_DATE_CLOSED_ERROR, /October 1, 2026/);
+    assert.match(
+      PUBLIC_REGISTRATION_DATE_CLOSED_ERROR,
+      /closed on Thursday, October 8/,
+    );
     assert.equal(/walk-?up/i.test(PUBLIC_REGISTRATION_DATE_CLOSED_ERROR), false);
   });
 });
 
 describe("closed registration copy", () => {
-  it("names the October 1 end and bans walk-ups without a public exception CTA", () => {
+  it("names the Thursday, October 8 end and bans walk-ups without a public exception CTA", () => {
     const dateClosed = publicRegistrationClosedCopy({
       openByDate: false,
       openByCapacity: true,
@@ -126,7 +157,7 @@ describe("closed registration copy", () => {
     });
 
     assert.equal(dateClosed.title, REGISTRATION_CLOSED_TITLE);
-    assert.match(dateClosed.body, /October 1, 2026/);
+    assert.match(dateClosed.body, /ended Thursday, October 8/);
     assert.match(dateClosed.body, /no walk-ups/i);
     assert.match(dateClosed.body, /marina/i);
     assert.equal(/contact the organizers/i.test(dateClosed.body), false);
@@ -135,21 +166,28 @@ describe("closed registration copy", () => {
 
     assert.match(full.body, /capacity/i);
     assert.match(full.body, /no walk-ups/i);
-    assert.match(both.body, /October 1, 2026/);
+    assert.match(both.body, /ended Thursday, October 8/);
     assert.match(both.body, /full/i);
     assert.match(NO_WALKUP_POLICY, /no walk-ups/i);
 
     const closedNote = publicRegistrationDeadlineNote(false);
-    assert.match(closedNote, /ended October 1, 2026/);
+    assert.match(closedNote, /ended Thursday, October 8/);
     assert.match(closedNote, /no walk-ups/i);
+    assert.match(closedNote, /tournament weekend/);
     const openNote = publicRegistrationDeadlineNote(true);
-    assert.match(openNote, /registered by October 1, 2026/);
+    assert.match(
+      openNote,
+      /Registration closes at midnight Thursday, October 8/,
+    );
+    assert.match(openNote, /Central time/);
     assert.match(openNote, /no walk-ups/i);
+    assert.match(openNote, /tournament weekend/);
   });
 
   it("keeps admin late adds as the only exception path", () => {
     assert.match(ADMIN_EXCEPTION_NOTE, /exception path/i);
-    assert.match(ADMIN_EXCEPTION_NOTE, /October 1, 2026/);
+    assert.match(ADMIN_EXCEPTION_NOTE, /midnight Thursday, October 8, 2026/);
+    assert.match(ADMIN_EXCEPTION_NOTE, /Central time/);
     assert.match(ADMIN_EXCEPTION_NOTE, /no walk-ups/i);
     assert.match(ADMIN_EXCEPTION_NOTE, /soft cap/i);
   });
@@ -169,18 +207,50 @@ describe("no leftover walk-up invitations", () => {
     }
   });
 
-  it("states the October 1 deadline and no walk-ups in the rules", () => {
-    for (const relative of [
-      "docs/tournament-rules.md",
-      "src/app/rules/page.tsx",
-    ]) {
-      const text = readFileSync(join(ROOT, relative), "utf8");
-      assert.match(text, /October 1, 2026/);
-      assert.match(text, /no walk-up/i);
-      assert.match(text, /marina/i);
-      assert.match(text, /organizers approve/i);
-      assert.match(text, /registration-deadline|Register by October 1/);
-    }
+  it("states the October 8 deadline and no walk-ups in the rules", () => {
+    const rulesPage = readFileSync(join(ROOT, "src/app/rules/page.tsx"), "utf8");
+    assert.match(rulesPage, /REGISTRATION_DEADLINE_FULL/);
+    assert.match(rulesPage, /REGISTRATION_DEADLINE_WEEKDAY/);
+    assert.match(rulesPage, /REGISTRATION_DEADLINE_MONTH_DAY/);
+    assert.match(rulesPage, /NO_WALKUP_POLICY/);
+    assert.equal(/October 1(?!\d)/.test(rulesPage), false);
+    assert.match(rulesPage, /no walk-up/i);
+    assert.match(rulesPage, /marina/i);
+    assert.match(rulesPage, /organizers approve/i);
+    assert.match(rulesPage, /registration-deadline/);
+
+    const tournamentRules = readFileSync(
+      join(ROOT, "docs/tournament-rules.md"),
+      "utf8",
+    );
+    assert.match(tournamentRules, new RegExp(REGISTRATION_DEADLINE_FULL));
+    assert.match(tournamentRules, /midnight \*{0,2}Thursday, October 8/i);
+    assert.match(tournamentRules, /Central time/);
+    assert.match(tournamentRules, /no walk-up/i);
+    assert.match(tournamentRules, /marina/i);
+    assert.match(tournamentRules, /organizers approve/i);
+    assert.match(tournamentRules, /Register by October 8/);
+    assert.equal(/October 1(?!\d)/.test(tournamentRules), false);
+
+    const rowrideRules = readFileSync(
+      join(ROOT, "docs/rowride-rules.md"),
+      "utf8",
+    );
+    assert.match(
+      rowrideRules,
+      /closes at midnight Thursday, October 8 \(Central time\)/,
+    );
+    assert.match(rowrideRules, /no walk-ups/i);
+    assert.equal(/October 1(?!\d)/.test(rowrideRules), false);
+
+    const readme = readFileSync(join(ROOT, "README.md"), "utf8");
+    assert.match(readme, new RegExp(REGISTRATION_DEADLINE_FULL));
+    assert.match(readme, /Central time/);
+    assert.equal(/Oct 1, 2026/.test(readme), false);
+
+    const kidsPage = readFileSync(join(ROOT, "src/app/kids/page.tsx"), "utf8");
+    assert.match(kidsPage, /publicRegistrationDeadlineNote\(availability\.isLandOpen\)/);
+    assert.equal(/October 1(?!\d)/.test(kidsPage), false);
   });
 
   it("keeps admin create off the public registration gate", () => {

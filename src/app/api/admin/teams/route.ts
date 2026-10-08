@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     (payload as { entryKind?: string }).entryKind === ENTRY_KIND.YOUTH_LAND;
 
   // Exception path: do not call isRegistrationOpen or getRegistrationAvailability.
-  // Admins may add a boat or YOUTH_LAND / RowRide entry after the Oct 1 cutoff
+  // Admins may add a boat or YOUTH_LAND / RowRide entry after the public cutoff
   // and after the 25-boat soft cap.
   let team;
   if (wantsLand) {

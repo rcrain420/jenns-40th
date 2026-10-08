@@ -8,7 +8,7 @@
 **Fishing Hours:** Sunrise to 2:00 p.m.
 **Weigh-In Hours:** 12:00 p.m. to 2:00 p.m.
 **Captain’s Meeting:** Friday, October 9, 2026, at 7:00 p.m. at Boatmen’s Bar and Marina
-**Registration deadline:** Thursday, October 1, 2026 (end of day, America/Chicago). No walk-up, day-of, or marina registration.
+**Registration deadline:** Midnight Thursday, October 8, 2026 (Central time). No walk-up, day-of, or marina registration.
 
 The goal is simple: catch fish, celebrate Jenn, talk a little trash and have a great time.
 
@@ -16,9 +16,9 @@ We want this tournament to be competitive, fair and fun. Please read the rules s
 
 These are the adult boat tournament rules. Kids / RowRide rules are separate — see `docs/rowride-rules.md` and `/kids#rules`.
 
-## 1. Register by October 1
+## 1. Register by October 8
 
-Every boat must be registered online by the end of the day on **October 1, 2026** (America/Chicago).
+Every boat must be registered online by midnight **Thursday, October 8** (Central time).
 
 There is no walk-up, day-of, or marina registration. Showing up at Boatmen’s Bar and Marina on Friday or Saturday without a registered team does not get you in the tournament.
 
