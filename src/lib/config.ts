@@ -44,13 +44,13 @@ export const EVENT = {
 } as const;
 
 /**
- * Public registration closes at the end of Thursday, October 1, 2026:
- * 2026-10-02 00:00:00 America/Chicago (midnight starting October 2).
+ * Public registration closes at the end of Thursday, October 8, 2026:
+ * 2026-10-09 00:00:00 America/Chicago (midnight at the end of October 8).
  */
 export const REGISTRATION_CLOSES_AT = chicagoWallTime({
   year: 2026,
   month: 10,
-  day: 2,
+  day: 9,
   hour: 0,
 });
 
