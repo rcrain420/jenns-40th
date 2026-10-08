@@ -9,6 +9,7 @@ import {
   EVENT,
   isRegistrationOpen,
   isYouthLandEntry,
+  REDFISH_SLOT_RULE,
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
 import {
@@ -16,6 +17,7 @@ import {
   YOUTH_DIVISION_HEADING,
   YOUTH_ONE_AWARD_ASSIGNMENT,
   YOUTH_ONE_AWARD_RULE,
+  YOUTH_REDFISH_SLOT_RULE,
   YOUTH_INDIVIDUAL_RULE,
   YOUTH_OWN_ENTRY_RULE,
   youthDivisionAwardLine,
@@ -89,7 +91,7 @@ export default async function KidsPage() {
             The RowRide Youth Anglers Tournament gives the kids their own
             free Youth Division at the scales — trophies for biggest
             redfish, biggest speckled trout, and biggest trash fish,
-            provided by the Tournament Host.
+            provided by the Tournament Host. {YOUTH_REDFISH_SLOT_RULE}
           </p>
           <p className="mt-3 text-ink/80">
             Just like the main tournament, the Weighmaster has the final say
@@ -111,6 +113,7 @@ export default async function KidsPage() {
             Host-funded — kids are not in the adult main pot. One award per
             youth angler so the fun spreads around.
           </p>
+          <p className="mt-3 text-ink/80">{YOUTH_REDFISH_SLOT_RULE}</p>
         </section>
 
         <section id="rules" className="scroll-mt-28">
@@ -193,6 +196,8 @@ export default async function KidsPage() {
             presented whole and accepted by the Weighmaster. Official
             results come from weigh-in, not from AI Livewell estimates.
           </p>
+          <p className="mt-3 text-ink/80">{YOUTH_REDFISH_SLOT_RULE}</p>
+          <p className="mt-3 text-ink/80">{REDFISH_SLOT_RULE}</p>
           <p className="mt-3 text-ink/80">
             The youth angler must personally hook the fish and land it.
             Adults may help with safety. The child needs to do the fishing.

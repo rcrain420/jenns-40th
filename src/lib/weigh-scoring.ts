@@ -3,6 +3,8 @@
  * Pure functions — never reads FishCatch or invents a winner from a photo.
  */
 
+import { REDFISH_SLOT_INCHES } from "./config.ts";
+
 export const WEIGH_SPECIES = ["TROUT", "REDFISH", "CATFISH"] as const;
 export type WeighSpecies = (typeof WEIGH_SPECIES)[number];
 
@@ -178,7 +180,26 @@ export function troutLengthEligible(lengthInches: number | null | undefined): bo
   return key >= milli(TROUT_MIN_INCHES) && key <= milli(TROUT_MAX_INCHES);
 }
 
-/** 21.0 inches is legal. Anything over 21 is not. */
+/**
+ * Texas slot, inclusive. Missing length does not qualify.
+ * 20 and 28 count. 19.99 and 28.01 do not.
+ */
+export function redfishSlotEligible(lengthInches: number | null | undefined): boolean {
+  if (lengthInches == null || !Number.isFinite(lengthInches)) return false;
+  const key = milli(lengthInches);
+  return key >= milli(REDFISH_SLOT_INCHES.min) && key <= milli(REDFISH_SLOT_INCHES.max);
+}
+
+/** Admin-facing rejection. Null when the red is inside the slot. */
+export function redfishSlotError(lengthInches: number | null | undefined): string | null {
+  if (redfishSlotEligible(lengthInches)) return null;
+  if (lengthInches == null || !Number.isFinite(lengthInches)) {
+    return `Enter a length. A redfish has to be ${REDFISH_SLOT_INCHES.min}–${REDFISH_SLOT_INCHES.max} inches to qualify.`;
+  }
+  return `This redfish is ${formatInches(lengthInches)}. It has to be ${REDFISH_SLOT_INCHES.min}–${REDFISH_SLOT_INCHES.max} inches — the Texas slot — to qualify.`;
+}
+
+/** 21.0 inches is legal for Blackjack. Anything over 21 is not. Slot still applies. */
 export function blackjackLengthEligible(lengthInches: number | null | undefined): boolean {
   if (lengthInches == null || !Number.isFinite(lengthInches)) return false;
   return milli(lengthInches) <= milli(BLACKJACK_TARGET_INCHES);
@@ -268,8 +289,8 @@ export function evaluateSidePot(
         metricLabel: "Wrong species",
       };
     }
-    if (fish.lengthInches == null) {
-      return {
+    if (fish.lengthInches == null || !redfishSlotEligible(fish.lengthInches)) {
+      return redfishSidePotBlock(fish) ?? {
         eligible: false,
         reason: "Length required",
         metricValue: 0,
@@ -301,6 +322,8 @@ export function evaluateSidePot(
       metricLabel: "Wrong species",
     };
   }
+  const slotBlock = redfishSidePotBlock(fish);
+  if (slotBlock) return slotBlock;
   if (fish.spotCount == null || !Number.isInteger(fish.spotCount) || fish.spotCount < 0) {
     return {
       eligible: false,
@@ -326,7 +349,30 @@ export type SlotFish = {
   sequence: number;
   disqualified: boolean;
   taggedTrout?: boolean;
+  lengthInches?: number | null;
 };
+
+function redfishSidePotBlock(fish: SidePotFish): SidePotEvaluation | null {
+  if (redfishSlotEligible(fish.lengthInches)) return null;
+  const missing = fish.lengthInches == null || !Number.isFinite(fish.lengthInches);
+  return {
+    eligible: false,
+    reason: missing
+      ? "Length required"
+      : `Redfish must be ${REDFISH_SLOT_INCHES.min}–${REDFISH_SLOT_INCHES.max} inches`,
+    metricValue: missing ? 0 : fish.lengthInches ?? 0,
+    metricLabel: missing ? "Length required" : formatInches(fish.lengthInches),
+  };
+}
+
+function qualifyingRed(fish: SlotFish | null): fish is SlotFish {
+  return Boolean(
+    fish &&
+      fish.species === "REDFISH" &&
+      !fish.disqualified &&
+      redfishSlotEligible(fish.lengthInches),
+  );
+}
 
 export type StringerScore = {
   totalWeightLbs: number;
@@ -335,7 +381,10 @@ export type StringerScore = {
   qualifyingCount: number;
 };
 
-/** Sum of non-DQ fish already sitting in legal slots. Display / recompute path. */
+/**
+ * Sum of fish that actually qualify. Trout: not DQ and not tagged.
+ * Redfish: not DQ, and inside the Texas slot. Out-of-slot and unmeasured reds add nothing.
+ */
 export function qualifyingStringerTotal(input: {
   trout: SlotFish | null;
   redfish: Array<SlotFish | null>;
@@ -350,7 +399,7 @@ export function qualifyingStringerTotal(input: {
     qualifying.push(input.trout);
   }
   for (const fish of input.redfish) {
-    if (!fish || fish.disqualified || fish.species !== "REDFISH") continue;
+    if (!qualifyingRed(fish)) continue;
     qualifying.push(fish);
   }
   return scoreQualifying(qualifying);
@@ -401,6 +450,12 @@ export function validateStringerAssignment(input: {
     }
     if (fish.disqualified) {
       return { ok: false, error: "Disqualified fish cannot be on the stringer" };
+    }
+    if (!redfishSlotEligible(fish.lengthInches)) {
+      return {
+        ok: false,
+        error: redfishSlotError(fish.lengthInches) ?? "Redfish must be in the Texas slot to qualify.",
+      };
     }
     const dup = claim(fish);
     if (dup) return { ok: false, error: dup };

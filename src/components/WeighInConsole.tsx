@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { PAID_SIDE_POTS } from "@/lib/config";
+import { PAID_SIDE_POTS, REDFISH_SLOT_INCHES, REDFISH_SLOT_RULE } from "@/lib/config";
 import { buildWeighInStandings, type WeighAdminData } from "@/lib/weigh-board";
 import {
   canEnterMainStringer,
@@ -11,6 +11,8 @@ import {
   formatWeightLbsOz,
   lbsOzFromWeightLbs,
   parseScaleWeight,
+  redfishSlotEligible,
+  redfishSlotError,
   teamBoughtSidePot,
 } from "@/lib/weigh-scoring";
 
@@ -114,6 +116,14 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Enter a weight in pounds and ounces.");
       return;
+    }
+    if (species === "REDFISH") {
+      const inches = length.trim() === "" ? null : Number(length);
+      const slotError = redfishSlotError(inches);
+      if (slotError) {
+        setError(slotError);
+        return;
+      }
     }
     const ok = await post("/api/admin/weigh-in/fish", {
       id: editingId,
@@ -396,11 +406,12 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                     <h2 className="font-display text-3xl text-wave">{team.teamName}</h2>
                     <p className="text-sm text-ink/60">
                       {canEnterMainStringer(team.entryKind)
-                        ? "Main stringer: 1 trout + up to 3 redfish"
-                        : "RowRide — side pots only, not the main stringer"}
+                        ? `Main stringer: 1 trout + up to 3 slot redfish (${REDFISH_SLOT_INCHES.min}–${REDFISH_SLOT_INCHES.max} in).`
+                        : "RowRide — side pots only, not the main stringer."}
                       {place ? ` · #${place.rank} on the board` : ""}
                       {stringer ? ` · ${stringer.status} · ${formatWeightLbs(stringer.totalWeightLbs)}` : ""}
                     </p>
+                    <p className="mt-1 text-sm text-ink/60">{REDFISH_SLOT_RULE}</p>
                   </div>
                   {canEnterMainStringer(team.entryKind) ? (
                     <div className="flex flex-col items-stretch gap-2">
@@ -541,6 +552,12 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                     <span className="hidden lg:block" />
                   )}
                 </div>
+                {species === "REDFISH" ? (
+                  <p className="mt-2 text-xs text-ink/60">
+                    Texas slot is {REDFISH_SLOT_INCHES.min}–{REDFISH_SLOT_INCHES.max} in.
+                    Outside that, or with no length, this red does not qualify.
+                  </p>
+                ) : null}
                 {species === "TROUT" ? (
                   <label className="mt-3 flex items-center gap-2 text-sm">
                     <input
@@ -591,6 +608,11 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                         </button>
                       </div>
                       {fish.dqReason ? <p className="text-sm text-alert">{fish.dqReason}</p> : null}
+                      {fish.species === "REDFISH" &&
+                      !fish.disqualified &&
+                      !redfishSlotEligible(fish.lengthInches) ? (
+                        <p className="text-sm text-alert">{redfishSlotError(fish.lengthInches)}</p>
+                      ) : null}
                       {canEnterMainStringer(team.entryKind) ? (
                         <div className="mt-3 flex flex-wrap gap-2">
                           <SlotButton
@@ -606,7 +628,18 @@ export function WeighInConsole({ data }: { data: WeighAdminData }) {
                               active={stringer?.redfish.some(
                                 (row) => row.slot === slot && row.weighedFishId === fish.id,
                               )}
-                              disabled={busy || locked || !open || fish.species !== "REDFISH"}
+                              disabled={
+                                busy ||
+                                locked ||
+                                !open ||
+                                fish.species !== "REDFISH" ||
+                                !redfishSlotEligible(fish.lengthInches)
+                              }
+                              title={
+                                fish.species === "REDFISH" && !redfishSlotEligible(fish.lengthInches)
+                                  ? redfishSlotError(fish.lengthInches) ?? undefined
+                                  : undefined
+                              }
                               onClick={() => void assignSlot(fish.id, slot)}
                             />
                           ))}
@@ -754,17 +787,20 @@ function SlotButton({
   label,
   active,
   disabled,
+  title,
   onClick,
 }: {
   label: string;
   active?: boolean;
   disabled?: boolean;
+  title?: string;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       disabled={disabled}
+      title={title}
       onClick={onClick}
       className={`rounded-md px-3 py-2 text-sm font-semibold disabled:opacity-40 ${
         active ? "bg-sun text-paper" : "bg-mist text-wave"

@@ -1,5 +1,7 @@
 /** Locked kids / youth roster copy and helpers. Leaf module for Node tests. */
 
+import { REDFISH_SLOT_INCHES } from "./config.ts";
+
 export const YOUTH_CHECKBOX_LABEL = "17 or under";
 
 export const YOUTH_EMAIL_HELPER =
@@ -47,6 +49,9 @@ export function youthDivisionAwardLine(award: {
 }): string {
   return `${award.name} — ${award.place}`;
 }
+
+export const YOUTH_REDFISH_SLOT_RULE =
+  `Biggest Redfish has to be a Texas slot fish: ${REDFISH_SLOT_INCHES.min} to ${REDFISH_SLOT_INCHES.max} inches, total length. A red outside that slot, or with no length, does not qualify.`;
 
 export const YOUTH_ONE_AWARD_RULE =
   "A youth angler may only win one Youth Division award. If the same kid brings in the biggest redfish and biggest trout (or any two), they take only one award and the next eligible angler takes the other so the fun spreads around.";

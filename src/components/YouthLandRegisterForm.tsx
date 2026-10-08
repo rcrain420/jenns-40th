@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   ENTRY_KIND,
   PAID_SIDE_POTS,
+  REDFISH_SLOT_RULE,
   SIDE_POT_BUY_IN_CENTS,
   YOUTH_TOURNAMENT,
   amountDueForEntry,
@@ -293,7 +294,8 @@ export function YouthLandRegisterForm({
           {formatUsd(SIDE_POT_BUY_IN_CENTS)} per pot — enter one, two, or all
           three if you want those categories. A kid only counts in a paid
           side pot when this RowRide entry buys it. Being on a registered
-          boat that entered those pots does not count.
+          boat that entered those pots does not count. {REDFISH_SLOT_RULE}{" "}
+          Blackjack still has to be 21 inches or under.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {PAID_SIDE_POTS.map((pot) => {

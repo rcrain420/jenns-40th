@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { LeaderboardPublic } from "@/components/LeaderboardPublic";
 import { useChicagoClock, usePolledBoard } from "@/components/usePolledBoard";
-import { EVENT } from "@/lib/config";
+import { EVENT, REDFISH_SLOT_RULE } from "@/lib/config";
 import { formatChicagoTime, formatWeightLbs } from "@/lib/weigh-scoring";
 import { slotWeightText, type WeighInLeaderboard, type WeighInRankRow } from "@/lib/weigh-board";
 
@@ -56,7 +56,7 @@ export function WeighInStandings({
       current="weigh-in"
       session={board.session}
       pinnedSessionId={pinnedSessionId}
-      footer="AI Brag Board is for fun. These numbers are the official scale."
+      footer={`AI Brag Board is for fun. These numbers are the official scale. ${REDFISH_SLOT_RULE}`}
     >
       {!board.session ? (
         <p className="text-lg">Waiting on the weighmaster to open the scales.</p>
@@ -122,7 +122,7 @@ function WeighInTv({
       )}
 
       <footer className="px-8 pb-5 text-lg text-paper/75">
-        AI Brag Board is for fun. These numbers are the official scale. {EVENT.venue}.
+        AI Brag Board is for fun. These numbers are the official scale. {REDFISH_SLOT_RULE} {EVENT.venue}.
       </footer>
     </div>
   );
@@ -206,6 +206,7 @@ function redSlotText(row: WeighInRankRow, index: 0 | 1 | 2): string {
     row.redfishDq[index],
     row.redfishInches[index],
     row.redfishSpots[index],
+    row.redfishOutOfSlot[index],
   );
 }
 

@@ -8,6 +8,7 @@ import {
   MAX_ANGLERS,
   MIN_ANGLERS,
   PAID_SIDE_POTS,
+  REDFISH_SLOT_RULE,
   SIDE_POT_BUY_IN_CENTS,
   YOUTH_TOURNAMENT,
   paidEntrySeatCount,
@@ -756,7 +757,8 @@ export function RegisterForm({
         <p className="text-sm text-ink/65">
           {formatUsd(SIDE_POT_BUY_IN_CENTS)} per team, per pot — enter one,
           two, or all three. You can also join at Friday&apos;s captain&apos;s
-          meeting.
+          meeting. {REDFISH_SLOT_RULE} Blackjack still has to be 21 inches or
+          under.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {PAID_SIDE_POTS.map((pot) => {

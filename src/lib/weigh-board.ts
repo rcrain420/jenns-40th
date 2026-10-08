@@ -1,4 +1,4 @@
-import { PAID_SIDE_POTS } from "./config.ts";
+import { PAID_SIDE_POTS, REDFISH_SLOT_INCHES } from "./config.ts";
 import {
   blackjackDistanceUnder,
   blackjackLengthEligible,
@@ -9,6 +9,7 @@ import {
   qualifyingStringerTotal,
   rankMainStringers,
   rankSidePot,
+  redfishSlotEligible,
   type PaidPotId,
   type SlotFish,
 } from "./weigh-scoring.ts";
@@ -66,6 +67,8 @@ export type WeighInRankRow = {
   redfishInches: [number | null, number | null, number | null];
   redfishSpots: [number | null, number | null, number | null];
   redfishDq: [boolean, boolean, boolean];
+  /** True when that slot holds a red outside the Texas slot, or a red with no length. */
+  redfishOutOfSlot: [boolean, boolean, boolean];
   totalWeightLbs: number;
   lockedAt: string | null;
 };
@@ -136,7 +139,13 @@ function toSlot(fish: BoardFish | null | undefined): SlotFish | null {
     sequence: fish.sequence,
     disqualified: fish.disqualified,
     taggedTrout: fish.taggedTrout,
+    lengthInches: fish.lengthInches,
   };
+}
+
+function redOutOfSlot(fish: BoardFish | null): boolean {
+  if (!fish || fish.disqualified || fish.species !== "REDFISH") return false;
+  return !redfishSlotEligible(fish.lengthInches);
 }
 
 export function redfishSlots(
@@ -171,6 +180,7 @@ export function buildWeighInStandings(input: {
       redfishInches: [number | null, number | null, number | null];
       redfishSpots: [number | null, number | null, number | null];
       redfishDq: [boolean, boolean, boolean];
+      redfishOutOfSlot: [boolean, boolean, boolean];
     }
   >();
 
@@ -212,6 +222,11 @@ export function buildWeighInStandings(input: {
         Boolean(reds[1]?.disqualified),
         Boolean(reds[2]?.disqualified),
       ],
+      redfishOutOfSlot: [
+        redOutOfSlot(reds[0]),
+        redOutOfSlot(reds[1]),
+        redOutOfSlot(reds[2]),
+      ],
     });
 
     if (stringer.status === "DQ" || (stringer.status === "LOCKED" && live.qualifyingCount === 0)) {
@@ -219,10 +234,16 @@ export function buildWeighInStandings(input: {
         trout?.dqReason ||
         reds.find((fish) => fish?.disqualified && fish.dqReason)?.dqReason ||
         null;
+      const slotMiss = reds.find((fish) => redOutOfSlot(fish));
+      const slotReason = !slotMiss
+        ? null
+        : slotMiss.lengthInches == null
+          ? "Redfish has no length"
+          : `Redfish outside the ${REDFISH_SLOT_INCHES.min}–${REDFISH_SLOT_INCHES.max} inch slot`;
       disqualified.push({
         teamId: team.id,
         teamName: team.teamName,
-        reason: stringer.dqReason?.trim() || fishReason?.trim() || "Disqualified",
+        reason: stringer.dqReason?.trim() || fishReason?.trim() || slotReason || "Disqualified",
       });
       continue;
     }
@@ -253,6 +274,7 @@ export function buildWeighInStandings(input: {
       redfishInches: display?.redfishInches ?? [null, null, null],
       redfishSpots: display?.redfishSpots ?? [null, null, null],
       redfishDq: display?.redfishDq ?? [false, false, false],
+      redfishOutOfSlot: display?.redfishOutOfSlot ?? [false, false, false],
       totalWeightLbs: row.totalWeightLbs,
       lockedAt: row.lockedAt,
     };
@@ -358,14 +380,39 @@ export function buildSidePotStandings(input: {
   return { session: input.session, pots };
 }
 
+/**
+ * Replace stored stringer totals with the live qualifying sum.
+ * Out-of-slot reds stay on the stringer row; they just do not add weight.
+ */
+export function withQualifyingStringerTotals(
+  stringers: BoardStringer[],
+  fish: BoardFish[],
+): BoardStringer[] {
+  const lookup = fishById(fish);
+  return stringers.map((stringer) => {
+    const trout = stringer.troutFishId ? lookup.get(stringer.troutFishId) ?? null : null;
+    const reds = redfishSlots(stringer, lookup);
+    const live = qualifyingStringerTotal({
+      trout: toSlot(trout),
+      redfish: reds.map((row) => toSlot(row)),
+    });
+    return { ...stringer, totalWeightLbs: live.totalWeightLbs };
+  });
+}
+
 /** Public slot cell. Weight stays `12.06 lb`; length and redfish spots follow. */
 export function slotWeightText(
   lbs: number | null,
   dq: boolean,
   inches: number | null = null,
   spots: number | null = null,
+  outOfSlot = false,
 ): string {
   if (dq) return "DQ";
+  if (outOfSlot) {
+    if (inches == null) return "No length";
+    return `Out of slot · ${formatInches(inches)}`;
+  }
   if (lbs == null) return "—";
   const parts = [formatWeightLbs(lbs)];
   if (inches != null) parts.push(formatInches(inches));

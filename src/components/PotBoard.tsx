@@ -1,5 +1,6 @@
 import {
   BOAT_ENTRY_CENTS,
+  REDFISH_SLOT_RULE,
   SIDE_POT_BUY_IN_CENTS,
 } from "@/lib/config";
 import { formatUsd, formatUsdWhole } from "@/lib/money";
@@ -71,7 +72,8 @@ export function PotBoard({ totals }: { totals: PotTotals }) {
         </ul>
         <p className="mt-auto pt-4 text-[0.95rem] text-wave/70 md:text-base">
           {formatUsdWhole(SIDE_POT_BUY_IN_CENTS)} per team, per pot — optional.
-          Join when you register or at Friday&apos;s captain&apos;s meeting.
+          Join when you register or at Friday&apos;s captain&apos;s meeting.{" "}
+          {REDFISH_SLOT_RULE} Blackjack still has to be 21 inches or under.
         </p>
       </div>
     </div>

@@ -5,9 +5,11 @@ import {
   BOAT_ENTRY_CENTS,
   HOST_FUNDED_POTS,
   MAIN_POT_SPLITS,
+  REDFISH_SLOT_RULE,
   SIDE_POT_BUY_IN_CENTS,
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
+import { YOUTH_REDFISH_SLOT_RULE } from "@/lib/youth";
 import { formatUsd } from "@/lib/money";
 import { getCurrentUser } from "@/lib/auth";
 import { getPotTotals } from "@/lib/pots";
@@ -109,7 +111,8 @@ export default async function PotsPage() {
                   RowRide registration
                 </Link>
                 . Enter when you register or at Friday&apos;s captain&apos;s
-                meeting.
+                meeting. {REDFISH_SLOT_RULE} Blackjack still has to be 21
+                inches or under.
               </span>
             </li>
             {HOST_FUNDED_POTS.map((pot) => (
@@ -122,7 +125,7 @@ export default async function PotsPage() {
                   {pot.buyInCents === 0 ? " ($0)" : ""} — host-funded by{" "}
                   {pot.id === "kids" ? "Tournament Host" : "Jenn and Aaron"}
                   {pot.id === "kids"
-                    ? `. ${YOUTH_TOURNAMENT.tagline} Youth Division trophies for biggest redfish, biggest speckled trout, and biggest trash fish — one award per youth angler. Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster and do not take an adult seat. Youth are out of the main stringer and main pot and do not count on a boat team’s paid side pots. To enter a paid side pot, they buy in on their own RowRide entry — $50 per pot.`
+                    ? `. ${YOUTH_TOURNAMENT.tagline} Youth Division trophies for biggest redfish, biggest speckled trout, and biggest trash fish — one award per youth angler. ${YOUTH_REDFISH_SLOT_RULE} Register for RowRide separately. Kids may fish from land or by boat. They are not added to a boat roster and do not take an adult seat. Youth are out of the main stringer and main pot and do not count on a boat team’s paid side pots. To enter a paid side pot, they buy in on their own RowRide entry — $50 per pot.`
                     : ", and every team is already in."}
                   {pot.href ? (
                     <>

@@ -54,6 +54,24 @@ export const REGISTRATION_CLOSES_AT = chicagoWallTime({
   hour: 0,
 });
 
+/**
+ * Texas redfish slot, total length, inclusive on both ends.
+ * 20 inches and 28 inches qualify. Shorter, longer, or a missing length does not.
+ * Rules copy and weigh-in scoring both read this one constant.
+ */
+export const REDFISH_SLOT_INCHES = {
+  min: 20,
+  max: 28,
+} as const;
+
+/** Public rule sentence. Keep it next to the limits so the wording cannot drift. */
+export const REDFISH_SLOT_RULE =
+  `A redfish has to be in the Texas slot — ${REDFISH_SLOT_INCHES.min} to ${REDFISH_SLOT_INCHES.max} inches, total length — to qualify. Out-of-slot reds, and reds with no length, do not count for any redfish category or side pot.`;
+
+/** Shorter line for boards, signup, and the scale console. */
+export const REDFISH_SLOT_BOARD_NOTE =
+  `Slot redfish only: ${REDFISH_SLOT_INCHES.min}–${REDFISH_SLOT_INCHES.max} inches. Out-of-slot reds, and reds with no length, do not count.`;
+
 export const MAX_TEAMS = 25;
 /** Adult main-tournament fishing seats on a paid boat. Youth do not count. */
 export const MIN_ANGLERS = 1;

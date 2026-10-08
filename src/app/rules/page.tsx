@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { PageShell } from "@/components/PageShell";
-import { EVENT, YOUTH_TOURNAMENT } from "@/lib/config";
+import { EVENT, REDFISH_SLOT_INCHES, REDFISH_SLOT_RULE, YOUTH_TOURNAMENT } from "@/lib/config";
+import { YOUTH_REDFISH_SLOT_RULE } from "@/lib/youth";
 import {
   NO_WALKUP_POLICY,
   REGISTRATION_DEADLINE_FULL,
@@ -357,6 +358,7 @@ export default function RulesPage() {
             All fish entered must meet the legal size, bag and possession limits
             in effect on tournament day.
           </p>
+          <p>{REDFISH_SLOT_RULE}</p>
           <p>
             Nothing in these rules gives anyone permission to break the law.
           </p>
@@ -446,7 +448,9 @@ export default function RulesPage() {
             stringer consisting of up to:
           </p>
           <ul className="list-disc space-y-2 pl-5">
-            <li>Three legal redfish; and</li>
+            <li>
+              Three legal slot redfish ({REDFISH_SLOT_INCHES.min}–{REDFISH_SLOT_INCHES.max} inches); and
+            </li>
             <li>One legal spotted seatrout.</li>
           </ul>
           <p>Each team may submit only one main tournament stringer.</p>
@@ -463,6 +467,7 @@ export default function RulesPage() {
             All fish must comply with the Texas Parks and Wildlife Department
             size, bag and possession limits in effect on tournament day.
           </p>
+          <p>{REDFISH_SLOT_RULE}</p>
           <p>
             A fish entered in a paid side pot or bonus category may also be
             included in the main stringer, provided it is otherwise eligible
@@ -525,15 +530,17 @@ export default function RulesPage() {
               <Subhead>Paid Side Pot: Blackjack Redfish</Subhead>
               <div className="mt-3 space-y-3">
                 <p>
-                  The legal redfish measuring closest to 21 inches without going
-                  over wins.
+                  The legal slot redfish ({REDFISH_SLOT_INCHES.min}–{REDFISH_SLOT_INCHES.max} inches) measuring closest to 21
+                  inches without going over wins.
                 </p>
                 <p>
                   Think <em>The Price Is Right</em>, except with redfish.
                 </p>
                 <p>
-                  A redfish measuring more than 21 inches is not eligible for the
-                  Blackjack side pot.
+                  A redfish outside the {REDFISH_SLOT_INCHES.min}–{REDFISH_SLOT_INCHES.max} inch slot does not qualify for
+                  Blackjack. A redfish measuring more than 21 inches is not
+                  eligible for the Blackjack side pot, even if it is still
+                  inside the slot.
                 </p>
                 <p>
                   If two fish have the same measurement, the heavier fish wins. If
@@ -546,8 +553,9 @@ export default function RulesPage() {
               <Subhead>Paid Side Pot: Most Spots</Subhead>
               <div className="mt-3 space-y-3">
                 <p>
-                  The legal redfish with the greatest number of natural tail spots
-                  wins.
+                  The legal slot redfish ({REDFISH_SLOT_INCHES.min}–{REDFISH_SLOT_INCHES.max} inches) with the greatest number of
+                  natural tail spots wins. Out-of-slot reds, and reds with no
+                  length, do not count.
                 </p>
                 <p>
                   Only clearly defined, natural spots located on the tail or tail
@@ -572,9 +580,9 @@ export default function RulesPage() {
               RowRide is a separate free youth tournament. Register for
               RowRide separately. Kids may fish from land or by boat. Youth
               fish never count on a boat team&apos;s paid side pots; kids
-              buy into those pots on their own RowRide entry. Its rules live
-              on the kids page — they are not part of these adult boat
-              rules.
+              buy into those pots on their own RowRide entry.{" "}
+              {YOUTH_REDFISH_SLOT_RULE} Its rules live on the kids page —
+              they are not part of these adult boat rules.
             </p>
             <p>
               <Link
