@@ -83,6 +83,8 @@ Every angler who is required to have a license and saltwater endorsement must ha
 
 All fish entered must meet the legal size, bag and possession limits in effect on tournament day.
 
+A redfish has to be in the Texas slot — 20 to 28 inches, total length — to qualify. Out-of-slot reds, and reds with no length, do not count for any redfish category or side pot.
+
 Nothing in these rules gives anyone permission to break the law.
 
 Basically, make sure your fish, your license and your boat are legal before bringing any of them near the weigh-in.
@@ -152,7 +154,7 @@ Your fish must be your fish. This is not a seafood exchange program.
 
 The main tournament winner will be determined by the heaviest legal stringer consisting of up to:
 
-* Three legal redfish; and
+* Three legal slot redfish (20–28 inches); and
 * One legal spotted seatrout.
 
 Each team may submit only one main tournament stringer.
@@ -162,6 +164,8 @@ The main tournament stringer may include only fish caught by registered adult an
 A complete four-fish stringer is **not required**. Teams may weigh fewer than four fish, and placement will be determined by the greatest total qualifying weight.
 
 All fish must comply with the Texas Parks and Wildlife Department size, bag and possession limits in effect on tournament day.
+
+A redfish has to be in the Texas slot — 20 to 28 inches, total length — to qualify. Out-of-slot reds, and reds with no length, do not count for any redfish category or side pot.
 
 A fish entered in a paid side pot or bonus category may also be included in the main stringer, provided it is otherwise eligible and was caught by a registered adult angler.
 
@@ -191,17 +195,17 @@ In the event of a tie, the fish weighed first wins. There are benefits to not wa
 
 ### Paid Side Pot: Blackjack Redfish
 
-The legal redfish measuring closest to 21 inches without going over wins.
+The legal slot redfish (20–28 inches) measuring closest to 21 inches without going over wins.
 
 Think *The Price Is Right*, except with redfish.
 
-A redfish measuring more than 21 inches is not eligible for the Blackjack side pot.
+A redfish outside the 20–28 inch slot does not qualify for Blackjack. A redfish measuring more than 21 inches is not eligible for the Blackjack side pot, even if it is still inside the slot.
 
 If two fish have the same measurement, the heavier fish wins. If they also weigh the same, the fish weighed first wins.
 
 ### Paid Side Pot: Most Spots
 
-The legal redfish with the greatest number of natural tail spots wins.
+The legal slot redfish (20–28 inches) with the greatest number of natural tail spots wins. Out-of-slot reds, and reds with no length, do not count.
 
 Only clearly defined, natural spots located on the tail or tail base will be counted.
 
@@ -211,7 +215,7 @@ If two fish have the same number of spots, the heavier fish wins. If they also w
 
 ### RowRide Youth Angler Tournament
 
-RowRide is a separate free youth tournament. Register for RowRide separately. Kids may fish from land or by boat. Youth fish never count on a boat team’s paid side pots; kids buy into those pots on their own RowRide entry. Its rules live in `docs/rowride-rules.md` and on `/kids#rules` — they are not part of these adult boat rules.
+RowRide is a separate free youth tournament. Register for RowRide separately. Kids may fish from land or by boat. Youth fish never count on a boat team’s paid side pots; kids buy into those pots on their own RowRide entry. Biggest Redfish has to be a Texas slot fish: 20 to 28 inches, total length. A red outside that slot, or with no length, does not qualify. Its rules live in `docs/rowride-rules.md` and on `/kids#rules` — they are not part of these adult boat rules.
 
 ### Heaviest Saltwater Catfish
 

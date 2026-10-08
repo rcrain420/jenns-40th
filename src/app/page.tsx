@@ -18,9 +18,12 @@ import {
   BOAT_ENTRY_CENTS,
   listedPots,
   MAX_ANGLERS,
+  REDFISH_SLOT_INCHES,
+  REDFISH_SLOT_RULE,
   remainingUntil,
   YOUTH_TOURNAMENT,
 } from "@/lib/config";
+import { YOUTH_REDFISH_SLOT_RULE } from "@/lib/youth";
 import { getPotTotals } from "@/lib/pots";
 import { getOpenWeighSession } from "@/lib/weigh-in";
 import { getRegistrationAvailability } from "@/lib/registration";
@@ -177,6 +180,9 @@ export default async function HomePage() {
             Weigh-in time is final. Late arrivals are disqualified — no
             exceptions, no matter how good the story is.
           </p>
+          <p className="mt-3 text-[0.95rem] leading-relaxed text-wave/75 md:text-[1.05rem]">
+            {REDFISH_SLOT_RULE}
+          </p>
           <p className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[0.95rem] md:text-[1.05rem]">
             <Link
               href="/leaderboard/weigh-in"
@@ -230,11 +236,11 @@ export default async function HomePage() {
             3 REDFISH + 1 TROUT
           </p>
           <p className="text-[1.05rem] leading-relaxed md:text-[1.125rem]">
-            Heaviest legal stringer wins — up to three redfish and one spotted
-            seatrout. A full four-fish stringer is not required. Only fish
-            caught by registered adult (non-youth) anglers count on the main
-            stringer. All fish must meet Texas Parks &amp; Wildlife
-            regulations.
+            Heaviest legal stringer wins — up to three slot redfish ({REDFISH_SLOT_INCHES.min}–{REDFISH_SLOT_INCHES.max} inches) and one
+            spotted seatrout. {REDFISH_SLOT_RULE} A full four-fish stringer is
+            not required. Only fish caught by registered adult (non-youth)
+            anglers count on the main stringer. All fish must meet Texas Parks
+            &amp; Wildlife regulations.
           </p>
           {availability.isOpen ? (
             <Link
@@ -273,13 +279,16 @@ export default async function HomePage() {
             ))}
           </ul>
           <p className="mt-4 text-[0.95rem] text-wave/70 md:text-base">
+            {REDFISH_SLOT_RULE} Blackjack still has to be 21 inches or under.
+          </p>
+          <p className="mt-3 text-[0.95rem] text-wave/70 md:text-base">
             Catfish is free — every team is already in. The{" "}
             <Link href="/kids" className="text-sun underline-offset-2 hover:underline">
               {YOUTH_TOURNAMENT.name}
             </Link>{" "}
             is also free and host-funded — {YOUTH_TOURNAMENT.tagline} Youth
             Division trophies for biggest redfish, biggest speckled trout,
-            and biggest trash fish.
+            and biggest trash fish. {YOUTH_REDFISH_SLOT_RULE}
           </p>
           <p className="mt-3 text-[0.95rem] text-wave/70 md:text-base">
             Register for RowRide separately. Kids may fish from land or by

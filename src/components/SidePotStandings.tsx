@@ -2,7 +2,7 @@
 
 import { LeaderboardPublic } from "@/components/LeaderboardPublic";
 import { useChicagoClock, usePolledBoard } from "@/components/usePolledBoard";
-import { EVENT } from "@/lib/config";
+import { EVENT, REDFISH_SLOT_RULE } from "@/lib/config";
 import { formatUsdWhole } from "@/lib/money";
 import { formatChicagoTime, formatInches, formatWeightLbs } from "@/lib/weigh-scoring";
 import type { SidePotColumn, SidePotLeaderboard } from "@/lib/weigh-board";
@@ -29,7 +29,7 @@ export function SidePotStandings({
       current="side-pots"
       session={board.session}
       pinnedSessionId={pinnedSessionId}
-      footer="Winner takes the pool. AI Brag Board is for fun — these are official scale fish."
+      footer={`Winner takes the pool. AI Brag Board is for fun — these are official scale fish. ${REDFISH_SLOT_RULE} Blackjack still has to be 21 inches or under.`}
     >
       <div className="grid gap-5 lg:grid-cols-3">
         {board.pots.map((pot) => (
@@ -67,7 +67,7 @@ function SidePotTv({ board }: { board: SidePotLeaderboard }) {
       </div>
 
       <footer className="px-8 py-4 text-lg text-paper/75">
-        Winner takes the pool. AI Brag Board is for fun — these are official scale fish. {EVENT.venue}.
+        Winner takes the pool. AI Brag Board is for fun — these are official scale fish. {REDFISH_SLOT_RULE} {EVENT.venue}.
       </footer>
     </div>
   );

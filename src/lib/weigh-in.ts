@@ -5,6 +5,7 @@ import { getPotTotals } from "./pots.ts";
 import {
   buildSidePotStandings,
   buildWeighInStandings,
+  withQualifyingStringerTotals,
   type BoardFish,
   type BoardSession,
   type BoardStringer,
@@ -21,6 +22,7 @@ import {
   isPaidPotId,
   isWeighSpecies,
   qualifyingStringerTotal,
+  redfishSlotError,
   teamBoughtSidePot,
   validateStringerAssignment,
   type PaidPotId,
@@ -68,6 +70,7 @@ function toSlot(fish: WeighedFish): SlotFish {
     sequence: fish.sequence,
     disqualified: fish.disqualified,
     taggedTrout: fish.taggedTrout,
+    lengthInches: fish.lengthInches,
   };
 }
 
@@ -174,11 +177,12 @@ async function loadBoardInputs(session: WeighSession) {
       include: { redfish: { orderBy: { slot: "asc" } } },
     }),
   ]);
+  const boardFish = fish.map(toBoardFish);
   return {
     session: toBoardSession(session),
     teams: teams satisfies BoardTeam[],
-    fish: fish.map(toBoardFish),
-    stringers: stringers.map(toBoardStringer),
+    fish: boardFish,
+    stringers: withQualifyingStringerTotals(stringers.map(toBoardStringer), boardFish),
   };
 }
 
@@ -277,7 +281,19 @@ export async function getWeighAdminData(sessionId?: string | null): Promise<Weig
     teams: inputs.teams,
     fish: inputs.fish,
     stringers: inputs.stringers,
-    sidePotEntries,
+    sidePotEntries: sidePotEntries.map((entry) => {
+      if (!isPaidPotId(entry.potId)) return entry;
+      const fish = inputs.fish.find((row) => row.id === entry.weighedFishId);
+      const team = inputs.teams.find((row) => row.id === entry.teamId);
+      if (!fish || !team) return entry;
+      const evaluation = evaluateSidePot(entry.potId, fish, team.sidePots);
+      return {
+        ...entry,
+        eligible: evaluation.eligible,
+        ineligibleReason: evaluation.reason,
+        metricLabel: evaluation.metricLabel,
+      };
+    }),
   };
 }
 
@@ -332,10 +348,13 @@ export async function saveWeighedFish(input: {
   if (!team) throw new WeighInError("Team not found", 404);
 
   const species = input.species;
-  const needsLength = species === "TROUT" || species === "REDFISH";
   const needsSpots = species === "REDFISH";
   assertWeight(input.weightLbs);
-  assertLength(input.lengthInches, needsLength);
+  assertLength(input.lengthInches, species === "TROUT");
+  if (species === "REDFISH" && !input.disqualified) {
+    const slotError = redfishSlotError(input.lengthInches);
+    if (slotError) throw new WeighInError(slotError);
+  }
   assertSpots(input.spotCount, needsSpots);
   const taggedTrout = species === "TROUT" && input.taggedTrout;
   const dqReason = input.dqReason?.trim() || null;
@@ -952,7 +971,14 @@ export async function weighInResultsCsv(sessionId: string): Promise<{ filename: 
     const potCell = (potId: string) => {
       const entry = entries.find((row) => row.teamId === team.id && row.potId === potId);
       if (!entry) return "";
-      return entry.eligible ? entry.metricLabel : `ineligible: ${entry.ineligibleReason ?? ""}`;
+      const fish = inputs.fish.find((row) => row.id === entry.weighedFishId);
+      if (!fish || !isPaidPotId(potId)) {
+        return entry.eligible ? entry.metricLabel : `ineligible: ${entry.ineligibleReason ?? ""}`;
+      }
+      const evaluation = evaluateSidePot(potId, fish, team.sidePots);
+      return evaluation.eligible
+        ? evaluation.metricLabel
+        : `ineligible: ${evaluation.reason ?? ""}`;
     };
     lines.push(
       [

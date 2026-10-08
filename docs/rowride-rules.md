@@ -20,6 +20,8 @@ These are the kids / RowRide rules. Adult boat tournament rules are separate —
 - Biggest Speckled Trout — 1st Place
 - Biggest Trash Fish — 1st Place
 
+Biggest Redfish has to be a Texas slot fish: 20 to 28 inches, total length. A red outside that slot, or with no length, does not qualify.
+
 A youth angler may only win one Youth Division award. See section 5 for how weigh-in hosts assign leftover awards.
 
 ## 1. A separate free tournament
@@ -63,6 +65,10 @@ A youth angler may only win one Youth Division award. If the same kid brings in 
 At the scale: start with the heaviest qualifying fish in each category. If one kid would win more than one award, they keep the award they win by the most — usually their heaviest fish, or the one with the biggest lead over second place. Each leftover award goes to the next heaviest qualifying fish in that category from a kid who has not already won. If two fish in the same category weigh the same, the one weighed first wins. If it is still a toss-up, the Weighmaster decides, and that call is final.
 
 A qualifying fish must be legal, caught during tournament hours, presented whole and accepted by the Weighmaster. Official results come from weigh-in, not from AI Livewell estimates.
+
+Biggest Redfish has to be a Texas slot fish: 20 to 28 inches, total length. A red outside that slot, or with no length, does not qualify.
+
+A redfish has to be in the Texas slot — 20 to 28 inches, total length — to qualify. Out-of-slot reds, and reds with no length, do not count for any redfish category or side pot.
 
 The youth angler must personally hook the fish and land it. Adults may help with safety. The child needs to do the fishing.
 

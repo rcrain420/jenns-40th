@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   ENTRY_KIND,
   PAID_SIDE_POTS,
+  REDFISH_SLOT_RULE,
   SIDE_POT_BUY_IN_CENTS,
   amountDueForEntry,
   isYouthLandEntry,
@@ -459,7 +460,7 @@ export function AdminTeamEditor({ mode, teamId, initial }: Props) {
         <p className="text-sm text-ink/60">
           {formatUsd(SIDE_POT_BUY_IN_CENTS)} per entry, per pot. RowRide
           base stays $0; pots they choose add $50 each. Youth fish never
-          count on a boat team&apos;s pots.
+          count on a boat team&apos;s pots. {REDFISH_SLOT_RULE}
         </p>
         <div className="grid gap-2 sm:grid-cols-3">
           {PAID_SIDE_POTS.map((pot) => (

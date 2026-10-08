@@ -14,6 +14,8 @@ import {
   rankMainStringers,
   rankSidePot,
   teamBoughtSidePot,
+  redfishSlotEligible,
+  redfishSlotError,
   troutLengthEligible,
   validateStringerAssignment,
   weightLbsFromLbsOz,
@@ -102,6 +104,74 @@ describe("trout window", () => {
       ranked.map((row) => row.teamId),
       ["heavy", "early", "late"],
     );
+  });
+});
+
+describe("redfish slot", () => {
+  it("accepts 20 and 28 and rejects 19.99, 28.01, and a missing length", () => {
+    assert.equal(redfishSlotEligible(19.99), false);
+    assert.equal(redfishSlotEligible(20), true);
+    assert.equal(redfishSlotEligible(28), true);
+    assert.equal(redfishSlotEligible(28.01), false);
+    assert.equal(redfishSlotEligible(null), false);
+    assert.equal(redfishSlotEligible(undefined), false);
+    assert.match(redfishSlotError(19.99), /20–28/);
+    assert.match(redfishSlotError(28.01), /20–28/);
+    assert.match(redfishSlotError(null), /no length|Enter a length/i);
+    assert.equal(redfishSlotError(20), null);
+    assert.equal(redfishSlotError(28), null);
+  });
+
+  it("keeps out-of-slot and unmeasured reds out of the stringer total", () => {
+    const score = qualifyingStringerTotal({
+      trout: trout({ weightLbs: 2 }),
+      redfish: [
+        redfish({ id: "in", weightLbs: 5, lengthInches: 20 }),
+        redfish({ id: "top", weightLbs: 4, lengthInches: 28 }),
+        redfish({ id: "short", weightLbs: 9, lengthInches: 19.99 }),
+        redfish({ id: "long", weightLbs: 8, lengthInches: 28.01 }),
+        redfish({ id: "blank", weightLbs: 7, lengthInches: null }),
+      ],
+    });
+    assert.equal(score.totalWeightLbs, 11);
+    assert.equal(score.qualifyingCount, 3);
+  });
+
+  it("refuses to slot an out-of-slot or unmeasured red", () => {
+    for (const lengthInches of [19.99, 28.01, null]) {
+      const blocked = validateStringerAssignment({
+        trout: null,
+        redfish: [redfish({ lengthInches })],
+      });
+      assert.equal(blocked.ok, false);
+      assert.match(blocked.error, /20/);
+      assert.match(blocked.error, /28/);
+    }
+    const edges = validateStringerAssignment({
+      trout: null,
+      redfish: [
+        redfish({ id: "low", lengthInches: 20, weightLbs: 3 }),
+        redfish({ id: "high", lengthInches: 28, weightLbs: 4 }),
+      ],
+    });
+    assert.equal(edges.ok, true);
+    if (edges.ok) assert.equal(edges.score.totalWeightLbs, 7);
+  });
+
+  it("keeps blackjack and spots inside the slot, including the edges", () => {
+    const bought = ["blackjack", "spots"];
+    for (const lengthInches of [19.99, 28.01, null]) {
+      const blackjack = evaluateSidePot("blackjack", redfish({ lengthInches }), bought);
+      const spots = evaluateSidePot("spots", redfish({ lengthInches, spotCount: 6 }), bought);
+      assert.equal(blackjack.eligible, false, `blackjack ${lengthInches}`);
+      assert.equal(spots.eligible, false, `spots ${lengthInches}`);
+    }
+    assert.equal(evaluateSidePot("blackjack", redfish({ lengthInches: 20 }), bought).eligible, true);
+    assert.equal(evaluateSidePot("blackjack", redfish({ lengthInches: 21 }), bought).eligible, true);
+    assert.equal(evaluateSidePot("blackjack", redfish({ lengthInches: 28 }), bought).eligible, false);
+    assert.match(evaluateSidePot("blackjack", redfish({ lengthInches: 28 }), bought).reason, /Over 21/);
+    assert.equal(evaluateSidePot("spots", redfish({ lengthInches: 20, spotCount: 1 }), bought).eligible, true);
+    assert.equal(evaluateSidePot("spots", redfish({ lengthInches: 28, spotCount: 4 }), bought).eligible, true);
   });
 });
 
@@ -630,11 +700,213 @@ describe("standings boards", () => {
       slotWeightText(row.redfishLbs[0], row.redfishDq[0], row.redfishInches[0], row.redfishSpots[0]),
       "DQ",
     );
+    assert.equal(row.redfishOutOfSlot[1], true);
+    assert.equal(row.redfishOutOfSlot[0], false);
     assert.equal(
-      slotWeightText(row.redfishLbs[1], row.redfishDq[1], row.redfishInches[1], row.redfishSpots[1]),
-      "4.25 lb · 18.5 in · 1 spot",
+      slotWeightText(
+        row.redfishLbs[1],
+        row.redfishDq[1],
+        row.redfishInches[1],
+        row.redfishSpots[1],
+        row.redfishOutOfSlot[1],
+      ),
+      "Out of slot · 18.5 in",
     );
-    assert.equal(row.totalWeightLbs, 16.31);
+    assert.equal(row.totalWeightLbs, 12.06);
+  });
+
+  it("leaves an out-of-slot or unmeasured red out of the team total", () => {
+    const board = buildWeighInStandings({
+      session,
+      teams: [
+        { id: "slot", teamName: "In the slot", entryKind: "BOAT", sidePots: ["spots", "blackjack"] },
+        { id: "over", teamName: "Over slot", entryKind: "BOAT", sidePots: ["spots"] },
+        { id: "blank", teamName: "No length", entryKind: "BOAT", sidePots: ["blackjack"] },
+      ],
+      fish: [
+        {
+          id: "slot-red",
+          teamId: "slot",
+          species: "REDFISH",
+          weightLbs: 4,
+          lengthInches: 22,
+          spotCount: 2,
+          weighedAt: "2026-10-10T17:00:00.000Z",
+          sequence: 1,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "over-red",
+          teamId: "over",
+          species: "REDFISH",
+          weightLbs: 15,
+          lengthInches: 28.01,
+          spotCount: 9,
+          weighedAt: "2026-10-10T17:01:00.000Z",
+          sequence: 2,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "blank-red",
+          teamId: "blank",
+          species: "REDFISH",
+          weightLbs: 11,
+          lengthInches: null,
+          spotCount: 4,
+          weighedAt: "2026-10-10T17:02:00.000Z",
+          sequence: 3,
+          disqualified: false,
+          taggedTrout: false,
+        },
+      ],
+      stringers: [
+        {
+          teamId: "slot",
+          status: "LOCKED",
+          troutFishId: null,
+          redfish: [{ slot: 1, weighedFishId: "slot-red" }],
+          totalWeightLbs: 4,
+          lockedAt: "2026-10-10T17:10:00.000Z",
+          dqReason: null,
+        },
+        {
+          teamId: "over",
+          status: "LOCKED",
+          troutFishId: null,
+          redfish: [{ slot: 1, weighedFishId: "over-red" }],
+          totalWeightLbs: 15,
+          lockedAt: "2026-10-10T17:11:00.000Z",
+          dqReason: null,
+        },
+        {
+          teamId: "blank",
+          status: "LOCKED",
+          troutFishId: null,
+          redfish: [{ slot: 1, weighedFishId: "blank-red" }],
+          totalWeightLbs: 11,
+          lockedAt: "2026-10-10T17:12:00.000Z",
+          dqReason: null,
+        },
+      ],
+    });
+    assert.deepEqual(
+      board.ranks.map((row) => row.teamName),
+      ["In the slot"],
+    );
+    assert.equal(board.ranks[0].totalWeightLbs, 4);
+    assert.deepEqual(
+      board.disqualified.map((row) => row.teamName).sort(),
+      ["No length", "Over slot"],
+    );
+
+    const pots = buildSidePotStandings({
+      session,
+      teams: [
+        { id: "slot", teamName: "In the slot", entryKind: "BOAT", sidePots: ["spots", "blackjack"] },
+        { id: "over", teamName: "Over slot", entryKind: "BOAT", sidePots: ["spots", "blackjack"] },
+        { id: "blank", teamName: "No length", entryKind: "BOAT", sidePots: ["spots", "blackjack"] },
+        { id: "low", teamName: "Just short", entryKind: "BOAT", sidePots: ["blackjack", "spots"] },
+        { id: "edge", teamName: "On the nose", entryKind: "BOAT", sidePots: ["blackjack", "spots"] },
+      ],
+      fish: [
+        {
+          id: "slot-red",
+          teamId: "slot",
+          species: "REDFISH",
+          weightLbs: 4,
+          lengthInches: 22,
+          spotCount: 2,
+          weighedAt: "2026-10-10T17:00:00.000Z",
+          sequence: 1,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "over-red",
+          teamId: "over",
+          species: "REDFISH",
+          weightLbs: 15,
+          lengthInches: 28.01,
+          spotCount: 9,
+          weighedAt: "2026-10-10T17:01:00.000Z",
+          sequence: 2,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "blank-red",
+          teamId: "blank",
+          species: "REDFISH",
+          weightLbs: 11,
+          lengthInches: null,
+          spotCount: 4,
+          weighedAt: "2026-10-10T17:02:00.000Z",
+          sequence: 3,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "low-red",
+          teamId: "low",
+          species: "REDFISH",
+          weightLbs: 8,
+          lengthInches: 19.99,
+          spotCount: 7,
+          weighedAt: "2026-10-10T17:03:00.000Z",
+          sequence: 4,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "edge-red",
+          teamId: "edge",
+          species: "REDFISH",
+          weightLbs: 6,
+          lengthInches: 20,
+          spotCount: 3,
+          weighedAt: "2026-10-10T17:04:00.000Z",
+          sequence: 5,
+          disqualified: false,
+          taggedTrout: false,
+        },
+        {
+          id: "top-red",
+          teamId: "slot",
+          species: "REDFISH",
+          weightLbs: 5,
+          lengthInches: 28,
+          spotCount: 5,
+          weighedAt: "2026-10-10T17:05:00.000Z",
+          sequence: 6,
+          disqualified: false,
+          taggedTrout: false,
+        },
+      ],
+      entries: [
+        { potId: "blackjack", teamId: "slot", weighedFishId: "slot-red" },
+        { potId: "blackjack", teamId: "over", weighedFishId: "over-red" },
+        { potId: "blackjack", teamId: "blank", weighedFishId: "blank-red" },
+        { potId: "blackjack", teamId: "low", weighedFishId: "low-red" },
+        { potId: "blackjack", teamId: "edge", weighedFishId: "edge-red" },
+        { potId: "spots", teamId: "slot", weighedFishId: "top-red" },
+        { potId: "spots", teamId: "over", weighedFishId: "over-red" },
+        { potId: "spots", teamId: "blank", weighedFishId: "blank-red" },
+        { potId: "spots", teamId: "low", weighedFishId: "low-red" },
+      ],
+      pools: [],
+    });
+    const blackjack = pots.pots.find((pot) => pot.id === "blackjack");
+    const spots = pots.pots.find((pot) => pot.id === "spots");
+    assert.deepEqual(
+      blackjack.leaders.map((row) => row.teamName),
+      ["On the nose"],
+    );
+    assert.deepEqual(
+      spots.leaders.map((row) => row.teamName),
+      ["In the slot"],
+    );
   });
 
   it("does not put an ineligible or unpaid pot fish on the side-pot board", () => {
