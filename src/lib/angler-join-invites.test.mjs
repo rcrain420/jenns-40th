@@ -101,6 +101,21 @@ describe("admin edit join invites", () => {
     );
   });
 
+  it("accepts a previous roster that only has emails", () => {
+    const recipients = anglersNewlyAddedForJoinInvite({
+      previous: [{ email: "pat@example.com" }, { email: null }],
+      next: [
+        { fullName: "Pat", email: "pat@example.com" },
+        { fullName: "New Adult", email: "new@example.com" },
+        { fullName: "Rowan", email: "youth@example.com", isYouth: true },
+      ],
+    });
+    assert.deepEqual(
+      recipients.map((r) => ({ name: r.fullName, email: r.email })),
+      [{ name: "New Adult", email: "new@example.com" }],
+    );
+  });
+
   it("does not re-invite the roster when nobody new was added", () => {
     const recipients = anglersNewlyAddedForJoinInvite({
       previous: [{ fullName: "Pat", email: "pat@example.com" }],

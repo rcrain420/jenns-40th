@@ -25,12 +25,20 @@ function normalizedEmail(email: string | null | undefined): string {
 }
 
 /**
+ * Prior roster rows. Admin edit selects email only; the name is unused
+ * when deciding who was already on the boat.
+ */
+export type PreviousJoinAngler = {
+  email?: string | null;
+};
+
+/**
  * Admin edit recipients. Only adult seats whose email was not already on
  * the roster. Already-joined team members are dropped when their emails
  * are passed in. Youth, blank, and duplicate emails stay out.
  */
 export function anglersNewlyAddedForJoinInvite<T extends JoinInviteAngler>(input: {
-  previous: readonly JoinInviteAngler[];
+  previous: readonly PreviousJoinAngler[];
   next: readonly T[];
   joinedEmails?: readonly string[];
 }): Array<T & { email: string }> {
